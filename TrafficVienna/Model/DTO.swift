@@ -72,5 +72,8 @@ struct DepartureTime: Decodable {
 //https://www.wienerlinien.at/ogd_realtime/monitor?stopId=4113&activateTrafficInfo=stoerunglang&activateTrafficInfo=information у відповіді з’явиться trafficInfos[] із ремонтами, збоями, ліфтами тощо
 //https://www.wienerlinien.at/ogd_realtime/trafficInfoList Усі актуальні події
 //https://www.wienerlinien.at/ogd_realtime/trafficInfoList?relatedLine=O Тільки для трамвая O
+
+
+
 //https://www.wienerlinien.at/ogd_realtime/trafficInfo?name=bms_I20251026-0026 поверне повний опис, час дії, лінії, зупинки тощо
 //https://www.wienerlinien.at/ogd_routing/XML_STOPFINDER_REQUEST?locationServerActive=1&outputFormat=JSON&type_sf=any&name_sf=Hauptbahnhof поверне DIVA, RBL, назву та координати
