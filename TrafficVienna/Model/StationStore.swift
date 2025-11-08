@@ -7,13 +7,15 @@
 
 import Foundation
 
-struct Station: Decodable {
+struct Station: Decodable, Identifiable {
+    let id: String
     let diva: String
     let name: String
     let lat: Double
     let lon: Double
 
     enum CodingKeys: String, CodingKey {
+        case id   = "HALTESTELLEN_ID"
         case diva = "DIVA"
         case name = "NAME"
         case lat  = "WGS84_LAT"
@@ -22,6 +24,25 @@ struct Station: Decodable {
 }
 
 
+protocol StationStoring {
+    var stations: [Station] { get }
+    func diva(forExact name: String) -> String?
+}
 
 
+final class StationStore: StationStoring {
 
+    
+    private(set) var stations: [Station] = []
+    
+    init() { }
+    
+    private func loadStations() {
+
+    }
+    
+    
+    func diva(forExact name: String) -> String? {
+        <#code#>
+    }
+}
