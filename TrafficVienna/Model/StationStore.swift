@@ -35,14 +35,33 @@ final class StationStore: StationStoring {
     
     private(set) var stations: [Station] = []
     
-    init() { }
+    init() { loadStations() }
     
     private func loadStations() {
-
+        guard let url = Bundle.main.url(
+            forResource: "wienerlinien-ogd-haltestellen", withExtension: "json") else { print("Json was not found");
+        return}
+        
+        do {
+            let data = try Data(contentsOf: url)
+            stations = try JSONDecoder().decode([Station].self, from: data)
+            print("loaded stations: \(stations.count)")
+        } catch {
+            print("decode error:", error)
+        }
     }
     
     
     func diva(forExact name: String) -> String? {
-        <#code#>
+        let q = normalize(name)
+        
+        return stations.first { normalize($0.name) == q }?.diva
+    }
+    
+    private func normalize(_ s: String) -> String {
+        s.folding(options: .diacriticInsensitive, locale: .current)
+         .replacingOccurrences(of: "ß", with: "ss")
+         .lowercased()
+         .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
