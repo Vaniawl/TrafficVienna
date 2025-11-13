@@ -6,11 +6,27 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		AF20B2472EC254DF004B34AC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AF8F2D602EBDE79300E69513 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AF8F2D672EBDE79300E69513;
+			remoteInfo = TrafficVienna;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		AF20B2432EC254DF004B34AC /* TrafficViennaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TrafficViennaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF8F2D682EBDE79300E69513 /* TrafficVienna.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrafficVienna.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		AF20B2442EC254DF004B34AC /* TrafficViennaTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = TrafficViennaTests;
+			sourceTree = "<group>";
+		};
 		AF8F2D6A2EBDE79300E69513 /* TrafficVienna */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = TrafficVienna;
@@ -19,6 +35,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		AF20B2402EC254DF004B34AC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AF8F2D652EBDE79300E69513 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -33,6 +56,7 @@
 			isa = PBXGroup;
 			children = (
 				AF8F2D6A2EBDE79300E69513 /* TrafficVienna */,
+				AF20B2442EC254DF004B34AC /* TrafficViennaTests */,
 				AF8F2D692EBDE79300E69513 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				AF8F2D682EBDE79300E69513 /* TrafficVienna.app */,
+				AF20B2432EC254DF004B34AC /* TrafficViennaTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,6 +73,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		AF20B2422EC254DF004B34AC /* TrafficViennaTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AF20B24B2EC254DF004B34AC /* Build configuration list for PBXNativeTarget "TrafficViennaTests" */;
+			buildPhases = (
+				AF20B23F2EC254DF004B34AC /* Sources */,
+				AF20B2402EC254DF004B34AC /* Frameworks */,
+				AF20B2412EC254DF004B34AC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AF20B2482EC254DF004B34AC /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				AF20B2442EC254DF004B34AC /* TrafficViennaTests */,
+			);
+			name = TrafficViennaTests;
+			packageProductDependencies = (
+			);
+			productName = TrafficViennaTests;
+			productReference = AF20B2432EC254DF004B34AC /* TrafficViennaTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		AF8F2D672EBDE79300E69513 /* TrafficVienna */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AF8F2D732EBDE79400E69513 /* Build configuration list for PBXNativeTarget "TrafficVienna" */;
@@ -80,6 +128,10 @@
 				LastSwiftUpdateCheck = 2610;
 				LastUpgradeCheck = 2610;
 				TargetAttributes = {
+					AF20B2422EC254DF004B34AC = {
+						CreatedOnToolsVersion = 26.1;
+						TestTargetID = AF8F2D672EBDE79300E69513;
+					};
 					AF8F2D672EBDE79300E69513 = {
 						CreatedOnToolsVersion = 26.1;
 					};
@@ -100,11 +152,19 @@
 			projectRoot = "";
 			targets = (
 				AF8F2D672EBDE79300E69513 /* TrafficVienna */,
+				AF20B2422EC254DF004B34AC /* TrafficViennaTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		AF20B2412EC254DF004B34AC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AF8F2D662EBDE79300E69513 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -115,6 +175,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		AF20B23F2EC254DF004B34AC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AF8F2D642EBDE79300E69513 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -124,7 +191,55 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		AF20B2482EC254DF004B34AC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AF8F2D672EBDE79300E69513 /* TrafficVienna */;
+			targetProxy = AF20B2472EC254DF004B34AC /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		AF20B2492EC254DF004B34AC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = wellbe.TrafficViennaTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TrafficVienna.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TrafficVienna";
+			};
+			name = Debug;
+		};
+		AF20B24A2EC254DF004B34AC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = wellbe.TrafficViennaTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TrafficVienna.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TrafficVienna";
+			};
+			name = Release;
+		};
 		AF8F2D712EBDE79400E69513 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -251,7 +366,9 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_TESTING_SEARCH_PATHS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -282,7 +399,9 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_TESTING_SEARCH_PATHS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -309,6 +428,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		AF20B24B2EC254DF004B34AC /* Build configuration list for PBXNativeTarget "TrafficViennaTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AF20B2492EC254DF004B34AC /* Debug */,
+				AF20B24A2EC254DF004B34AC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		AF8F2D632EBDE79300E69513 /* Build configuration list for PBXProject "TrafficVienna" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

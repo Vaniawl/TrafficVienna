@@ -6,10 +6,11 @@
 //
 
 import Foundation
+import Combine
 
 struct Station: Decodable, Identifiable {
-    let id: String
-    let diva: String
+    let id: Int
+    let diva: Int?
     let name: String
     let lat: Double
     let lon: Double
@@ -30,32 +31,46 @@ protocol StationStoring {
 }
 
 
-final class StationStore: StationStoring {
+final class StationStore: ObservableObject ,StationStoring {
 
     
-    private(set) var stations: [Station] = []
+    @Published private(set) var stations: [Station] = []
     
-    init() { loadStations() }
+    init() {
+        print("Init StationStore")
+        loadStations() }
     
     private func loadStations() {
+        print("loadStations called")
         guard let url = Bundle.main.url(
-            forResource: "wienerlinien-ogd-haltestellen", withExtension: "json") else { print("Json was not found");
-        return}
-        
+            forResource: "wienerlinien-ogd-haltestellen",
+            withExtension: "json") else {
+            print(" JSON file NOT FOUND in bundle")
+            return
+        }
+        print("✅ JSON file found at: \(url)")
+
         do {
             let data = try Data(contentsOf: url)
-            stations = try JSONDecoder().decode([Station].self, from: data)
-            print("loaded stations: \(stations.count)")
+            print("✅ Loaded raw data, size: \(data.count) bytes")
+
+            let decoded = try JSONDecoder().decode([Station].self, from: data)
+            print("loaded stations: \(decoded.count)")
+            
+            stations = decoded
         } catch {
-            print("decode error:", error)
+            print("Failed to decode stations:", error)
         }
     }
     
     
     func diva(forExact name: String) -> String? {
         let q = normalize(name)
-        
-        return stations.first { normalize($0.name) == q }?.diva
+        if let exact = stations.first(where: { normalize($0.name) == q }),
+           let diva = exact.diva {
+            return String(diva)
+        }
+        return nil
     }
     
     private func normalize(_ s: String) -> String {
