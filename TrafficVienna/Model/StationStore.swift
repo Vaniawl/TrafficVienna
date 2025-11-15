@@ -27,13 +27,14 @@ struct Station: Decodable, Identifiable {
 
 protocol StationStoring {
     var stations: [Station] { get }
-    func diva(forExact name: String) -> String?
+    func diva(forExact name: String) -> Int?
+    func stationsSuggestion(matching query: String) -> [Station]
 }
 
 
 final class StationStore: ObservableObject ,StationStoring {
-
-    
+  
+ 
     @Published private(set) var stations: [Station] = []
     
     init() {
@@ -48,11 +49,11 @@ final class StationStore: ObservableObject ,StationStoring {
             print(" JSON file NOT FOUND in bundle")
             return
         }
-        print("✅ JSON file found at: \(url)")
+        print("JSON file found at: \(url)")
 
         do {
             let data = try Data(contentsOf: url)
-            print("✅ Loaded raw data, size: \(data.count) bytes")
+            print("Loaded raw data, size: \(data.count) bytes")
 
             let decoded = try JSONDecoder().decode([Station].self, from: data)
             print("loaded stations: \(decoded.count)")
@@ -64,11 +65,11 @@ final class StationStore: ObservableObject ,StationStoring {
     }
     
     
-    func diva(forExact name: String) -> String? {
+    func diva(forExact name: String) -> Int? {
         let q = normalize(name)
         if let exact = stations.first(where: { normalize($0.name) == q }),
            let diva = exact.diva {
-            return String(diva)
+            return diva
         }
         return nil
     }
@@ -78,5 +79,15 @@ final class StationStore: ObservableObject ,StationStoring {
          .replacingOccurrences(of: "ß", with: "ss")
          .lowercased()
          .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
+    func stationsSuggestion(matching query: String) -> [Station] {
+        let q = normalize(query)
+        
+        guard !q.isEmpty else { return [] }
+        
+        return stations.filter { station in
+            normalize(station.name).contains(q)
+        }
     }
 }

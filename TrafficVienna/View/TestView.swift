@@ -10,15 +10,38 @@ import SwiftUI
 struct TestView: View {
     @StateObject private var store = StationStore()
     @State private var query = ""
-    @State private var diva: String? = nil
+    @State private var diva: Int? = nil
+    
+    var suggestions: [Station] {
+        store.stationsSuggestion(matching: query)
+    }
     
     var body: some View {
         VStack(spacing: 20) {
+            
             Text("Loaded stations: \(store.stations.count)")
             
             TextField("Enter the name stop...", text: $query)
                 .textFieldStyle(.roundedBorder)
             
+            if !suggestions.isEmpty {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 10) {
+                        ForEach(suggestions.prefix(10), id: \.id) { station in
+                            NavigationLink {
+                                TestView2(vm: StationDetailViewModel(station: station))
+                            } label: {
+                                HStack {
+                                    Text(station.name)
+                                    Spacer()
+                                    
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             Button("Find Diva") {
                 diva = store.diva(forExact: query)
             }
@@ -31,7 +54,7 @@ struct TestView: View {
         }
         .padding()
         .onAppear {
-            print("🟡 TestView appeared, stations: \(store.stations.count)")
+            print("TestView appeared, stations: \(store.stations.count)")
         }
     }
 }
