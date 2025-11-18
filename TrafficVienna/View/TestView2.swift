@@ -44,15 +44,19 @@ struct TestView2: View {
                             ForEach(monitorItem.lines.indices, id: \.self) { lineIndex in
                                 let line = monitorItem.lines[lineIndex]
                                 
-                                VStack(alignment: .leading, spacing: 16) {
-                                    Text("\(line.name) → \(line.towards)")
-                                        .font(.headline)
-                                    
-                                    Text("Departures: \(line.departures.departure.count)")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
+                                NavigationLink {
+                                    TestView3(line: line)
+                                } label: {
+                                    VStack(alignment: .leading, spacing: 16) {
+                                        Text("\(line.name) → \(line.towards)")
+                                            .font(.headline)
+                                        
+                                        Text("Departures: \(line.departures.departure.count)")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    .padding(.vertical, 4)
                                 }
-                                .padding(.vertical, 4)
                             }
                         }
                     }

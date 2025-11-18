@@ -63,7 +63,6 @@ struct DepartureTime: Decodable {
 
 
 
-
 //https://www.wienerlinien.at/ogd_realtime/
 
 //https://www.wienerlinien.at/ogd_realtime/monitor?stopId=4113 одна платформа(дає всі рейси, що проходять через цю платформу)
