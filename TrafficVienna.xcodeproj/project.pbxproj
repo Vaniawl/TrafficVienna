@@ -6,11 +6,63 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		AF8A82AE2ED30A1C00286504 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF8A82AD2ED30A1C00286504 /* WidgetKit.framework */; };
+		AF8A82B02ED30A1C00286504 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF8A82AF2ED30A1C00286504 /* SwiftUI.framework */; };
+		AF8A82BD2ED30A1D00286504 /* TrafficViennaWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AF8A82AB2ED30A1C00286504 /* TrafficViennaWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		AF8A82BB2ED30A1D00286504 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AF8F2D602EBDE79300E69513 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AF8A82AA2ED30A1C00286504;
+			remoteInfo = TrafficViennaWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		AF8A82C22ED30A1D00286504 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				AF8A82BD2ED30A1D00286504 /* TrafficViennaWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		AF0D9EF52ED5C5D7005FD8FB /* TrafficViennaWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TrafficViennaWidgetExtension.entitlements; sourceTree = "<group>"; };
+		AF8A82AB2ED30A1C00286504 /* TrafficViennaWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TrafficViennaWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		AF8A82AD2ED30A1C00286504 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		AF8A82AF2ED30A1C00286504 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		AF8F2D682EBDE79300E69513 /* TrafficVienna.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrafficVienna.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AF8A82BE2ED30A1D00286504 /* Exceptions for "TrafficViennaWidget" folder in "TrafficViennaWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = AF8A82AA2ED30A1C00286504 /* TrafficViennaWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		AF8A82B12ED30A1C00286504 /* TrafficViennaWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AF8A82BE2ED30A1D00286504 /* Exceptions for "TrafficViennaWidget" folder in "TrafficViennaWidgetExtension" target */,
+			);
+			path = TrafficViennaWidget;
+			sourceTree = "<group>";
+		};
 		AF8F2D6A2EBDE79300E69513 /* TrafficVienna */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = TrafficVienna;
@@ -19,6 +71,15 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		AF8A82A82ED30A1C00286504 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AF8A82B02ED30A1C00286504 /* SwiftUI.framework in Frameworks */,
+				AF8A82AE2ED30A1C00286504 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AF8F2D652EBDE79300E69513 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -29,10 +90,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AF8A82AC2ED30A1C00286504 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				AF8A82AD2ED30A1C00286504 /* WidgetKit.framework */,
+				AF8A82AF2ED30A1C00286504 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		AF8F2D5F2EBDE79300E69513 = {
 			isa = PBXGroup;
 			children = (
+				AF0D9EF52ED5C5D7005FD8FB /* TrafficViennaWidgetExtension.entitlements */,
 				AF8F2D6A2EBDE79300E69513 /* TrafficVienna */,
+				AF8A82B12ED30A1C00286504 /* TrafficViennaWidget */,
+				AF8A82AC2ED30A1C00286504 /* Frameworks */,
 				AF8F2D692EBDE79300E69513 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +114,7 @@
 			isa = PBXGroup;
 			children = (
 				AF8F2D682EBDE79300E69513 /* TrafficVienna.app */,
+				AF8A82AB2ED30A1C00286504 /* TrafficViennaWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,6 +122,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		AF8A82AA2ED30A1C00286504 /* TrafficViennaWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AF8A82BF2ED30A1D00286504 /* Build configuration list for PBXNativeTarget "TrafficViennaWidgetExtension" */;
+			buildPhases = (
+				AF8A82A72ED30A1C00286504 /* Sources */,
+				AF8A82A82ED30A1C00286504 /* Frameworks */,
+				AF8A82A92ED30A1C00286504 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AF8A82B12ED30A1C00286504 /* TrafficViennaWidget */,
+			);
+			name = TrafficViennaWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = TrafficViennaWidgetExtension;
+			productReference = AF8A82AB2ED30A1C00286504 /* TrafficViennaWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		AF8F2D672EBDE79300E69513 /* TrafficVienna */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AF8F2D732EBDE79400E69513 /* Build configuration list for PBXNativeTarget "TrafficVienna" */;
@@ -55,10 +151,12 @@
 				AF8F2D642EBDE79300E69513 /* Sources */,
 				AF8F2D652EBDE79300E69513 /* Frameworks */,
 				AF8F2D662EBDE79300E69513 /* Resources */,
+				AF8A82C22ED30A1D00286504 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				AF8A82BC2ED30A1D00286504 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				AF8F2D6A2EBDE79300E69513 /* TrafficVienna */,
@@ -80,6 +178,9 @@
 				LastSwiftUpdateCheck = 2610;
 				LastUpgradeCheck = 2610;
 				TargetAttributes = {
+					AF8A82AA2ED30A1C00286504 = {
+						CreatedOnToolsVersion = 26.1.1;
+					};
 					AF8F2D672EBDE79300E69513 = {
 						CreatedOnToolsVersion = 26.1;
 					};
@@ -100,11 +201,19 @@
 			projectRoot = "";
 			targets = (
 				AF8F2D672EBDE79300E69513 /* TrafficVienna */,
+				AF8A82AA2ED30A1C00286504 /* TrafficViennaWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		AF8A82A92ED30A1C00286504 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AF8F2D662EBDE79300E69513 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -115,6 +224,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		AF8A82A72ED30A1C00286504 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AF8F2D642EBDE79300E69513 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -124,7 +240,77 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		AF8A82BC2ED30A1D00286504 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AF8A82AA2ED30A1C00286504 /* TrafficViennaWidgetExtension */;
+			targetProxy = AF8A82BB2ED30A1D00286504 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		AF8A82C02ED30A1D00286504 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = TrafficViennaWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = KZNP8PH94C;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TrafficViennaWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TrafficViennaWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = wellbe.TrafficVienna.TrafficViennaWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AF8A82C12ED30A1D00286504 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = TrafficViennaWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = KZNP8PH94C;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TrafficViennaWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TrafficViennaWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = wellbe.TrafficVienna.TrafficViennaWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		AF8F2D712EBDE79400E69513 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -249,6 +435,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = TrafficVienna/TrafficVienna.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = KZNP8PH94C;
@@ -281,6 +468,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = TrafficVienna/TrafficVienna.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = KZNP8PH94C;
@@ -311,6 +499,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		AF8A82BF2ED30A1D00286504 /* Build configuration list for PBXNativeTarget "TrafficViennaWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AF8A82C02ED30A1D00286504 /* Debug */,
+				AF8A82C12ED30A1D00286504 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		AF8F2D632EBDE79300E69513 /* Build configuration list for PBXProject "TrafficVienna" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
