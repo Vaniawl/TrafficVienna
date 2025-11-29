@@ -18,6 +18,14 @@ struct TestView: View {
     
     var body: some View {
         VStack(spacing: 20) {
+            NavigationLink {
+                FavView()
+            } label: {
+                Image(systemName: "heart.fill")
+                    .foregroundStyle(.red)
+                Text("View favourites")
+
+            }
             
             Text("Loaded stations: \(store.stations.count)")
             

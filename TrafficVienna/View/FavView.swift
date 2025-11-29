@@ -8,8 +8,42 @@
 import SwiftUI
 
 struct FavView: View {
+    @State private var favorites: [FavoriteRoute] = []
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack {
+            NavigationStack {
+                List(favorites, id: \.self) { fav in
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text("\(fav.lineName) to \(fav.destination)")
+                                .font(.headline)
+                            Text("Diva: \(fav.diva)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        
+                        Spacer()
+                        
+                        Image(systemName: "heart.fill")
+                            .foregroundStyle(.red)
+                    }
+                    .padding(.vertical, 8)
+                }
+                .navigationTitle("Favourites")
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Clear all favs") {
+                            FavoritesManager.clear()
+                            favorites = []
+                        }
+                    }
+                }
+            }
+            .onAppear {
+                favorites = FavoritesManager.all()
+            }
+        }
     }
 }
 
