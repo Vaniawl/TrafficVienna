@@ -45,6 +45,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AF0D9F012ED5CA0E005FD8FB /* Exceptions for "TrafficVienna" folder in "TrafficViennaWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				WidgetShared/WidgetSharedModel.swift,
+			);
+			target = AF8A82AA2ED30A1C00286504 /* TrafficViennaWidgetExtension */;
+		};
 		AF8A82BE2ED30A1D00286504 /* Exceptions for "TrafficViennaWidget" folder in "TrafficViennaWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -65,6 +72,9 @@
 		};
 		AF8F2D6A2EBDE79300E69513 /* TrafficVienna */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AF0D9F012ED5CA0E005FD8FB /* Exceptions for "TrafficVienna" folder in "TrafficViennaWidgetExtension" target */,
+			);
 			path = TrafficVienna;
 			sourceTree = "<group>";
 		};

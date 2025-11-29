@@ -36,8 +36,7 @@ struct TestView2: View {
                 Text(error)
             } else if let monitor = vm.monitor {
                 List {
-                    ForEach(monitor.data.monitors.indices, id: \.self) { monitorIndex in
-                        let monitorItem = monitor.data.monitors[monitorIndex]
+                    ForEach(Array(monitor.data.monitors.enumerated()), id: \.offset) { monitorIndex, monitorItem in
                         let stopName = monitorItem.locationStop.properties.title
                         
                         Section(stopName) {
@@ -47,21 +46,37 @@ struct TestView2: View {
                                 NavigationLink {
                                     TestView3(line: line)
                                 } label: {
-                                    VStack(alignment: .leading, spacing: 16) {
-                                        Text("\(line.name) → \(line.towards)")
-                                            .font(.headline)
+                                    HStack {
+                                        VStack(alignment: .leading, spacing: 16) {
+                                            Text("\(line.name) -> \(line.towards)")
+                                            
+                                            Text("Departures: \(line.departures.departure.count)")
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                        }
                                         
-                                        Text("Departures: \(line.departures.departure.count)")
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
+                                        Spacer()
+                                        
+                                        if let divaInt = vm.station.diva {
+                                            let diva = String(divaInt)
+                                            let isFav = vm.isFavorite(line: line)
+                                            Button {
+                                                vm.toggleFavorite(line: line)
+                                                // TODO: update UI if needed
+                                                print("button tapped")
+                                            } label: {
+                                                Image(systemName: isFav ? "heart.fill" : "heart")
+                                            }
+                                            .buttonStyle(.plain)
+                                        }
                                     }
-                                    .padding(.vertical, 4)
+                                    .padding()
                                 }
                             }
                         }
                     }
+                    .listStyle(.insetGrouped)
                 }
-                .listStyle(.insetGrouped)
             } else {
                 Text("No data yet")
                 
@@ -91,4 +106,3 @@ struct TestView2: View {
         TestView2(vm: vm)
     }
 }
-

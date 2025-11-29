@@ -26,23 +26,23 @@ struct Station: Decodable, Identifiable {
 
 
 protocol StationStoring {
-    /// All known stations loaded from the JSON dataset
+    // All known stations loaded from the JSON dataset
     var stations: [Station] { get }
     func diva(forExact name: String) -> Int?
     func stationsSuggestion(matching query: String) -> [Station]
 }
 
-/// Concrete implementation that loads stations from a bundled JSON file
-/// and provides search helpers for the UI
+// Concrete implementation that loads stations from a bundled JSON file
+// and provides search helpers for the UI
 final class StationStore: ObservableObject ,StationStoring {
-    /// All stations from the Wiener Linien JSON
+    // All stations from the Wiener Linien JSON
     @Published private(set) var stations: [Station] = []
     
     init() {
         print("Init StationStore")
         loadStations() }
     
-    /// Loads the stations list from the bundled JSON file into memory.
+    // Loads the stations list from the bundled JSON file into memory.
     private func loadStations() {
         print("loadStations called")
         guard let url = Bundle.main.url(
@@ -66,8 +66,8 @@ final class StationStore: ObservableObject ,StationStoring {
         }
     }
     
-    /// Returns the DIVA number for a station whose normalized name
-    /// matches the provided name exactly
+    // Returns the DIVA number for a station whose normalized name
+    // matches the provided name exactly
     func diva(forExact name: String) -> Int? {
         let q = normalize(name)
         if let exact = stations.first(where: { normalize($0.name) == q }),
@@ -77,7 +77,7 @@ final class StationStore: ObservableObject ,StationStoring {
         return nil
     }
     
-    /// Normalizes a string for station name matching
+    // Normalizes a string for station name matching
     private func normalize(_ s: String) -> String {
         s.folding(options: .diacriticInsensitive, locale: .current)
          .replacingOccurrences(of: "ß", with: "ss")
@@ -85,7 +85,7 @@ final class StationStore: ObservableObject ,StationStoring {
          .trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
-    /// Returns stations that roughly match the query by name
+    // Returns stations that roughly match the query by name
     func stationsSuggestion(matching query: String) -> [Station] {
         let q = normalize(query)
         
