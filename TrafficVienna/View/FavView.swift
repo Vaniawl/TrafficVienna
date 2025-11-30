@@ -8,41 +8,58 @@
 import SwiftUI
 
 struct FavView: View {
-    @State private var favorites: [FavoriteRoute] = []
+    @StateObject private var vm = FavoritesListViewModel()
     
     var body: some View {
-        VStack {
-            NavigationStack {
-                List(favorites, id: \.self) { fav in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text("\(fav.lineName) to \(fav.destination)")
-                                .font(.headline)
-                            Text("Diva: \(fav.diva)")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
+        NavigationStack {
+            Group {
+                if vm.items.isEmpty {
+                    VStack(spacing: 8) {
+                        Image(systemName: "heart")
+                            .font(.largeTitle)
                         
-                        Spacer()
+                        Text("No favourites yet")
+                            .font(.headline)
                         
-                        Image(systemName: "heart.fill")
-                            .foregroundStyle(.red)
+                        Text("Add routes with the heart button on a stop.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
-                    .padding(.vertical, 8)
-                }
-                .navigationTitle("Favourites")
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button("Clear all favs") {
-                            FavoritesManager.clear()
-                            favorites = []
+                } else {
+                    List(vm.items) { item in
+                        HStack(alignment: .top) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("\(item.route.lineName) -> \(item.route.destination)")
+                                    .font(.headline)
+                                if item.departures.isEmpty {
+                                    Text("No departures yet")
+                                        .foregroundStyle(.secondary)
+                                } else {
+                                    Text(
+                                        item.departures.map { dep in
+                                            let tag = dep.isRealtime ? "real" : "planned"
+                                            return "\(dep.countdown) min (\(tag))"
+                                        }
+                                        .joined(separator: ", ")
+                                    )
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                }
+                            }
+                            Spacer()
+                            
+                            Image(systemName: "heart.fill")
+                                .foregroundStyle(.red)
+
                         }
+                        .padding(.vertical, 6)
                     }
                 }
             }
-            .onAppear {
-                favorites = FavoritesManager.all()
-            }
+            .navigationTitle("Favourites")
+        }
+        .onAppear {
+            vm.load()
         }
     }
 }

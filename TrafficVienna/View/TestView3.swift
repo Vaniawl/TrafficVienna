@@ -43,7 +43,7 @@ struct TestView3: View {
                         departureTime: DepartureTime(
                             countdown: 2,
                             timePlanned: "15:24",
-                            timeReal: "15:25"
+                            timeReal: "15:25",
                         )
                     ),
                     Departure(
