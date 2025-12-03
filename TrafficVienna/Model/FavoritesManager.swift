@@ -62,6 +62,10 @@ enum FavoritesManager {
     static func clear() {
         save([])
     }
+    
+    static func removeAll() {
+        defaults.removeObject(forKey: key)
+    }
 }
 
 

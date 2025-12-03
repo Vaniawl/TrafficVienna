@@ -9,6 +9,7 @@ import SwiftUI
 
 struct TestView: View {
     @StateObject private var store = StationStore()
+    @StateObject private var favoritesVM = FavoritesListViewModel()
     @State private var query = ""
     @State private var diva: Int? = nil
     
@@ -19,7 +20,7 @@ struct TestView: View {
     var body: some View {
         VStack(spacing: 20) {
             NavigationLink {
-                FavView()
+                FavView(vm: favoritesVM)
             } label: {
                 Image(systemName: "heart.fill")
                     .foregroundStyle(.red)
@@ -61,9 +62,7 @@ struct TestView: View {
             }
         }
         .padding()
-        .onAppear {
-            print("TestView appeared, stations: \(store.stations.count)")
-        }
+
     }
 }
 

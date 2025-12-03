@@ -7,6 +7,22 @@
 
 import Foundation
 
+//error abou rate limit
+struct MonitorErrorEnvelope: Decodable {
+    struct Message: Decodable {
+        let value: String
+        let messageCode: Int
+    }
+    
+    let message: Message
+}
+
+enum MonitorApiError: Error{
+    // too many requests. request limit reached (code 316)
+    case rateLimited
+}
+
+
 protocol NetworkManaging {
     func fetchMonitorData(for stopId: Int) async throws -> MonitorResponse
     func fetchMonitorData(diva: Int, includeArea: Bool) async throws -> MonitorResponse
@@ -14,7 +30,7 @@ protocol NetworkManaging {
 }
 final class NetworkManager: NetworkManaging {
 
-    /// Uses stopId to get monitor data for a single stop/direction.
+    // Uses stopId to get monitor data for a single stop/direction.
     func fetchMonitorData(for stopId: Int) async throws -> MonitorResponse {
         // Build URL with stopId parameter
         let urlString = "https://www.wienerlinien.at/ogd_realtime/monitor?stopId=\(stopId)"
@@ -38,10 +54,18 @@ final class NetworkManager: NetworkManaging {
         var urlString = "https://www.wienerlinien.at/ogd_realtime/monitor?diva=\(diva)"
         // Optionally include area parameter to get all directions
         if includeArea { urlString += "&aArea=1" }
+        
+        print("➡️ diva request:", urlString)
+
         // Validate final URL
         guard let url = URL(string: urlString) else { throw URLError(.badURL) }
         // Perform request for DIVA-based monitor data
         let (data, responce) = try await URLSession.shared.data(from: url)
+        
+        if let http = responce as? HTTPURLResponse {
+            print("⬅️ status:", http.statusCode)   // 👈 і це
+        }
+
         guard let http = responce as? HTTPURLResponse, http.statusCode == 200 else {
             throw URLError(.badServerResponse)
         }

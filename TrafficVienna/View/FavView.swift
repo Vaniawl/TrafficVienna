@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct FavView: View {
-    @StateObject private var vm = FavoritesListViewModel()
+    @ObservedObject var vm: FavoritesListViewModel
     
     var body: some View {
         NavigationStack {
@@ -40,7 +40,7 @@ struct FavView: View {
                                             let tag = dep.isRealtime ? "real" : "planned"
                                             return "\(dep.countdown) min (\(tag))"
                                         }
-                                        .joined(separator: ", ")
+                                            .joined(separator: ", ")
                                     )
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
@@ -50,20 +50,41 @@ struct FavView: View {
                             
                             Image(systemName: "heart.fill")
                                 .foregroundStyle(.red)
-
+                            
                         }
                         .padding(.vertical, 6)
                     }
                 }
             }
+            .onAppear {
+                vm.loadFavorites()
+            }
             .navigationTitle("Favourites")
-        }
-        .onAppear {
-            vm.load()
+            .toolbar {
+                if !vm.items.isEmpty {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(role: .destructive) {
+                            vm.removeAll()
+                        } label: {
+                            Text("Clear all")
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
 #Preview {
-    FavView()
+    let vm = FavoritesListViewModel()
+    vm.items = [
+        FavoriteWithDeparture(
+            route: FavoriteRoute(diva: "60200135", lineName: "U1", destination: "Leopoldau"),
+            departures: [
+                DepartureInfo(countdown: 2, planned: "12:47", real: "12:47", isRealtime: true),
+                DepartureInfo(countdown: 5, planned: "12:50", real: nil, isRealtime: false)
+            ]
+        )
+    ]
+    return FavView(vm: vm)
 }
