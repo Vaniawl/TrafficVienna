@@ -48,6 +48,7 @@
 		AF0D9F012ED5CA0E005FD8FB /* Exceptions for "TrafficVienna" folder in "TrafficViennaWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Model/WidgetSync.swift,
 				WidgetShared/WidgetSharedModel.swift,
 			);
 			target = AF8A82AA2ED30A1C00286504 /* TrafficViennaWidgetExtension */;
@@ -451,6 +452,7 @@
 				DEVELOPMENT_TEAM = KZNP8PH94C;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We use your location to show nearby stops.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -484,6 +486,7 @@
 				DEVELOPMENT_TEAM = KZNP8PH94C;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We use your location to show nearby stops.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
