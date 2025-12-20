@@ -24,33 +24,41 @@ struct FavoriteWithDeparture: Identifiable {
     let departures: [DepartureInfo]
 }
 
+@MainActor
 final class FavoritesListViewModel: ObservableObject {
     //what the view will render
     @Published var items: [FavoriteWithDeparture] = []
     
     private let network: NetworkManaging
     
-    init(network: NetworkManaging = NetworkManager()) {
+    init(network: NetworkManaging) {
         self.network = network
+        loadFavorites()
+    }
+    
+    convenience init() {
+        self.init(network: NetworkManager())
     }
     
     func loadFavorites() {
         let routes = FavoritesManager.all()
         guard !routes.isEmpty else {
             items = []
+            syncWidget()
             return
         }
+
         Task {
             var result: [FavoriteWithDeparture] = []
             
             for fav in routes {
                 let item = await loadItem(for: fav)
                 result.append(item)
-                
                 try? await Task.sleep(nanoseconds: 300_000_000)
             }
             await MainActor.run {
                 self.items = result
+                self.syncWidget()
             }
         }
     }
@@ -110,5 +118,34 @@ final class FavoritesListViewModel: ObservableObject {
     func removeAll() {
         FavoritesManager.removeAll()
         items = []
+        syncWidget()
+    }
+    
+    func refresh(_ route: FavoriteRoute) {
+        Task {
+            let updated = await loadItem(for: route)
+            
+            guard let index = items.firstIndex(where: {
+                $0.route.diva == route.diva &&
+                $0.route.lineName == route.lineName &&
+                $0.route.destination == route.destination
+            }) else { return }
+            
+            items[index] = updated
+            syncWidget()
+        }
+    }
+    
+    private func syncWidget() {
+        let topFavorites = items.prefix(3)
+        
+        let widgetItems: [WidgetDepartureData] = topFavorites.map { fav in
+            WidgetDepartureData(lineName: fav.route.lineName,
+                                stopName: fav.route.diva,
+                                destination: fav.route.destination,
+                                departures: fav.departures.prefix(3).map { $0.countdown })
+        }
+        WidgetSync.save(widgetItems
+        )
     }
 }

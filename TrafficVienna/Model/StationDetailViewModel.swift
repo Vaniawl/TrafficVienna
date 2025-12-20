@@ -38,7 +38,6 @@ final class StationDetailViewModel: ObservableObject {
         isLoading = true
         
         defer { isLoading = false }
-        
         // a station without DIVA cannot be used to load monitor data
         guard let diva = station.diva else {
             errorMessage = "No DIVA for this station"
@@ -48,9 +47,7 @@ final class StationDetailViewModel: ObservableObject {
         do {
             // perform the network request and decode the response
             let response = try await network.fetchMonitorData(diva: diva, includeArea: true)
-
             self.monitor = response
-            
             if let widgetData = widgetData(from: response) {
                 WidgetSync.save(widgetData)
             }
@@ -61,11 +58,11 @@ final class StationDetailViewModel: ObservableObject {
         loadFavourites()
     }
     
-    func loadFavourites() {
-        favorites = Set(FavoritesManager.all())
-    }
+        func loadFavourites() {
+            favorites = Set(FavoritesManager.all())
+        }
     
-    func isFavorite(line: Lines) -> Bool {
+    func isFavorite (line: Lines) -> Bool {
         guard let divaInt = station.diva else { return false }
         let diva = String(divaInt)
         

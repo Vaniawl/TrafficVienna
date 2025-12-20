@@ -13,19 +13,14 @@ struct FavView: View {
     var body: some View {
         NavigationStack {
             Group {
+                // MARK: if there are no items
                 if vm.items.isEmpty {
                     VStack(spacing: 8) {
-                        Image(systemName: "heart")
-                            .font(.largeTitle)
-                        
                         Text("No favourites yet")
                             .font(.headline)
-                        
-                        Text("Add routes with the heart button on a stop.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
                     }
                 } else {
+                    // MARK: if there are items
                     List(vm.items) { item in
                         HStack(alignment: .top) {
                             VStack(alignment: .leading, spacing: 4) {
@@ -48,16 +43,22 @@ struct FavView: View {
                             }
                             Spacer()
                             
-                            Image(systemName: "heart.fill")
-                                .foregroundStyle(.red)
-                            
+                            HStack(spacing: 12) {
+                                Button {
+                                    vm.refresh(item.route)
+                                } label: {
+                                    Image(systemName: "arrow.clockwise")
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel("Refresh")
+                                
+                                Image(systemName: "heart.fill")
+                                    .foregroundStyle(.red)
+                            }
                         }
                         .padding(.vertical, 6)
                     }
                 }
-            }
-            .onAppear {
-                vm.loadFavorites()
             }
             .navigationTitle("Favourites")
             .toolbar {

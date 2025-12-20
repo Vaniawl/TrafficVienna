@@ -8,7 +8,11 @@
 import SwiftUI
 
 struct TestView2: View {
-    @ObservedObject var vm: StationDetailViewModel
+    @StateObject private var vm: StationDetailViewModel
+    
+    init(station: Station) {
+        _vm = StateObject(wrappedValue: StationDetailViewModel(station: station))
+    }
    
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -103,6 +107,6 @@ struct TestView2: View {
     let vm = StationDetailViewModel(station: station)
     
     NavigationStack {
-        TestView2(vm: vm)
+        TestView2(station: station)
     }
 }
