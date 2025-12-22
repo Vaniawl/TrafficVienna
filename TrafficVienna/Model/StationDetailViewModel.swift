@@ -49,13 +49,11 @@ final class StationDetailViewModel: ObservableObject {
             let response = try await network.fetchMonitorData(diva: diva, includeArea: true)
             self.monitor = response
             if let widgetData = widgetData(from: response) {
-                WidgetSync.save(widgetData)
+                WidgetSync.save([widgetData])
             }
         } catch {
             errorMessage = error.localizedDescription
         }
-        
-        loadFavourites()
     }
     
         func loadFavourites() {

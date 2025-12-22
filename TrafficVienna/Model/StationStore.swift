@@ -7,7 +7,7 @@
 
 import Foundation
 import Combine
-
+import CoreLocation
 struct Station: Decodable, Identifiable {
     let id: Int
     let diva: Int?
@@ -30,6 +30,11 @@ protocol StationStoring {
     var stations: [Station] { get }
     func diva(forExact name: String) -> Int?
     func stationsSuggestion(matching query: String) -> [Station]
+    func stations(
+        near location: CLLocation,
+        radiusInMeters radius: Double
+    ) -> [Station]
+
 }
 
 // Concrete implementation that loads stations from a bundled JSON file
@@ -93,6 +98,20 @@ final class StationStore: ObservableObject ,StationStoring {
         
         return stations.filter { station in
             normalize(station.name).contains(q)
+        }
+    }
+    
+    func stations(
+        near location: CLLocation,
+        radiusInMeters radius: Double
+    ) -> [Station] {
+        stations.filter { station in
+            let stationLocation = CLLocation(
+                latitude: station.lat,
+                longitude: station.lon
+            )
+            
+            return stationLocation.distance(from: location) <= radius
         }
     }
 }

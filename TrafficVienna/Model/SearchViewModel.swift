@@ -16,7 +16,7 @@ final class SearchViewModel: ObservableObject {
     
     var nearbyStations: [Station] {
         guard let location = locationManager.userLocation else { return [] }
-        return store.stations(near: location, maxDistance: 500)
+        return store.stations(near: location, radiusInMeters: 500)
     }
     
     var suggestions: [Station] {

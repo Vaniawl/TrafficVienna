@@ -13,7 +13,7 @@ enum WidgetSync {
     
     static let widgetKind = "TrafficViennaWidget"
 
-    static func save(_ data: WidgetDepartureData) {
+    static func save(_ data: [WidgetDepartureData]) {
         let encoder = JSONEncoder()
         guard let encoded = try? encoder.encode(data) else {
             print("WidgetSync: failed to encode WidgetDepartureData")
