@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import CoreLocation
+
 struct Station: Decodable, Identifiable {
     let id: Int
     let diva: Int?

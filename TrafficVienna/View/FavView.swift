@@ -60,6 +60,9 @@ struct FavView: View {
                     }
                 }
             }
+            .task {
+                vm.loadFavorites()
+            }
             .navigationTitle("Favourites")
             .toolbar {
                 if !vm.items.isEmpty {

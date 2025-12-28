@@ -11,7 +11,7 @@ import Combine
 
 final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var userLocation: CLLocation?
-    @Published var authorizationStatus: CLAuthorizationStatus?
+    @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
     @Published var errorMessage: String?
     
     private var isPreview: Bool {
@@ -27,11 +27,14 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
         authorizationStatus = manager.authorizationStatus
     }
     
-    func requestLocation() {
-        manager.requestWhenInUseAuthorization()
-        if manager.authorizationStatus == .authorizedAlways ||
-            manager.authorizationStatus == .authorizedWhenInUse {
+    func requestLocationIfNeeded() {
+        switch manager.authorizationStatus {
+        case .notDetermined:
+            manager.requestWhenInUseAuthorization()
+        case .authorizedWhenInUse, .authorizedAlways:
             manager.startUpdatingLocation()
+        default:
+            break
         }
     }
     

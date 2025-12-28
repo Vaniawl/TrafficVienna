@@ -27,6 +27,7 @@ final class SearchViewModel: ObservableObject {
     init(store: StationStore, locationManager: LocationManager) {
         self.store = store
         self.locationManager = locationManager
+        self.locationManager.requestLocationIfNeeded()
     }
     
 

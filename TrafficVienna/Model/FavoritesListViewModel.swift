@@ -33,7 +33,6 @@ final class FavoritesListViewModel: ObservableObject {
     
     init(network: NetworkManaging) {
         self.network = network
-        loadFavorites()
     }
     
     convenience init() {
@@ -145,6 +144,7 @@ final class FavoritesListViewModel: ObservableObject {
                                 destination: fav.route.destination,
                                 departures: fav.departures.prefix(3).map { $0.countdown })
         }
-        WidgetSync.save(widgetItems)
+        WidgetSync.save(widgetItems
+        )
     }
 }

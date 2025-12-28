@@ -54,11 +54,13 @@ final class StationDetailViewModel: ObservableObject {
         } catch {
             errorMessage = error.localizedDescription
         }
+        
     }
     
-        func loadFavourites() {
-            favorites = Set(FavoritesManager.all())
-        }
+        //MARK: this functions will be removed (favorites)
+    func loadFavourites() {
+        favorites = Set(FavoritesManager.all())
+    }
     
     func isFavorite (line: Lines) -> Bool {
         guard let divaInt = station.diva else { return false }

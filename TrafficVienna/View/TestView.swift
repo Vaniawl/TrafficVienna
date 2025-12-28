@@ -9,11 +9,10 @@ import SwiftUI
 import CoreLocation
 
 struct TestView: View {
-    @StateObject private var favoritesVM = FavoritesListViewModel()
+    //@StateObject private var favoritesVM = FavoritesListViewModel()
     @StateObject private var vm: SearchViewModel
     @StateObject var locationManager: LocationManager
 
-    @State private var diva: Int? = nil
 
     init(locationManager: LocationManager = LocationManager()) {
         let store = StationStore()
@@ -33,7 +32,7 @@ struct TestView: View {
                 // Original content when there's no active query
                 VStack(spacing: 20) {
                     NavigationLink {
-                        FavView(vm: favoritesVM)
+                        FavView(vm: FavoritesListViewModel())
                     } label: {
                         Image(systemName: "heart.fill")
                             .foregroundStyle(.red)
