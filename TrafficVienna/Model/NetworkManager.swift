@@ -74,3 +74,50 @@ final class NetworkManager: NetworkManaging {
     }
 }
 
+// MARK: - example of answer
+
+/*
+ {
+   "data": {
+     "monitors": [
+       {
+         "locationStop": {
+           "properties": {
+             "title": "Hauptbahnhof",
+             "attributes": {
+               "rbl": 4113
+             }
+           },
+           "geometry": {
+             "coordinates": [16.375, 48.185]  
+           }
+         },
+         "lines": [
+           {
+             "name": "U1",
+             "towards": "Leopoldau",
+             "departures": {
+               "departure": [
+                 {
+                   "departureTime": {
+                     "countdown": 2,
+                     "timePlanned": "2025-01-06T16:45:00.000+01:00",
+                     "timeReal": "2025-01-06T16:47:00.000+01:00"
+                   }
+                 },
+                 {
+                   "departureTime": {
+                     "countdown": 7,
+                     "timePlanned": "2025-01-06T16:50:00.000+01:00",
+                     "timeReal": null
+                   }
+                 }
+               ]
+             }
+           }
+         ]
+       }
+     ]
+   }
+ }
+ */

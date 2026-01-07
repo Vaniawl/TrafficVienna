@@ -7,6 +7,7 @@
 
 import Foundation
 
+// describes one users favotite route
 struct FavoriteRoute: Codable, Hashable {
     let diva: String
     let lineName: String
@@ -21,7 +22,7 @@ enum FavoritesManager {
     // Shared storage APP GROUP
     private static let defaults = UserDefaults(suiteName: "group.wellbe.TrafficVienna")!
     
-    // MARK: - Load and save
+    // Load and save
         private static func load() -> Set<FavoriteRoute> {
         guard let data = defaults.data(forKey: key),
               let decoded = try? JSONDecoder().decode(Set<FavoriteRoute>.self, from: data)
@@ -36,7 +37,7 @@ enum FavoritesManager {
         defaults.set(data, forKey: key)
     }
     
-    // MARK: Public API
+    // to check if isFavorite
     static func isFavorite(diva: String, lineName: String, destination: String) -> Bool {
         let fav = FavoriteRoute(diva: diva, lineName: lineName, destination: destination)
         return load().contains(fav)

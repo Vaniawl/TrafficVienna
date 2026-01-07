@@ -9,13 +9,15 @@ import Foundation
 import Combine
 import CoreLocation
 
-struct Station: Decodable, Identifiable {
+
+// data  will be downloadedd from json file
+struct Station: Decodable, Identifiable { // describes ONE station
     let id: Int
     let diva: Int?
     let name: String
     let lat: Double
     let lon: Double
-
+    
     enum CodingKeys: String, CodingKey {
         case id   = "HALTESTELLEN_ID"
         case diva = "DIVA"
@@ -27,15 +29,13 @@ struct Station: Decodable, Identifiable {
 
 
 protocol StationStoring {
-    // All known stations loaded from the JSON dataset
-    var stations: [Station] { get }
+    var stations: [Station] { get }     // All known stations loaded from the JSON dataset
     func diva(forExact name: String) -> Int?
     func stationsSuggestion(matching query: String) -> [Station]
     func stations(
         near location: CLLocation,
         radiusInMeters radius: Double
-    ) -> [Station]
-
+    ) -> [Station]    // finds stations in radius
 }
 
 // Concrete implementation that loads stations from a bundled JSON file
@@ -51,6 +51,7 @@ final class StationStore: ObservableObject ,StationStoring {
     // Loads the stations list from the bundled JSON file into memory.
     private func loadStations() {
         print("loadStations called")
+        
         guard let url = Bundle.main.url(
             forResource: "wienerlinien-ogd-haltestellen",
             withExtension: "json") else {
@@ -58,11 +59,12 @@ final class StationStore: ObservableObject ,StationStoring {
             return
         }
         print("JSON file found at: \(url)")
-
+        
         do {
+            //upload data from file
             let data = try Data(contentsOf: url)
             print("Loaded raw data, size: \(data.count) bytes")
-
+            // decode josm into array
             let decoded = try JSONDecoder().decode([Station].self, from: data)
             print("loaded stations: \(decoded.count)")
             
@@ -102,6 +104,7 @@ final class StationStore: ObservableObject ,StationStoring {
         }
     }
     
+    // for nearby stations
     func stations(
         near location: CLLocation,
         radiusInMeters radius: Double
@@ -111,7 +114,6 @@ final class StationStore: ObservableObject ,StationStoring {
                 latitude: station.lat,
                 longitude: station.lon
             )
-            
             return stationLocation.distance(from: location) <= radius
         }
     }

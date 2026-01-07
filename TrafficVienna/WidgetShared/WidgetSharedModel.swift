@@ -13,3 +13,8 @@ struct WidgetDepartureData: Codable {
     let destination: String
     let departures: [Int]
 }
+
+struct WidgetCacheEnvelope: Codable {
+    let items: [WidgetDepartureData]
+    let lastUpdated: Date
+}
