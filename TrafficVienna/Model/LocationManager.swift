@@ -24,12 +24,19 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     
     override init() {
         super.init()
+        
+        guard !isPreview else {
+            userLocation = CLLocation(latitude: 48.2082, longitude: 16.3738) // Відень
+            authorizationStatus = .authorizedWhenInUse
+            return
+        }
         manager.delegate = self
         manager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
         authorizationStatus = manager.authorizationStatus
     }
     
     func requestLocationIfNeeded() {
+        guard !isPreview else { return }
         switch manager.authorizationStatus {
         case .notDetermined:
             manager.requestWhenInUseAuthorization()

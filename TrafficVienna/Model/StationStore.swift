@@ -50,27 +50,26 @@ final class StationStore: ObservableObject ,StationStoring {
     
     // Loads the stations list from the bundled JSON file into memory.
     private func loadStations() {
-        print("loadStations called")
-        
-        guard let url = Bundle.main.url(
-            forResource: "wienerlinien-ogd-haltestellen",
-            withExtension: "json") else {
-            print(" JSON file NOT FOUND in bundle")
-            return
-        }
-        print("JSON file found at: \(url)")
-        
-        do {
-            //upload data from file
-            let data = try Data(contentsOf: url)
-            print("Loaded raw data, size: \(data.count) bytes")
-            // decode josm into array
-            let decoded = try JSONDecoder().decode([Station].self, from: data)
-            print("loaded stations: \(decoded.count)")
+        Task.detached(priority: .background) { [weak self] in
+            guard let url = Bundle.main.url(
+                forResource: "wienerlinien-ogd-haltestellen",
+                withExtension: "json"
+            ) else {
+                print("❌ JSON file NOT FOUND")
+                return
+            }
             
-            stations = decoded
-        } catch {
-            print("Failed to decode stations:", error)
+            do {
+                let data = try Data(contentsOf: url)
+                let decoded = try JSONDecoder().decode([Station].self, from: data)
+                
+                await MainActor.run {
+                    self?.stations = decoded
+                    print("✅ Loaded \(decoded.count) stations")
+                }
+            } catch {
+                print("❌ Failed to load stations: \(error)")
+            }
         }
     }
     

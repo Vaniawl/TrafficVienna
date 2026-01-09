@@ -47,7 +47,7 @@ struct TestView: View {
                                     NavigationLink {
                                         TestView2(station: station)
                                     } label: {
-                                        Text(station.name)
+                                        StationCardView(station: station)
                                     }
                                 }
                             }
