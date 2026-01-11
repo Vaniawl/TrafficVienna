@@ -12,15 +12,33 @@ final class NearbyStationsViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var lines: [Lines] = []
+    @Published var lastUpdated: Date?
 
     private let station: Station
     private let network: NetworkManaging
+    
 
     init(station: Station, network: NetworkManaging = NetworkManager()) {
         self.station = station
         self.network = network
     }
 
+    var lastUpdatedText: String? {
+        guard let lastUpdated = lastUpdated else { return nil }
+        
+        let seconds = Int(Date().timeIntervalSince(lastUpdated))
+        
+        if seconds < 30 {
+            return "now"
+        } else if seconds < 3600 {
+            let minutes = seconds / 60
+            return "\(minutes) ago"
+        } else {
+            let hours = seconds / 3600
+            return "\(hours) ago"
+        }
+    }
+    
     @MainActor
     func load() async {
         guard let diva = station.diva else { return }
@@ -35,4 +53,6 @@ final class NearbyStationsViewModel: ObservableObject {
             self.errorMessage = error.localizedDescription
         }
     }
+    
+    
 }

@@ -19,7 +19,19 @@ struct StationCardView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text(station.name)
                 .font(.headline)
+            
+            if let lastUpdated = vm.lastUpdatedText {
+                Text(lastUpdated)
+            }
+            
+            Button {
+                Task { await vm.load() }
+            } label: {
+                Image(systemName: "arrow.clockwise")
 
+            }
+            
+            
             if station.diva == nil {
                 Text("No live-data for this stop")
                     .font(.subheadline)
@@ -40,8 +52,8 @@ struct StationCardView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             } else {
-                // Show up to three lines with their next departures
-                ForEach(Array(vm.lines.prefix(3).enumerated()), id: \.offset) { _, line in
+                // Show up to n lines with their next departures
+                ForEach(Array(vm.lines.enumerated()), id: \.offset) { _, line in
                     HStack(alignment: .firstTextBaseline, spacing: 12) {
                         Text(line.name)
                             .font(.headline)
@@ -67,7 +79,11 @@ struct StationCardView: View {
         .padding(12)
         .background(.thinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
-        .task { await vm.load() }
+        .task {
+            if vm.lines.isEmpty && vm.lastUpdated == nil {
+                await vm.load()
+            }
+        }
     }
 }
 #Preview {

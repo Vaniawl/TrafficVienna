@@ -28,39 +28,77 @@ struct FavoriteWithDeparture: Identifiable {
 final class FavoritesListViewModel: ObservableObject {
     //what the view will render
     @Published var items: [FavoriteWithDeparture] = []
-    
+    @Published var isLoading = false
+    @Published var errorMessage: String?
+
     private let network: NetworkManaging
-    
-    init(network: NetworkManaging) {
+    private let favoritesRepo: FavoritesRepository
+    private let widgetSync: WidgetSyncing
+
+    init(
+        network: NetworkManaging,
+        favoritesRepo: FavoritesRepository,
+        widgetSync: WidgetSyncing = WidgetSyncManager()
+    ) {
         self.network = network
+        self.favoritesRepo = favoritesRepo
+        self.widgetSync = widgetSync
     }
-    
-    convenience init() {
-        self.init(network: NetworkManager())
+
+    convenience init(
+        network: NetworkManaging = NetworkManager(),
+        favoritesRepo: FavoritesRepository = UserDefaultsFavoritesRepository()
+    ) {
+        self.init(
+            network: network,
+            favoritesRepo: favoritesRepo,
+            widgetSync: WidgetSyncManager()
+        )
     }
     
     func loadFavorites() {
-        let routes = FavoritesManager.all()
+        let routes = favoritesRepo.getAll()
+        
         guard !routes.isEmpty else {
             items = []
             syncWidget()
             return
         }
-
+        
+        isLoading = true
+        errorMessage = nil
+        
         Task {
             var result: [FavoriteWithDeparture] = []
             
-            for fav in routes {
-                let item = await loadItem(for: fav)
+            for route in routes {
+                let item = await loadItem(for: route)
                 result.append(item)
                 try? await Task.sleep(nanoseconds: 300_000_000)
             }
-            await MainActor.run {
-                self.items = result
-                self.syncWidget()
-            }
+            
+            self.items = result
+            self.isLoading = false
+            self.syncWidget()
         }
     }
+    
+    
+    func refresh(_ route: FavoriteRoute) {
+        Task {
+            let updated = await loadItem(for: route)
+            
+            guard let index = items.firstIndex(where: {
+                $0.route.diva == route.diva &&
+                $0.route.lineName == route.lineName &&
+                $0.route.destination == route.destination
+            }) else { return }
+            
+            items[index] = updated
+            syncWidget()
+        }
+    }
+
     
     private func loadItem(for fav: FavoriteRoute) async -> FavoriteWithDeparture {
         guard let divaInt = Int(fav.diva) else {
@@ -120,20 +158,7 @@ final class FavoritesListViewModel: ObservableObject {
         syncWidget()
     }
     
-    func refresh(_ route: FavoriteRoute) {
-        Task {
-            let updated = await loadItem(for: route)
-            
-            guard let index = items.firstIndex(where: {
-                $0.route.diva == route.diva &&
-                $0.route.lineName == route.lineName &&
-                $0.route.destination == route.destination
-            }) else { return }
-            
-            items[index] = updated
-            syncWidget()
-        }
-    }
+
     
     private func syncWidget() {
         let topFavorites = items.prefix(3)

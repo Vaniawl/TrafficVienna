@@ -14,37 +14,32 @@ struct FavoriteRoute: Codable, Hashable {
     let destination: String
 }
 
+protocol FavoritesRepository {
+    func isFavorite(diva: String, lineName: String, destination: String) -> Bool
+    func toggle(diva: String, lineName: String, destination: String)
+    func getAll() -> [FavoriteRoute]
+    func removeAll()
+}
 
 
-enum FavoritesManager {
+
+final class UserDefaultsFavoritesRepository: FavoritesRepository {
     // Key for storing favorites
-    private static let key = "favorite_routes"
+    private let key = "favorite_routes"
     // Shared storage APP GROUP
-    private static let defaults = UserDefaults(suiteName: "group.wellbe.TrafficVienna")!
+    private let storage: UserDefaults
     
-    // Load and save
-        private static func load() -> Set<FavoriteRoute> {
-        guard let data = defaults.data(forKey: key),
-              let decoded = try? JSONDecoder().decode(Set<FavoriteRoute>.self, from: data)
-        else {
-            return []
-        }
-        return decoded
+    init(storage: UserDefaults = UserDefaults(suiteName: "group.wellbe.TrafficVienna")!) {
+        self.storage = storage
     }
     
-    private static func save(_ routes: Set<FavoriteRoute>) {
-        let data = try? JSONEncoder().encode(routes)
-        defaults.set(data, forKey: key)
-    }
     
-    // to check if isFavorite
-    static func isFavorite(diva: String, lineName: String, destination: String) -> Bool {
+    func isFavorite(diva: String, lineName: String, destination: String) -> Bool {
         let fav = FavoriteRoute(diva: diva, lineName: lineName, destination: destination)
         return load().contains(fav)
     }
-
     
-    static func toggle(diva: String, lineName: String, destination: String) {
+    func toggle(diva: String, lineName: String, destination: String) {
         var set = load()
         let fav = FavoriteRoute(diva: diva, lineName: lineName, destination: destination)
         
@@ -56,16 +51,34 @@ enum FavoritesManager {
         save(set)
     }
     
-    static func all() -> [FavoriteRoute] {
+    func getAll() -> [FavoriteRoute] {
         Array(load())
     }
     
-    static func clear() {
-        save([])
+    func removeAll() {
+        storage.removeObject(forKey: key)
     }
     
-    static func removeAll() {
-        defaults.removeObject(forKey: key)
+    
+    // Private helpers
+    private func load() -> Set<FavoriteRoute> {
+        guard let data = storage.data(forKey: key),
+              let decoded = try? JSONDecoder().decode(Set<FavoriteRoute>.self, from: data)
+        else {
+            return []
+        }
+        return decoded
+    }
+    
+    private func save(_ routes: Set<FavoriteRoute>) {
+        let data = try? JSONEncoder().encode(routes)
+        storage.set(data, forKey: key)
+    }
+    
+    // to check if isFavorite
+    
+    func clear() {
+        save([])
     }
 }
 

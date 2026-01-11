@@ -16,24 +16,10 @@ struct TestView2: View {
    
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("isLoading: \(vm.isLoading.description)")
-                Text("error: \(vm.errorMessage ?? "nil")")
-                Text("monitor is nil: \((vm.monitor == nil).description)")
-            }
-            .font(.caption)
-            .foregroundStyle(.gray)
             //Name of station
             Text(vm.station.name)
                 .font(.title)
-            
-            if let diva = vm.station.diva {
-                Text("Diva: \(diva)")
-                    .font(.headline)
-            }
-            
-            Divider()
-            
+                    
             if vm.isLoading {
                 ProgressView("Loading...")
             } else if let error = vm.errorMessage {
@@ -66,7 +52,6 @@ struct TestView2: View {
                                             let isFav = vm.isFavorite(line: line)
                                             Button {
                                                 vm.toggleFavorite(line: line)
-                                                // TODO: update UI if needed
                                                 print("button tapped")
                                             } label: {
                                                 Image(systemName: isFav ? "heart.fill" : "heart")
@@ -91,7 +76,20 @@ struct TestView2: View {
         .navigationTitle("Station details")
         .navigationBarTitleDisplayMode(.inline)
         .task {
-            await vm.load()
+            if vm.monitor == nil {
+                await vm.load()
+            }
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    Task {
+                        await vm.load()
+                    }
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                }
+            }
         }
     }
 }
