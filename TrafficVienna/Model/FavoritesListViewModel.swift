@@ -99,44 +99,61 @@ final class FavoritesListViewModel: ObservableObject {
         }
     }
 
+    func removeAll() {
+        favoritesRepo.removeAll()
+        items = []
+        syncWidget()
+    }
     
-    private func loadItem(for fav: FavoriteRoute) async -> FavoriteWithDeparture {
-        guard let divaInt = Int(fav.diva) else {
-            return FavoriteWithDeparture(route: fav, departures: [])
+    private func loadItem(for favorite: FavoriteRoute) async -> FavoriteWithDeparture {
+        guard let divaInt = Int(favorite.diva) else {
+            print("⚠️ Invalid DIVA: \(favorite.diva)")
+            return FavoriteWithDeparture(route: favorite, departures: [])
         }
+        
         do {
-            //to pull data from api(station)
             let response = try await network.fetchMonitorData(diva: divaInt, includeArea: true)
             let monitors = response.data.monitors
             
             guard !monitors.isEmpty else {
-                print("⚠️ no monitors for diva \(divaInt)")
-                return FavoriteWithDeparture(route: fav, departures: [])
+                print("⚠️ No monitors for DIVA \(divaInt)")
+                return FavoriteWithDeparture(route: favorite, departures: [])
             }
             
-            func normalize(_ s: String) -> String {
-                s
-                    .replacingOccurrences(of: " U", with: "")
-                    .replacingOccurrences(of: " S", with: "")
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
-                    .lowercased()
+            // Знаходимо потрібну лінію
+            guard let line = findMatchingLine(in: monitors, for: favorite) else {
+                print("⚠️ No matching line for \(favorite.lineName) -> \(favorite.destination)")
+                return FavoriteWithDeparture(route: favorite, departures: [])
             }
             
+            // Конвертуємо відправлення
+            let departures = mapDepartures(from: line)
             
-            guard let line = monitors
-                .flatMap({ $0.lines })
-                .first(where: { line in
-                    line.name == fav.lineName &&
-                    normalize(line.towards) == normalize(fav.destination)
-                }) else {
-                    print("⚠️ no line for fav \(fav) on diva \(divaInt)")
-                    return FavoriteWithDeparture(route: fav, departures: [])
-                }
+            print("✅ Loaded \(favorite.lineName) -> \(favorite.destination), departures: \(departures.count)")
+            return FavoriteWithDeparture(route: favorite, departures: departures)
             
-            
-            let departures: [DepartureInfo] = line.departures.departure.prefix(7).map { dep in
-                let time = dep.departureTime
-                
+        } catch {
+            print("❌ Failed to load favorite \(favorite): \(error)")
+            return FavoriteWithDeparture(route: favorite, departures: [])
+        }
+    }
+    
+    //finds line that matches favorite
+    private func findMatchingLine(in monitors: [Monitor], for favorite: FavoriteRoute) -> Lines? {
+        monitors
+            .flatMap { $0.lines }
+            .first { line in
+                line.name == favorite.lineName &&
+                normalize(line.towards) == normalize(favorite.destination)
+            }
+    }
+    
+    //to show next departures
+    private func mapDepartures(from line: Lines) -> [DepartureInfo] {
+        line.departures.departure
+            .prefix(7)
+            .map { departure in
+                let time = departure.departureTime
                 return DepartureInfo(
                     countdown: time.countdown,
                     planned: time.timePlanned,
@@ -144,32 +161,30 @@ final class FavoritesListViewModel: ObservableObject {
                     isRealtime: time.timeReal != nil
                 )
             }
-            print("✅ loaded fav \(fav.lineName) -> \(fav.destination), departures: \(departures.count)")
-
-            return FavoriteWithDeparture(route: fav, departures: departures)
-        } catch {
-            print("❌ Failed to load favorite \(fav): \(error)")
-            return FavoriteWithDeparture(route: fav, departures: [])
-        }
-    }
-    func removeAll() {
-        FavoritesManager.removeAll()
-        items = []
-        syncWidget()
     }
     
+    private func normalize(_ string: String) -> String {
+        string
+            .replacingOccurrences(of: " U", with: "")
+            .replacingOccurrences(of: " S", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+    }
 
     
     private func syncWidget() {
+        //takes first 3 lines
         let topFavorites = items.prefix(3)
         
-        let widgetItems: [WidgetDepartureData] = topFavorites.map { fav in
-            WidgetDepartureData(lineName: fav.route.lineName,
-                                stopName: fav.route.diva,
-                                destination: fav.route.destination,
-                                departures: fav.departures.prefix(3).map { $0.countdown })
+        let widgetItems: [WidgetDepartureData] = topFavorites.map { favorite in
+            WidgetDepartureData(
+                lineName: favorite.route.lineName,
+                stopName: favorite.route.diva,
+                destination: favorite.route.destination,
+                departures: favorite.departures.prefix(3).map { $0.countdown }
+            )
         }
-        WidgetSync.save(widgetItems
-        )
+        
+        widgetSync.save(widgetItems)
     }
 }
