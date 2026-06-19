@@ -31,29 +31,55 @@ final class FavoritesListViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
 
-    private let network: NetworkManaging
+    @Published var stations: [FavoriteStation] = []
+
+    private let service: MonitorService
     private let favoritesRepo: FavoritesRepository
+    private let stationsRepo: FavoriteStationsStoring
     private let widgetSync: WidgetSyncing
 
     init(
-        network: NetworkManaging,
+        service: MonitorService,
         favoritesRepo: FavoritesRepository,
+        stationsRepo: FavoriteStationsStoring = UserDefaultsFavoriteStationsRepository(),
         widgetSync: WidgetSyncing = WidgetSyncManager()
     ) {
-        self.network = network
+        self.service = service
         self.favoritesRepo = favoritesRepo
+        self.stationsRepo = stationsRepo
         self.widgetSync = widgetSync
     }
 
     convenience init(
-        network: NetworkManaging = NetworkManager(),
+        service: MonitorService = .shared,
         favoritesRepo: FavoritesRepository = UserDefaultsFavoritesRepository()
     ) {
         self.init(
-            network: network,
+            service: service,
             favoritesRepo: favoritesRepo,
+            stationsRepo: UserDefaultsFavoriteStationsRepository(),
             widgetSync: WidgetSyncManager()
         )
+    }
+
+    // MARK: - Favourite stations (local, ordered)
+
+    func loadStations() {
+        stations = stationsRepo.all()
+    }
+
+    func removeStation(id: Int) {
+        stationsRepo.remove(id: id)
+        loadStations()
+    }
+
+    func moveStations(fromOffsets: IndexSet, toOffset: Int) {
+        stations.move(fromOffsets: fromOffsets, toOffset: toOffset)
+        stationsRepo.setOrder(stations)
+    }
+
+    var isEmpty: Bool {
+        items.isEmpty && stations.isEmpty
     }
     
     func loadFavorites() {
@@ -74,7 +100,6 @@ final class FavoritesListViewModel: ObservableObject {
             for route in routes {
                 let item = await loadItem(for: route)
                 result.append(item)
-                try? await Task.sleep(nanoseconds: 300_000_000)
             }
             
             self.items = result
@@ -86,7 +111,7 @@ final class FavoritesListViewModel: ObservableObject {
     
     func refresh(_ route: FavoriteRoute) {
         Task {
-            let updated = await loadItem(for: route)
+            let updated = await loadItem(for: route, forceRefresh: true)
             
             guard let index = items.firstIndex(where: {
                 $0.route.diva == route.diva &&
@@ -99,20 +124,31 @@ final class FavoritesListViewModel: ObservableObject {
         }
     }
 
+    func remove(_ route: FavoriteRoute) {
+        // toggle() removes an existing favourite.
+        favoritesRepo.toggle(
+            diva: route.diva,
+            lineName: route.lineName,
+            destination: route.destination
+        )
+        items.removeAll { $0.route == route }
+        syncWidget()
+    }
+
     func removeAll() {
         favoritesRepo.removeAll()
         items = []
         syncWidget()
     }
     
-    private func loadItem(for favorite: FavoriteRoute) async -> FavoriteWithDeparture {
+    private func loadItem(for favorite: FavoriteRoute, forceRefresh: Bool = false) async -> FavoriteWithDeparture {
         guard let divaInt = Int(favorite.diva) else {
             print("⚠️ Invalid DIVA: \(favorite.diva)")
             return FavoriteWithDeparture(route: favorite, departures: [])
         }
-        
+
         do {
-            let response = try await network.fetchMonitorData(diva: divaInt, includeArea: true)
+            let response = try await service.monitor(diva: divaInt, forceRefresh: forceRefresh)
             let monitors = response.data.monitors
             
             guard !monitors.isEmpty else {
@@ -156,7 +192,7 @@ final class FavoritesListViewModel: ObservableObject {
                 let time = departure.departureTime
                 return DepartureInfo(
                     countdown: time.countdown,
-                    planned: time.timePlanned,
+                    planned: time.timePlanned ?? "",
                     real: time.timeReal,
                     isRealtime: time.timeReal != nil
                 )

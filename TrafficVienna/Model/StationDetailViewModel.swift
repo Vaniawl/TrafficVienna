@@ -11,70 +11,140 @@ import Combine
 
 final class StationDetailViewModel: ObservableObject {
     let station: Station
-    private let network: NetworkManaging
+    private let service: MonitorService
     private let favoritesRepo: FavoritesRepository
-    
+    private let stationsRepo: FavoriteStationsStoring
+
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var monitor: MonitorResponse?
-    
+    @Published var lastUpdated: Date?
+    @Published var isStationFavorited = false
+
+    // Active disruptions / notices for this station's lines.
+    var trafficInfos: [TrafficInfo] {
+        monitor?.data.trafficInfos ?? []
+    }
+
+    // Line names that are affected by at least one disruption.
+    private var disruptedLines: Set<String> {
+        Set(trafficInfos.flatMap { $0.relatedLines ?? [] })
+    }
+
+    func hasDisruption(lineName: String) -> Bool {
+        disruptedLines.contains(lineName)
+    }
+
+    // One departure direction at the station.
+    struct DepartureGroup: Identifiable {
+        let line: String
+        let destination: String
+        let minutes: [Int]   // live, ascending
+        let isLive: Bool
+        var id: String { line + "|" + destination }
+    }
+
+    // All departures across every platform, merged by line+direction and
+    // sorted so the soonest one is first. Replaces the per-platform grouping
+    // that produced repeated "<station>" section headers.
+    var groups: [DepartureGroup] {
+        guard let monitor else { return [] }
+        var merged: [String: (line: String, dest: String, mins: [Int], live: Bool)] = [:]
+        var order: [String] = []
+
+        for platform in monitor.data.monitors {
+            for line in platform.lines {
+                let key = line.name + "|" + line.towards
+                let mins = line.departures.departure.map { $0.departureTime.liveMinutes }
+                let live = line.departures.departure.first?.departureTime.timeReal != nil
+                if var existing = merged[key] {
+                    existing.mins += mins
+                    existing.live = existing.live || live
+                    merged[key] = existing
+                } else {
+                    merged[key] = (line.name, line.towards, mins, live)
+                    order.append(key)
+                }
+            }
+        }
+
+        return order.compactMap { merged[$0] }
+            .map { DepartureGroup(line: $0.line, destination: $0.dest,
+                                  minutes: $0.mins.sorted(), isLive: $0.live) }
+            .sorted { ($0.minutes.first ?? .max) < ($1.minutes.first ?? .max) }
+    }
+
+    var lastUpdatedText: String? {
+        guard let lastUpdated else { return nil }
+        let seconds = Int(Date().timeIntervalSince(lastUpdated))
+        switch seconds {
+        case ..<10:    return "updated just now"
+        case ..<60:    return "updated \(seconds)s ago"
+        case ..<3600:  return "updated \(seconds / 60)m ago"
+        default:       return "updated \(seconds / 3600)h ago"
+        }
+    }
+
     init(
         station: Station,
-        network: NetworkManaging = NetworkManager(),
-        favoritesRepo: FavoritesRepository = UserDefaultsFavoritesRepository()
+        service: MonitorService = .shared,
+        favoritesRepo: FavoritesRepository = UserDefaultsFavoritesRepository(),
+        stationsRepo: FavoriteStationsStoring = UserDefaultsFavoriteStationsRepository()
     ) {
         self.station = station
-        self.network = network
+        self.service = service
         self.favoritesRepo = favoritesRepo
+        self.stationsRepo = stationsRepo
+        self.isStationFavorited = stationsRepo.contains(id: station.id)
     }
-    
+
+    func toggleStationFavorite() {
+        stationsRepo.toggle(FavoriteStation(station))
+        isStationFavorited = stationsRepo.contains(id: station.id)
+    }
+
     // Loads live monitor data for the current station's DIVA.
     @MainActor
-    func load() async {
+    func load(forceRefresh: Bool = false) async {
         errorMessage = nil
         isLoading = true
-        
+
         defer { isLoading = false }
         // a station without DIVA cannot be used to load monitor data
         guard let diva = station.diva else {
-            errorMessage = "No DIVA for this station"
+            errorMessage = "No live data for this station"
             return
         }
 
         do {
             // perform the network request and decode the response
-            let response = try await network.fetchMonitorData(diva: diva, includeArea: true)
+            let response = try await service.monitor(diva: diva, forceRefresh: forceRefresh)
             self.monitor = response
+            self.lastUpdated = Date()
             if let widgetData = widgetData(from: response) {
                 WidgetSync.save([widgetData])
             }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.monitorDisplayMessage
         }
-        
+
     }
     
-    func isFavorite (line: Lines) -> Bool {
+    func isFavorite(line: String, destination: String) -> Bool {
         guard let divaInt = station.diva else { return false }
-        let diva = String(divaInt)
-        
-        let fav = FavoriteRoute(diva: diva, lineName: line.name, destination: line.towards)
-        
         return favoritesRepo.isFavorite(
-            diva: diva,
-            lineName: line.name,
-            destination: line.towards
+            diva: String(divaInt),
+            lineName: line,
+            destination: destination
         )
     }
-    
-    func toggleFavorite(line: Lines) {
+
+    func toggleFavorite(line: String, destination: String) {
         guard let divaInt = station.diva else { return }
-        let diva = String(divaInt)
-        
         favoritesRepo.toggle(
-            diva: diva,
-            lineName: line.name,
-            destination: line.towards
+            diva: String(divaInt),
+            lineName: line,
+            destination: destination
         )
     }
     

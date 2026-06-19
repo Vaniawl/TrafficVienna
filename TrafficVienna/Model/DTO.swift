@@ -4,75 +4,133 @@
 //
 //  Created by Ivan Dovhosheia on 07.11.25.
 //
+//  Pure data models decoded from the Wiener Linien monitor API. They are
+//  marked `nonisolated` so they can be decoded and passed across actors
+//  (e.g. MonitorService) freely.
+//
+//  Decoding is intentionally lenient: the live feed often omits sub-objects
+//  (e.g. a U-Bahn line with an empty `departures`, a platform without
+//  geometry). Missing collections default to empty so one malformed line
+//  never fails the whole response.
+//
 
 import Foundation
-//Mark: Monitor Start
-struct MonitorResponse: Decodable {
+
+// MARK: - Monitor
+
+nonisolated struct MonitorResponse: Decodable {
     let data: DataBlock
 }
 
-struct DataBlock: Decodable {
+nonisolated struct DataBlock: Decodable {
     let monitors: [Monitor]
+    let trafficInfos: [TrafficInfo]?
+
+    enum CodingKeys: String, CodingKey { case monitors, trafficInfos }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        monitors = try c.decodeIfPresent([Monitor].self, forKey: .monitors) ?? []
+        trafficInfos = try c.decodeIfPresent([TrafficInfo].self, forKey: .trafficInfos)
+    }
 }
 
-struct Monitor: Decodable {
+// A service disruption / info notice (roadworks, delays, lift outages…).
+nonisolated struct TrafficInfo: Decodable, Identifiable {
+    let name: String              // stable id, e.g. "I20260503-0024"
+    let title: String
+    let description: String?
+    let priority: String?
+    let relatedLines: [String]?
+
+    var id: String { name }
+}
+
+nonisolated struct Monitor: Decodable {
     let locationStop: LocationStop
     let lines: [Lines]
+
+    enum CodingKeys: String, CodingKey { case locationStop, lines }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        locationStop = try c.decode(LocationStop.self, forKey: .locationStop)
+        lines = try c.decodeIfPresent([Lines].self, forKey: .lines) ?? []
+    }
 }
 
-struct LocationStop: Decodable {
+nonisolated struct LocationStop: Decodable {
     let properties: Properties
-    let geometry: Geometry
+    let geometry: Geometry?
 }
 
-struct Properties: Decodable {
+nonisolated struct Properties: Decodable {
     let title: String
     let attributes: Attributes
 }
 
-struct Geometry: Decodable {
+nonisolated struct Geometry: Decodable {
     let coordinates: [Double] // [lon, lat]
 }
 
-struct Attributes: Decodable {
+nonisolated struct Attributes: Decodable {
     let rbl: Int?
 }
 
-struct Lines: Decodable {
+nonisolated struct Lines: Decodable {
     let name: String
     let towards: String
     let departures: Departures
+
+    enum CodingKeys: String, CodingKey { case name, towards, departures }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        name = try c.decode(String.self, forKey: .name)
+        towards = try c.decodeIfPresent(String.self, forKey: .towards) ?? ""
+        departures = try c.decodeIfPresent(Departures.self, forKey: .departures)
+            ?? Departures(departure: [])
+    }
+
+    init(name: String, towards: String, departures: Departures) {
+        self.name = name
+        self.towards = towards
+        self.departures = departures
+    }
 }
 
-struct Departures: Decodable {
+nonisolated struct Departures: Decodable {
     let departure: [Departure]
+
+    enum CodingKeys: String, CodingKey { case departure }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        departure = try c.decodeIfPresent([Departure].self, forKey: .departure) ?? []
+    }
+
+    init(departure: [Departure]) {
+        self.departure = departure
+    }
 }
 
-struct Departure: Decodable {
+nonisolated struct Departure: Decodable {
     let departureTime: DepartureTime
 }
 
-struct DepartureTime: Decodable {
+nonisolated struct DepartureTime: Decodable {
     let countdown: Int
-    let timePlanned: String
+    let timePlanned: String?   // null for U-Bahn departures
     let timeReal: String?
 }
-//Mark: Monitor End
 
-
-
-
-
-//https://www.wienerlinien.at/ogd_realtime/
-
-//https://www.wienerlinien.at/ogd_realtime/monitor?stopId=4113 одна платформа(дає всі рейси, що проходять через цю платформу)
-//https://www.wienerlinien.at/ogd_realtime/monitor?stopId=4113&stopId=4114&stopId=4115 повертає об’єднаний масив monitors для кількох RBL
-//https://www.wienerlinien.at/ogd_realtime/monitor?diva=60201158&aArea=1 дає всі платформи станції Hauptbahnhof Wien
-//https://www.wienerlinien.at/ogd_realtime/monitor?stopId=4113&activateTrafficInfo=stoerunglang&activateTrafficInfo=information у відповіді з’явиться trafficInfos[] із ремонтами, збоями, ліфтами тощо
-//https://www.wienerlinien.at/ogd_realtime/trafficInfoList Усі актуальні події
-//https://www.wienerlinien.at/ogd_realtime/trafficInfoList?relatedLine=O Тільки для трамвая O
-
-
-
-//https://www.wienerlinien.at/ogd_realtime/trafficInfo?name=bms_I20251026-0026 поверне повний опис, час дії, лінії, зупинки тощо
-//https://www.wienerlinien.at/ogd_routing/XML_STOPFINDER_REQUEST?locationServerActive=1&outputFormat=JSON&type_sf=any&name_sf=Hauptbahnhof поверне DIVA, RBL, назву та координати
+// MARK: - API reference
+//
+// https://www.wienerlinien.at/ogd_realtime/
+//
+// monitor?stopId=4113                         one platform (all routes through that RBL)
+// monitor?stopId=4113&stopId=4114             merged monitors array for several RBLs
+// monitor?diva=60201158&aArea=1               all platforms of a station
+// monitor?diva=…&activateTrafficInfo=…        adds trafficInfos[] (disruptions, lifts…)
+// trafficInfoList                             all current events
+// ogd_routing/XML_STOPFINDER_REQUEST?…&name_sf=Hauptbahnhof   returns DIVA, RBL, name, coords

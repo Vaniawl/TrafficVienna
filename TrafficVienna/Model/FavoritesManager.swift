@@ -8,13 +8,13 @@
 import Foundation
 
 // describes one users favotite route
-struct FavoriteRoute: Codable, Hashable {
+nonisolated struct FavoriteRoute: Codable, Hashable {
     let diva: String
     let lineName: String
     let destination: String
 }
 
-protocol FavoritesRepository {
+protocol FavoritesRepository: Sendable {
     func isFavorite(diva: String, lineName: String, destination: String) -> Bool
     func toggle(diva: String, lineName: String, destination: String)
     func getAll() -> [FavoriteRoute]
@@ -23,11 +23,12 @@ protocol FavoritesRepository {
 
 
 
-final class UserDefaultsFavoritesRepository: FavoritesRepository {
+nonisolated final class UserDefaultsFavoritesRepository: FavoritesRepository {
     // Key for storing favorites
     private let key = "favorite_routes"
-    // Shared storage APP GROUP
-    private let storage: UserDefaults
+    // Shared storage APP GROUP. UserDefaults is thread-safe but not marked
+    // Sendable, so we opt out of the check explicitly.
+    private nonisolated(unsafe) let storage: UserDefaults
     
     init(storage: UserDefaults = UserDefaults(suiteName: "group.wellbe.TrafficVienna")!) {
         self.storage = storage

@@ -7,14 +7,14 @@
 
 import Foundation
 
-struct WidgetDepartureData: Codable {
+nonisolated struct WidgetDepartureData: Codable {
     let lineName: String
     let stopName: String
     let destination: String
     let departures: [Int]
 }
 
-struct WidgetCacheEnvelope: Codable {
+nonisolated struct WidgetCacheEnvelope: Codable {
     let items: [WidgetDepartureData]
     let lastUpdated: Date
 }

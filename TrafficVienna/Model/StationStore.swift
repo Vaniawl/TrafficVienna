@@ -11,7 +11,7 @@ import CoreLocation
 
 
 // data  will be downloadedd from json file
-struct Station: Decodable, Identifiable { // describes ONE station
+nonisolated struct Station: Decodable, Identifiable { // describes ONE station
     let id: Int
     let diva: Int?
     let name: String
@@ -50,7 +50,7 @@ final class StationStore: ObservableObject ,StationStoring {
     
     // Loads the stations list from the bundled JSON file into memory.
     private func loadStations() {
-        Task.detached(priority: .background) { [weak self] in
+        Task.detached(priority: .background) {
             guard let url = Bundle.main.url(
                 forResource: "wienerlinien-ogd-haltestellen",
                 withExtension: "json"
@@ -63,7 +63,7 @@ final class StationStore: ObservableObject ,StationStoring {
                 let data = try Data(contentsOf: url)
                 let decoded = try JSONDecoder().decode([Station].self, from: data)
                 
-                await MainActor.run {
+                await MainActor.run { [weak self] in
                     self?.stations = decoded
                     print("✅ Loaded \(decoded.count) stations")
                 }

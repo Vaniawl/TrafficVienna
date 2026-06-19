@@ -8,16 +8,17 @@
 import Foundation
 import WidgetKit
 
-protocol WidgetSyncing {
+protocol WidgetSyncing: Sendable {
     func save(_ data: [WidgetDepartureData])
 }
 
-final class WidgetSyncManager: WidgetSyncing {
+nonisolated final class WidgetSyncManager: WidgetSyncing {
     private let appGroupID: String
     private let widgetKind: String
     private let dataKey: String
     private let lastUpdatedKey: String
-    private let storage: UserDefaults?
+    // UserDefaults is thread-safe but not Sendable; opt out explicitly.
+    private nonisolated(unsafe) let storage: UserDefaults?
     
     // MARK: - Initialization
     

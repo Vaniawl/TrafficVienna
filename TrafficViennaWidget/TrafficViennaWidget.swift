@@ -8,6 +8,7 @@
 import WidgetKit
 import SwiftUI
 import AppIntents
+import ActivityKit
 
 struct SimpleEntry: TimelineEntry {
     let date: Date
@@ -98,7 +99,7 @@ struct Provider: AppIntentTimelineProvider {
             }
         }
 
-        let entry = SimpleEntry(date: now, items: items.isEmpty ? demoItems() : items, lastUpdated: lastUpdated)
+        let entry = SimpleEntry(date: now, items: items, lastUpdated: lastUpdated)
         let nextUpdate = Calendar.current.date(byAdding: .minute, value: 1, to: now)!
         return Timeline(entries: [entry], policy: .after(nextUpdate))
     }
@@ -125,13 +126,6 @@ struct Provider: AppIntentTimelineProvider {
             defaults?.set(data, forKey: widgetDataKey)
         }
         defaults?.set(lastUpdated, forKey: widgetLastUpdatedKey)
-    }
-
-    private func demoItems() -> [WidgetDepartureData] {
-        [
-            WidgetDepartureData(lineName: "U1", stopName: "Stephansplatz", destination: "Leopoldau", departures: [2,7,12]),
-            WidgetDepartureData(lineName: "O", stopName: "Praterstern", destination: "Migerka", departures: [3,9,14])
-        ]
     }
 
     // MARK: - Fetch during timeline generation
@@ -173,52 +167,189 @@ struct Provider: AppIntentTimelineProvider {
     }
 }
 
-// Widget UI
+// MARK: - Line styling (self-contained for the widget target)
+
+private extension Color {
+    init(hex: UInt) {
+        self.init(.sRGB,
+                  red: Double((hex >> 16) & 0xFF) / 255,
+                  green: Double((hex >> 8) & 0xFF) / 255,
+                  blue: Double(hex & 0xFF) / 255,
+                  opacity: 1)
+    }
+}
+
+private func widgetLineColor(_ line: String) -> Color {
+    let name = line.uppercased().trimmingCharacters(in: .whitespaces)
+    switch name {
+    case "U1": return Color(hex: 0xE20917)
+    case "U2": return Color(hex: 0xA862A4)
+    case "U3": return Color(hex: 0xEF7C00)
+    case "U4": return Color(hex: 0x00963F)
+    case "U6": return Color(hex: 0x9B6A30)
+    default: break
+    }
+    if name.hasPrefix("U") { return Color(hex: 0x1C6BA0) }
+    if name.hasPrefix("S") { return Color(hex: 0x004A99) }
+    if name.hasPrefix("N") { return Color(hex: 0x1A2A6C) }
+    if name.range(of: "^[0-9]+[AB]$", options: .regularExpression) != nil { return Color(hex: 0x004A99) }
+    return Color(hex: 0xE2002A)
+}
+
+private struct WidgetLineBadge: View {
+    let line: String
+    var body: some View {
+        Text(line)
+            .font(.caption.bold())
+            .foregroundStyle(.white)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(widgetLineColor(line), in: RoundedRectangle(cornerRadius: 5))
+    }
+}
+
+// MARK: - Widget UI
+
 struct TrafficViennaWidgetEntryView: View {
+    @Environment(\.widgetFamily) private var family
     var entry: Provider.Entry
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            ForEach(entry.items.indices, id: \.self) { idx in
-                let item = entry.items[idx]
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("\(item.lineName) → \(item.destination)")
-                        .font(.headline)
-                    Text(item.stopName)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text(item.departures.map { "\($0) min" }.joined(separator: ", "))
-                        .font(.caption)
-                }
-                if idx != entry.items.indices.last {
-                    Divider().opacity(0.2)
-                }
+        if entry.items.isEmpty {
+            emptyState
+        } else if family == .systemSmall {
+            smallView
+        } else {
+            mediumView
+        }
+    }
+
+    // MARK: Empty
+
+    private var emptyState: some View {
+        VStack(spacing: 6) {
+            Image(systemName: "star")
+                .font(.title3)
+                .foregroundStyle(.secondary)
+            Text("No favourites yet")
+                .font(.subheadline.weight(.medium))
+            Text("Tap the heart on a line in the app.")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    // MARK: Small — first favourite, prominent
+
+    private var smallView: some View {
+        let item = entry.items[0]
+        return VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                WidgetLineBadge(line: item.lineName)
+                Spacer(minLength: 0)
+                refreshButton
             }
+            Text(item.destination)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
 
             Spacer(minLength: 0)
 
+            HStack(alignment: .firstTextBaseline, spacing: 3) {
+                Text(item.departures.first.map(timeString) ?? "–")
+                    .font(.system(size: 34, weight: .semibold))
+                    .monospacedDigit()
+                if let first = item.departures.first, first > 0 {
+                    Text("min").font(.caption).foregroundStyle(.secondary)
+                }
+            }
+            if item.departures.count > 1 {
+                Text("then " + item.departures.dropFirst().prefix(2).map { "\($0)" }.joined(separator: ", ") + " min")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer(minLength: 0)
+            updatedLabel
+        }
+    }
+
+    // MARK: Medium — up to 3 favourites
+
+    private var mediumView: some View {
+        VStack(alignment: .leading, spacing: 6) {
             HStack {
-                if let last = entry.lastUpdated {
-                    Text(relativeUpdatedString(since: last))
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
+                Text("Departures").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
                 Spacer()
-                Button(intent: RefreshFavoritesIntent()) {
-                    Image(systemName: "arrow.clockwise")
+                refreshButton
+            }
+            ForEach(entry.items.prefix(3).indices, id: \.self) { idx in
+                row(entry.items[idx])
+                if idx != min(2, entry.items.count - 1) {
+                    Divider().opacity(0.25)
                 }
-                .buttonStyle(.borderless)
-                .accessibilityLabel("Refresh")
+            }
+            Spacer(minLength: 0)
+            updatedLabel
+        }
+    }
+
+    private func row(_ item: WidgetDepartureData) -> some View {
+        HStack(spacing: 8) {
+            WidgetLineBadge(line: item.lineName)
+            Text(item.destination)
+                .font(.subheadline)
+                .lineLimit(1)
+            Spacer(minLength: 4)
+            HStack(alignment: .firstTextBaseline, spacing: 2) {
+                Text(item.departures.first.map(timeString) ?? "–")
+                    .font(.headline)
+                    .monospacedDigit()
+                if let first = item.departures.first, first > 0 {
+                    Text("min").font(.caption2).foregroundStyle(.secondary)
+                }
+            }
+            if item.departures.count > 1 {
+                Text("\(item.departures[1])")
+                    .font(.caption)
+                    .monospacedDigit()
+                    .foregroundStyle(.tertiary)
+                    .frame(width: 18, alignment: .trailing)
             }
         }
-        .padding(8)
+    }
+
+    // MARK: Bits
+
+    private var refreshButton: some View {
+        Button(intent: RefreshFavoritesIntent()) {
+            Image(systemName: "arrow.clockwise").font(.caption2)
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(.secondary)
+        .accessibilityLabel("Refresh")
+    }
+
+    @ViewBuilder
+    private var updatedLabel: some View {
+        if let last = entry.lastUpdated {
+            Text(relativeUpdatedString(since: last))
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
+    }
+
+    private func timeString(_ minutes: Int) -> String {
+        minutes <= 0 ? "now" : "\(minutes)"
     }
 
     private func relativeUpdatedString(since date: Date) -> String {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .short
-        let str = formatter.localizedString(for: date, relativeTo: .now)
-        return "Updated \(str)"
+        return "Updated \(formatter.localizedString(for: date, relativeTo: .now))"
     }
 }
 
@@ -231,16 +362,87 @@ struct TrafficViennaWidget: Widget {
             TrafficViennaWidgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
+        .configurationDisplayName("Departures")
+        .description("Live departures for your favourite lines.")
+        .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
 
+// MARK: - Live Activity (Lock Screen + Dynamic Island)
 
+private func clampedRange(to end: Date) -> ClosedRange<Date> {
+    let now = Date()
+    return now ... max(end, now.addingTimeInterval(1))
+}
+
+struct DepartureLiveActivity: Widget {
+    var body: some WidgetConfiguration {
+        ActivityConfiguration(for: DepartureActivityAttributes.self) { context in
+            HStack(spacing: 12) {
+                WidgetLineBadge(line: context.attributes.line)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(context.attributes.destination).font(.headline).lineLimit(1)
+                    Text(context.attributes.stopName).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 1) {
+                    Text(timerInterval: clampedRange(to: context.state.departureDate), countsDown: true)
+                        .font(.title2.weight(.semibold))
+                        .monospacedDigit()
+                        .multilineTextAlignment(.trailing)
+                        .frame(width: 78)
+                    Text("to departure").font(.caption2).foregroundStyle(.secondary)
+                }
+            }
+            .padding()
+            .activityBackgroundTint(Color(hex: 0x15171C))
+            .activitySystemActionForegroundColor(.white)
+        } dynamicIsland: { context in
+            DynamicIsland {
+                DynamicIslandExpandedRegion(.leading) {
+                    WidgetLineBadge(line: context.attributes.line)
+                        .padding(.leading, 4)
+                }
+                DynamicIslandExpandedRegion(.trailing) {
+                    Text(timerInterval: clampedRange(to: context.state.departureDate), countsDown: true)
+                        .font(.title3.weight(.semibold))
+                        .monospacedDigit()
+                        .frame(width: 70)
+                        .foregroundStyle(.green)
+                }
+                DynamicIslandExpandedRegion(.bottom) {
+                    Text("→ \(context.attributes.destination)")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            } compactLeading: {
+                WidgetLineBadge(line: context.attributes.line)
+            } compactTrailing: {
+                Text(timerInterval: clampedRange(to: context.state.departureDate), countsDown: true)
+                    .monospacedDigit()
+                    .frame(width: 44)
+                    .foregroundStyle(.green)
+            } minimal: {
+                Image(systemName: "tram.fill").foregroundStyle(.green)
+            }
+        }
+    }
+}
+
+private let previewItems = [
+    WidgetDepartureData(lineName: "U1", stopName: "", destination: "Leopoldau", departures: [2, 7, 12]),
+    WidgetDepartureData(lineName: "O", stopName: "", destination: "Praterstern", departures: [3, 9, 14]),
+    WidgetDepartureData(lineName: "59A", stopName: "", destination: "Kaisermühlen", departures: [0, 8, 16])
+]
 
 #Preview(as: .systemSmall) {
     TrafficViennaWidget()
 } timeline: {
-    SimpleEntry(date: .now, items: [
-        WidgetDepartureData(lineName: "U1", stopName: "Stephansplatz", destination: "Leopoldau", departures: [2,7,12]),
-        WidgetDepartureData(lineName: "O", stopName: "Praterstern", destination: "Migerka", departures: [3,9,14])
-    ], lastUpdated: Date())
+    SimpleEntry(date: .now, items: previewItems, lastUpdated: Date())
+}
+
+#Preview(as: .systemMedium) {
+    TrafficViennaWidget()
+} timeline: {
+    SimpleEntry(date: .now, items: previewItems, lastUpdated: Date())
 }

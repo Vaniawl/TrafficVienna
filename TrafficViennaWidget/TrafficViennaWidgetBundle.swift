@@ -12,5 +12,6 @@ import SwiftUI
 struct TrafficViennaWidgetBundle: WidgetBundle {
     var body: some Widget {
         TrafficViennaWidget()
+        DepartureLiveActivity()
     }
 }
