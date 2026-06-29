@@ -81,6 +81,10 @@ actor MonitorService {
         }
     }
 
+    func trafficInfoList(forceRefresh: Bool = false) async throws -> [TrafficInfo] {
+        try await network.fetchTrafficInfoList().data.trafficInfos ?? []
+    }
+
     // Shares one in-flight request per DIVA across concurrent callers.
     private func fetchCoalesced(diva: Int) async throws -> MonitorResponse {
         if let existing = inFlight[diva] {

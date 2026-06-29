@@ -10,22 +10,40 @@ import SwiftUI
 
 struct FavoritesView: View {
     @ObservedObject var vm: FavoritesListViewModel
+    @EnvironmentObject private var themeManager: ThemeManager
     @State private var showAbout = false
 
     var body: some View {
         Group {
-            if vm.isEmpty {
+            if vm.isLoading && vm.items.isEmpty && vm.stations.isEmpty {
+                ProgressView("Loading…")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let error = vm.errorMessage, vm.items.isEmpty {
+                ContentUnavailableView(
+                    "Couldn't load departures",
+                    systemImage: "wifi.exclamationmark",
+                    description: Text(error)
+                )
+            } else if vm.isEmpty {
                 ContentUnavailableView(
                     "No favourites yet",
                     systemImage: "star",
                     description: Text("Star a station, or tap the heart on a line, to save it here.")
                 )
             } else {
-                List {
-                    if !vm.stations.isEmpty { stationsSection }
-                    if !vm.items.isEmpty { linesSection }
+                if themeManager.preset.backgroundStyle == .grouped {
+                    List {
+                        if !vm.stations.isEmpty { stationsSection }
+                        if !vm.items.isEmpty { linesSection }
+                    }
+                    .listStyle(.insetGrouped)
+                } else {
+                    List {
+                        if !vm.stations.isEmpty { stationsSection }
+                        if !vm.items.isEmpty { linesSection }
+                    }
+                    .listStyle(.plain)
                 }
-                .listStyle(.insetGrouped)
             }
         }
         .navigationTitle("Favourites")
@@ -46,13 +64,13 @@ struct FavoritesView: View {
         .task {
             vm.loadStations()
             while !Task.isCancelled {
-                vm.loadFavorites()
+                await vm.loadFavorites()
                 try? await Task.sleep(for: .seconds(60))
             }
         }
         .refreshable {
             vm.loadStations()
-            vm.loadFavorites()
+            await vm.loadFavorites()
         }
     }
 
@@ -106,6 +124,7 @@ struct FavoritesView: View {
     vm.items = [
         FavoriteWithDeparture(
             route: FavoriteRoute(diva: "60200135", lineName: "U1", destination: "Leopoldau"),
+            stopName: "Stephansplatz",
             departures: [
                 DepartureInfo(countdown: 2, planned: "12:47", real: "12:47", isRealtime: true),
                 DepartureInfo(countdown: 5, planned: "12:50", real: nil, isRealtime: false)

@@ -6,8 +6,11 @@
 //
 
 import Foundation
-import CoreLocation
 import Combine
+import CoreLocation
+import OSLog
+
+private let log = Logger(subsystem: "at.wellbe.TrafficVienna", category: "location")
 
 //to find users location
 final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
@@ -73,7 +76,7 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     func locationManager(_ manager: CLLocationManager,
                          didFailWithError error: Error) {
         if let clError = error as? CLError, clError.code == .locationUnknown {
-            print("locationUnknown, забиваємо")
+            log.debug("locationUnknown, ignoring")
             return
         }
 

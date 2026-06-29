@@ -9,6 +9,7 @@
 import SwiftUI
 
 struct StationCardView: View {
+    @EnvironmentObject private var themeManager: ThemeManager
     let station: Station
     var distance: Double?
     var lines: [Lines] = []
@@ -19,7 +20,7 @@ struct StationCardView: View {
 
     private var walkMinutes: Int? {
         guard let distance else { return nil }
-        return max(1, Int((distance / 80).rounded()))
+        return max(1, Int((distance / walkingSpeed).rounded()))
     }
 
     var body: some View {
@@ -27,16 +28,33 @@ struct StationCardView: View {
             header
             content
         }
-        .padding(14)
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.secondarySystemGroupedBackground),
-                    in: RoundedRectangle(cornerRadius: 16))
+                    in: RoundedRectangle(cornerRadius: cardCornerRadius))
+        .shadow(color: themeManager.preset.cardStyle == .elevated ? .black.opacity(0.06) : .clear,
+                radius: 8, y: 2)
+        .contentShape(.rect(cornerRadius: cardCornerRadius))
+    }
+
+    private var cardCornerRadius: CGFloat {
+        themeManager.preset.cardStyle == .elevated ? 14 : 16
     }
 
     private var header: some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text(station.name)
-                .font(.headline)
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(station.name)
+                    .font(.headline)
+                if !lines.isEmpty {
+                    let unique = Set(lines.map(\.name)).sorted()
+                    HStack(spacing: 3) {
+                        ForEach(unique, id: \.self) { name in
+                            LineBadge(line: name, size: .small)
+                        }
+                    }
+                }
+            }
             Spacer()
             VStack(alignment: .trailing, spacing: 2) {
                 if let distance {
@@ -69,7 +87,7 @@ struct StationCardView: View {
                         nextIsLive: line.departures.departure.first?.departureTime.timeReal != nil,
                         showFollowUp: false
                     )
-                    .padding(.vertical, 9)
+                    .padding(.vertical, 8)
                     if index < visible.count - 1 { Divider() }
                 }
             }
@@ -85,7 +103,7 @@ struct StationCardView: View {
         VStack(spacing: 0) {
             ForEach(0..<3, id: \.self) { index in
                 DepartureLineRow(lineName: "00", destination: "Loading station", minutes: [0, 0])
-                    .padding(.vertical, 9)
+                    .padding(.vertical, 8)
                 if index < 2 { Divider() }
             }
         }
@@ -100,21 +118,14 @@ struct StationCardView: View {
             .padding(.vertical, 4)
     }
 
-    // "4 min · 280 m" walking estimate.
     private func walkText(_ meters: Double) -> String {
-        let walkMin = max(1, Int((meters / 80).rounded()))
+        let walkMin = max(1, Int((meters / walkingSpeed).rounded()))
         let dist = meters < 1000 ? "\(Int(meters)) m" : String(format: "%.1f km", meters / 1000)
         return "\(walkMin) min · \(dist)"
     }
 
     private func updatedText(_ date: Date) -> String {
-        let seconds = Int(Date().timeIntervalSince(date))
-        switch seconds {
-        case ..<10:   return "updated now"
-        case ..<60:   return "updated \(seconds)s ago"
-        case ..<3600: return "updated \(seconds / 60)m ago"
-        default:      return "updated \(seconds / 3600)h ago"
-        }
+        RelativeTime.updated(since: date)
     }
 }
 

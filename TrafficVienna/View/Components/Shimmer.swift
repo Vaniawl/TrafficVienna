@@ -16,7 +16,7 @@ private struct ShimmerModifier: ViewModifier {
                 GeometryReader { geo in
                     let width = geo.size.width
                     LinearGradient(
-                        colors: [.clear, Color.white.opacity(0.55), .clear],
+                        colors: [.clear, Color.primary.opacity(0.08), .clear],
                         startPoint: .leading,
                         endPoint: .trailing
                     )

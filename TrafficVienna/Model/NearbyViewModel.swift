@@ -22,7 +22,7 @@ final class NearbyViewModel: ObservableObject {
         var updatedAt: Date? = nil
 
         var id: Int { station.id }
-        var walkMinutes: Int { max(1, Int((distance / 80).rounded())) }
+        var walkMinutes: Int { max(1, Int((distance / walkingSpeed).rounded())) }
     }
 
     @Published private(set) var items: [Item] = []

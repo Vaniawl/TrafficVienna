@@ -30,7 +30,7 @@ nonisolated final class UserDefaultsFavoritesRepository: FavoritesRepository {
     // Sendable, so we opt out of the check explicitly.
     private nonisolated(unsafe) let storage: UserDefaults
     
-    init(storage: UserDefaults = UserDefaults(suiteName: "group.wellbe.TrafficVienna")!) {
+    init(storage: UserDefaults = UserDefaults(suiteName: "group.wellbe.TrafficVienna") ?? .standard) {
         self.storage = storage
     }
     

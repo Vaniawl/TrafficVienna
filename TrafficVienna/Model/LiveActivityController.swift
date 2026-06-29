@@ -1,14 +1,8 @@
-//
-//  LiveActivityController.swift
-//  TrafficVienna
-//
-//  Starts a Lock Screen / Dynamic Island countdown for a chosen departure.
-//  The countdown is rendered by the system from the target date, so no
-//  background updates are required.
-//
-
 import Foundation
 import ActivityKit
+import OSLog
+
+private let log = Logger(subsystem: "at.wellbe.TrafficVienna", category: "live-activity")
 
 @MainActor
 enum LiveActivityController {
@@ -29,7 +23,28 @@ enum LiveActivityController {
                 content: .init(state: state, staleDate: departureDate.addingTimeInterval(120))
             )
         } catch {
-            print("Live Activity error:", error)
+            log.error("start error: \(error, privacy: .public)")
+        }
+    }
+
+    static func update(line: String, destination: String, stop: String, minutes: Int, isLive: Bool) {
+        let departureDate = Date().addingTimeInterval(TimeInterval(max(0, minutes) * 60))
+        let state = DepartureActivityAttributes.ContentState(departureDate: departureDate, isLive: isLive)
+        let matching = Activity<DepartureActivityAttributes>.activities.first { a in
+            a.attributes.line == line &&
+            a.attributes.destination == destination &&
+            a.attributes.stopName == stop
+        }
+        Task {
+            await matching?.update(using: state)
+        }
+    }
+
+    static func stopAll() {
+        Task {
+            for activity in Activity<DepartureActivityAttributes>.activities {
+                await activity.end(dismissalPolicy: .immediate)
+            }
         }
     }
 }

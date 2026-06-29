@@ -149,51 +149,19 @@ struct Provider: AppIntentTimelineProvider {
     }
 
     private func extractWidgetData(from response: MonitorResponse, matching fav: FavoriteRoute) -> WidgetDepartureData? {
-        func normalize(_ s: String) -> String {
-            s.replacingOccurrences(of: " U", with: "")
-             .replacingOccurrences(of: " S", with: "")
-             .trimmingCharacters(in: .whitespacesAndNewlines)
-             .lowercased()
-        }
         let monitors = response.data.monitors
         guard !monitors.isEmpty else { return nil }
         guard let line = monitors.flatMap({ $0.lines }).first(where: { line in
-            line.name == fav.lineName && normalize(line.towards) == normalize(fav.destination)
+            RouteMatching.matches(
+                lineName: line.name, towards: line.towards,
+                favoriteLine: fav.lineName, favoriteDestination: fav.destination
+            )
         }) else { return nil }
 
         let minutes = line.departures.departure.map { $0.departureTime.countdown }
         let top = Array(minutes.prefix(3))
         return WidgetDepartureData(lineName: fav.lineName, stopName: fav.diva, destination: fav.destination, departures: top)
     }
-}
-
-// MARK: - Line styling (self-contained for the widget target)
-
-private extension Color {
-    init(hex: UInt) {
-        self.init(.sRGB,
-                  red: Double((hex >> 16) & 0xFF) / 255,
-                  green: Double((hex >> 8) & 0xFF) / 255,
-                  blue: Double(hex & 0xFF) / 255,
-                  opacity: 1)
-    }
-}
-
-private func widgetLineColor(_ line: String) -> Color {
-    let name = line.uppercased().trimmingCharacters(in: .whitespaces)
-    switch name {
-    case "U1": return Color(hex: 0xE20917)
-    case "U2": return Color(hex: 0xA862A4)
-    case "U3": return Color(hex: 0xEF7C00)
-    case "U4": return Color(hex: 0x00963F)
-    case "U6": return Color(hex: 0x9B6A30)
-    default: break
-    }
-    if name.hasPrefix("U") { return Color(hex: 0x1C6BA0) }
-    if name.hasPrefix("S") { return Color(hex: 0x004A99) }
-    if name.hasPrefix("N") { return Color(hex: 0x1A2A6C) }
-    if name.range(of: "^[0-9]+[AB]$", options: .regularExpression) != nil { return Color(hex: 0x004A99) }
-    return Color(hex: 0xE2002A)
 }
 
 private struct WidgetLineBadge: View {
@@ -204,7 +172,7 @@ private struct WidgetLineBadge: View {
             .foregroundStyle(.white)
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
-            .background(widgetLineColor(line), in: RoundedRectangle(cornerRadius: 5))
+            .background(LineColors.color(for: line), in: RoundedRectangle(cornerRadius: 5))
     }
 }
 

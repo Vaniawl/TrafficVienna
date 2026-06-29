@@ -8,6 +8,9 @@
 import Foundation
 import Combine
 import CoreLocation
+import OSLog
+
+private let log = Logger(subsystem: "at.wellbe.TrafficVienna", category: "store")
 
 
 // data  will be downloadedd from json file
@@ -45,31 +48,25 @@ final class StationStore: ObservableObject ,StationStoring {
     @Published private(set) var stations: [Station] = []
     
     init() {
-        print("Init StationStore")
-        loadStations() }
-    
-    // Loads the stations list from the bundled JSON file into memory.
+        loadStations()
+    }
+
     private func loadStations() {
-        Task.detached(priority: .background) {
-            guard let url = Bundle.main.url(
-                forResource: "wienerlinien-ogd-haltestellen",
-                withExtension: "json"
-            ) else {
-                print("❌ JSON file NOT FOUND")
-                return
-            }
-            
-            do {
-                let data = try Data(contentsOf: url)
-                let decoded = try JSONDecoder().decode([Station].self, from: data)
-                
-                await MainActor.run { [weak self] in
-                    self?.stations = decoded
-                    print("✅ Loaded \(decoded.count) stations")
-                }
-            } catch {
-                print("❌ Failed to load stations: \(error)")
-            }
+        guard let url = Bundle.main.url(
+            forResource: "wienerlinien-ogd-haltestellen",
+            withExtension: "json"
+        ) else {
+            log.error("JSON file NOT FOUND")
+            return
+        }
+
+        do {
+            let data = try Data(contentsOf: url)
+            let decoded = try JSONDecoder().decode([Station].self, from: data)
+            stations = decoded
+            log.debug("Loaded \(decoded.count) stations")
+        } catch {
+            log.error("Failed to load stations: \(error, privacy: .public)")
         }
     }
     

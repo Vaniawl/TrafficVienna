@@ -39,18 +39,30 @@ struct MapStationsView: View {
     }
 
     var body: some View {
-        Map(position: $position, selection: $selectedID) {
-            UserAnnotation()
-            ForEach(stations) { station in
-                Marker(station.name, systemImage: "tram.fill",
-                       coordinate: CLLocationCoordinate2D(latitude: station.lat, longitude: station.lon))
-                    .tint(.red)
-                    .tag(station.id)
+        ZStack(alignment: .top) {
+            Map(position: $position, selection: $selectedID) {
+                UserAnnotation()
+                ForEach(stations) { station in
+                    Marker(station.name, systemImage: "tram.fill",
+                           coordinate: CLLocationCoordinate2D(latitude: station.lat, longitude: station.lon))
+                        .tint(.red)
+                        .tag(station.id)
+                }
             }
-        }
-        .mapControls {
-            MapUserLocationButton()
-            MapCompass()
+            .mapControls {
+                MapUserLocationButton()
+                MapCompass()
+            }
+
+            if locationManager.userLocation == nil {
+                Text("Showing Vienna centre — enable location to see stops near you.")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(.regularMaterial, in: Capsule())
+                    .padding(.top, 8)
+            }
         }
         .navigationTitle("Map")
         .navigationBarTitleDisplayMode(.inline)

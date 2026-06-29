@@ -9,10 +9,12 @@
 
 import SwiftUI
 import CoreLocation
+import MapKit
 
 struct NearbyView: View {
     @StateObject private var vm: NearbyViewModel
     @ObservedObject private var locationManager: LocationManager
+    @EnvironmentObject private var themeManager: ThemeManager
     @Environment(\.openURL) private var openURL
 
     init(store: StationStore, locationManager: LocationManager) {
@@ -53,6 +55,21 @@ struct NearbyView: View {
         }
         .navigationTitle("Nearby")
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Menu {
+                    ForEach(ThemePreset.allCases) { preset in
+                        Button {
+                            ThemeManager.shared.preset = preset
+                        } label: {
+                            Label(preset.displayName, systemImage: ThemeManager.shared.preset == preset ? "checkmark.circle.fill" : "circle")
+                                .foregroundStyle(preset.accentColor)
+                        }
+                    }
+                } label: {
+                    Image(systemName: "paintpalette")
+                }
+                .accessibilityLabel("Change theme")
+            }
             if vm.hasLocation && !vm.items.isEmpty {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -93,12 +110,34 @@ struct NearbyView: View {
                         )
                     }
                     .buttonStyle(.plain)
+                    .contextMenu {
+                        let station = item.station
+                        let favRepo = UserDefaultsFavoriteStationsRepository()
+                        let isFav = favRepo.contains(id: station.id)
+
+                        Button {
+                            favRepo.toggle(FavoriteStation(station))
+                        } label: {
+                            Label(
+                                isFav ? "Remove station from favourites" : "Add station to favourites",
+                                systemImage: isFav ? "star.slash" : "star"
+                            )
+                        }
+
+                        ShareLink(item: stationShareText(station))
+
+                        Button {
+                            openInMaps(station)
+                        } label: {
+                            Label("Open in Maps", systemImage: "map")
+                        }
+                    }
                 }
             }
             .padding(.horizontal)
             .padding(.vertical, 8)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(themeManager.preset.backgroundStyle.color)
         .refreshable { await vm.load(force: true) }
     }
 
@@ -110,6 +149,17 @@ struct NearbyView: View {
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func stationShareText(_ station: Station) -> String {
+        "\(station.name) — live departures on Traffic Vienna"
+    }
+
+    private func openInMaps(_ station: Station) {
+        let placemark = MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: station.lat, longitude: station.lon))
+        let mapItem = MKMapItem(placemark: placemark)
+        mapItem.name = station.name
+        mapItem.openInMaps()
     }
 
     private func openSettings() {

@@ -16,19 +16,19 @@ struct OnboardingView: View {
             Spacer(minLength: 24)
 
             VStack(spacing: 16) {
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .fill(Color(hex: 0xE20917))
-                    .frame(width: 88, height: 88)
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(.appAccent)
+                    .frame(width: 80, height: 80)
                     .overlay(
                         Image(systemName: "tram.fill")
-                            .font(.system(size: 42, weight: .semibold))
+                            .font(.system(size: 36, weight: .semibold))
                             .foregroundStyle(.white)
                     )
 
-                VStack(spacing: 6) {
+                VStack(spacing: 4) {
                     Text("Traffic Vienna")
-                        .font(.largeTitle.weight(.bold))
-                    Text("Live Wiener Linien departures, wherever you are.")
+                        .font(.title.weight(.semibold))
+                    Text("Live departures, wherever you are.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -37,7 +37,7 @@ struct OnboardingView: View {
 
             Spacer(minLength: 32)
 
-            VStack(alignment: .leading, spacing: 22) {
+            VStack(alignment: .leading, spacing: 20) {
                 feature("location.fill", "Stops near you", "Live departures around your location.")
                 feature("star.fill", "Favourites", "Pin the lines and stations you use daily.")
                 feature("figure.walk", "Make it or miss it", "See if you can still catch the next one.")
@@ -46,7 +46,7 @@ struct OnboardingView: View {
 
             Spacer()
 
-            VStack(spacing: 10) {
+            VStack(spacing: 12) {
                 Button(action: onGetStarted) {
                     Text("Get started")
                         .font(.headline)
@@ -54,24 +54,23 @@ struct OnboardingView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
-                .tint(Color(hex: 0xE20917))
 
                 Text("Data: Wiener Linien (Stadt Wien, CC BY).")
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundStyle(.tertiary)
             }
         }
-        .padding(28)
+        .padding(32)
     }
 
     private func feature(_ icon: String, _ title: String, _ subtitle: String) -> some View {
-        HStack(spacing: 16) {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundStyle(Color(hex: 0xE20917))
-                .frame(width: 36)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title).font(.headline)
+        HStack(spacing: 12) {
+                Image(systemName: icon)
+                    .font(.title3)
+                    .foregroundStyle(.appAccent)
+                    .frame(width: 32)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title).font(.subheadline.weight(.semibold))
                 Text(subtitle).font(.subheadline).foregroundStyle(.secondary)
             }
             Spacer(minLength: 0)

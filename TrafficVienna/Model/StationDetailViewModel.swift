@@ -20,6 +20,7 @@ final class StationDetailViewModel: ObservableObject {
     @Published var monitor: MonitorResponse?
     @Published var lastUpdated: Date?
     @Published var isStationFavorited = false
+    @Published var categoryFilter: LineCategory? = nil
 
     // Active disruptions / notices for this station's lines.
     var trafficInfos: [TrafficInfo] {
@@ -68,10 +69,23 @@ final class StationDetailViewModel: ObservableObject {
             }
         }
 
-        return order.compactMap { merged[$0] }
+        let all = order.compactMap { merged[$0] }
             .map { DepartureGroup(line: $0.line, destination: $0.dest,
                                   minutes: $0.mins.sorted(), isLive: $0.live) }
             .sorted { ($0.minutes.first ?? .max) < ($1.minutes.first ?? .max) }
+
+        guard let filter = categoryFilter else { return all }
+        return all.filter { LineCategory.of($0.line) == filter }
+    }
+
+    var availableCategories: [LineCategory] {
+        guard let monitor else { return [] }
+        let all = Set(
+            monitor.data.monitors
+                .flatMap { $0.lines }
+                .map { LineCategory.of($0.name) }
+        )
+        return LineCategory.allCases.filter(all.contains)
     }
 
     var lastUpdatedText: String? {
@@ -110,24 +124,21 @@ final class StationDetailViewModel: ObservableObject {
         isLoading = true
 
         defer { isLoading = false }
-        // a station without DIVA cannot be used to load monitor data
         guard let diva = station.diva else {
             errorMessage = "No live data for this station"
             return
         }
 
         do {
-            // perform the network request and decode the response
             let response = try await service.monitor(diva: diva, forceRefresh: forceRefresh)
             self.monitor = response
             self.lastUpdated = Date()
             if let widgetData = widgetData(from: response) {
-                WidgetSync.save([widgetData])
+                WidgetSyncManager().save([widgetData])
             }
         } catch {
             errorMessage = error.monitorDisplayMessage
         }
-
     }
     
     func isFavorite(line: String, destination: String) -> Bool {

@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrafficVienna — 8 Design Directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Archivo:ital,wght@0,100..900;1,100..900&family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #121212;
+  font-family: -apple-system, BlinkMacSystemFont, system-ui;
+  padding: 48px 24px;
+  color: #fff;
+}
+
+.header {
+  max-width: 1500px;
+  margin: 0 auto 48px;
+  text-align: center;
+}
+
+.header h1 {
+  font-size: 32px;
+  font-weight: 300;
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.header p {
+  font-size: 14px;
+  color: rgba(255,255,255,0.4);
+}
+
+.grid {
+  max-width: 1500px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 48px 20px;
+  align-items: start;
+}
+
+/* =============================
+   iPhone 15 Pro Frame
+   ============================= */
+.iphone {
+  --bezel: #3A3A3C;
+  --bezel-shine: rgba(255,255,255,0.06);
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Side buttons */
+.iphone::before {
+  content: '';
+  position: absolute;
+  right: -3px;
+  top: 120px;
+  width: 2px;
+  height: 50px;
+  background: var(--bezel);
+  border-radius: 0 2px 2px 0;
+  z-index: 5;
+}
+
+.iphone::after {
+  content: '';
+  position: absolute;
+  right: -3px;
+  top: 185px;
+  width: 2px;
+  height: 60px;
+  background: var(--bezel);
+  border-radius: 0 2px 2px 0;
+  z-index: 5;
+}
+
+/* Left mute switch */
+.iphone .side-left {
+  position: absolute;
+  left: -3px;
+  top: 140px;
+  width: 2px;
+  height: 25px;
+  background: var(--bezel);
+  border-radius: 2px 0 0 2px;
+  z-index: 5;
+}
+
+/* Volume buttons */
+.iphone .side-left-2 {
+  position: absolute;
+  left: -3px;
+  top: 180px;
+  width: 2px;
+  height: 40px;
+  background: var(--bezel);
+  border-radius: 2px 0 0 2px;
+  z-index: 5;
+}
+
+/* Bezel */
+.iphone-bezel {
+  background: linear-gradient(145deg, #4A4A4C, #2C2C2E);
+  border-radius: 52px;
+  padding: 4px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.05),
+    0 30px 80px rgba(0,0,0,0.6),
+    inset 0 0 0 0.5px rgba(255,255,255,0.08);
+  position: relative;
+}
+
+/* Screen */
+.iphone-screen {
+  background: var(--bg);
+  border-radius: 48px;
+  overflow: hidden;
+  min-height: 620px;
+  position: relative;
+  aspect-ratio: 390 / 844;
+}
+
+/* Dynamic Island */
+.dynamic-island {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 34px;
+  background: #000;
+  border-radius: 17px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.dynamic-island .cam {
+  width: 10px;
+  height: 10px;
+  border-radius: 10px;
+  background: radial-gradient(circle at 35% 35%, #1A2A4A, #0A0A1A);
+  border: 0.5px solid rgba(255,255,255,0.05);
+}
+
+/* iOS Status Bar */
+.ios-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 44px 32px 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: -apple-system, system-ui;
+  letter-spacing: 0.3px;
+  position: relative;
+  z-index: 10;
+}
+
+.ios-status .time {
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  width: 54px;
+}
+
+.ios-status .right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 72px;
+  justify-content: flex-end;
+}
+
+.ios-status .right svg {
+  display: block;
+}
+
+.ios-status .battery {
+  position: relative;
+  width: 24px;
+  height: 11px;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  opacity: 0.7;
+}
+
+.ios-status .battery::after {
+  content: '';
+  position: absolute;
+  right: -3px;
+  top: 2.5px;
+  width: 2px;
+  height: 5px;
+  background: currentColor;
+  border-radius: 0 1px 1px 0;
+  opacity: 0.7;
+}
+
+.ios-status .battery .level {
+  position: absolute;
+  left: 1px;
+  top: 1px;
+  bottom: 1px;
+  width: 75%;
+  background: currentColor;
+  border-radius: 1px;
+  opacity: 0.7;
+}
+
+/* Home Indicator */
+.home-indicator {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 134px;
+  height: 5px;
+  background: var(--home-indicator, rgba(0,0,0,0.2));
+  border-radius: 3px;
+  z-index: 20;
+}
+
+/* Tab Bar */
+.tab-bar {
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 0 28px;
+  border-top: 0.5px solid var(--border);
+  background: var(--tab-bg);
+}
+
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  color: var(--tab-inactive);
+  font-weight: 500;
+  flex: 1;
+  letter-spacing: 0.2px;
+}
+
+.tab-item.active { color: var(--accent); }
+
+.tab-item svg { width: 24px; height: 24px; }
+
+/* Content */
+.content { padding: 4px 20px 0; }
+
+/* Section */
+.section-title {
+  font-size: var(--section-title-size, 12px);
+  font-weight: var(--section-title-weight, 600);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 14px 0 8px;
+  font-family: var(--font-ui);
+}
+
+/* Station card */
+.station-card {
+  background: var(--card-bg);
+  border-radius: var(--card-radius, 12px);
+  padding: var(--card-padding, 12px);
+  margin-bottom: 8px;
+  box-shadow: var(--card-shadow, none);
+}
+
+.station-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+
+.station-name {
+  font-size: 16px;
+  font-weight: var(--station-name-weight, 600);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+}
+
+.station-walk {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+}
+
+/* Departure row */
+.dep-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+}
+
+.line-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: var(--badge-radius, 20px);
+  color: #fff;
+  background: var(--line-color, #888);
+  flex-shrink: 0;
+  letter-spacing: 0.3px;
+  min-width: 34px;
+  text-align: center;
+}
+
+.dep-dest {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dep-dest .via {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-left: 4px;
+}
+
+.dep-time {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.dep-minutes {
+  font-family: var(--font-mono);
+  font-size: var(--time-size, 20px);
+  font-weight: var(--time-weight, 400);
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.dep-minutes.now {
+  color: var(--accent);
+}
+
+.dep-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
+}
+
+.dep-followup {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-faint);
+  margin-left: 6px;
+}
+
+.more-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  padding: 4px 0 0;
+  font-family: var(--font-ui);
+}
+
+/* Filter chips */
+.filter-row {
+  display: flex;
+  gap: 6px;
+  padding: 10px 0;
+  overflow-x: auto;
+}
+
+.chip {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: var(--chip-bg, rgba(128,128,128,0.12));
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  font-family: var(--font-ui);
+  border: none;
+  cursor: default;
+  transition: all 0.2s;
+}
+
+.chip.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Direction label */
+.dir-label {
+  text-align: center;
+  margin-bottom: 18px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.dir-label .sub {
+  display: block;
+  font-size: 10px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 0.4px;
+  text-transform: none;
+  margin-top: 3px;
+}
+
+/* ================================
+   DIRECTION 1 — Official
+   ================================ */
+.dir1 {
+  --bg: #F2F2ED;
+  --tab-bg: rgba(255,255,255,0.88);
+  --card-bg: #FFFFFF;
+  --card-radius: 14px;
+  --card-padding: 14px;
+  --card-shadow: 0 1px 4px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.02);
+  --text-primary: #1A1A1A;
+  --text-secondary: #8A8A8A;
+  --text-tertiary: #B0B0B0;
+  --text-faint: #C8C8C8;
+  --border: rgba(0,0,0,0.06);
+  --accent: #E20917;
+  --chip-bg: rgba(0,0,0,0.06);
+  --tab-inactive: #8A8A8A;
+  --home-indicator: rgba(0,0,0,0.18);
+  --font-ui: -apple-system, BlinkMacSystemFont, system-ui;
+  --font-mono: "JetBrains Mono", "SF Mono", monospace;
+  --time-size: 22px;
+  --time-weight: 500;
+  --badge-radius: 6px;
+  --section-title-size: 11px;
+  --section-title-weight: 700;
+  --station-name-weight: 600;
+}
+
+.dir1 .nav-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 4px 20px 2px;
+}
+
+.dir1 .nav-bar .title {
+  font-size: 28px; font-weight: 700; color: #1A1A1A;
+  letter-spacing: -0.5px;
+}
+
+.dir1 .nav-bar .icon {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: rgba(0,0,0,0.04);
+  display: flex; align-items: center; justify-content: center;
+}
+
+.dir1 .nav-bar .icon svg { width: 18px; height: 18px; color: #666; }
+.dir1 .line-badge { border-radius: 5px; font-size: 10px; font-weight: 700; padding: 1px 6px; }
+.dir1 .station-name { font-size: 17px; }
+.dir1 .dep-minutes { font-weight: 600; }
+.dir1 .chip { border-radius: 7px; }
+
+/* ================================
+   DIRECTION 2 — Dark Dashboard
+   ================================ */
+.dir2 {
+  --bg: #0A0A0A;
+  --tab-bg: rgba(20,20,20,0.95);
+  --card-bg: #141414;
+  --card-radius: 4px;
+  --card-padding: 10px;
+  --card-shadow: none;
+  --text-primary: #D4D4D4;
+  --text-secondary: #666;
+  --text-tertiary: #555;
+  --text-faint: #3A3A3A;
+  --border: rgba(255,255,255,0.04);
+  --accent: #00FF41;
+  --chip-bg: rgba(255,255,255,0.04);
+  --tab-inactive: #555;
+  --home-indicator: rgba(255,255,255,0.12);
+  --font-ui: "JetBrains Mono", "SF Mono", monospace;
+  --font-mono: "JetBrains Mono", "SF Mono", monospace;
+  --time-size: 30px;
+  --time-weight: 300;
+  --badge-radius: 2px;
+  --section-title-size: 10px;
+  --section-title-weight: 500;
+  --station-name-weight: 400;
+}
+
+.dir2 .nav-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 4px 16px 0;
+  border-bottom: 0.5px solid rgba(255,255,255,0.04);
+}
+
+.dir2 .nav-bar .title {
+  font-size: 12px; font-weight: 400; color: var(--accent);
+  text-transform: uppercase; letter-spacing: 2px;
+}
+
+.dir2 .nav-bar .icon svg { width: 16px; height: 16px; color: var(--accent); }
+.dir2 .section-title { border-top: 0.5px solid rgba(255,255,255,0.04); padding-top: 12px; color: var(--accent); }
+.dir2 .station-name { font-weight: 400; text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px; }
+.dir2 .station-walk { color: var(--text-faint); }
+.dir2 .dep-dest { font-size: 12px; }
+.dir2 .dep-minutes.now { color: var(--accent); }
+.dir2 .dep-label { display: none; }
+.dir2 .chip { border-radius: 2px; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; }
+.dir2 .ios-status { font-family: var(--font-mono); color: var(--accent); font-size: 11px; }
+.dir2 .tab-item svg { opacity: 0.5; }
+.dir2 .tab-item.active svg { opacity: 1; color: var(--accent); }
+
+/* ================================
+   DIRECTION 3 — Vienna Modern
+   ================================ */
+.dir3 {
+  --bg: #FAF8F4;
+  --tab-bg: rgba(255,255,255,0.88);
+  --card-bg: transparent;
+  --card-radius: 0;
+  --card-padding: 8px 0;
+  --card-shadow: none;
+  --text-primary: #2D2A24;
+  --text-secondary: #8A8580;
+  --text-tertiary: #B5B0AB;
+  --text-faint: #D0CCC8;
+  --border: rgba(45,42,36,0.08);
+  --accent: #C41E24;
+  --chip-bg: rgba(45,42,36,0.06);
+  --tab-inactive: #B5B0AB;
+  --home-indicator: rgba(0,0,0,0.12);
+  --font-ui: "DM Sans", -apple-system, system-ui;
+  --font-mono: "JetBrains Mono", monospace;
+  --time-size: 22px;
+  --time-weight: 300;
+  --badge-radius: 4px;
+  --section-title-size: 11px;
+  --section-title-weight: 500;
+  --station-name-weight: 500;
+}
+
+.dir3 .nav-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 20px 4px;
+}
+
+.dir3 .nav-bar .title {
+  font-size: 20px; font-weight: 300; color: var(--text-primary);
+  letter-spacing: -0.3px;
+}
+
+.dir3 .nav-bar .icon svg { width: 20px; height: 20px; color: var(--text-secondary); }
+.dir3 .station-card { border-bottom: 0.5px solid var(--border); }
+.dir3 .station-name { font-size: 18px; font-weight: 400; letter-spacing: -0.3px; }
+.dir3 .dep-dest { font-weight: 400; }
+.dir3 .dep-minutes { font-weight: 300; }
+.dir3 .dep-label { font-size: 9px; }
+.dir3 .line-badge { font-weight: 500; border-radius: 3px; }
+.dir3 .chip { border-radius: 100px; font-weight: 400; }
+.dir3 .chip.active { background: var(--accent); }
+
+/* ================================
+   DIRECTION 4 — Playful
+   ================================ */
+.dir4 {
+  --bg: #FFF8F5;
+  --tab-bg: rgba(255,255,255,0.92);
+  --card-bg: #FFFFFF;
+  --card-radius: 20px;
+  --card-padding: 16px;
+  --card-shadow: 0 4px 24px rgba(255,107,53,0.10), 0 1px 3px rgba(0,0,0,0.04);
+  --text-primary: #2C1A14;
+  --text-secondary: #B08880;
+  --text-tertiary: #CCB0A8;
+  --text-faint: #E0D0C8;
+  --border: rgba(255,107,53,0.08);
+  --accent: #FF6B35;
+  --chip-bg: rgba(255,107,53,0.08);
+  --tab-inactive: #CCB0A8;
+  --home-indicator: rgba(0,0,0,0.14);
+  --font-ui: -apple-system, BlinkMacSystemFont, system-ui;
+  --font-mono: "JetBrains Mono", "SF Mono", monospace;
+  --time-size: 22px;
+  --time-weight: 700;
+  --badge-radius: 8px;
+  --section-title-size: 13px;
+  --section-title-weight: 700;
+  --station-name-weight: 700;
+}
+
+.dir4 .nav-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 20px 4px;
+}
+
+.dir4 .nav-bar .title {
+  font-size: 30px; font-weight: 800; color: var(--text-primary);
+  letter-spacing: -1px;
+}
+
+.dir4 .nav-bar .icon {
+  width: 36px; height: 36px; border-radius: 12px;
+  background: rgba(255,107,53,0.1);
+  display: flex; align-items: center; justify-content: center;
+}
+
+.dir4 .nav-bar .icon svg { width: 20px; height: 20px; color: var(--accent); }
+.dir4 .station-name { font-size: 18px; }
+.dir4 .station-walk {
+  font-size: 12px; background: rgba(255,107,53,0.06);
+  padding: 2px 8px; border-radius: 12px;
+}
+.dir4 .dep-dest { font-weight: 600; }
+.dir4 .dep-minutes.now {
+  background: var(--accent); color: #fff; padding: 0 6px; border-radius: 8px;
+}
+.dir4 .chip.active { background: var(--accent); box-shadow: 0 2px 8px rgba(255,107,53,0.25); }
+.dir4 .line-badge { font-weight: 700; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+/* ================================
+   DIRECTION 5 — Brutalist
+   ================================ */
+.dir5 {
+  --bg: #F5F3EF;
+  --tab-bg: #FFFFFF;
+  --card-bg: transparent;
+  --card-radius: 0;
+  --card-padding: 6px 0;
+  --card-shadow: none;
+  --text-primary: #000;
+  --text-secondary: #666;
+  --text-tertiary: #999;
+  --text-faint: #CCC;
+  --border: #000;
+  --accent: #FFD500;
+  --chip-bg: #000;
+  --tab-inactive: #999;
+  --home-indicator: rgba(0,0,0,0.25);
+  --font-ui: "Archivo", "Helvetica Neue", sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", monospace;
+  --time-size: 26px;
+  --time-weight: 900;
+  --badge-radius: 0;
+  --section-title-size: 10px;
+  --section-title-weight: 900;
+  --station-name-weight: 900;
+}
+
+.dir5 .nav-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 20px 2px;
+  border-bottom: 3px solid #000;
+}
+
+.dir5 .nav-bar .title {
+  font-size: 17px; font-weight: 900; color: #000;
+  text-transform: uppercase; letter-spacing: 2px;
+}
+
+.dir5 .nav-bar .icon svg { width: 22px; height: 22px; color: #000; stroke-width: 2.5; }
+.dir5 .station-card { border-bottom: 2px solid #000; margin-bottom: 0; }
+.dir5 .station-name { font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+.dir5 .station-walk {
+  background: #000; color: #fff; padding: 1px 6px; font-size: 10px; font-weight: 700;
+}
+.dir5 .dep-dest { font-weight: 600; font-size: 12px; }
+.dir5 .dep-minutes { font-weight: 900; }
+.dir5 .dep-minutes.now { background: var(--accent); color: #000; padding: 0 4px; }
+.dir5 .dep-label { display: none; }
+.dir5 .dep-followup { color: #999; }
+.dir5 .line-badge { border-radius: 0; font-weight: 800; letter-spacing: 0.5px; }
+.dir5 .chip { border-radius: 0; font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: 1px; padding: 4px 12px; }
+.dir5 .chip.active { background: #000; color: var(--accent); }
+.dir5 .section-title { font-weight: 900; letter-spacing: 2px; border-top: 2px solid #000; padding-top: 12px; margin-top: 4px; color: #000; }
+.dir5 .ios-status { font-weight: 900; letter-spacing: 1px; color: #000; }
+.dir5 .tab-bar { border-top: 2px solid #000; }
+.dir5 .tab-item svg { stroke-width: 2.5; }
+
+/* ================================
+   DIRECTION 6 — Glassmorphism
+   ================================ */
+.dir6 {
+  --tab-bg: rgba(255,255,255,0.6);
+  --card-bg: rgba(255,255,255,0.5);
+  --card-radius: 20px;
+  --card-padding: 16px;
+  --card-shadow: none;
+  --text-primary: #1A1A1E;
+  --text-secondary: #7A7A84;
+  --text-tertiary: #A0A0AC;
+  --text-faint: #C8C8D0;
+  --border: rgba(255,255,255,0.2);
+  --accent: #8B5CF6;
+  --chip-bg: rgba(255,255,255,0.4);
+  --tab-inactive: #A0A0AC;
+  --home-indicator: rgba(0,0,0,0.1);
+  --font-ui: -apple-system, BlinkMacSystemFont, system-ui;
+  --font-mono: "JetBrains Mono", monospace;
+  --time-size: 22px;
+  --time-weight: 500;
+  --badge-radius: 8px;
+  --section-title-size: 11px;
+  --section-title-weight: 600;
+  --station-name-weight: 600;
+}
+
+.dir6 { background: linear-gradient(160deg, #E8E4DF, #DDD8D2); }
+.dir6 .iphone-screen {
+  background: rgba(242,239,237,0.65);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+}
+.dir6 .nav-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 20px 4px;
+}
+.dir6 .nav-bar .title { font-size: 22px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.5px; }
+.dir6 .nav-bar .icon {
+  width: 34px; height: 34px; border-radius: 12px;
+  background: rgba(255,255,255,0.5);
+  backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: center;
+  border: 0.5px solid rgba(255,255,255,0.5);
+}
+.dir6 .nav-bar .icon svg { width: 18px; height: 18px; color: var(--text-secondary); }
+.dir6 .station-card { border: 0.5px solid rgba(255,255,255,0.4); backdrop-filter: blur(20px); }
+.dir6 .station-name { font-size: 16px; font-weight: 600; }
+.dir6 .dep-dest { font-weight: 500; }
+.dir6 .dep-minutes { font-weight: 500; }
+.dir6 .line-badge { font-weight: 600; border-radius: 8px; border: 0.3px solid rgba(255,255,255,0.2); }
+.dir6 .chip { background: rgba(255,255,255,0.35); backdrop-filter: blur(8px); border: 0.5px solid rgba(255,255,255,0.2); }
+.dir6 .chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.dir6 .section-title { color: var(--text-secondary); letter-spacing: 1px; }
+.dir6 .tab-bar { backdrop-filter: blur(30px); background: rgba(255,255,255,0.5); }
+
+/* ================================
+   DIRECTION 7 — Retro
+   ================================ */
+.dir7 {
+  --bg: #F5ECE0;
+  --tab-bg: rgba(245,236,224,0.9);
+  --card-bg: #FDF8F0;
+  --card-radius: 0;
+  --card-padding: 12px 16px;
+  --card-shadow: none;
+  --text-primary: #3C2A1C;
+  --text-secondary: #8A7A6A;
+  --text-tertiary: #B0A090;
+  --text-faint: #D0C8B8;
+  --border: rgba(60,42,28,0.1);
+  --accent: #D4782A;
+  --chip-bg: rgba(60,42,28,0.06);
+  --tab-inactive: #B0A090;
+  --home-indicator: rgba(0,0,0,0.12);
+  --font-ui: "Fraunces", "Georgia", serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --time-size: 22px;
+  --time-weight: 500;
+  --badge-radius: 0;
+  --section-title-size: 10px;
+  --section-title-weight: 700;
+  --station-name-weight: 600;
+}
+
+.dir7 .nav-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 20px 4px;
+}
+.dir7 .nav-bar .title {
+  font-size: 22px; font-weight: 700; color: var(--text-primary);
+  font-style: italic;
+}
+.dir7 .nav-bar .icon svg { width: 20px; height: 20px; color: var(--accent); stroke-width: 2; }
+.dir7 .station-card { border-left: 3px solid var(--accent); }
+.dir7 .station-name { font-size: 18px; font-weight: 600; font-style: italic; }
+.dir7 .station-walk { background: var(--accent); color: #fff; padding: 1px 8px; font-size: 10px; }
+.dir7 .dep-dest { font-style: italic; font-size: 14px; }
+.dir7 .dep-minutes { font-weight: 500; color: var(--accent); }
+.dir7 .dep-minutes.now { background: var(--accent); color: #fff; padding: 0 6px; }
+.dir7 .dep-label { font-style: italic; font-size: 9px; color: var(--accent); }
+.dir7 .line-badge {
+  border-radius: 0; font-weight: 600; background: transparent !important; color: var(--line-color, #888);
+  border: 1.5px solid currentColor; padding: 1px 6px;
+}
+.dir7 .chip { border-radius: 0; font-weight: 600; border: 1px solid rgba(60,42,28,0.15); }
+.dir7 .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.dir7 .section-title { font-weight: 700; letter-spacing: 1px; color: var(--accent); border-bottom: 1px solid var(--accent); padding-bottom: 4px; }
+
+/* ================================
+   DIRECTION 8 — Split-Flap Kiosk
+   ================================ */
+.dir8 {
+  --bg: #0D0D0D;
+  --tab-bg: rgba(13,13,13,0.95);
+  --card-bg: transparent;
+  --card-radius: 0;
+  --card-padding: 4px 0;
+  --card-shadow: none;
+  --text-primary: #FFB800;
+  --text-secondary: #8A7000;
+  --text-tertiary: #5A4A00;
+  --text-faint: #3A3000;
+  --border: rgba(255,184,0,0.08);
+  --accent: #FFB800;
+  --chip-bg: rgba(255,184,0,0.06);
+  --tab-inactive: #5A4A00;
+  --home-indicator: rgba(255,184,0,0.15);
+  --font-ui: "JetBrains Mono", "SF Mono", monospace;
+  --font-mono: "JetBrains Mono", "SF Mono", monospace;
+  --time-size: 26px;
+  --time-weight: 400;
+  --badge-radius: 0;
+  --section-title-size: 10px;
+  --section-title-weight: 400;
+  --station-name-weight: 400;
+}
+
+.dir8 .nav-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 4px 16px 0;
+  border-bottom: 1px solid rgba(255,184,0,0.08);
+}
+.dir8 .nav-bar .title {
+  font-size: 13px; font-weight: 400; color: var(--accent);
+  text-transform: uppercase; letter-spacing: 3px; opacity: 0.6;
+}
+.dir8 .nav-bar .icon svg { width: 16px; height: 16px; color: var(--accent); opacity: 0.4; }
+.dir8 .station-card { border-bottom: 1px solid rgba(255,184,0,0.04); }
+.dir8 .station-header { margin-bottom: 2px; }
+.dir8 .station-name { font-size: 14px; font-weight: 400; text-transform: uppercase; letter-spacing: 2px; opacity: 0.7; }
+.dir8 .station-walk { font-size: 10px; opacity: 0.35; text-transform: uppercase; letter-spacing: 1px; }
+.dir8 .dep-row { padding: 3px 0; gap: 6px; }
+.dir8 .line-badge {
+  border-radius: 0; font-size: 10px; font-weight: 400; padding: 1px 5px;
+  background: transparent !important; color: var(--line-color, #888);
+  border: 1px solid currentColor; opacity: 0.7; letter-spacing: 0.5px;
+}
+.dir8 .dep-dest { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; font-weight: 300; }
+.dir8 .dep-minutes { font-weight: 400; color: var(--accent); opacity: 0.9; }
+.dir8 .dep-minutes.now { opacity: 1; text-decoration: underline; text-underline-offset: 3px; }
+.dir8 .dep-label { display: none; }
+.dir8 .dep-followup { opacity: 0.25; font-size: 9px; }
+.dir8 .more-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.25; }
+.dir8 .filter-row { gap: 4px; }
+.dir8 .chip {
+  border-radius: 0; font-size: 9px; text-transform: uppercase; letter-spacing: 1px;
+  padding: 3px 8px; border: 1px solid rgba(255,184,0,0.12); background: transparent;
+  color: rgba(255,184,0,0.25);
+}
+.dir8 .chip.active { background: var(--accent); color: #0D0D0D; border-color: var(--accent); }
+.dir8 .section-title { font-size: 9px; letter-spacing: 2px; opacity: 0.25; color: var(--accent); border-top: 1px solid rgba(255,184,0,0.04); padding-top: 8px; }
+.dir8 .ios-status { opacity: 0.35; text-transform: uppercase; letter-spacing: 2px; font-size: 11px; }
+.dir8 .tab-bar { border-top: 1px solid rgba(255,184,0,0.06); }
+.dir8 .tab-item svg { opacity: 0.25; }
+.dir8 .tab-item.active svg { opacity: 0.7; color: var(--accent); }
+
+/* Line colors */
+.line-u1 { background: #E20917; }
+.line-u2 { background: #A862A4; }
+.line-u3 { background: #EF7C00; }
+.line-u4 { background: #00963F; }
+.line-tram { background: #E2002A; }
+.line-bus { background: #004A99; }
+
+.dir7 .line-u1, .dir8 .line-u1 { --line-color: #E20917; }
+.dir7 .line-u2, .dir8 .line-u2 { --line-color: #A862A4; }
+.dir7 .line-u3, .dir8 .line-u3 { --line-color: #EF7C00; }
+.dir7 .line-u4, .dir8 .line-u4 { --line-color: #00963F; }
+.dir7 .line-tram, .dir8 .line-tram { --line-color: #E2002A; }
+.dir7 .line-bus, .dir8 .line-bus { --line-color: #004A99; }
+
+@media (max-width: 1380px) { .grid { grid-template-columns: repeat(2, 1fr); gap: 48px; } }
+@media (max-width: 700px) { .grid { grid-template-columns: 1fr; gap: 48px; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>TrafficVienna — Design Directions</h1>
+  <p>8 напрямків дизайн-системи · iPhone 15 Pro мокапи</p>
+</div>
+
+<div class="grid">
+
+  <!-- ========== 1. OFFICIAL ========== -->
+  <div>
+    <div class="dir-label">Wiener Linien Official<span class="sub">Brand-aligned · Clean · Trustworthy</span></div>
+    <div class="iphone dir1">
+      <div class="side-left"></div><div class="side-left-2"></div>
+      <div class="iphone-bezel">
+        <div class="iphone-screen">
+          <div class="dynamic-island"><div class="cam"></div></div>
+          <div class="ios-status">
+            <span class="time">12:47</span>
+            <span style="flex:1"></span>
+            <div class="right">
+              <svg width="16" height="12" viewBox="0 0 16 12"><path d="M1 4h11v5H1z" fill="none" stroke="currentColor" stroke-width="1" opacity="0.5"/><rect x="12" y="3" width="1" height="7" rx="0.5" fill="currentColor" opacity="0.5"/><path d="M1 7h8" stroke="currentColor" stroke-width="0.5" opacity="0.3"/></svg>
+              <div class="battery"><div class="level"></div></div>
+            </div>
+          </div>
+          <div class="nav-bar">
+            <span class="title">Nearby</span>
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4m10-10h-4M6 12H2"/></svg></div>
+          </div>
+          <div class="content">
+            <div class="filter-row">
+              <span class="chip active">ALL</span><span class="chip">U-Bahn</span><span class="chip">Tram</span><span class="chip">Bus</span>
+            </div>
+            <div class="station-card">
+              <div class="station-header"><span class="station-name">Stephansplatz</span><span class="station-walk">2 min</span></div>
+              <div class="dep-row"><span class="line-badge line-u1">U1</span><span class="dep-dest">Leopoldau <span class="via">via Praterstern</span></span><div class="dep-time"><span class="dep-minutes now">Now</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Ottakring</span><div class="dep-time"><span class="dep-minutes">3</span><span class="dep-label">min</span><span class="dep-followup">7 11</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u1">U1</span><span class="dep-dest">Oberlaa <span class="via">via Reumannplatz</span></span><div class="dep-time"><span class="dep-minutes">6</span><span class="dep-label">min</span><span class="dep-followup">10 14</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Simmering</span><div class="dep-time"><span class="dep-minutes">9</span><span class="dep-label">min</span><span class="dep-followup">13</span></div></div>
+              <div class="more-label">+ 3 more lines</div>
+            </div>
+            <div class="section-title">OTHER STOPS NEARBY</div>
+            <div class="station-card">
+              <div class="station-header"><span class="station-name">Herrengasse</span><span class="station-walk">4 min</span></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Ottakring</span><div class="dep-time"><span class="dep-minutes">5</span><span class="dep-label">min</span><span class="dep-followup">9 12</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Simmering</span><div class="dep-time"><span class="dep-minutes">8</span><span class="dep-label">min</span><span class="dep-followup">11</span></div></div>
+            </div>
+          </div>
+          <div class="tab-bar">
+            <div class="tab-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20"/></svg><span>Nearby</span></div>
+            <div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg><span>Search</span></div>
+            <div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg><span>Map</span></div>
+            <div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg><span>Alerts</span></div>
+            <div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>Favs</span></div>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 2. DASHBOARD ========== -->
+  <div>
+    <div class="dir-label">Dark Dashboard<span class="sub">Terminal · Dense · Monospaced</span></div>
+    <div class="iphone dir2">
+      <div class="side-left"></div><div class="side-left-2"></div>
+      <div class="iphone-bezel">
+        <div class="iphone-screen">
+          <div class="dynamic-island"><div class="cam"></div></div>
+          <div class="ios-status"><span class="time">12:47</span><span style="flex:1"></span><div class="right"><svg width="16" height="12" viewBox="0 0 16 12"><path d="M1 4h11v5H1z" fill="none" stroke="currentColor" stroke-width="1" opacity="0.5"/><rect x="12" y="3" width="1" height="7" rx="0.5" fill="currentColor" opacity="0.5"/><path d="M1 7h8" stroke="currentColor" stroke-width="0.5" opacity="0.3"/></svg><div class="battery"><div class="level"></div></div></div></div>
+          <div class="nav-bar"><span class="title">NEARBY</span><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4m10-10h-4M6 12H2"/></svg></div></div>
+          <div class="content">
+            <div class="filter-row"><span class="chip active">ALL</span><span class="chip">U-BAHN</span><span class="chip">TRAM</span><span class="chip">BUS</span></div>
+            <div class="station-card">
+              <div class="station-header"><span class="station-name">STEPHANSPLATZ</span><span class="station-walk">2MIN</span></div>
+              <div class="dep-row"><span class="line-badge line-u1">U1</span><span class="dep-dest">Leopoldau</span><div class="dep-time"><span class="dep-minutes now">NOW</span><span class="dep-followup">2 5 8</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Ottakring</span><div class="dep-time"><span class="dep-minutes">3</span><span class="dep-followup">7 11</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u1">U1</span><span class="dep-dest">Oberlaa</span><div class="dep-time"><span class="dep-minutes">6</span><span class="dep-followup">10 14</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Simmering</span><div class="dep-time"><span class="dep-minutes">9</span><span class="dep-followup">13</span></div></div>
+              <div class="more-label">+3 MORE</div>
+            </div>
+            <div class="section-title">OTHER STOPS</div>
+            <div class="station-card">
+              <div class="station-header"><span class="station-name">HERRENGASSE</span><span class="station-walk">4MIN</span></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Ottakring</span><div class="dep-time"><span class="dep-minutes">5</span><span class="dep-followup">9 12</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Simmering</span><div class="dep-time"><span class="dep-minutes">8</span><span class="dep-followup">11</span></div></div>
+            </div>
+          </div>
+          <div class="tab-bar"><div class="tab-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20"/></svg><span>Nearby</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg><span>Search</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg><span>Map</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg><span>Alerts</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>Favs</span></div></div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 3. VIENNA MODERN ========== -->
+  <div>
+    <div class="dir-label">Vienna Modern<span class="sub">Editorial · Airy · Sophisticated</span></div>
+    <div class="iphone dir3">
+      <div class="side-left"></div><div class="side-left-2"></div>
+      <div class="iphone-bezel">
+        <div class="iphone-screen">
+          <div class="dynamic-island"><div class="cam"></div></div>
+          <div class="ios-status"><span class="time">12:47</span><span style="flex:1"></span><div class="right"><svg width="16" height="12" viewBox="0 0 16 12"><path d="M1 4h11v5H1z" fill="none" stroke="currentColor" stroke-width="1" opacity="0.5"/><rect x="12" y="3" width="1" height="7" rx="0.5" fill="currentColor" opacity="0.5"/><path d="M1 7h8" stroke="currentColor" stroke-width="0.5" opacity="0.3"/></svg><div class="battery"><div class="level"></div></div></div></div>
+          <div class="nav-bar"><span class="title">Nearby</span><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4m10-10h-4M6 12H2"/></svg></div></div>
+          <div class="content">
+            <div class="filter-row"><span class="chip active">ALL</span><span class="chip">U-Bahn</span><span class="chip">Tram</span><span class="chip">Bus</span></div>
+            <div class="station-card">
+              <div class="station-header"><span class="station-name">Stephansplatz</span><span class="station-walk">2 min</span></div>
+              <div class="dep-row"><span class="line-badge line-u1">U1</span><span class="dep-dest">Leopoldau</span><div class="dep-time"><span class="dep-minutes now">Now</span><span class="dep-followup">2 5 8</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Ottakring</span><div class="dep-time"><span class="dep-minutes">3</span><span class="dep-label">min</span><span class="dep-followup">7 11</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u1">U1</span><span class="dep-dest">Oberlaa</span><div class="dep-time"><span class="dep-minutes">6</span><span class="dep-label">min</span><span class="dep-followup">10 14</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Simmering</span><div class="dep-time"><span class="dep-minutes">9</span><span class="dep-label">min</span><span class="dep-followup">13</span></div></div>
+              <div class="more-label">+ 3 more lines</div>
+            </div>
+            <div class="section-title">Other Stops Nearby</div>
+            <div class="station-card">
+              <div class="station-header"><span class="station-name">Herrengasse</span><span class="station-walk">4 min</span></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Ottakring</span><div class="dep-time"><span class="dep-minutes">5</span><span class="dep-label">min</span><span class="dep-followup">9 12</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Simmering</span><div class="dep-time"><span class="dep-minutes">8</span><span class="dep-label">min</span><span class="dep-followup">11</span></div></div>
+            </div>
+          </div>
+          <div class="tab-bar"><div class="tab-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20"/></svg><span>Nearby</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg><span>Search</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg><span>Map</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg><span>Alerts</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>Favs</span></div></div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 4. PLAYFUL ========== -->
+  <div>
+    <div class="dir-label">Playful Approachable<span class="sub">Warm · Rounded · Friendly</span></div>
+    <div class="iphone dir4">
+      <div class="side-left"></div><div class="side-left-2"></div>
+      <div class="iphone-bezel">
+        <div class="iphone-screen">
+          <div class="dynamic-island"><div class="cam"></div></div>
+          <div class="ios-status"><span class="time">12:47</span><span style="flex:1"></span><div class="right"><svg width="16" height="12" viewBox="0 0 16 12"><path d="M1 4h11v5H1z" fill="none" stroke="currentColor" stroke-width="1" opacity="0.5"/><rect x="12" y="3" width="1" height="7" rx="0.5" fill="currentColor" opacity="0.5"/><path d="M1 7h8" stroke="currentColor" stroke-width="0.5" opacity="0.3"/></svg><div class="battery"><div class="level"></div></div></div></div>
+          <div class="nav-bar"><span class="title">Nearby</span><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4m10-10h-4M6 12H2"/></svg></div></div>
+          <div class="content">
+            <div class="filter-row"><span class="chip active">ALL</span><span class="chip">U-Bahn</span><span class="chip">Tram</span><span class="chip">Bus</span></div>
+            <div class="station-card">
+              <div class="station-header"><span class="station-name">Stephansplatz</span><span class="station-walk">2 min</span></div>
+              <div class="dep-row"><span class="line-badge line-u1">U1</span><span class="dep-dest">Leopoldau</span><div class="dep-time"><span class="dep-minutes now">NOW</span><span class="dep-followup">2 5 8</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Ottakring</span><div class="dep-time"><span class="dep-minutes">3</span><span class="dep-label">min</span><span class="dep-followup">7 11</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u1">U1</span><span class="dep-dest">Oberlaa</span><div class="dep-time"><span class="dep-minutes">6</span><span class="dep-label">min</span><span class="dep-followup">10 14</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Simmering</span><div class="dep-time"><span class="dep-minutes">9</span><span class="dep-label">min</span><span class="dep-followup">13</span></div></div>
+              <div class="more-label">+ 3 more lines</div>
+            </div>
+            <div class="section-title">OTHER STOPS NEARBY</div>
+            <div class="station-card">
+              <div class="station-header"><span class="station-name">Herrengasse</span><span class="station-walk">4 min</span></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Ottakring</span><div class="dep-time"><span class="dep-minutes">5</span><span class="dep-label">min</span><span class="dep-followup">9 12</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Simmering</span><div class="dep-time"><span class="dep-minutes">8</span><span class="dep-label">min</span><span class="dep-followup">11</span></div></div>
+            </div>
+          </div>
+          <div class="tab-bar"><div class="tab-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20"/></svg><span>Nearby</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg><span>Search</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg><span>Map</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg><span>Alerts</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>Favs</span></div></div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 5. BRUTALIST ========== -->
+  <div>
+    <div class="dir-label">Brutalist<span class="sub">Raw · Bold · High Contrast</span></div>
+    <div class="iphone dir5">
+      <div class="side-left"></div><div class="side-left-2"></div>
+      <div class="iphone-bezel">
+        <div class="iphone-screen">
+          <div class="dynamic-island"><div class="cam"></div></div>
+          <div class="ios-status"><span class="time">12:47</span><span style="flex:1"></span><div class="right"><svg width="16" height="12" viewBox="0 0 16 12"><path d="M1 4h11v5H1z" fill="none" stroke="currentColor" stroke-width="1" opacity="0.5"/><rect x="12" y="3" width="1" height="7" rx="0.5" fill="currentColor" opacity="0.5"/><path d="M1 7h8" stroke="currentColor" stroke-width="0.5" opacity="0.3"/></svg><div class="battery"><div class="level"></div></div></div></div>
+          <div class="nav-bar"><span class="title">NEARBY</span><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4m10-10h-4M6 12H2"/></svg></div></div>
+          <div class="content">
+            <div class="filter-row"><span class="chip active">ALL</span><span class="chip">U-BAHN</span><span class="chip">TRAM</span><span class="chip">BUS</span></div>
+            <div class="station-card">
+              <div class="station-header"><span class="station-name">STEPHANSPLATZ</span><span class="station-walk">2 MIN</span></div>
+              <div class="dep-row"><span class="line-badge line-u1">U1</span><span class="dep-dest">Leopoldau</span><div class="dep-time"><span class="dep-minutes now">NOW</span><span class="dep-followup">2 5 8</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Ottakring</span><div class="dep-time"><span class="dep-minutes">3</span><span class="dep-followup">7 11</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u1">U1</span><span class="dep-dest">Oberlaa</span><div class="dep-time"><span class="dep-minutes">6</span><span class="dep-followup">10 14</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Simmering</span><div class="dep-time"><span class="dep-minutes">9</span><span class="dep-followup">13</span></div></div>
+              <div class="more-label">+3 MORE LINES</div>
+            </div>
+            <div class="section-title">OTHER STOPS</div>
+            <div class="station-card">
+              <div class="station-header"><span class="station-name">HERRENGASSE</span><span class="station-walk">4 MIN</span></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Ottakring</span><div class="dep-time"><span class="dep-minutes">5</span><span class="dep-followup">9 12</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Simmering</span><div class="dep-time"><span class="dep-minutes">8</span><span class="dep-followup">11</span></div></div>
+            </div>
+          </div>
+          <div class="tab-bar"><div class="tab-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20"/></svg><span>Nearby</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg><span>Search</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg><span>Map</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg><span>Alerts</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>Favs</span></div></div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 6. GLASSMORPHISM ========== -->
+  <div>
+    <div class="dir-label">Glassmorphism<span class="sub">Frosted · Layered · Light</span></div>
+    <div class="iphone dir6">
+      <div class="side-left"></div><div class="side-left-2"></div>
+      <div class="iphone-bezel">
+        <div class="iphone-screen">
+          <div class="dynamic-island"><div class="cam"></div></div>
+          <div class="ios-status"><span class="time">12:47</span><span style="flex:1"></span><div class="right"><svg width="16" height="12" viewBox="0 0 16 12"><path d="M1 4h11v5H1z" fill="none" stroke="currentColor" stroke-width="1" opacity="0.5"/><rect x="12" y="3" width="1" height="7" rx="0.5" fill="currentColor" opacity="0.5"/><path d="M1 7h8" stroke="currentColor" stroke-width="0.5" opacity="0.3"/></svg><div class="battery"><div class="level"></div></div></div></div>
+          <div class="nav-bar"><span class="title">Nearby</span><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4m10-10h-4M6 12H2"/></svg></div></div>
+          <div class="content">
+            <div class="filter-row"><span class="chip active">ALL</span><span class="chip">U-Bahn</span><span class="chip">Tram</span><span class="chip">Bus</span></div>
+            <div class="station-card">
+              <div class="station-header"><span class="station-name">Stephansplatz</span><span class="station-walk">2 min</span></div>
+              <div class="dep-row"><span class="line-badge line-u1">U1</span><span class="dep-dest">Leopoldau</span><div class="dep-time"><span class="dep-minutes now">Now</span><span class="dep-followup">2 5 8</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Ottakring</span><div class="dep-time"><span class="dep-minutes">3</span><span class="dep-label">min</span><span class="dep-followup">7 11</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u1">U1</span><span class="dep-dest">Oberlaa</span><div class="dep-time"><span class="dep-minutes">6</span><span class="dep-label">min</span><span class="dep-followup">10 14</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Simmering</span><div class="dep-time"><span class="dep-minutes">9</span><span class="dep-label">min</span><span class="dep-followup">13</span></div></div>
+              <div class="more-label">+ 3 more lines</div>
+            </div>
+            <div class="section-title">OTHER STOPS NEARBY</div>
+            <div class="station-card">
+              <div class="station-header"><span class="station-name">Herrengasse</span><span class="station-walk">4 min</span></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Ottakring</span><div class="dep-time"><span class="dep-minutes">5</span><span class="dep-label">min</span><span class="dep-followup">9 12</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Simmering</span><div class="dep-time"><span class="dep-minutes">8</span><span class="dep-label">min</span><span class="dep-followup">11</span></div></div>
+            </div>
+          </div>
+          <div class="tab-bar"><div class="tab-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20"/></svg><span>Nearby</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg><span>Search</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg><span>Map</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg><span>Alerts</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>Favs</span></div></div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 7. RETRO ========== -->
+  <div>
+    <div class="dir-label">Retro Wiener U-Bahn<span class="sub">Nostalgic · Serif · Warm</span></div>
+    <div class="iphone dir7">
+      <div class="side-left"></div><div class="side-left-2"></div>
+      <div class="iphone-bezel">
+        <div class="iphone-screen">
+          <div class="dynamic-island"><div class="cam"></div></div>
+          <div class="ios-status"><span class="time">12:47</span><span style="flex:1"></span><div class="right"><svg width="16" height="12" viewBox="0 0 16 12"><path d="M1 4h11v5H1z" fill="none" stroke="currentColor" stroke-width="1" opacity="0.5"/><rect x="12" y="3" width="1" height="7" rx="0.5" fill="currentColor" opacity="0.5"/><path d="M1 7h8" stroke="currentColor" stroke-width="0.5" opacity="0.3"/></svg><div class="battery"><div class="level"></div></div></div></div>
+          <div class="nav-bar"><span class="title">Nearby</span><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4m10-10h-4M6 12H2"/></svg></div></div>
+          <div class="content">
+            <div class="filter-row"><span class="chip active">ALL</span><span class="chip">U-Bahn</span><span class="chip">Tram</span><span class="chip">Bus</span></div>
+            <div class="station-card">
+              <div class="station-header"><span class="station-name">Stephansplatz</span><span class="station-walk">2 min</span></div>
+              <div class="dep-row"><span class="line-badge line-u1">U1</span><span class="dep-dest">Leopoldau</span><div class="dep-time"><span class="dep-minutes now">Now</span><span class="dep-followup">2 5 8</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Ottakring</span><div class="dep-time"><span class="dep-minutes">3</span><span class="dep-label">min</span><span class="dep-followup">7 11</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u1">U1</span><span class="dep-dest">Oberlaa</span><div class="dep-time"><span class="dep-minutes">6</span><span class="dep-label">min</span><span class="dep-followup">10 14</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Simmering</span><div class="dep-time"><span class="dep-minutes">9</span><span class="dep-label">min</span><span class="dep-followup">13</span></div></div>
+              <div class="more-label">+ 3 more lines</div>
+            </div>
+            <div class="section-title">Other Stops Nearby</div>
+            <div class="station-card">
+              <div class="station-header"><span class="station-name">Herrengasse</span><span class="station-walk">4 min</span></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Ottakring</span><div class="dep-time"><span class="dep-minutes">5</span><span class="dep-label">min</span><span class="dep-followup">9 12</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Simmering</span><div class="dep-time"><span class="dep-minutes">8</span><span class="dep-label">min</span><span class="dep-followup">11</span></div></div>
+            </div>
+          </div>
+          <div class="tab-bar"><div class="tab-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20"/></svg><span>Nearby</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg><span>Search</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg><span>Map</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg><span>Alerts</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>Favs</span></div></div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 8. SPLIT-FLAP KIOSK ========== -->
+  <div>
+    <div class="dir-label">Split-Flap Kiosk<span class="sub">Mechanical · Yellow on Black · Transit</span></div>
+    <div class="iphone dir8">
+      <div class="side-left"></div><div class="side-left-2"></div>
+      <div class="iphone-bezel">
+        <div class="iphone-screen">
+          <div class="dynamic-island"><div class="cam"></div></div>
+          <div class="ios-status"><span class="time">12:47</span><span style="flex:1"></span><div class="right"><svg width="16" height="12" viewBox="0 0 16 12"><path d="M1 4h11v5H1z" fill="none" stroke="currentColor" stroke-width="1" opacity="0.5"/><rect x="12" y="3" width="1" height="7" rx="0.5" fill="currentColor" opacity="0.5"/><path d="M1 7h8" stroke="currentColor" stroke-width="0.5" opacity="0.3"/></svg><div class="battery"><div class="level"></div></div></div></div>
+          <div class="nav-bar"><span class="title">NEARBY</span><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4m10-10h-4M6 12H2"/></svg></div></div>
+          <div class="content">
+            <div class="filter-row"><span class="chip active">ALL</span><span class="chip">U-BAHN</span><span class="chip">TRAM</span><span class="chip">BUS</span></div>
+            <div class="station-card">
+              <div class="station-header"><span class="station-name">Stephansplatz</span><span class="station-walk">2 MIN</span></div>
+              <div class="dep-row"><span class="line-badge line-u1">U1</span><span class="dep-dest">Leopoldau</span><div class="dep-time"><span class="dep-minutes now">NOW</span><span class="dep-followup">2 5 8</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Ottakring</span><div class="dep-time"><span class="dep-minutes">3</span><span class="dep-followup">7 11</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u1">U1</span><span class="dep-dest">Oberlaa</span><div class="dep-time"><span class="dep-minutes">6</span><span class="dep-followup">10 14</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Simmering</span><div class="dep-time"><span class="dep-minutes">9</span><span class="dep-followup">13</span></div></div>
+              <div class="more-label">+3 MORE</div>
+            </div>
+            <div class="section-title">OTHER STOPS</div>
+            <div class="station-card">
+              <div class="station-header"><span class="station-name">Herrengasse</span><span class="station-walk">4 MIN</span></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Ottakring</span><div class="dep-time"><span class="dep-minutes">5</span><span class="dep-followup">9 12</span></div></div>
+              <div class="dep-row"><span class="line-badge line-u3">U3</span><span class="dep-dest">Simmering</span><div class="dep-time"><span class="dep-minutes">8</span><span class="dep-followup">11</span></div></div>
+            </div>
+          </div>
+          <div class="tab-bar"><div class="tab-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20"/></svg><span>Nearby</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg><span>Search</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg><span>Map</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg><span>Alerts</span></div><div class="tab-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>Favs</span></div></div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

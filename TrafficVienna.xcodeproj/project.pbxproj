@@ -50,6 +50,8 @@
 			membershipExceptions = (
 				Model/WidgetSync.swift,
 				WidgetShared/DepartureActivityAttributes.swift,
+				WidgetShared/LineColors.swift,
+				WidgetShared/RouteMatching.swift,
 				WidgetShared/WidgetSharedModel.swift,
 			);
 			target = AF8A82AA2ED30A1C00286504 /* TrafficViennaWidgetExtension */;

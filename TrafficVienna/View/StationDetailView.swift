@@ -77,6 +77,14 @@ struct StationDetailView: View {
                 }
             }
 
+            if vm.availableCategories.count > 1 {
+                Section {
+                    FilterChips(categories: vm.availableCategories, selection: $vm.categoryFilter)
+                        .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+                        .listRowBackground(Color.clear)
+                }
+            }
+
             Section {
                 ForEach(vm.groups) { group in
                     lineRow(group)
@@ -127,6 +135,9 @@ struct StationDetailView: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(isFav ? "Remove \(group.line) from favourites" : "Save \(group.line) to favourites")
+            } else {
+                Color.clear
+                    .frame(width: 44)
             }
         }
         .padding(.vertical, 4)

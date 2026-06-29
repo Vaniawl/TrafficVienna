@@ -1,0 +1,102 @@
+{
+  "name": "opencode-mobile",
+  "version": "1.4.0",
+  "description": "Mobile push notification plugin for OpenCode - enables push notifications via Expo for mobile devices",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "bin": {
+    "opencode-mobile": "./bin/audit",
+    "opencode-mobile-qr": "./bin/qr",
+    "opencode-mobile-tunnel-setup": "./dist/src/cli/tunnel-setup.js",
+    "opencode-mobile-uninstall": "./bin/uninstall"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./audit": {
+      "import": "./dist/src/cli/index.js",
+      "types": "./dist/src/cli/index.d.ts"
+    },
+    "./qr": {
+      "import": "./dist/src/cli/qr.js",
+      "types": "./dist/src/cli/qr.d.ts"
+    },
+    "./install": {
+      "import": "./dist/src/cli/install.js",
+      "types": "./dist/src/cli/install.d.ts"
+    },
+    "./update": {
+      "import": "./dist/src/cli/update.js",
+      "types": "./dist/src/cli/update.d.ts"
+    },
+    "./tunnel-setup": {
+      "import": "./dist/src/cli/tunnel-setup.js",
+      "types": "./dist/src/cli/tunnel-setup.d.ts"
+    },
+    "./uninstall": {
+      "import": "./dist/src/cli/uninstall.js",
+      "types": "./dist/src/cli/uninstall.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "bin"
+  ],
+  "keywords": [
+    "opencode",
+    "plugin",
+    "push-notifications",
+    "mobile",
+    "expo"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/doza62/opencode-mobile"
+  },
+  "homepage": "https://github.com/doza62/opencode-mobile#readme",
+  "bugs": {
+    "url": "https://github.com/doza62/opencode-mobile/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@ngrok/ngrok": "^1.7.0",
+    "@opencode-ai/plugin": "^1.1.12",
+    "cloudflared": "^0.1.1",
+    "cloudflared-tunnel": "^1.0.3",
+    "expo": "^54.0.31",
+    "jsonc-parser": "^3.3.1",
+    "localtunnel": "^1.8.3",
+    "ngrok": "^5.0.0-beta.2",
+    "qrcode": "^1.5.4",
+    "qrcode-terminal": "^0.12.0"
+  },
+  "devDependencies": {
+    "@types/localtunnel": "^2.0.4",
+    "@types/node": "^22.13.9",
+    "@types/qrcode": "^1.5.6",
+    "@types/qrcode-terminal": "^0.12.2",
+    "@vitest/ui": "^4.0.17",
+    "typescript": "^5.8.2",
+    "vitest": "^4.0.17"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "version": "echo \"v$(npm pkg get version | tr -d '\"')\"",
+    "release": "npm run release:patch",
+    "release:patch": "npm version patch && npm run build && npm publish",
+    "release:minor": "npm version minor && npm run build && npm publish",
+    "release:major": "npm version major && npm run build && npm publish",
+    "prepublishOnly": "npm run build",
+    "audit": "node bin/audit",
+    "audit:build": "npm run build && node bin/audit --help",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

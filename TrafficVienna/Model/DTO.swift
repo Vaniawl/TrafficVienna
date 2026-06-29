@@ -28,6 +28,11 @@ nonisolated struct DataBlock: Decodable {
 
     enum CodingKeys: String, CodingKey { case monitors, trafficInfos }
 
+    init(monitors: [Monitor], trafficInfos: [TrafficInfo]?) {
+        self.monitors = monitors
+        self.trafficInfos = trafficInfos
+    }
+
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         monitors = try c.decodeIfPresent([Monitor].self, forKey: .monitors) ?? []
@@ -51,6 +56,11 @@ nonisolated struct Monitor: Decodable {
     let lines: [Lines]
 
     enum CodingKeys: String, CodingKey { case locationStop, lines }
+
+    init(locationStop: LocationStop, lines: [Lines]) {
+        self.locationStop = locationStop
+        self.lines = lines
+    }
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)

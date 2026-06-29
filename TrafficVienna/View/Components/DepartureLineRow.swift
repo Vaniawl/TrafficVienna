@@ -26,16 +26,16 @@ struct DepartureLineRow: View {
 
     // Fixed column widths keep every row aligned regardless of badge or
     // number length.
-    private let badgeColumn: CGFloat = 52
+    private let badgeColumn: CGFloat = 48
     private let glyphColumn: CGFloat = 16
-    private let nextColumn: CGFloat = 62
-    private let followColumn: CGFloat = 52
+    private let nextColumn: CGFloat = 60
+    private let followColumn: CGFloat = 48
 
     var body: some View {
         let next = minutes.first
         let status = next.map(catchStatus(next:)) ?? nil
 
-        HStack(spacing: 10) {
+        HStack(spacing: 8) {
             LineBadge(line: lineName)
                 .frame(width: badgeColumn, alignment: .center)
 
@@ -44,13 +44,13 @@ struct DepartureLineRow: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
 
+            Spacer(minLength: 4)
+
             if hasDisruption {
                 Image(systemName: "exclamationmark.triangle.fill")
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundStyle(.orange)
             }
-
-            Spacer(minLength: 6)
 
             glyph(status: status, next: next)
                 .frame(width: glyphColumn)
@@ -90,13 +90,11 @@ struct DepartureLineRow: View {
         }
     }
 
-    // Leading cue: catch-status icon (Nearby) takes priority, else a live
-    // pulse for real-time departures (detail / favourites).
     @ViewBuilder
     private func glyph(status: CatchStatus?, next: Int?) -> some View {
         if let icon = statusIcon(status) {
             Image(systemName: icon)
-                .font(.caption2)
+                .font(.caption)
                 .foregroundStyle(statusColor(status))
         } else if nextIsLive, let n = next, n > 0 {
             LivePulse()
@@ -108,13 +106,13 @@ struct DepartureLineRow: View {
         let rest = Array(minutes.dropFirst().prefix(2))
         if !rest.isEmpty {
             Text(rest.map(String.init).joined(separator: " · "))
-                .font(.footnote)
+                .font(.caption)
                 .monospacedDigit()
                 .foregroundStyle(.tertiary)
         }
     }
 
-    // MARK: - Catch-it logic
+    // MARK: - Catch status
 
     private func catchStatus(next: Int) -> CatchStatus? {
         guard let walk = walkMinutes, next > 0 else { return nil }
@@ -127,7 +125,7 @@ struct DepartureLineRow: View {
         switch status {
         case .comfortable: return "figure.walk"
         case .hurry:       return "figure.run"
-        case .missed:      return "figure.walk"
+        case .missed:      return "nosign"
         case nil:          return nil
         }
     }

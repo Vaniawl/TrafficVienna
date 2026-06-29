@@ -7,6 +7,9 @@
 
 import Foundation
 import WidgetKit
+import OSLog
+
+private let log = Logger(subsystem: "at.wellbe.TrafficVienna", category: "widget-sync")
 
 protocol WidgetSyncing: Sendable {
     func save(_ data: [WidgetDepartureData])
@@ -37,41 +40,20 @@ nonisolated final class WidgetSyncManager: WidgetSyncing {
     
     func save(_ data: [WidgetDepartureData]) {
         guard let storage = storage else {
-            print("WidgetSync: UserDefaults not available for app group \(appGroupID)")
+            log.error("UserDefaults not available for app group \(self.appGroupID)")
             return
         }
         let encoder = JSONEncoder()
         guard let encoded = try? encoder.encode(data) else {
-            print("WidgetSync: Failed to encode WidgetDepartureData")
+            log.error("Failed to encode WidgetDepartureData")
             return
         }
-        
+
         storage.set(encoded, forKey: dataKey)
         storage.set(Date(), forKey: lastUpdatedKey)
-        
+
         WidgetCenter.shared.reloadTimelines(ofKind: widgetKind)
-        
-        print("✅ WidgetSync: Saved \(data.count) items to widget")
 
-    }
-}
-
-
-enum WidgetSync {
-    static let appGroupID = "group.wellbe.TrafficVienna"
-    static let widgetKind = "TrafficViennaWidget"
-    static let widgetDataKey = "widget_departure"
-    static let widgetLastUpdatedKey = "widget_last_updated"
-
-    static func save(_ data: [WidgetDepartureData]) {
-        let encoder = JSONEncoder()
-        guard let encoded = try? encoder.encode(data) else {
-            print("WidgetSync: failed to encode WidgetDepartureData")
-            return
-        }
-        let defaults = UserDefaults(suiteName: appGroupID)
-        defaults?.set(encoded, forKey: widgetDataKey)
-        defaults?.set(Date(), forKey: widgetLastUpdatedKey)
-        WidgetCenter.shared.reloadTimelines(ofKind: widgetKind)
+        log.debug("Saved \(data.count) items to widget")
     }
 }

@@ -14,7 +14,4 @@ nonisolated struct WidgetDepartureData: Codable {
     let departures: [Int]
 }
 
-nonisolated struct WidgetCacheEnvelope: Codable {
-    let items: [WidgetDepartureData]
-    let lastUpdated: Date
-}
+
