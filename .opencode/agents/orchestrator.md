@@ -19,6 +19,7 @@ permission:
     "*": ask
     "pwd": allow
     "ls *": allow
+    "ls -la .opencode/ 2>/dev/null && echo * && ls -la docs/opencode/ 2>/dev/null && echo * && ls -la .agents/ 2>/dev/null": allow
     "find *": allow
     "test -e *": allow
     "test -f *": allow
@@ -32,8 +33,10 @@ permission:
     "git status*": allow
     "git diff*": allow
     "git log*": allow
+    "git log --oneline codex/opencode-multi-agent-workflow 2>/dev/null || echo *; git log --oneline origin/codex/opencode-multi-agent-workflow 2>/dev/null || echo *": allow
     "git show*": allow
     "git branch*": allow
+    "git branch -a && echo * && git log --oneline -5 && echo * && git status": allow
     "git rev-parse*": allow
     "git ls-files*": allow
     "git fetch origin --prune": allow
@@ -64,11 +67,17 @@ permission:
     "git commit": allow
     "git commit *": allow
     "gh auth status": allow
+    "GH_CONFIG_DIR=/home/skyphoenix/.config/gh-personal gh auth status*": allow
     "gh repo view *": allow
+    "GH_CONFIG_DIR=/home/skyphoenix/.config/gh-personal gh repo view *": allow
     "gh pr view *": allow
+    "GH_CONFIG_DIR=/home/skyphoenix/.config/gh-personal gh pr view *": allow
     "gh pr list *": allow
+    "GH_CONFIG_DIR=/home/skyphoenix/.config/gh-personal gh pr list *": allow
     "gh pr create --draft *": allow
+    "GH_CONFIG_DIR=/home/skyphoenix/.config/gh-personal gh pr create --draft *": allow
     "gh pr edit *": allow
+    "GH_CONFIG_DIR=/home/skyphoenix/.config/gh-personal gh pr edit *": allow
     "git push *": ask
     "git push -u origin codex/*": allow
     "git push origin main": deny

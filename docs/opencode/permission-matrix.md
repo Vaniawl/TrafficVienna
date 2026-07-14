@@ -13,6 +13,7 @@
 | dependency install | `npm ci`/`npm install` allow; adding packages ask | Existing manifests are allowed; supply-chain changes are gated. |
 | Git local add/commit | allow | Local commits are part of the autonomous workflow. |
 | feature branch push and draft PR | allowed for orchestrator only | Completed work can be handed off for review. |
+| isolated personal GitHub CLI commands | allow for `GH_CONFIG_DIR=/home/skyphoenix/.config/gh-personal gh ...` safe PR/status operations | TrafficVienna must use the personal account context without touching the work account. |
 | direct `main`/`master` push | deny | Protect base branches. |
 | force push, reset hard, clean, destructive remove | deny | Protect history and local data. |
 | release/deploy/App Store tooling | ask or deny | Production and release actions require explicit approval. |
