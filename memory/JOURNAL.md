@@ -7,6 +7,7 @@
 - Re-ran the final autonomy audit prompt and found the next safe startup gap: `git fetch origin main 2>&1 && git log --oneline -5 origin/main`. Added the exact allow rule and regression case so updated-main discovery no longer blocks non-interactive runs.
 - Re-ran the audit again and found the read-only branch/status bundle variant with `git status --short`. Added the exact allow rule and regression case.
 - Re-ran the audit again and confirmed the startup status bundle now passes; the next gap was the read-only fallback `git log --oneline -5 origin/main 2>/dev/null || echo ...`. Added the exact allow rule and regression case.
+- Re-ran the audit again and found a pipe/filter prompt (`git branch ... | head -20`). Added safe output-only filter allowances for `head`, `tail`, and `echo`, plus the concrete branch listing regression case.
 - Extended `tests/opencode-permission-matcher.sh` with the real failing command shapes. Local validation passed with repository validation, OpenCode validation, permission matcher, CI wrapper with explicit local Xcode skip, and whitespace diff check.
 
 ## 2026-07-09 — Remote SSH as working environment request

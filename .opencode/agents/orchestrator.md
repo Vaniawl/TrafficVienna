@@ -18,6 +18,9 @@ permission:
   bash:
     "*": ask
     "pwd": allow
+    "echo *": allow
+    "head *": allow
+    "tail *": allow
     "ls *": allow
     "ls -la .opencode/ 2>/dev/null && echo * && ls -la docs/opencode/ 2>/dev/null && echo * && ls -la .agents/ 2>/dev/null": allow
     "find *": allow
@@ -37,6 +40,7 @@ permission:
     "git log --oneline codex/opencode-multi-agent-workflow 2>/dev/null || echo *; git log --oneline origin/codex/opencode-multi-agent-workflow 2>/dev/null || echo *": allow
     "git show*": allow
     "git branch*": allow
+    "git branch -a --sort=-committerdate | head -20": allow
     "git branch -a && echo * && git log --oneline -5 && echo * && git status": allow
     "git branch -a && echo * && git log --oneline -5 && echo * && git status --short": allow
     "git rev-parse*": allow
