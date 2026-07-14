@@ -33,6 +33,7 @@ permission:
     "git status*": allow
     "git diff*": allow
     "git log*": allow
+    "git log --oneline -5 origin/main 2>/dev/null || echo *": allow
     "git log --oneline codex/opencode-multi-agent-workflow 2>/dev/null || echo *; git log --oneline origin/codex/opencode-multi-agent-workflow 2>/dev/null || echo *": allow
     "git show*": allow
     "git branch*": allow
