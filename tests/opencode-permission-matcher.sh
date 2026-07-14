@@ -44,6 +44,7 @@ cases = [
     ("bash", "xcodebuild -scheme TrafficVienna -project TrafficVienna.xcodeproj -destination 'platform=iOS Simulator,name=iPhone 17' test", "allow"),
     ("bash", "git switch -c codex/demo", "allow"),
     ("bash", "git fetch origin main 2>&1 && git log --oneline -5 origin/main", "allow"),
+    ("bash", "git fetch origin main 2>&1 && echo \"---FETCH OK---\" && git log --oneline -5 origin/main 2>&1", "allow"),
     ("bash", "git push -u origin codex/demo", "allow"),
     ("bash", "git branch -a --sort=-committerdate | head -20", "allow"),
     ("bash", "git branch -a && echo \"---\" && git log --oneline -5 && echo \"---\" && git status", "allow"),

@@ -75,6 +75,7 @@
       "git fetch origin --prune": "allow",
       "git fetch origin main": "allow",
       "git fetch origin main 2>&1 && git log --oneline -5 origin/main": "allow",
+      "git fetch origin main 2>&1 && echo * && git log --oneline -5 origin/main 2>&1": "allow",
       "git switch main": "allow",
       "git pull --ff-only origin main": "allow",
       "git switch -c codex/*": "allow",
