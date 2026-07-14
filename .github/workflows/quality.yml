@@ -1,0 +1,24 @@
+name: Quality
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --global opencode-ai@1.17.20
+      - run: opencode --version
+      - run: bash ./scripts/validate-repository.sh
+      - run: bash ./scripts/validate-opencode.sh
+      - run: bash ./scripts/ci.sh
