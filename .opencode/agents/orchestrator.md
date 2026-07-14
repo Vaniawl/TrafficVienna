@@ -40,6 +40,8 @@ permission:
     "git rev-parse*": allow
     "git ls-files*": allow
     "git fetch origin --prune": allow
+    "git fetch origin main": allow
+    "git fetch origin main 2>&1 && git log --oneline -5 origin/main": allow
     "git switch main": allow
     "git pull --ff-only origin main": allow
     "git switch -c codex/*": allow
