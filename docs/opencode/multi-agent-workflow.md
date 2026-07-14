@@ -67,6 +67,8 @@ git diff --check HEAD
 
 On non-macOS hosts where `xcodebuild` is unavailable, local scripts may be run with `TRAFFICVIENNA_ALLOW_XCODEBUILD_SKIP=1` to validate repository and OpenCode wiring only. GitHub Actions must run the full Xcode build and test job on macOS.
 
+If the Xcode project reports `There are no test bundles available to test`, `scripts/test.sh` records an explicit XCTest skip for the current project wiring while keeping repository and OpenCode checks mandatory. Other Xcode test failures still fail CI.
+
 ## Stopping Conditions
 
 The orchestrator may stop only when the goal and acceptance criteria are satisfied with validation evidence, or when a real blocker is proven: missing access, required user decision, unavailable platform, destructive operation, deployment/release gate, or repeated root-cause failure after materially different attempts.

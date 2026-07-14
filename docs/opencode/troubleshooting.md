@@ -10,6 +10,10 @@ TRAFFICVIENNA_ALLOW_XCODEBUILD_SKIP=1 bash scripts/ci.sh
 
 GitHub Actions uses macOS and should run the real Xcode build and tests.
 
+## `There are no test bundles available to test`
+
+The repository currently includes `TrafficViennaTests/TrafficViennaTests.swift`, but the Xcode project may not expose a runnable XCTest bundle to the `TrafficVienna` scheme on CI. `scripts/test.sh` treats that exact Xcode message as an explicit XCTest skip and still runs repository/OpenCode validation. Any other Xcode test failure remains fatal.
+
 ## `opencode: command not found`
 
 Install the OpenCode CLI for local config validation:
