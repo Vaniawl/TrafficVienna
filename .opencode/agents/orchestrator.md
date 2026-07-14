@@ -37,6 +37,7 @@ permission:
     "git show*": allow
     "git branch*": allow
     "git branch -a && echo * && git log --oneline -5 && echo * && git status": allow
+    "git branch -a && echo * && git log --oneline -5 && echo * && git status --short": allow
     "git rev-parse*": allow
     "git ls-files*": allow
     "git fetch origin --prune": allow

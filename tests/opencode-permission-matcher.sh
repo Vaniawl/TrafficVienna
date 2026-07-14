@@ -44,6 +44,7 @@ cases = [
     ("bash", "git fetch origin main 2>&1 && git log --oneline -5 origin/main", "allow"),
     ("bash", "git push -u origin codex/demo", "allow"),
     ("bash", "git branch -a && echo \"---\" && git log --oneline -5 && echo \"---\" && git status", "allow"),
+    ("bash", "git branch -a && echo \"---\" && git log --oneline -5 && echo \"---\" && git status --short", "allow"),
     ("bash", "git log --oneline codex/opencode-multi-agent-workflow 2>/dev/null || echo \"Branch not found locally\"; git log --oneline origin/codex/opencode-multi-agent-workflow 2>/dev/null || echo \"Branch not found on origin\"", "allow"),
     ("bash", "git push origin main", "deny"),
     ("bash", "git push origin HEAD:main", "deny"),
