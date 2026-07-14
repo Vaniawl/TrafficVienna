@@ -1,5 +1,17 @@
 # Journal
 
+## 2026-07-09 — Remote SSH as working environment request
+
+- Користувач уточнив, що хоче, аби робота виконувалась на `skyphoenix@192.168.1.179`. Пояснено, що потрібні мережевий дозвіл у Codex і авторизація SSH ключем/паролем на remote host; попередня перевірка показала reachable host, але `Permission denied`.
+
+## 2026-07-09 — SSH remote host connection attempt
+
+- Перевірено SSH до `skyphoenix@192.168.1.179`: host доступний, але авторизація не пройшла (`Permission denied`). Знайдено локальний public key `id_ed25519.pub`, який треба додати на remote host у `~/.ssh/authorized_keys`.
+
+## 2026-07-09 — SSH remote host access guidance
+
+- Пояснено, як підключити remote host через SSH так, щоб Codex міг мати доступ: потрібні host/user/key, запис у SSH config або команда `ssh`, а також мережевий доступ у середовищі.
+
 ## 2026-06-29 — Фінальний раунд: баги, дизайн, UX, build ✅
 
 ### Виправлено баги
