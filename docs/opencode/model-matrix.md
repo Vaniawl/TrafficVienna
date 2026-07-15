@@ -2,46 +2,46 @@
 
 ## Runtime Inventory
 
-Observed with:
+Observed on AIServer with:
 
 ```bash
 opencode --version
-opencode models --verbose
+OPENCODE_LITELLM_BASE_URL=http://127.0.0.1:4000/v1 opencode models
 ```
 
 - OpenCode CLI: `1.17.20`
-- Provider in use: `opencode`
-- All listed models reported zero input/output/cache cost in the installed runtime.
+- Provider in use: global `local-litellm`
+- Cloud providers are disabled by the global OpenCode configuration on AIServer.
 
-| Model ID | Family | Context | Output | Cost class |
-|---|---:|---:|---:|---|
-| `opencode/big-pickle` | `big-pickle` | 200000 | 32000 | free |
-| `opencode/deepseek-v4-flash-free` | `deepseek-flash-free` | 200000 | 128000 | free |
-| `opencode/hy3-free` | `hy3-free` | 190000 | 64000 | free |
-| `opencode/mimo-v2.5-free` | `mimo-v2.5-free` | 200000 | 32000 | free |
-| `opencode/nemotron-3-ultra-free` | `nemotron-free` | 1000000 | 128000 | free |
-| `opencode/north-mini-code-free` | `north-free` | 256000 | 64000 | free |
+| Model ID | LiteLLM alias | Backend | Context |
+|---|---|---|---:|
+| `local-litellm/gpt-oss-120b` | `gpt-oss-120b` | local managed llama.cpp Vulkan | 131072 |
+| `local-litellm/qwen-27b` | `qwen-27b` | local llama-swap GGUF | 32768 |
+| `local-litellm/deepseek-q6-70b` | `deepseek-q6-70b` | local managed llama.cpp Vulkan | 65536 |
+| `local-litellm/coder-next` | `coder-next` | local managed llama.cpp Vulkan | 131072 |
+| `local-litellm/coder-32b` | `coder-32b` | local llama-swap GGUF | 32768 |
+| `local-litellm/deepseek-r1-32b` | `deepseek-r1-32b` | local llama-swap GGUF | 32768 |
+| `local-litellm/local-main` | `local-main` | local llama-swap GGUF | 32768 |
 
 ## Agent Assignment
 
 | Agent | Model | Rationale |
 |---|---|---|
-| orchestrator | `opencode/nemotron-3-ultra-free` | strongest available long-context reasoning model for long autonomous runs |
-| explorer | `opencode/mimo-v2.5-free` | fast read/search-oriented model; low-risk read-only role |
-| architect | `opencode/nemotron-3-ultra-free` | strongest architecture/reasoning assignment |
-| implementer | `opencode/north-mini-code-free` | coding-specialized model family |
-| test-architect | `opencode/hy3-free` | reliable reasoning model for validation planning |
-| reviewer | `opencode/big-pickle` | independent review model family, different from implementer |
-| security-reviewer | `opencode/deepseek-v4-flash-free` | strong reasoning model with large output budget for security review |
-| release-manager | `opencode/big-pickle` | reliable instruction-following model for handoff readiness |
+| orchestrator | `local-litellm/gpt-oss-120b` | strongest local long-context orchestration model |
+| explorer | `local-litellm/qwen-27b` | fast local read/search-oriented model; low-risk read-only role |
+| architect | `local-litellm/deepseek-q6-70b` | strong local architecture/reasoning assignment |
+| implementer | `local-litellm/coder-next` | local coding-specialized model with 128k context |
+| test-architect | `local-litellm/coder-32b` | local coding/test reasoning model |
+| reviewer | `local-litellm/deepseek-r1-32b` | independent local review/reasoning model, different from implementer |
+| security-reviewer | `local-litellm/deepseek-q6-70b` | strong local security/privacy reasoning assignment |
+| release-manager | `local-litellm/local-main` | lightweight local handoff-readiness model |
 
 ## Reuse And Fallback
 
-Only six suitable models are available for eight agents, so `opencode/nemotron-3-ultra-free`
-is intentionally reused for orchestration and architecture, and `opencode/big-pickle` is
-intentionally reused for review and release handoff.
+Seven suitable local chat aliases are available for eight agents, so
+`local-litellm/deepseek-q6-70b` is intentionally reused for architecture and
+security review.
 
-No repository-level fallback model is configured because the installed OpenCode agent files
-expose a directly verifiable `model:` field, but no fallback field is verified by the current
-project configuration or local validation tools. Fallback behavior must remain an explicit
-future change with validation before use.
+No repository-level fallback model is configured. Standard agents must not use
+`opencode/*`, `openai/*`, `anthropic/*`, `embedding-default`, or external
+fallback aliases for chat.

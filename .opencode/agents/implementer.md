@@ -1,7 +1,7 @@
 ---
 description: Bounded implementation specialist for assigned owned files.
 mode: subagent
-model: opencode/north-mini-code-free
+model: local-litellm/coder-next
 temperature: 0.2
 steps: 70
 permission:

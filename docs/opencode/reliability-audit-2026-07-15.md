@@ -13,11 +13,12 @@ handoff safety.
 - Exact model inventory and assignments are recorded in `docs/opencode/model-matrix.md`.
 - All eight agents now have explicit `model:` fields.
 - `opencode debug config` resolves the agent `model` fields in the runtime configuration.
-- Runtime smoke validation passed for every configured unique model:
-  `opencode/big-pickle`, `opencode/deepseek-v4-flash-free`,
-  `opencode/hy3-free`, `opencode/mimo-v2.5-free`,
-  `opencode/nemotron-3-ultra-free`, and `opencode/north-mini-code-free`.
-- Six suitable models are available, so two model IDs are intentionally reused.
+- Runtime smoke validation passed for every configured unique local LiteLLM
+  alias through AIServer preflight:
+  `coder-next`, `gpt-oss-120b`, `coder-32b`, `local-main`,
+  `deepseek-r1-32b`, `qwen-27b`, and `deepseek-q6-70b`.
+- Seven suitable local chat aliases are available, so
+  `local-litellm/deepseek-q6-70b` is intentionally reused.
 - No fallback model is configured because no fallback field is verified in the
   current repository configuration.
 

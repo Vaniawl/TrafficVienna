@@ -5,7 +5,7 @@
 - **Branch:** `codex/live-autonomy-audit-20260715`
 - **Base:** `main` at `410f0a34`
 - **Date:** 2026-07-15
-- **Orchestrator:** big-pickle (opencode/big-pickle)
+- **Orchestrator:** gpt-oss-120b (`local-litellm/gpt-oss-120b`)
 
 AUTONOMY_DEMO_STATUS=PASS
 

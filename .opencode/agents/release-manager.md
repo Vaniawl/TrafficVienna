@@ -1,7 +1,7 @@
 ---
 description: Release-readiness and Git/CI handoff reviewer.
 mode: subagent
-model: opencode/big-pickle
+model: local-litellm/local-main
 temperature: 0.1
 steps: 35
 permission:

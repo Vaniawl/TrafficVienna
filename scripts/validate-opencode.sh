@@ -7,6 +7,7 @@ python3 - "$ROOT" <<'PY'
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -104,6 +105,46 @@ for phrase in [
 ]:
     if phrase not in workflow_text:
         raise SystemExit(f"[validate-opencode] workflow missing phrase: {phrase}")
+
+expected_agents = {
+    "orchestrator": "local-litellm/gpt-oss-120b",
+    "explorer": "local-litellm/qwen-27b",
+    "architect": "local-litellm/deepseek-q6-70b",
+    "implementer": "local-litellm/coder-next",
+    "test-architect": "local-litellm/coder-32b",
+    "reviewer": "local-litellm/deepseek-r1-32b",
+    "security-reviewer": "local-litellm/deepseek-q6-70b",
+    "release-manager": "local-litellm/local-main",
+}
+
+
+def agent_model(agent: str) -> str:
+    text = (root / ".opencode" / "agents" / f"{agent}.md").read_text(encoding="utf-8")
+    match = re.search(r"^model:\s*(\S+)\s*$", text, flags=re.MULTILINE)
+    if not match:
+        raise SystemExit(f"[validate-opencode] {agent} missing model frontmatter")
+    return match.group(1)
+
+
+for agent, expected_model in expected_agents.items():
+    actual_model = agent_model(agent)
+    if actual_model != expected_model:
+        raise SystemExit(
+            f"[validate-opencode] {agent} expected {expected_model}, got {actual_model}"
+        )
+
+for path in list((root / ".opencode" / "agents").glob("*.md")) + [
+    root / "docs/opencode/model-matrix.md",
+    root / "docs/opencode/reliability-audit-2026-07-15.md",
+]:
+    text = path.read_text(encoding="utf-8")
+    for forbidden in [
+        r"^model:\s*(opencode|openai|anthropic)/",
+        r"`(opencode|openai|anthropic)/[^`]+`",
+        r"\bembedding-default\b",
+    ]:
+        if re.search(forbidden, text, flags=re.MULTILINE) and "must not use" not in text:
+            raise SystemExit(f"[validate-opencode] forbidden model token in {path}")
 
 combined = "\n".join(
     p.read_text(encoding="utf-8")

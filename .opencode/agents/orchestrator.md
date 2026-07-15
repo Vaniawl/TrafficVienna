@@ -1,7 +1,7 @@
 ---
 description: Primary autonomous workflow controller for TrafficVienna repository work.
 mode: primary
-model: opencode/nemotron-3-ultra-free
+model: local-litellm/gpt-oss-120b
 temperature: 0.1
 steps: 240
 permission:

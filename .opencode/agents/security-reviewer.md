@@ -1,7 +1,7 @@
 ---
 description: Security and privacy reviewer.
 mode: subagent
-model: opencode/deepseek-v4-flash-free
+model: local-litellm/deepseek-q6-70b
 temperature: 0.1
 steps: 45
 permission:

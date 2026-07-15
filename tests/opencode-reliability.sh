@@ -8,7 +8,11 @@ models_file="$(mktemp)"
 tmpdir="$(mktemp -d)"
 trap 'rm -f "$models_file"; rm -rf "$tmpdir"' EXIT
 
-opencode models > "$models_file"
+if [[ -n "${OPENCODE_LITELLM_BASE_URL:-}" && -n "${LITELLM_MASTER_KEY:-}" ]]; then
+  opencode models > "$models_file"
+else
+  : > "$models_file"
+fi
 
 python3 - "$ROOT" "$models_file" "$tmpdir" <<'PY'
 from __future__ import annotations
@@ -24,18 +28,19 @@ tmpdir = Path(sys.argv[3])
 available_models = {
     line.strip()
     for line in models_file.read_text(encoding="utf-8").splitlines()
-    if line.startswith("opencode/")
+    if line.startswith("local-litellm/")
 }
+runtime_models_available = bool(available_models)
 
 expected_agents = {
-    "orchestrator": "opencode/nemotron-3-ultra-free",
-    "explorer": "opencode/mimo-v2.5-free",
-    "architect": "opencode/nemotron-3-ultra-free",
-    "implementer": "opencode/north-mini-code-free",
-    "test-architect": "opencode/hy3-free",
-    "reviewer": "opencode/big-pickle",
-    "security-reviewer": "opencode/deepseek-v4-flash-free",
-    "release-manager": "opencode/big-pickle",
+    "orchestrator": "local-litellm/gpt-oss-120b",
+    "explorer": "local-litellm/qwen-27b",
+    "architect": "local-litellm/deepseek-q6-70b",
+    "implementer": "local-litellm/coder-next",
+    "test-architect": "local-litellm/coder-32b",
+    "reviewer": "local-litellm/deepseek-r1-32b",
+    "security-reviewer": "local-litellm/deepseek-q6-70b",
+    "release-manager": "local-litellm/local-main",
 }
 
 
@@ -58,13 +63,26 @@ for agent, expected_model in expected_agents.items():
     actual_model = meta.get("model")
     if actual_model != expected_model:
         raise AssertionError(f"{agent}: expected model {expected_model}, got {actual_model}")
-    if actual_model not in available_models:
+    if runtime_models_available and actual_model not in available_models:
         raise AssertionError(f"{agent}: model {actual_model} not returned by opencode models")
 
 model_matrix = (root / "docs/opencode/model-matrix.md").read_text(encoding="utf-8")
 for model in sorted(set(expected_agents.values())):
     if model not in model_matrix:
         raise AssertionError(f"model matrix missing {model}")
+
+for path in list((root / ".opencode" / "agents").glob("*.md")) + [
+    root / "docs/opencode/model-matrix.md",
+    root / "docs/opencode/reliability-audit-2026-07-15.md",
+]:
+    text = path.read_text(encoding="utf-8")
+    for forbidden in [
+        r"^model:\s*(opencode|openai|anthropic)/",
+        r"`(opencode|openai|anthropic)/[^`]+`",
+        r"\bembedding-default\b",
+    ]:
+        if re.search(forbidden, text, flags=re.MULTILINE) and "must not use" not in text:
+            raise AssertionError(f"{path} contains forbidden model token")
 
 state_doc = (root / "docs/opencode/state-files.md").read_text(encoding="utf-8")
 state_doc_compact = re.sub(r"\s+", " ", state_doc)

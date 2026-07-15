@@ -1,7 +1,7 @@
 ---
 description: Independent correctness and maintainability reviewer.
 mode: subagent
-model: opencode/big-pickle
+model: local-litellm/deepseek-r1-32b
 temperature: 0.1
 steps: 45
 permission:

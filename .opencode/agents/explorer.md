@@ -1,7 +1,7 @@
 ---
 description: Read-only repository discovery specialist.
 mode: subagent
-model: opencode/mimo-v2.5-free
+model: local-litellm/qwen-27b
 temperature: 0.1
 steps: 30
 permission:

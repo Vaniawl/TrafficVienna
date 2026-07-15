@@ -1,7 +1,7 @@
 ---
 description: Test strategy and verification specialist.
 mode: subagent
-model: opencode/hy3-free
+model: local-litellm/coder-32b
 temperature: 0.1
 steps: 35
 permission:
