@@ -80,10 +80,22 @@ for phrase in [
     "explorer: allow",
     "implementer: allow",
     "orchestrator: deny",
+    "Run subagents sequentially by default",
+    "3-minute maximum wait for a parallel batch",
     "Never merge, release, deploy, or push to `main`",
 ]:
     if phrase not in agent_text:
         raise SystemExit(f"[validate-opencode] orchestrator missing phrase: {phrase}")
+
+workflow_text = (root / "docs/opencode/multi-agent-workflow.md").read_text(encoding="utf-8")
+for phrase in [
+    "Subagents run sequentially by default",
+    "2-3 subagents maximum",
+    "3 minutes per parallel batch",
+    "reruns unfinished work sequentially",
+]:
+    if phrase not in workflow_text:
+        raise SystemExit(f"[validate-opencode] workflow missing phrase: {phrase}")
 
 combined = "\n".join(
     p.read_text(encoding="utf-8")

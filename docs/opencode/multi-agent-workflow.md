@@ -32,6 +32,31 @@ TrafficVienna uses OpenCode as the native agent engine for autonomous repository
 | security-reviewer | Security and privacy review. | no | no |
 | release-manager | Draft PR readiness and release gate review. | no | no |
 
+## Subagent Execution
+
+Subagents run sequentially by default. The orchestrator starts one subagent,
+waits for its result, records useful evidence, and then starts the next
+subagent. This keeps prompts small, avoids hidden dependencies, and prevents
+stalled parallel batches from blocking the whole run.
+
+Parallel execution is allowed only for a small read-only batch:
+
+- 2-3 subagents maximum;
+- all tasks are read-only;
+- no shared writable files;
+- no ordering dependency;
+- no subagent output is required to shape another subagent prompt;
+- each task has an independent definition of done.
+
+Before launching a parallel batch, the orchestrator must record the owned files,
+forbidden files, independence proof, timeout, and fallback plan. The timeout is
+3 minutes per parallel batch. If any subagent has no useful progress by then,
+the orchestrator records the timeout/blocker, stops waiting for the batch, and
+reruns unfinished work sequentially.
+
+Implementation, validation, commit, push, draft PR handoff, release, and
+deployment tasks are never parallelized.
+
 ## TrafficVienna Commands
 
 Repository validation:

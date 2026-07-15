@@ -1,5 +1,11 @@
 # Journal
 
+## 2026-07-15 — Sequential subagent execution policy
+
+- After PR #3 was merged, synchronized local `main` with `origin/main`, pruned deleted remote branches, and removed merged local feature branches after ancestry/content checks.
+- Configured OpenCode workflow guidance so subagents run sequentially by default. Parallel execution is limited to 2-3 genuinely independent read-only tasks with documented independence, a 3-minute timeout, and automatic fallback to sequential execution.
+- Added validation coverage in `scripts/validate-opencode.sh` so the orchestrator prompt and workflow docs must preserve the sequential default and timeout/fallback rules.
+
 ## 2026-07-15 — Live OpenCode autonomy audit demo
 
 - Started from updated `main` at `410f0a34` after `git fetch origin --prune` and fast-forward pull. Created fresh branch `codex/live-autonomy-audit-20260715`.

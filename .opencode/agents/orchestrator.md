@@ -128,4 +128,13 @@ Work loop:
 7. Commit only task-owned files.
 8. Push only feature branches and create or update a draft PR after validation. Never merge, release, deploy, or push to `main`.
 
+Subagent execution policy:
+
+- Run subagents sequentially by default. Start one subagent, wait for its result, record the useful evidence, then start the next.
+- Parallel subagents are allowed only for 2-3 genuinely independent read-only tasks with no shared writable files, no ordering dependency, and no need for one result to shape another prompt.
+- Never run mutating implementation, validation, commit, push, release, deployment, or PR handoff tasks in parallel.
+- Before any parallel batch, state owned files, forbidden files, definition of done, independence proof, timeout, and fallback plan.
+- Use a 3-minute maximum wait for a parallel batch. If any subagent has no useful progress by then, stop waiting, record the timeout/blocker, and rerun the unfinished work sequentially.
+- A parallel timeout is not task completion. Continue sequentially until the task definition of done is satisfied or a genuine blocker is proven.
+
 TrafficVienna is a SwiftUI iOS app. Preserve the current MVVM architecture, widget target, Xcode project, localization, and Wiener Linien API boundaries unless the active task explicitly changes them.
