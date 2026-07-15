@@ -7,6 +7,7 @@
 - Created `docs/opencode/live-autonomy-audit-2026-07-15.md` and checkpoint file. Controlled failure used a line-anchored sentinel check: `grep -qx 'AUTONOMY_DEMO_STATUS=PASS' ...` failed with exit 1 before the standalone sentinel existed, then passed after adding it.
 - A routine safe shell-search permission prompt occurred during OpenCode's generated `rg` diagnostic. Root cause fixed by allowlisting read-only `grep *` and `rg *` bash patterns in OpenCode permissions and adding permission matcher regression cases.
 - Local validation passed: JSON/shell syntax, repository validation, OpenCode validation, permission matcher, `TRAFFICVIENNA_ALLOW_XCODEBUILD_SKIP=1 bash scripts/ci.sh`, and `git diff --check HEAD`.
+- Draft PR #3 created: https://github.com/Vaniawl/TrafficVienna/pull/3. macOS GitHub Actions `validate` passed; PR remains draft and unmerged.
 
 ## 2026-07-14 — OpenCode routine permission audit fix
 

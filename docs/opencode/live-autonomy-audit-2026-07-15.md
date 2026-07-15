@@ -126,8 +126,10 @@ After fix, the same line-anchored grep command returns exit code `0`.
 | `bash tests/opencode-permission-matcher.sh` | pass |
 | `TRAFFICVIENNA_ALLOW_XCODEBUILD_SKIP=1 bash scripts/ci.sh` | pass on Ubuntu with explicit local Xcode skip |
 | `git diff --check HEAD` | pass |
+| Draft PR | [#3](https://github.com/Vaniawl/TrafficVienna/pull/3) |
+| macOS GitHub Actions `validate` | pass |
 
-MacOS GitHub Actions must provide authoritative Xcode validation after the draft PR is opened.
+MacOS GitHub Actions provided the authoritative repository validation for the draft PR.
 
 ## 4. Definition of Done Checklist
 
@@ -136,6 +138,7 @@ MacOS GitHub Actions must provide authoritative Xcode validation after the draft
 - [x] Checkpoints persisted before and after failure cycle
 - [x] All local validation scripts pass
 - [x] Memory/JOURNAL.md updated
-- [ ] Only task-owned files committed
-- [ ] Branch pushed, draft PR created
-- [ ] No merge, ready-for-review, release, deploy, or direct main push
+- [x] Only task-owned files committed
+- [x] Branch pushed, draft PR created
+- [x] macOS GitHub Actions green
+- [x] No merge, ready-for-review, release, deploy, or direct main push
