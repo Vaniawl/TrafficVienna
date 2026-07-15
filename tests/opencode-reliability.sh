@@ -185,16 +185,18 @@ for phrase in ["GH_CONFIG_DIR", "Never push directly to `main`", "Never force-pu
 print("[opencode-reliability] python checks OK")
 PY
 
-if timeout 1 bash -c 'sleep 3'; then
-  echo "[opencode-reliability] timeout fixture unexpectedly completed" >&2
-  exit 1
-else
-  status=$?
-  if [[ "$status" -ne 124 ]]; then
-    echo "[opencode-reliability] timeout fixture expected 124, got $status" >&2
-    exit 1
-  fi
-fi
+python3 - <<'PY'
+from __future__ import annotations
+
+import subprocess
+
+try:
+    subprocess.run(["sleep", "3"], timeout=1, check=False)
+except subprocess.TimeoutExpired:
+    print("[opencode-reliability] timeout fixture OK")
+else:
+    raise SystemExit("[opencode-reliability] timeout fixture unexpectedly completed")
+PY
 
 echo "timeout=recorded" > "$tmpdir/timeout-fallback.log"
 echo "fallback=sequential" >> "$tmpdir/timeout-fallback.log"
