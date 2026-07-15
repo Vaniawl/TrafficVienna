@@ -1,6 +1,7 @@
 ---
 description: Test strategy and verification specialist.
 mode: subagent
+model: opencode/hy3-free
 temperature: 0.1
 steps: 35
 permission:

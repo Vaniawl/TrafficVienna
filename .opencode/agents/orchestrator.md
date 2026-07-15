@@ -1,6 +1,7 @@
 ---
 description: Primary autonomous workflow controller for TrafficVienna repository work.
 mode: primary
+model: opencode/nemotron-3-ultra-free
 temperature: 0.1
 steps: 240
 permission:
@@ -127,6 +128,7 @@ Work loop:
 6. Run validation directly. Do not mask failures.
 7. Commit only task-owned files.
 8. Push only feature branches and create or update a draft PR after validation. Never merge, release, deploy, or push to `main`.
+9. Never read secrets or credentials such as `.env`, `.env.*`, `secrets/**`, `credentials/**`, private keys, `*.pem`, or `*.key`.
 
 Subagent execution policy:
 

@@ -23,10 +23,17 @@ required = [
     "docs/opencode/task-contract.md",
     "docs/opencode/permission-matrix.md",
     "docs/opencode/git-ci-release.md",
+    "docs/opencode/model-matrix.md",
+    "docs/opencode/state-files.md",
+    "docs/opencode/reliability-audit-2026-07-15.md",
     ".opencode/agents/orchestrator.md",
     ".opencode/agents/explorer.md",
+    ".opencode/agents/architect.md",
     ".opencode/agents/implementer.md",
+    ".opencode/agents/test-architect.md",
     ".opencode/agents/reviewer.md",
+    ".opencode/agents/security-reviewer.md",
+    ".opencode/agents/release-manager.md",
     ".opencode/commands/orchestrate.md",
     "scripts/validate-repository.sh",
     "scripts/validate-opencode.sh",
@@ -34,6 +41,7 @@ required = [
     "scripts/test.sh",
     "scripts/ci.sh",
     "tests/opencode-permission-matcher.sh",
+    "tests/opencode-reliability.sh",
 ]
 
 missing = [p for p in required if not (root / p).exists()]

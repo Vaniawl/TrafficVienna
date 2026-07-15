@@ -1,6 +1,7 @@
 ---
 description: Bounded implementation specialist for assigned owned files.
 mode: subagent
+model: opencode/north-mini-code-free
 temperature: 0.2
 steps: 70
 permission:

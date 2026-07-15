@@ -1,5 +1,14 @@
 # Journal
 
+## 2026-07-15 — OpenCode model and recovery readiness audit
+
+- Started from updated `main` at `07894ac1` on fresh branch `codex/reliability-model-audit`.
+- Recorded OpenCode CLI `1.17.20` model inventory in `docs/opencode/model-matrix.md` and assigned an explicit model to every OpenCode agent.
+- Verified all six configured unique model IDs with minimal `opencode run --pure -m <model> "Reply with exactly: OK"` smoke calls.
+- Added `docs/opencode/state-files.md` and `tests/opencode-reliability.sh` for checkpoint schema, duplicate prevention, latest-valid checkpoint selection, invalid checkpoint rejection, timeout fallback, permission safety, personal GitHub CLI context, protected-branch, and draft PR workflow checks.
+- Local validation passed: `bash scripts/validate-opencode.sh`, `bash tests/opencode-reliability.sh`, and `TRAFFICVIENNA_ALLOW_XCODEBUILD_SKIP=1 bash scripts/ci.sh`.
+- macOS GitHub Actions remains authoritative for real Xcode build/test evidence.
+
 ## 2026-07-15 — Sequential subagent execution policy
 
 - After PR #3 was merged, synchronized local `main` with `origin/main`, pruned deleted remote branches, and removed merged local feature branches after ancestry/content checks.

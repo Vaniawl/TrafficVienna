@@ -1,6 +1,7 @@
 ---
 description: Architecture and boundary reviewer.
 mode: subagent
+model: opencode/nemotron-3-ultra-free
 temperature: 0.1
 steps: 35
 permission:

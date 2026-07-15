@@ -18,6 +18,10 @@
 | force push, reset hard, clean, destructive remove | deny | Protect history and local data. |
 | release/deploy/App Store tooling | ask or deny | Production and release actions require explicit approval. |
 
+Explicit deny examples include `git push origin main`, `git push origin master`,
+`git push origin HEAD:main`, `git push --force`, `git reset --hard`,
+`git clean`, and destructive recursive remove commands.
+
 ## Secret Deny Patterns
 
 Denied read patterns include `.env`, `.env.*`, `*.env`, nested env files, `secrets/**`, `credentials/**`, private key names, `*.pem`, and `*.key`.

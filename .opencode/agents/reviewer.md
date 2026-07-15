@@ -1,6 +1,7 @@
 ---
 description: Independent correctness and maintainability reviewer.
 mode: subagent
+model: opencode/big-pickle
 temperature: 0.1
 steps: 45
 permission:
