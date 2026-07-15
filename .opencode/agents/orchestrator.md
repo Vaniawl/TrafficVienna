@@ -21,6 +21,8 @@ permission:
     "echo *": allow
     "head *": allow
     "tail *": allow
+    "grep *": allow
+    "rg *": allow
     "ls *": allow
     "ls -la .opencode/ 2>/dev/null && echo * && ls -la docs/opencode/ 2>/dev/null && echo * && ls -la .agents/ 2>/dev/null": allow
     "find *": allow

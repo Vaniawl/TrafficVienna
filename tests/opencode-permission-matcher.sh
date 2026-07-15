@@ -39,6 +39,8 @@ cases = [
     ("bash", "bash scripts/test.sh", "allow"),
     ("bash", "head -20", "allow"),
     ("bash", "tail -20", "allow"),
+    ("bash", "grep -qx 'AUTONOMY_DEMO_STATUS=PASS' docs/opencode/live-autonomy-audit-2026-07-15.md", "allow"),
+    ("bash", "rg -q 'AUTONOMY_DEMO_STATUS=PASS' docs/opencode/live-autonomy-audit-2026-07-15.md", "allow"),
     ("bash", "ls -la .opencode/ 2>/dev/null && echo \"---\" && ls -la docs/opencode/ 2>/dev/null && echo \"---\" && ls -la .agents/ 2>/dev/null", "allow"),
     ("bash", "xcodebuild -scheme TrafficVienna -project TrafficVienna.xcodeproj -destination 'platform=iOS Simulator,name=iPhone 17' build", "allow"),
     ("bash", "xcodebuild -scheme TrafficVienna -project TrafficVienna.xcodeproj -destination 'platform=iOS Simulator,name=iPhone 17' test", "allow"),
