@@ -18,7 +18,11 @@ permission:
   bash:
     "*": ask
     "pwd": allow
+    "echo *": allow
+    "head *": allow
+    "tail *": allow
     "ls *": allow
+    "ls -la .opencode/ 2>/dev/null && echo * && ls -la docs/opencode/ 2>/dev/null && echo * && ls -la .agents/ 2>/dev/null": allow
     "find *": allow
     "test -e *": allow
     "test -f *": allow
@@ -32,11 +36,19 @@ permission:
     "git status*": allow
     "git diff*": allow
     "git log*": allow
+    "git log --oneline -5 origin/main 2>/dev/null || echo *": allow
+    "git log --oneline codex/opencode-multi-agent-workflow 2>/dev/null || echo *; git log --oneline origin/codex/opencode-multi-agent-workflow 2>/dev/null || echo *": allow
     "git show*": allow
     "git branch*": allow
+    "git branch -a --sort=-committerdate | head -20": allow
+    "git branch -a && echo * && git log --oneline -5 && echo * && git status": allow
+    "git branch -a && echo * && git log --oneline -5 && echo * && git status --short": allow
     "git rev-parse*": allow
     "git ls-files*": allow
     "git fetch origin --prune": allow
+    "git fetch origin main": allow
+    "git fetch origin main 2>&1 && git log --oneline -5 origin/main": allow
+    "git fetch origin main 2>&1 && echo * && git log --oneline -5 origin/main 2>&1": allow
     "git switch main": allow
     "git pull --ff-only origin main": allow
     "git switch -c codex/*": allow
@@ -64,11 +76,17 @@ permission:
     "git commit": allow
     "git commit *": allow
     "gh auth status": allow
+    "GH_CONFIG_DIR=/home/skyphoenix/.config/gh-personal gh auth status*": allow
     "gh repo view *": allow
+    "GH_CONFIG_DIR=/home/skyphoenix/.config/gh-personal gh repo view *": allow
     "gh pr view *": allow
+    "GH_CONFIG_DIR=/home/skyphoenix/.config/gh-personal gh pr view *": allow
     "gh pr list *": allow
+    "GH_CONFIG_DIR=/home/skyphoenix/.config/gh-personal gh pr list *": allow
     "gh pr create --draft *": allow
+    "GH_CONFIG_DIR=/home/skyphoenix/.config/gh-personal gh pr create --draft *": allow
     "gh pr edit *": allow
+    "GH_CONFIG_DIR=/home/skyphoenix/.config/gh-personal gh pr edit *": allow
     "git push *": ask
     "git push -u origin codex/*": allow
     "git push origin main": deny
