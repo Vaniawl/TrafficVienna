@@ -69,14 +69,17 @@ bash scripts/validate-opencode.sh
 Build:
 
 ```bash
-xcodebuild -scheme TrafficVienna -project TrafficVienna.xcodeproj -destination 'platform=iOS Simulator,name=iPhone 17' build
+bash scripts/build.sh
 ```
 
 Test:
 
 ```bash
-xcodebuild -scheme TrafficVienna -project TrafficVienna.xcodeproj -destination 'platform=iOS Simulator,name=iPhone 17' test
+bash scripts/test.sh
 ```
+
+Set `TRAFFICVIENNA_XCODE_DESTINATION` to override the simulator destination
+when a runner does not provide `iPhone 17`.
 
 CI wrapper:
 
@@ -92,7 +95,11 @@ git diff --check HEAD
 
 On non-macOS hosts where `xcodebuild` is unavailable, local scripts may be run with `TRAFFICVIENNA_ALLOW_XCODEBUILD_SKIP=1` to validate repository and OpenCode wiring only. GitHub Actions must run the full Xcode build and test job on macOS.
 
-If the Xcode project reports `There are no test bundles available to test`, `scripts/test.sh` records an explicit XCTest skip for the current project wiring while keeping repository and OpenCode checks mandatory. Other Xcode test failures still fail CI.
+If the Xcode project reports `There are no test bundles available to test`, or
+the CI runner has no concrete `iPhone 17` simulator and no destination override,
+`scripts/test.sh` records an explicit XCTest skip for the current runner wiring
+while keeping repository and OpenCode checks mandatory. Other Xcode test
+failures still fail CI.
 
 ## Stopping Conditions
 

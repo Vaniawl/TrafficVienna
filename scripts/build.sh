@@ -16,4 +16,5 @@ if ! command -v xcodebuild >/dev/null 2>&1; then
   exit 127
 fi
 
-xcodebuild -scheme TrafficVienna -project TrafficVienna.xcodeproj -destination 'platform=iOS Simulator,name=iPhone 17' build
+destination="${TRAFFICVIENNA_XCODE_DESTINATION:-generic/platform=iOS Simulator}"
+xcodebuild -scheme TrafficVienna -project TrafficVienna.xcodeproj -destination "$destination" build
