@@ -13,10 +13,13 @@
 
 After validation and local commit, the orchestrator may:
 
-1. verify `gh auth status`;
-2. verify repository access with `gh repo view Vaniawl/TrafficVienna`;
+1. verify the isolated personal GitHub CLI context with
+   `GH_CONFIG_DIR=/home/skyphoenix/.config/gh-personal gh auth status`;
+2. verify repository access with
+   `GH_CONFIG_DIR=/home/skyphoenix/.config/gh-personal gh repo view Vaniawl/TrafficVienna`;
 3. push the current `codex/*` branch;
-4. create or update a draft PR targeting `main`.
+4. create or update a draft PR targeting `main` through the same
+   `GH_CONFIG_DIR=/home/skyphoenix/.config/gh-personal` context.
 
 The first push and draft PR for this integration must wait for explicit user approval.
 

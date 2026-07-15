@@ -1,6 +1,7 @@
 ---
 description: Read-only repository discovery specialist.
 mode: subagent
+model: local-litellm/qwen-27b
 temperature: 0.1
 steps: 30
 permission:

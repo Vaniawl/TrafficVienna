@@ -1,6 +1,7 @@
 ---
 description: Architecture and boundary reviewer.
 mode: subagent
+model: local-litellm/deepseek-q6-70b
 temperature: 0.1
 steps: 35
 permission:

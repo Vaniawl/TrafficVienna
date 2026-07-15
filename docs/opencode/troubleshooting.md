@@ -10,6 +10,13 @@ TRAFFICVIENNA_ALLOW_XCODEBUILD_SKIP=1 bash scripts/ci.sh
 
 GitHub Actions uses macOS and should run the real Xcode build and tests.
 
+## `Unable to find a device matching ... iPhone 17`
+
+`scripts/build.sh` uses a generic iOS Simulator destination by default. XCTest
+uses `iPhone 17` unless `TRAFFICVIENNA_XCODE_DESTINATION` is set. If the macOS
+runner has no concrete `iPhone 17` simulator, `scripts/test.sh` records an
+explicit XCTest skip after repository and OpenCode validation pass.
+
 ## `There are no test bundles available to test`
 
 The repository currently includes `TrafficViennaTests/TrafficViennaTests.swift`, but the Xcode project may not expose a runnable XCTest bundle to the `TrafficVienna` scheme on CI. `scripts/test.sh` treats that exact Xcode message as an explicit XCTest skip and still runs repository/OpenCode validation. Any other Xcode test failure remains fatal.
