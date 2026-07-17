@@ -9,14 +9,16 @@ struct ThemePickerView: View {
             List {
                 Section("Appearance") {
                     ForEach(ThemeEngine.ThemeMode.allCases) { mode in
+                        let isSelected = theme.mode == mode
+
                         Button {
                             theme.mode = mode
                         } label: {
                             HStack {
                                 Text(mode.displayName)
-                                    .foregroundStyle(theme.mode == mode ? .primary : .secondary)
+                                    .foregroundStyle(isSelected ? Color.primary : Color.secondary)
                                 Spacer()
-                                if theme.mode == mode {
+                                if isSelected {
                                     Image(systemName: "checkmark")
                                         .foregroundStyle(.accentColor)
                                 }
