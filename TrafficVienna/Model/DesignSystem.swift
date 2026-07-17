@@ -45,10 +45,10 @@ struct Typography {
     static let caption2 = Font.system(size: 12, weight: .regular, design: .default)
     static let caption3 = Font.system(size: 11, weight: .regular, design: .default)
     
-    static let bold = Font.system(weight: .bold)
-    static let semibold = Font.system(weight: .semibold)
-    static let medium = Font.system(weight: .medium)
-    static let regular = Font.system(weight: .regular)
+    static let bold = Font.body.weight(.bold)
+    static let semibold = Font.body.weight(.semibold)
+    static let medium = Font.body.weight(.medium)
+    static let regular = Font.body.weight(.regular)
 }
 
 // MARK: - Spacing
@@ -86,4 +86,3 @@ struct Shadow {
     static let md = (color: Color.black.opacity(0.1), radius: 8.0, x: 0.0, y: 4.0)
     static let lg = (color: Color.black.opacity(0.12), radius: 16.0, x: 0.0, y: 8.0)
 }
-

@@ -29,12 +29,12 @@ struct StationCardView: View {
         }
         .padding(Spacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(DesignSystem.cardBackground,
+        .background(DesignColor.cardBackground,
                     in: RoundedRectangle(cornerRadius: CornerRadius.lg))
-        .shadow(color: DesignSystem.shadow.md.color,
-                radius: DesignSystem.shadow.md.radius,
-                x: DesignSystem.shadow.md.x,
-                y: DesignSystem.shadow.md.y)
+        .shadow(color: Shadow.md.color,
+                radius: Shadow.md.radius,
+                x: Shadow.md.x,
+                y: Shadow.md.y)
         .contentShape(.rect(cornerRadius: CornerRadius.lg))
         .accessibilityElement(children: .contain)
         .accessibilityLabel(stationAccessibilityLabel)
@@ -167,5 +167,5 @@ struct StationCardView: View {
         lines: []
     )
     .padding()
-    .background(DesignSystem.cardBackground)
+    .background(DesignColor.cardBackground)
 }
