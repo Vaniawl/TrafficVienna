@@ -35,7 +35,7 @@ struct DepartureLineRow: View {
         let next = minutes.first
         let status = next.map(catchStatus(next:)) ?? nil
 
-        HStack(spacing: 8) {
+        HStack(spacing: Spacing.sm) {
             LineBadge(line: lineName)
                 .frame(width: badgeColumn, alignment: .center)
 
@@ -74,7 +74,7 @@ struct DepartureLineRow: View {
                     .font(.title3.weight(.semibold))
                     .foregroundStyle(.green)
             } else {
-                HStack(alignment: .firstTextBaseline, spacing: 2) {
+                HStack(alignment: .firstTextBaseline, spacing: Spacing.xxs) {
                     Text("\(next)")
                         .font(.title2.weight(.semibold))
                         .monospacedDigit()

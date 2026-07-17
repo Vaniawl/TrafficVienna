@@ -1,22 +1,5 @@
 import SwiftUI
 
-enum BackgroundStyle {
-    case system
-    case grouped
-
-    var color: Color {
-        switch self {
-        case .system: return Color(.systemBackground)
-        case .grouped: return Color(.systemGroupedBackground)
-        }
-    }
-}
-
-enum CardStyle {
-    case flat
-    case elevated
-}
-
 enum ThemePreset: String, CaseIterable, Identifiable {
     case indigo
     case vienna
@@ -61,25 +44,4 @@ enum ThemePreset: String, CaseIterable, Identifiable {
         }
     }
 
-    var colorScheme: ColorScheme? {
-        switch self {
-        case .twilight, .amber, .night: return .dark
-        case .dashboard, .ocean, .rose: return .light
-        case .indigo, .vienna, .forest, .monochrome: return nil
-        }
-    }
-
-    var backgroundStyle: BackgroundStyle {
-        switch self {
-        case .vienna, .dashboard, .ocean, .rose: return .grouped
-        case .indigo, .twilight, .forest, .monochrome, .amber, .night: return .system
-        }
-    }
-
-    var cardStyle: CardStyle {
-        switch self {
-        case .vienna, .dashboard, .ocean, .rose: return .elevated
-        case .indigo, .twilight, .forest, .monochrome, .amber, .night: return .flat
-        }
-    }
 }

@@ -12,6 +12,7 @@ struct SearchView: View {
     @ObservedObject var store: StationStore
     @StateObject private var recents = RecentSearchesStore()
     @State private var query = ""
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     private var results: [Station] {
         guard !query.isEmpty else { return [] }
@@ -47,11 +48,24 @@ struct SearchView: View {
             prompt: "Enter stop name…"
         )
         .scrollDismissesKeyboard(.immediately)
+        .background(Color(.systemBackground))
     }
 
     private var resultList: some View {
-        List(results) { station in
-            stationLink(station)
+        List {
+            ForEach(results) { station in
+                NavigationLink {
+                    StationDetailView(station: station)
+                } label: {
+                    HStack(spacing: Spacing.sm) {
+                        Image(systemName: "tram.fill")
+                            .foregroundStyle(.secondary)
+                        Text(station.name)
+                            .font(.body)
+                    }
+                    .padding(.vertical, Spacing.xs)
+                }
+            }
         }
         .listStyle(.plain)
     }
@@ -65,11 +79,13 @@ struct SearchView: View {
             } header: {
                 HStack {
                     Text("Recent")
+                        .font(.headline)
                     Spacer()
                     Button("Clear") { recents.clear() }
                         .font(.caption)
                         .textCase(nil)
                 }
+                .padding(.vertical, Spacing.xs)
             }
         }
         .listStyle(.insetGrouped)
@@ -79,7 +95,13 @@ struct SearchView: View {
         NavigationLink {
             StationDetailView(station: station)
         } label: {
-            Label(station.name, systemImage: icon)
+            HStack(spacing: Spacing.sm) {
+                Image(systemName: icon)
+                    .foregroundStyle(.secondary)
+                Text(station.name)
+                    .font(.body)
+            }
+            .padding(.vertical, Spacing.xs)
         }
         .simultaneousGesture(TapGesture().onEnded {
             recents.record(station.id)

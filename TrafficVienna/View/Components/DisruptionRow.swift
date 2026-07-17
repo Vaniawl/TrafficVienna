@@ -17,20 +17,20 @@ struct DisruptionRow: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top, spacing: 10) {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            HStack(alignment: .top, spacing: Spacing.sm) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundStyle(.orange)
                     .font(.subheadline)
 
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: Spacing.xs) {
                     Text(info.title)
                         .font(.subheadline.weight(.semibold))
                         .fixedSize(horizontal: false, vertical: true)
 
                     if let lines = info.relatedLines, !lines.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 6) {
+                            HStack(spacing: Spacing.xxs) {
                                 ForEach(lines, id: \.self) { LineBadge(line: $0, size: .small) }
                             }
                         }
@@ -56,7 +56,7 @@ struct DisruptionRow: View {
         .onTapGesture {
             if hasLongDescription { withAnimation(.easeInOut(duration: 0.2)) { expanded.toggle() } }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, Spacing.xxs)
     }
 }
 

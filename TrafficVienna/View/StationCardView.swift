@@ -9,7 +9,6 @@
 import SwiftUI
 
 struct StationCardView: View {
-    @EnvironmentObject private var themeManager: ThemeManager
     let station: Station
     var distance: Double?
     var lines: [Lines] = []
@@ -24,57 +23,63 @@ struct StationCardView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
             header
             content
         }
-        .padding(16)
+        .padding(Spacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemGroupedBackground),
-                    in: RoundedRectangle(cornerRadius: cardCornerRadius))
-        .shadow(color: themeManager.preset.cardStyle == .elevated ? .black.opacity(0.06) : .clear,
-                radius: 8, y: 2)
-        .contentShape(.rect(cornerRadius: cardCornerRadius))
-    }
-
-    private var cardCornerRadius: CGFloat {
-        themeManager.preset.cardStyle == .elevated ? 14 : 16
+        .background(DesignSystem.cardBackground,
+                    in: RoundedRectangle(cornerRadius: CornerRadius.lg))
+        .shadow(color: DesignSystem.shadow.md.color,
+                radius: DesignSystem.shadow.md.radius,
+                x: DesignSystem.shadow.md.x,
+                y: DesignSystem.shadow.md.y)
+        .contentShape(.rect(cornerRadius: CornerRadius.lg))
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(stationAccessibilityLabel)
     }
 
     private var header: some View {
-        HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 4) {
+        HStack(alignment: .top, spacing: Spacing.sm) {
+            VStack(alignment: .leading, spacing: Spacing.xxs) {
                 Text(station.name)
                     .font(.headline)
+                    .accessibilityAddTraits(.isHeader)
                 if !lines.isEmpty {
                     let unique = Set(lines.map(\.name)).sorted()
-                    HStack(spacing: 3) {
+                    HStack(spacing: Spacing.xxs) {
                         ForEach(unique, id: \.self) { name in
                             LineBadge(line: name, size: .small)
+                                .accessibilityLabel("Line \(name)")
                         }
                     }
                 }
             }
             Spacer()
-            VStack(alignment: .trailing, spacing: 2) {
+            VStack(alignment: .trailing, spacing: Spacing.xxs) {
                 if let distance {
                     Label(walkText(distance), systemImage: "figure.walk")
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                        .accessibilityLabel("Walking distance")
                 }
                 if let updatedAt {
                     Text(updatedText(updatedAt))
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
+                        .accessibilityLabel("Updated \(RelativeTime.updated(since: updatedAt))")
                 }
             }
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Station \(station.name), \(walkTextForAccessibility)")
     }
 
     @ViewBuilder
     private var content: some View {
         if station.diva == nil {
-            label("No live data for this stop")
+            noLiveDataView
         } else if !lines.isEmpty {
             let visible = Array(lines.prefix(maxLines).enumerated())
             VStack(spacing: 0) {
@@ -87,15 +92,27 @@ struct StationCardView: View {
                         nextIsLive: line.departures.departure.first?.departureTime.timeReal != nil,
                         showFollowUp: false
                     )
-                    .padding(.vertical, 8)
+                    .padding(.vertical, Spacing.xs)
+                    .accessibilityElement(children: .contain)
+                    .accessibilityLabel("Line \(line.name) to \(line.towards)")
                     if index < visible.count - 1 { Divider() }
                 }
             }
         } else if failed {
-            label("Couldn’t load departures")
+            errorMessageView
         } else {
             skeleton
         }
+    }
+
+    private var noLiveDataView: some View {
+        label("No live data for this stop")
+            .accessibilityLabel("No live data for this stop")
+    }
+
+    private var errorMessageView: some View {
+        label("Couldn't load departures", color: .orange)
+            .accessibilityLabel("Couldn't load departures. Try again.")
     }
 
     // Placeholder rows shown while the first load is in flight.
@@ -103,7 +120,7 @@ struct StationCardView: View {
         VStack(spacing: 0) {
             ForEach(0..<3, id: \.self) { index in
                 DepartureLineRow(lineName: "00", destination: "Loading station", minutes: [0, 0])
-                    .padding(.vertical, 8)
+                    .padding(.vertical, Spacing.xs)
                 if index < 2 { Divider() }
             }
         }
@@ -115,7 +132,20 @@ struct StationCardView: View {
         Text(text)
             .font(.subheadline)
             .foregroundStyle(color)
-            .padding(.vertical, 4)
+            .padding(.vertical, Spacing.xs)
+    }
+
+    private var stationAccessibilityLabel: String {
+        let walkText = walkMinutes.map { "Walking approximately \($0) minutes" } ?? "Distance unknown"
+        let linesText = lines.isEmpty ? "No departures loaded" : "Departures available"
+        return "\(station.name). \(walkText). \(linesText)."
+    }
+
+    private var walkTextForAccessibility: String {
+        guard let distance else { return "" }
+        let walkMin = max(1, Int((distance / walkingSpeed).rounded()))
+        let dist = distance < 1000 ? "\(Int(distance)) meters" : String(format: "%.1f kilometers", distance / 1000)
+        return "Walking approximately \(walkMin) minutes, \(dist) away"
     }
 
     private func walkText(_ meters: Double) -> String {
@@ -137,5 +167,5 @@ struct StationCardView: View {
         lines: []
     )
     .padding()
-    .background(Color(.systemGroupedBackground))
+    .background(DesignSystem.cardBackground)
 }

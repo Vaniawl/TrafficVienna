@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DisruptionsView: View {
     @ObservedObject var vm: DisruptionsViewModel
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     var body: some View {
         content
@@ -25,6 +26,7 @@ struct DisruptionsView: View {
                     try? await Task.sleep(for: .seconds(120))
                 }
             }
+            .background(Color(.systemBackground))
     }
 
     @ViewBuilder
@@ -35,7 +37,7 @@ struct DisruptionsView: View {
                 .font(.caption)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let error = vm.errorMessage, vm.infos.isEmpty {
-            VStack(spacing: 8) {
+            VStack(spacing: Spacing.sm) {
                 Text("Error")
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.red)
@@ -48,8 +50,9 @@ struct DisruptionsView: View {
                     .tint(.appAccent)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(Spacing.xxxl)
         } else if vm.infos.isEmpty {
-            VStack(spacing: 8) {
+            VStack(spacing: Spacing.sm) {
                 Image(systemName: "checkmark.circle")
                     .font(.title2)
                     .foregroundStyle(.green)
@@ -65,16 +68,15 @@ struct DisruptionsView: View {
             List {
                 if vm.availableCategories.count > 1 {
                     FilterChips(categories: vm.availableCategories, selection: $vm.categoryFilter)
-                        .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+                        .listRowInsets(EdgeInsets(top: Spacing.xs, leading: 0, bottom: Spacing.xs, trailing: 0))
                         .listRowBackground(Color.clear)
                 }
 
                 ForEach(vm.filteredInfos) { DisruptionRow(info: $0) }
             }
-                .listStyle(.plain)
+            .listStyle(.plain)
         }
     }
-
 }
 
 #Preview {

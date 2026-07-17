@@ -11,6 +11,7 @@ import SwiftUI
 struct StationDetailView: View {
     @StateObject private var vm: StationDetailViewModel
     @State private var lineFavoriteToggles = 0
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     init(station: Station) {
         _vm = StateObject(wrappedValue: StationDetailViewModel(station: station))
@@ -50,6 +51,7 @@ struct StationDetailView: View {
                 }
             }
             .refreshable { await vm.load(forceRefresh: true) }
+            .background(Color(.systemBackground))
     }
 
     @ViewBuilder
@@ -58,7 +60,7 @@ struct StationDetailView: View {
             ProgressView("Loading…")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let error = vm.errorMessage {
-            ContentUnavailableView("Couldn’t load departures", systemImage: "wifi.exclamationmark", description: Text(error))
+            ContentUnavailableView("Couldn't load departures", systemImage: "wifi.exclamationmark", description: Text(error))
         } else if !vm.groups.isEmpty {
             departuresList
         } else {
@@ -80,7 +82,7 @@ struct StationDetailView: View {
             if vm.availableCategories.count > 1 {
                 Section {
                     FilterChips(categories: vm.availableCategories, selection: $vm.categoryFilter)
-                        .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+                        .listRowInsets(EdgeInsets(top: Spacing.xs, leading: 0, bottom: Spacing.xs, trailing: 0))
                         .listRowBackground(Color.clear)
                 }
             }
@@ -91,6 +93,7 @@ struct StationDetailView: View {
                 }
             } header: {
                 Text("Departures")
+                    .font(.headline)
             }
         }
         .listStyle(.insetGrouped)
@@ -100,7 +103,7 @@ struct StationDetailView: View {
     @ViewBuilder
     private var freshnessBar: some View {
         if let text = vm.lastUpdatedText {
-            HStack(spacing: 6) {
+            HStack(spacing: Spacing.xxs) {
                 Circle()
                     .fill(.green)
                     .frame(width: 6, height: 6)
@@ -109,13 +112,13 @@ struct StationDetailView: View {
                     .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 6)
+            .padding(.vertical, Spacing.xs)
             .background(.bar)
         }
     }
 
     private func lineRow(_ group: StationDetailViewModel.DepartureGroup) -> some View {
-        HStack(spacing: 10) {
+        HStack(spacing: Spacing.sm) {
             DepartureLineRow(
                 lineName: group.line,
                 destination: group.destination,
@@ -140,7 +143,7 @@ struct StationDetailView: View {
                     .frame(width: 44)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, Spacing.xs)
         .contextMenu {
             Button {
                 LiveActivityController.track(

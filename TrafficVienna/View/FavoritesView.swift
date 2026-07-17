@@ -10,8 +10,8 @@ import SwiftUI
 
 struct FavoritesView: View {
     @ObservedObject var vm: FavoritesListViewModel
-    @EnvironmentObject private var themeManager: ThemeManager
     @State private var showAbout = false
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     var body: some View {
         Group {
@@ -31,19 +31,11 @@ struct FavoritesView: View {
                     description: Text("Star a station, or tap the heart on a line, to save it here.")
                 )
             } else {
-                if themeManager.preset.backgroundStyle == .grouped {
-                    List {
-                        if !vm.stations.isEmpty { stationsSection }
-                        if !vm.items.isEmpty { linesSection }
-                    }
-                    .listStyle(.insetGrouped)
-                } else {
-                    List {
-                        if !vm.stations.isEmpty { stationsSection }
-                        if !vm.items.isEmpty { linesSection }
-                    }
-                    .listStyle(.plain)
+                List {
+                    if !vm.stations.isEmpty { stationsSection }
+                    if !vm.items.isEmpty { linesSection }
                 }
+                .listStyle(.insetGrouped)
             }
         }
         .navigationTitle("Favourites")
@@ -72,6 +64,7 @@ struct FavoritesView: View {
             vm.loadStations()
             await vm.loadFavorites()
         }
+        .background(Color(.systemBackground))
     }
 
     private var stationsSection: some View {
@@ -83,7 +76,13 @@ struct FavoritesView: View {
                                          name: station.name, lat: 0, lon: 0)
                     )
                 } label: {
-                    Label(station.name, systemImage: "tram.fill")
+                    HStack(spacing: Spacing.sm) {
+                        Image(systemName: "tram.fill")
+                            .foregroundStyle(.secondary)
+                        Text(station.name)
+                            .font(.body)
+                    }
+                    .padding(.vertical, Spacing.xs)
                 }
             }
             .onMove { vm.moveStations(fromOffsets: $0, toOffset: $1) }
@@ -102,7 +101,7 @@ struct FavoritesView: View {
                     minutes: item.departures.map { $0.liveMinutes },
                     nextIsLive: item.departures.first?.isRealtime ?? false
                 )
-                .padding(.vertical, 4)
+                .padding(.vertical, Spacing.xs)
                 .swipeActions(edge: .trailing) {
                     Button(role: .destructive) {
                         vm.remove(item.route)

@@ -14,8 +14,8 @@ import MapKit
 struct NearbyView: View {
     @StateObject private var vm: NearbyViewModel
     @ObservedObject private var locationManager: LocationManager
-    @EnvironmentObject private var themeManager: ThemeManager
     @Environment(\.openURL) private var openURL
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     init(store: StationStore, locationManager: LocationManager) {
         _vm = StateObject(wrappedValue: NearbyViewModel(store: store, location: locationManager))
@@ -26,28 +26,33 @@ struct NearbyView: View {
         Group {
             switch locationManager.authorizationStatus {
             case .denied, .restricted:
-                placeholder(
+                emptyStateView(
                     icon: "location.slash",
                     title: "Location is off",
                     subtitle: "Allow location access in Settings to see stops near you.",
                     action: ("Open Settings", openSettings)
                 )
+                .accessibilityLabel("Location access denied")
             case .notDetermined:
-                placeholder(
+                emptyStateView(
                     icon: "location",
                     title: "Find stops near you",
                     subtitle: "Allow location access to see live departures around you.",
                     action: ("Allow location", locationManager.requestLocationIfNeeded)
                 )
+                .accessibilityLabel("Location permission needed")
             default:
                 if !vm.hasLocation {
                     locatingView
                 } else if vm.items.isEmpty && !vm.isLoading {
-                    placeholder(
-                        icon: "tram",
+                    emptyStateView(
+                        icon: "tram.fill",
                         title: "No stops nearby",
-                        subtitle: "There are no stations within 500 m."
+                        subtitle: "There are no stations within 500 meters.",
+                        action: ("Refresh", { Task { await vm.load(force: true) } })
                     )
+                    .accessibilityElement(children: .contain)
+                    .accessibilityLabel("No stops nearby")
                 } else {
                     stationList
                 }
@@ -56,19 +61,13 @@ struct NearbyView: View {
         .navigationTitle("Nearby")
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Menu {
-                    ForEach(ThemePreset.allCases) { preset in
-                        Button {
-                            ThemeManager.shared.preset = preset
-                        } label: {
-                            Label(preset.displayName, systemImage: ThemeManager.shared.preset == preset ? "checkmark.circle.fill" : "circle")
-                                .foregroundStyle(preset.accentColor)
-                        }
-                    }
+                Button {
+                    showThemePicker = true
                 } label: {
                     Image(systemName: "paintpalette")
+                        .foregroundStyle(.secondary)
                 }
-                .accessibilityLabel("Change theme")
+                .accessibilityLabel("Appearance")
             }
             if vm.hasLocation && !vm.items.isEmpty {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -77,6 +76,7 @@ struct NearbyView: View {
                     } label: {
                         if vm.isRefreshing {
                             ProgressView().controlSize(.small)
+                                .accessibilityLabel("Refreshing departures")
                         } else {
                             Image(systemName: "arrow.clockwise")
                         }
@@ -86,17 +86,27 @@ struct NearbyView: View {
                 }
             }
         }
+        .sheet(isPresented: $showThemePicker) {
+            ThemePickerView()
+        }
         .task {
             while !Task.isCancelled {
                 await vm.load(force: false)
                 try? await Task.sleep(for: .seconds(vm.items.isEmpty ? 5 : 60))
             }
         }
+        .background(Color(.systemBackground))
     }
+
+    @State private var showThemePicker = false
 
     private var stationList: some View {
         ScrollView {
-            LazyVStack(spacing: 12) {
+            LazyVStack(spacing: Spacing.md) {
+                if vm.isLoading {
+                    skeletonView
+                }
+
                 ForEach(vm.items) { item in
                     NavigationLink {
                         StationDetailView(station: item.station)
@@ -134,21 +144,26 @@ struct NearbyView: View {
                     }
                 }
             }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
+            .padding(.horizontal, horizontalSizeClass == .regular ? Spacing.xxxl : Spacing.md)
+            .padding(.vertical, Spacing.sm)
         }
-        .background(themeManager.preset.backgroundStyle.color)
         .refreshable { await vm.load(force: true) }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Nearby stations")
     }
 
     private var locatingView: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: Spacing.sm) {
             ProgressView()
+                .accessibilityLabel("Locating you")
             Text("Locating you…")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
+        .padding(Spacing.md)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Locating you")
     }
 
     private func stationShareText(_ station: Station) -> String {
@@ -168,17 +183,19 @@ struct NearbyView: View {
         }
     }
 
-    private func placeholder(
+    private func emptyStateView(
         icon: String,
-        title: String,
-        subtitle: String,
-        action: (title: String, perform: () -> Void)? = nil
+        title: LocalizedStringKey,
+        subtitle: LocalizedStringKey,
+        action: (title: LocalizedStringKey, perform: () -> Void)? = nil
     ) -> some View {
-        VStack(spacing: 12) {
+        VStack(spacing: Spacing.sm) {
             Image(systemName: icon)
                 .font(.system(size: 44))
-                .foregroundStyle(.secondary)
-            Text(title).font(.title3.weight(.semibold))
+                .foregroundStyle(.tertiary)
+            Text(title)
+                .font(.title3.weight(.semibold))
+                .multilineTextAlignment(.center)
             Text(subtitle)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
@@ -186,11 +203,33 @@ struct NearbyView: View {
             if let action {
                 Button(action.title, action: action.perform)
                     .buttonStyle(.borderedProminent)
-                    .padding(.top, 4)
+                    .padding(.top, Spacing.xs)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(32)
+        .padding(Spacing.xxxl)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(Text(title))
+    }
+
+    private var skeletonView: some View {
+        VStack(spacing: Spacing.md) {
+            ForEach(0..<3, id: \.self) { index in
+                StationCardView(
+                    station: Station(id: index, diva: 60201435, name: "Loading station",
+                                     lat: 48.200832, lon: 16.369505),
+                    distance: Double(index * 100),
+                    lines: [],
+                    failed: false,
+                    updatedAt: nil
+                )
+                if index < 2 { Divider() }
+            }
+        }
+        .redacted(reason: .placeholder)
+        .shimmer()
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Loading stations")
     }
 }
 
@@ -200,4 +239,5 @@ struct NearbyView: View {
     return NavigationStack {
         NearbyView(store: StationStore(), locationManager: lm)
     }
+    .environmentObject(ThemeEngine())
 }

@@ -58,10 +58,10 @@ struct MapStationsView: View {
                 Text("Showing Vienna centre — enable location to see stops near you.")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
+                    .padding(.horizontal, Spacing.sm)
+                    .padding(.vertical, Spacing.xs)
                     .background(.regularMaterial, in: Capsule())
-                    .padding(.top, 8)
+                    .padding(.top, Spacing.xs)
             }
         }
         .navigationTitle("Map")
@@ -75,6 +75,7 @@ struct MapStationsView: View {
             }
             .presentationDetents([.medium, .large])
         }
+        .background(Color(.systemBackground))
     }
 }
 
