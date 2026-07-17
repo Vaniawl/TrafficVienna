@@ -20,7 +20,7 @@ struct ThemePickerView: View {
                                 Spacer()
                                 if isSelected {
                                     Image(systemName: "checkmark")
-                                        .foregroundStyle(.accentColor)
+                                        .foregroundStyle(Color.accentColor)
                                 }
                             }
                             .contentShape(Rectangle())
@@ -39,11 +39,11 @@ struct ThemePickerView: View {
                                     .fill(preset.accentColor)
                                     .frame(width: 22, height: 22)
                                 Text(preset.displayName)
-                                    .foregroundStyle(.primary)
+                                    .foregroundStyle(Color.primary)
                                 Spacer()
                                 if theme.preset == preset {
                                     Image(systemName: "checkmark")
-                                        .foregroundStyle(.tint)
+                                        .foregroundStyle(Color.accentColor)
                                 }
                             }
                         }
