@@ -333,6 +333,17 @@ final class TrafficViennaTests: XCTestCase {
         )
     }
 
+    func testStationSearchBigramIndexNarrowsCandidatesWithoutDroppingMatches() {
+        let store = StationStore()
+
+        let names = store.stationsSuggestion(matching: "Haupt").map(\.name)
+
+        XCTAssertTrue(names.contains("Hauptbahnhof"))
+        XCTAssertTrue(names.contains("St. Pölten Hauptbahnhof"))
+        XCTAssertLessThan(store.indexedCandidateCount(matching: "Haupt"), store.stations.count / 2)
+        XCTAssertEqual(store.indexedCandidateCount(matching: "H"), store.stations.count)
+    }
+
     func testExactDivaLookupUsesNormalizedName() {
         let store = StationStore()
 

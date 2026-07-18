@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Bigram-indexed station search
+
+- Built a normalized two-character inverted index together with the off-main station snapshot and retained the complete scan only for one-character queries.
+- Reduced ordinary multi-character searches to a deterministic subset while preserving the existing exact, whole-name prefix, word-prefix, embedded-match ranking, and stable station order.
+- Kept every index immutable between snapshot publications and added coverage proving common matches remain present while the candidate set falls below half of the complete dataset.
+- Reduced the existing 100-query search performance test from about 1.06 seconds in the preceding full run to 0.41 seconds in the final full indexed run.
+
 ## 2026-07-19 — Off-main station dataset preparation
 
 - Moved bundled station JSON I/O, decoding, name normalization, search sorting, DIVA indexing, and spatial bucketing off the main actor for the production Root flow.
