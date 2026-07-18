@@ -9,22 +9,16 @@
 import SwiftUI
 
 struct FavoritesView: View {
-    @ObservedObject var vm: FavoritesListViewModel
+    @Bindable var viewModel: FavoritesListViewModel
     @State private var showAccount = false
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     var body: some View {
         Group {
-            if vm.isLoading && vm.items.isEmpty && vm.stations.isEmpty {
+            if viewModel.isLoading && viewModel.items.isEmpty && viewModel.stations.isEmpty {
                 ProgressView("Loading…")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let error = vm.errorMessage, vm.items.isEmpty {
-                ContentUnavailableView(
-                    "Couldn't load departures",
-                    systemImage: "wifi.exclamationmark",
-                    description: Text(error)
-                )
-            } else if vm.isEmpty {
+            } else if viewModel.isEmpty {
                 ContentUnavailableView(
                     "No favourites yet",
                     systemImage: "star",
@@ -32,8 +26,8 @@ struct FavoritesView: View {
                 )
             } else {
                 List {
-                    if !vm.stations.isEmpty { stationsSection }
-                    if !vm.items.isEmpty { linesSection }
+                    if !viewModel.stations.isEmpty { stationsSection }
+                    if !viewModel.items.isEmpty { linesSection }
                 }
                 .listStyle(.insetGrouped)
             }
@@ -41,44 +35,48 @@ struct FavoritesView: View {
         .navigationTitle("Favourites")
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    showAccount = true
-                } label: {
-                    Image(systemName: "person.crop.circle")
-                }
-                .accessibilityLabel("Account")
+                Button("Account", systemImage: "person.crop.circle", action: showAccountView)
+                    .labelStyle(.iconOnly)
             }
-            if !vm.stations.isEmpty {
+            if !viewModel.stations.isEmpty {
                 ToolbarItem(placement: .topBarTrailing) { EditButton() }
             }
         }
+        .navigationDestination(for: Station.self) { station in
+            StationDetailView(station: station)
+        }
         .sheet(isPresented: $showAccount) { AccountView() }
         .task {
-            vm.loadStations()
+            viewModel.loadStations()
             while !Task.isCancelled {
-                await vm.loadFavorites()
-                try? await Task.sleep(for: .seconds(60))
+                await viewModel.loadFavorites()
+                do {
+                    try await Task.sleep(for: .seconds(60))
+                } catch {
+                    break
+                }
             }
         }
         .refreshable {
-            vm.loadStations()
-            await vm.loadFavorites()
+            viewModel.loadStations()
+            await viewModel.loadFavorites(forceRefresh: true)
         }
         .onReceive(NotificationCenter.default.publisher(for: .favoriteStationsDidChange)) { _ in
-            vm.loadStations()
+            viewModel.loadStations()
         }
         .background(Color(.systemBackground))
     }
 
     private var stationsSection: some View {
         Section("Stations") {
-            ForEach(vm.stations) { station in
-                NavigationLink {
-                    StationDetailView(
-                        station: Station(id: station.id, diva: station.diva,
-                                         name: station.name, lat: 0, lon: 0)
-                    )
-                } label: {
+            ForEach(viewModel.stations) { station in
+                NavigationLink(value: Station(
+                    id: station.id,
+                    diva: station.diva,
+                    name: station.name,
+                    lat: 0,
+                    lon: 0
+                )) {
                     HStack(spacing: Spacing.sm) {
                         Image(systemName: "tram.fill")
                             .foregroundStyle(.secondary)
@@ -88,26 +86,35 @@ struct FavoritesView: View {
                     .padding(.vertical, Spacing.xs)
                 }
             }
-            .onMove { vm.moveStations(fromOffsets: $0, toOffset: $1) }
+            .onMove { viewModel.moveStations(fromOffsets: $0, toOffset: $1) }
             .onDelete { offsets in
-                offsets.map { vm.stations[$0].id }.forEach(vm.removeStation)
+                offsets.map { viewModel.stations[$0].id }.forEach(viewModel.removeStation)
             }
         }
     }
 
     private var linesSection: some View {
         Section("Lines") {
-            ForEach(vm.items) { item in
-                DepartureLineRow(
-                    lineName: item.route.lineName,
-                    destination: item.route.destination,
-                    minutes: item.departures.map { $0.liveMinutes },
-                    nextIsLive: item.departures.first?.isRealtime ?? false
-                )
+            ForEach(viewModel.items) { item in
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    DepartureLineRow(
+                        lineName: item.route.lineName,
+                        destination: item.route.destination,
+                        minutes: item.departures.map { $0.liveMinutes },
+                        nextIsLive: item.departures.first?.isRealtime ?? false
+                    )
+
+                    if item.state == .unavailable {
+                        Button("Retry departures", systemImage: "arrow.clockwise") {
+                            Task { await viewModel.refresh(item.route) }
+                        }
+                        .font(.footnote)
+                    }
+                }
                 .padding(.vertical, Spacing.xs)
                 .swipeActions(edge: .trailing) {
                     Button(role: .destructive) {
-                        vm.remove(item.route)
+                        viewModel.remove(item.route)
                     } label: {
                         Label("Remove", systemImage: "trash")
                     }
@@ -115,23 +122,12 @@ struct FavoritesView: View {
             }
         }
     }
+
+    private func showAccountView() {
+        showAccount = true
+    }
 }
 
 #Preview {
-    let vm = FavoritesListViewModel()
-    vm.stations = [
-        FavoriteStation(id: 1, diva: 60200657, name: "Karlsplatz"),
-        FavoriteStation(id: 2, diva: 60201468, name: "Praterstern")
-    ]
-    vm.items = [
-        FavoriteWithDeparture(
-            route: FavoriteRoute(diva: "60200135", lineName: "U1", destination: "Leopoldau"),
-            stopName: "Stephansplatz",
-            departures: [
-                DepartureInfo(countdown: 2, planned: "12:47", real: "12:47", isRealtime: true),
-                DepartureInfo(countdown: 5, planned: "12:50", real: nil, isRealtime: false)
-            ]
-        )
-    ]
-    return NavigationStack { FavoritesView(vm: vm) }
+    NavigationStack { FavoritesView(viewModel: FavoritesListViewModel()) }
 }

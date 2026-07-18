@@ -14,6 +14,9 @@
   location.
 - Favourites, recent searches, widget data, and theme choices are local
   `UserDefaults` or App Group data.
+- Failed favourite-route responses remain visible for retry but are excluded from
+  widget synchronization; route loading no longer logs user-selected line and
+  destination values.
 - The App Group identifier `group.wellbe.TrafficVienna` is used exclusively by this app.
 - The widget extension shares only the data required for widget behaviour.
 - Optional Apple account entry crosses the native `AuthenticationServices` trust

@@ -1094,6 +1094,16 @@
         }
       }
     },
+    "Retry departures" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abfahrten erneut laden"
+          }
+        }
+      }
+    },
     "Search" : {
       "localizations" : {
         "de" : {

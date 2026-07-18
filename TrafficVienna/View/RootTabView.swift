@@ -3,7 +3,7 @@ import SwiftUI
 struct RootTabView: View {
     @StateObject private var store = StationStore()
     @StateObject private var locationManager = LocationManager()
-    @StateObject private var favoritesVM = FavoritesListViewModel()
+    @State private var favoritesVM = FavoritesListViewModel()
     @State private var disruptionsVM = DisruptionsViewModel()
     @StateObject private var networkMonitor = NetworkMonitor()
     @AppStorage("hasOnboarded") private var hasOnboarded = false
@@ -41,7 +41,7 @@ struct RootTabView: View {
 
                     Tab("Favourites", systemImage: "star.fill", value: .favourites) {
                         NavigationStack {
-                            FavoritesView(vm: favoritesVM)
+                            FavoritesView(viewModel: favoritesVM)
                         }
                     }
                 }

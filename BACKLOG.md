@@ -106,6 +106,14 @@
   - Dependencies: TV-UI-002.
   - Acceptance: add, remove, reorder, select, and quick-switch behaviour is
     explicit; no duplicate storage model is introduced.
+  - Completed implementation: preserved the two existing repositories and Nearby
+    quick access; added stable route identity/order, tested station reorder/remove,
+    per-route unavailable/retry, forced refresh, cancellable polling, modern
+    station navigation, and widget exclusion for failed route data.
+  - Evidence: five focused tests and warning-free full CI with 65 passing XCTest
+    cases. Security review found no unresolved Blocking or Important issue.
+  - Pending acceptance: interactive add/select/quick-switch, light/dark, and
+    accessibility-size Simulator inspection after the locked host is available.
 - [ ] **TV-UI-015 - Station detail journey.**
   - Outcome: departures, line information, favourites, Live Activity, and errors
     form one coherent detail screen.
@@ -172,7 +180,7 @@
 - [x] **TV-VERIFY-031 - macOS build and tests.** Run `bash scripts/ci.sh` on a
   suitable macOS/Xcode host, including the app and widget targets.
   - Evidence: full CI exited 0 on iPhone 17 simulator; app/widget build succeeded,
-    the post-hardening focused run passed, and all 60 XCTest cases pass.
+    the post-hardening focused run passed, and all 65 XCTest cases pass.
 - [ ] **TV-VERIFY-032 - Product inspection.** Exercise every Phase 2 journey in
   light/dark appearance, accessibility text sizes, and relevant failure states.
 - [ ] **TV-VERIFY-033 - Independent reviews.** Resolve every Blocking/Important

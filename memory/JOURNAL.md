@@ -1,5 +1,16 @@
 # Journal
 
+## 2026-07-18 — Favourites journey resilience
+
+- Modernised Favourites state ownership, gave route rows stable identity and
+  deterministic order, and preserved the existing station/route repositories.
+- Added per-route unavailable/retry behaviour, forced pull-to-refresh, cancellable
+  polling, modern station navigation, and safe widget exclusion for failed routes.
+- Added focused coverage for station load/reorder/remove, route ordering, failure,
+  retry, force refresh, and widget behaviour.
+- Full CI passed with zero warnings and 65 XCTest cases. Interactive journey and
+  accessibility-size inspection remains pending because the host Mac is locked.
+
 ## 2026-07-18 — Alerts journey and feed prioritisation
 
 - Split the live feed into service, accessibility, and stop-change categories;

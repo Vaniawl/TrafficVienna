@@ -1,5 +1,19 @@
 # Architectural Decisions
 
+## 2026-07-18 — Favourite failures stay local to each saved route
+
+**Context:** A failed favourite request was converted into an empty departure row,
+the top-level error state was unreachable, and UUID row identity changed on every
+refresh.
+
+**Decision:** Keep the existing station and route repositories, use the saved route
+as stable row identity, expose availability per route, and exclude unavailable
+routes from widget synchronization while keeping them visible for retry.
+
+**Consequences:** One network failure no longer hides the collection or publishes
+misleading widget data. Reorder/remove semantics remain owned by the existing
+repositories and are independently testable.
+
 ## 2026-07-18 — Global alerts follow feed categories, not raw volume
 
 **Context:** The Wiener Linien global feed mixes service disruptions, lift
