@@ -1184,6 +1184,8 @@ final class TrafficViennaTests: XCTestCase {
         let defaults = UserDefaults(suiteName: suite)!
         defer { defaults.removePersistentDomain(forName: suite) }
         let repository = UserDefaultsFavoritesRepository(storage: defaults)
+        let u2 = FavoriteRoute(diva: "2", lineName: "U2", destination: "Seestadt")
+        let u1 = FavoriteRoute(diva: "1", lineName: "U1", destination: "Leopoldau")
 
         repository.toggle(diva: "2", lineName: "U2", destination: "Seestadt")
         repository.toggle(diva: "1", lineName: "U1", destination: "Leopoldau")
@@ -1192,8 +1194,43 @@ final class TrafficViennaTests: XCTestCase {
         let stored = try XCTUnwrap(defaults.data(forKey: "favorite_routes"))
         XCTAssertEqual(try JSONDecoder().decode(Set<FavoriteRoute>.self, from: stored).count, 2)
 
+        repository.setOrder([u1, u2, u1])
+        XCTAssertEqual(UserDefaultsFavoritesRepository(storage: defaults).getAll(), [u1, u2])
+
         repository.toggle(diva: "2", lineName: "U2", destination: "Seestadt")
         XCTAssertEqual(UserDefaultsFavoritesRepository(storage: defaults).getAll().map(\.lineName), ["U1"])
+    }
+
+    @MainActor
+    func testFavoriteRouteReorderingPersistsAndUpdatesWidgetPriority() {
+        let routes = [
+            FavoriteRoute(diva: "1", lineName: "U1", destination: "Leopoldau"),
+            FavoriteRoute(diva: "2", lineName: "U2", destination: "Seestadt"),
+            FavoriteRoute(diva: "3", lineName: "U3", destination: "Ottakring")
+        ]
+        let repository = CountingFavoritesRepository(routes: routes)
+        let widget = RecordingWidgetSync()
+        let viewModel = FavoritesListViewModel(
+            service: MonitorService(network: MockNetworkManager()),
+            favoritesRepo: repository,
+            stationsRepo: CountingFavoriteStationsRepository(),
+            widgetSync: widget
+        )
+        viewModel.items = routes.enumerated().map { index, route in
+            FavoriteWithDeparture(
+                route: route,
+                stopName: "Stop \(index)",
+                departures: [DepartureInfo(countdown: index + 1, planned: "", real: nil, isRealtime: false)]
+            )
+        }
+
+        viewModel.moveFavoriteRoutes(fromOffsets: IndexSet(integer: 2), toOffset: 0)
+
+        let expected = [routes[2], routes[0], routes[1]]
+        XCTAssertEqual(viewModel.favoriteRoutes, expected)
+        XCTAssertEqual(viewModel.items.map(\.route), expected)
+        XCTAssertEqual(repository.getAll(), expected)
+        XCTAssertEqual(widget.savedData.map(\.destination), expected.map(\.destination))
     }
 
     func testLegacyDuplicateLineFavoritesNormalizeInFirstSeenOrder() throws {
@@ -1295,6 +1332,8 @@ private final class CountingFavoritesRepository: FavoritesRepository, @unchecked
         getAllCallCount += 1
         return routes
     }
+
+    func setOrder(_ routes: [FavoriteRoute]) { self.routes = routes }
 
     func removeAll() { routes = [] }
 }

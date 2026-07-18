@@ -104,6 +104,15 @@ final class FavoritesListViewModel: ObservableObject {
         stationsRepo.setOrder(stations)
     }
 
+    func moveFavoriteRoutes(fromOffsets: IndexSet, toOffset: Int) {
+        invalidateLoads()
+        favoriteRoutes.move(fromOffsets: fromOffsets, toOffset: toOffset)
+        favoritesRepo.setOrder(favoriteRoutes)
+        let itemsByRoute = Dictionary(uniqueKeysWithValues: items.map { ($0.route, $0) })
+        items = favoriteRoutes.compactMap { itemsByRoute[$0] }
+        syncWidget()
+    }
+
     var isEmpty: Bool {
         favoriteRoutes.isEmpty && stations.isEmpty
     }

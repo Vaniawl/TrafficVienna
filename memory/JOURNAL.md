@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — User-controlled favourite route priority
+
+- Added Edit-mode drag reordering for saved line/destination routes alongside the existing favourite-station ordering.
+- Persisted the new route order through the existing App Group repository while normalizing duplicate inputs and retaining rollback-compatible JSON.
+- Reordered loaded cards immediately, invalidated older in-flight batches, and synchronized widget top-three priority without waiting for another network refresh.
+- Added real-repository persistence/compatibility coverage plus UI-state and widget-order regressions.
+
 ## 2026-07-19 — Non-destructive Favourites route failures
 
 - Preserved each route's last useful stop name, departures, and freshness when a later Favourites refresh fails instead of replacing the card with empty countdowns.

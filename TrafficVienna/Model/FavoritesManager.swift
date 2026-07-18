@@ -18,6 +18,7 @@ protocol FavoritesRepository: Sendable {
     func isFavorite(diva: String, lineName: String, destination: String) -> Bool
     func toggle(diva: String, lineName: String, destination: String)
     func getAll() -> [FavoriteRoute]
+    func setOrder(_ routes: [FavoriteRoute])
     func removeAll()
 }
 
@@ -55,6 +56,11 @@ nonisolated final class UserDefaultsFavoritesRepository: FavoritesRepository {
     func getAll() -> [FavoriteRoute] {
         load()
     }
+
+    func setOrder(_ routes: [FavoriteRoute]) {
+        var seen = Set<FavoriteRoute>()
+        save(routes.filter { seen.insert($0).inserted })
+    }
     
     func removeAll() {
         storage.removeObject(forKey: key)
@@ -83,4 +89,3 @@ nonisolated final class UserDefaultsFavoritesRepository: FavoritesRepository {
         save([])
     }
 }
-
