@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Discoverable and timing-safe departure reminders
+
+- Added a visible bell action to every Station Detail departure group so reminders no longer depend on discovering the row context menu.
+- Moved reminder lead-time calculation into a deterministic plan that rejects departures too close to notify before requesting notification permission.
+- Localized notification-disabled, departure-too-soon, scheduled-confirmation, notification-title, and notification-body copy in German and Ukrainian.
+- Added boundary coverage for one- and three-minute lead times and too-soon departures.
+
 ## 2026-07-19 — Device-local profile display name
 
 - Added an editable profile alias for email and Apple sessions without changing the authentication identity, provider, or Keychain boundary.

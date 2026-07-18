@@ -191,6 +191,24 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertNil(AuthStore.normalizedDisplayName("\n\t "))
     }
 
+    func testDepartureReminderPlanUsesUsefulLeadTime() throws {
+        XCTAssertEqual(
+            try DepartureReminderScheduler.plan(minutes: 4),
+            .init(leadMinutes: 1, delay: 180)
+        )
+        XCTAssertEqual(
+            try DepartureReminderScheduler.plan(minutes: 8),
+            .init(leadMinutes: 3, delay: 300)
+        )
+    }
+
+    func testDepartureReminderRejectsDepartureThatIsTooSoon() {
+        XCTAssertThrowsError(try DepartureReminderScheduler.plan(minutes: 1)) { error in
+            XCTAssertEqual(error as? DepartureReminderError, .departureTooSoon)
+        }
+        XCTAssertThrowsError(try DepartureReminderScheduler.plan(minutes: 0))
+    }
+
     @MainActor
     func testRemovingLocalEmailAccountDeletesVerifierAndSession() throws {
         let suite = "AuthRemovalTests.\(UUID().uuidString)"

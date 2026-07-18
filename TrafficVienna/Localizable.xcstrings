@@ -17,6 +17,38 @@
         }
       }
     },
+    "%@ → %@ in about %lld min.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ → %@ in etwa %lld Min."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ → %@ приблизно через %lld хв."
+          }
+        }
+      }
+    },
+    "%@ leaves soon": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ fährt bald ab"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ скоро відправляється"
+          }
+        }
+      }
+    },
     "%@, followed by %@ minutes": {
       "localizations": {
         "de": {
@@ -861,6 +893,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Увімкнути геолокацію"
+          }
+        }
+      }
+    },
+    "Enable notifications in Settings to receive departure reminders.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktiviere Mitteilungen in den Einstellungen, um Abfahrtserinnerungen zu erhalten."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Увімкніть сповіщення в Налаштуваннях, щоб отримувати нагадування про відправлення."
           }
         }
       }
@@ -2418,6 +2466,22 @@
         }
       }
     },
+    "This departure is too soon for a reminder.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Abfahrt ist zu kurzfristig für eine Erinnerung."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Це відправлення вже надто близько для нагадування."
+          }
+        }
+      }
+    },
     "This removes favourites, routines, recent searches, departure reminders, Live Activities, widget data, and cached departures. Your sign-in stays active.": {
       "localizations": {
         "de": {
@@ -2702,6 +2766,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "ВІДЕНЬ НАЖИВО"
+          }
+        }
+      }
+    },
+    "We’ll notify you shortly before %@ departs.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wir benachrichtigen dich kurz bevor %@ abfährt."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ми сповістимо вас незадовго до відправлення %@."
           }
         }
       }

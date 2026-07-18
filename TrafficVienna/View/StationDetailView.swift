@@ -171,6 +171,16 @@ struct StationDetailView: View {
                 nextIsLive: group.isLive
             )
 
+            Button {
+                scheduleReminder(for: group)
+            } label: {
+                Image(systemName: "bell.badge")
+                    .foregroundStyle(.secondary)
+                    .frame(width: 32, height: 44)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text(verbatim: "\(String(localized: "Remind me before departure")): \(group.line), \(group.destination)"))
+
             if vm.station.diva != nil {
                 let isFav = favoritesVM.isLineFavorite(
                     diva: vm.station.diva,
@@ -245,7 +255,11 @@ struct StationDetailView: View {
                     stop: vm.station.name,
                     minutes: group.minutes.first ?? 0
                 )
-                reminderMessage = "We’ll notify you shortly before \(group.line) departs."
+                reminderMessage = String(
+                    format: String(localized: "We’ll notify you shortly before %@ departs."),
+                    locale: .current,
+                    group.line
+                )
             } catch {
                 reminderMessage = error.localizedDescription
             }
