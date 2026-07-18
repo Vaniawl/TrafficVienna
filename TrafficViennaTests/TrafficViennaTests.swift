@@ -439,6 +439,38 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertFalse(viewModel.isRefreshing)
     }
 
+    @MainActor
+    func testStationDetailRefreshFailurePreservesUsefulDepartures() async {
+        let station = Station(id: 1, diva: 1, name: "Test Stop", lat: 48.2, lon: 16.3)
+        let network = MockNetworkManager()
+        let service = MonitorService(network: network, cacheTTL: 0, minInterval: 0)
+        let widget = RecordingWidgetSync()
+        let viewModel = StationDetailViewModel(
+            station: station,
+            service: service,
+            widgetSync: widget
+        )
+        await viewModel.load()
+        let originalGroups = viewModel.groups.map(\.id)
+        await service.clearCache()
+        network.shouldFail = true
+
+        await viewModel.load(forceRefresh: true)
+
+        XCTAssertEqual(viewModel.groups.map(\.id), originalGroups)
+        XCTAssertNotNil(viewModel.errorMessage)
+        XCTAssertEqual(widget.saveCallCount, 1)
+        XCTAssertFalse(viewModel.isLoading)
+        XCTAssertFalse(viewModel.isRefreshing)
+
+        network.shouldFail = false
+        await viewModel.load(forceRefresh: true)
+
+        XCTAssertNil(viewModel.errorMessage)
+        XCTAssertEqual(widget.saveCallCount, 2)
+        XCTAssertEqual(viewModel.groups.map(\.id), originalGroups)
+    }
+
     func testMapStationSelectionIsDistanceSortedAndLimited() {
         let store = StationStore()
         let center = CLLocation(latitude: 48.2082, longitude: 16.3738)

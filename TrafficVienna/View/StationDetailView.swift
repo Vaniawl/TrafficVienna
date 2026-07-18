@@ -70,10 +70,10 @@ struct StationDetailView: View {
         if vm.isLoading && vm.monitor == nil {
             ProgressView("Loading…")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else if let error = vm.errorMessage {
-            ContentUnavailableView("Couldn’t load departures", systemImage: "wifi.exclamationmark", description: Text(error))
         } else if !vm.groups.isEmpty {
             departuresList
+        } else if let error = vm.errorMessage {
+            ContentUnavailableView("Couldn’t load departures", systemImage: "wifi.exclamationmark", description: Text(error))
         } else {
             ContentUnavailableView("No departures", systemImage: "tram", description: Text("Nothing scheduled right now."))
         }
@@ -92,6 +92,16 @@ struct StationDetailView: View {
 
             if let staleMessage = vm.staleMessage {
                 StaleDataBanner(message: staleMessage)
+                    .listRowInsets(EdgeInsets(top: 4, leading: 18, bottom: 8, trailing: 18))
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+            }
+
+            if let refreshError = vm.errorMessage {
+                Label(refreshError, systemImage: "wifi.exclamationmark")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+                    .neoCard()
                     .listRowInsets(EdgeInsets(top: 4, leading: 18, bottom: 8, trailing: 18))
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)

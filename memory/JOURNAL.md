@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Non-destructive Station Detail refresh failures
+
+- Kept already loaded departures visible when a later manual or polling refresh fails instead of replacing the station screen with a blocking error state.
+- Added a compact inline network warning inside the existing departure list while preserving the full-screen error for first-load failures with no useful data.
+- Prevented failed refreshes from rewriting widget data and cleared the warning after the next successful recovery refresh.
+- Added a regression covering success, cache removal, network failure, retained groups, widget write count, and recovery.
+
 ## 2026-07-19 — Race-safe Station Detail refresh ownership
 
 - Added request ownership to Station Detail so routine polling cannot overlap and a manual refresh can supersede active work without doubling coalesced monitor traffic.
