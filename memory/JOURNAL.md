@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Race-safe Favourites refresh ownership
+
+- Made pull-to-refresh bypass the monitor cache all the way through each favourite-route request instead of presenting cached data as a manual refresh.
+- Prevented routine polling from starting a second batch while one is active and versioned forced loads so only the newest batch can publish.
+- Invalidated active batches when routes are toggled, removed, or cleared, preventing an older response from restoring deleted favourites.
+- Added regressions for force-refresh cache bypass, overlapping-poll suppression, and removal during an in-flight load.
+
 ## 2026-07-19 — Concurrent ordered Favourites loading
 
 - Replaced sequential favourite-route response waits with concurrent child tasks while keeping request starts governed by `MonitorService`.

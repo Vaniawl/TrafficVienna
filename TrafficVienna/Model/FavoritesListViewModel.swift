@@ -46,6 +46,7 @@ final class FavoritesListViewModel: ObservableObject {
     private let favoritesRepo: FavoritesRepository
     private let stationsRepo: FavoriteStationsStoring
     private let widgetSync: WidgetSyncing
+    private var loadGeneration = 0
 
     init(
         service: MonitorService,
@@ -116,6 +117,7 @@ final class FavoritesListViewModel: ObservableObject {
 
     func toggleLineFavorite(diva: Int?, lineName: String, destination: String) {
         guard let diva else { return }
+        invalidateLoads()
         let route = FavoriteRoute(diva: String(diva), lineName: lineName, destination: destination)
         favoritesRepo.toggle(diva: route.diva, lineName: lineName, destination: destination)
         if let index = favoriteRoutes.firstIndex(of: route) {
@@ -133,7 +135,10 @@ final class FavoritesListViewModel: ObservableObject {
         return nil
     }
     
-    func loadFavorites() async {
+    func loadFavorites(forceRefresh: Bool = false) async {
+        guard forceRefresh || !isLoading else { return }
+        loadGeneration &+= 1
+        let generation = loadGeneration
         let routes = favoriteRoutes
         
         guard !routes.isEmpty else {
@@ -144,13 +149,15 @@ final class FavoritesListViewModel: ObservableObject {
         
         isLoading = true
         errorMessage = nil
-        defer { isLoading = false }
+        defer {
+            if generation == loadGeneration { isLoading = false }
+        }
         
         var result = Array<FavoriteWithDeparture?>(repeating: nil, count: routes.count)
         await withTaskGroup(of: (Int, FavoriteWithDeparture).self) { group in
             for (index, route) in routes.enumerated() {
                 group.addTask { @MainActor in
-                    (index, await self.loadItem(for: route))
+                    (index, await self.loadItem(for: route, forceRefresh: forceRefresh))
                 }
             }
 
@@ -163,7 +170,7 @@ final class FavoritesListViewModel: ObservableObject {
             }
         }
 
-        guard !Task.isCancelled else { return }
+        guard !Task.isCancelled, generation == loadGeneration else { return }
         items = result.compactMap { $0 }
         syncWidget()
     }
@@ -185,6 +192,7 @@ final class FavoritesListViewModel: ObservableObject {
     }
 
     func remove(_ route: FavoriteRoute) {
+        invalidateLoads()
         // toggle() removes an existing favourite.
         favoritesRepo.toggle(
             diva: route.diva,
@@ -197,6 +205,7 @@ final class FavoritesListViewModel: ObservableObject {
     }
 
     func removeAll() {
+        invalidateLoads()
         favoritesRepo.removeAll()
         favoriteRoutes = []
         items = []
@@ -204,12 +213,18 @@ final class FavoritesListViewModel: ObservableObject {
     }
 
     func clearTravelFavorites() {
+        invalidateLoads()
         favoritesRepo.removeAll()
         stationsRepo.removeAll()
         favoriteRoutes = []
         stations = []
         items = []
         widgetSync.clear()
+    }
+
+    private func invalidateLoads() {
+        loadGeneration &+= 1
+        isLoading = false
     }
     
     private func loadItem(for favorite: FavoriteRoute, forceRefresh: Bool = false) async -> FavoriteWithDeparture {

@@ -590,6 +590,67 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testFavoritePullToRefreshBypassesMonitorCache() async {
+        let route = FavoriteRoute(diva: "1", lineName: "U1", destination: "Leopoldau")
+        let network = MockNetworkManager()
+        let viewModel = FavoritesListViewModel(
+            service: MonitorService(network: network, cacheTTL: 600, minInterval: 0),
+            favoritesRepo: CountingFavoritesRepository(routes: [route]),
+            stationsRepo: CountingFavoriteStationsRepository(),
+            widgetSync: NoopWidgetSync()
+        )
+
+        await viewModel.loadFavorites()
+        await viewModel.loadFavorites(forceRefresh: true)
+
+        XCTAssertEqual(network.callCount, 2)
+    }
+
+    @MainActor
+    func testFavoritePollingDoesNotStartOverlappingBatch() async {
+        let route = FavoriteRoute(diva: "1", lineName: "U1", destination: "Leopoldau")
+        let network = MockNetworkManager(monitorDelayNanoseconds: 100_000_000)
+        let viewModel = FavoritesListViewModel(
+            service: MonitorService(network: network, cacheTTL: 0, minInterval: 0),
+            favoritesRepo: CountingFavoritesRepository(routes: [route]),
+            stationsRepo: CountingFavoriteStationsRepository(),
+            widgetSync: NoopWidgetSync()
+        )
+
+        let first = Task { await viewModel.loadFavorites() }
+        try? await Task.sleep(nanoseconds: 10_000_000)
+        await viewModel.loadFavorites()
+        await first.value
+
+        XCTAssertEqual(network.callCount, 1)
+        XCTAssertEqual(viewModel.items.map(\.route), [route])
+    }
+
+    @MainActor
+    func testRemovingFavoriteDuringLoadCannotRepublishIt() async {
+        let route = FavoriteRoute(diva: "1", lineName: "U1", destination: "Leopoldau")
+        let viewModel = FavoritesListViewModel(
+            service: MonitorService(
+                network: MockNetworkManager(monitorDelayNanoseconds: 100_000_000),
+                cacheTTL: 0,
+                minInterval: 0
+            ),
+            favoritesRepo: CountingFavoritesRepository(routes: [route]),
+            stationsRepo: CountingFavoriteStationsRepository(),
+            widgetSync: NoopWidgetSync()
+        )
+
+        let load = Task { await viewModel.loadFavorites() }
+        try? await Task.sleep(nanoseconds: 10_000_000)
+        viewModel.remove(route)
+        await load.value
+
+        XCTAssertTrue(viewModel.favoriteRoutes.isEmpty)
+        XCTAssertTrue(viewModel.items.isEmpty)
+        XCTAssertFalse(viewModel.isLoading)
+    }
+
+    @MainActor
     func testDisruptionRelevanceDoesNotReadFavoritesForEveryItem() async {
         let favorites = CountingFavoritesRepository(
             routes: [FavoriteRoute(diva: "60201435", lineName: "U1", destination: "Leopoldau")]

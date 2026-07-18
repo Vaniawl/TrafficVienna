@@ -81,7 +81,7 @@ struct FavoritesView: View {
         }
         .refreshable {
             vm.loadStations()
-            await vm.loadFavorites()
+            await vm.loadFavorites(forceRefresh: true)
         }
     }
 
