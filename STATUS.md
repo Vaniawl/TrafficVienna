@@ -57,8 +57,14 @@
   screen-state, map-card, offline, shimmer, live-pulse, and countdown transitions;
   Reduce Motion disables movement, scale, pulse, shimmer, and numeric rolling.
   Interactive timing acceptance remains open while the macOS host is locked.
-- Remaining work: select and configure an email identity provider; enable Sign in
+- Recommended provider: Firebase Authentication, based on its documented native
+  Apple flow, passwordless email links, provider linking, and authenticated
+  client-side user deletion. The decision packet is in
+  `docs/account-auth-provider-evaluation.md`; adoption still requires explicit
+  approval and no external configuration or dependency has been changed.
+- Remaining work: approve and configure the email identity provider; enable Sign in
   with Apple for `wellbe.TrafficVienna` and regenerate its provisioning profile;
   complete remaining journey and accessibility inspection.
 - Next action: run the cross-journey completion/accessibility audit while visual
-  inspection waits for an unlocked host; email still needs a real provider choice.
+  inspection waits for an unlocked host; email integration waits for provider
+  approval and its external configuration.

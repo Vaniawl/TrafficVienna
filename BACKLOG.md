@@ -169,6 +169,12 @@
     capability is enabled for `wellbe.TrafficVienna`.
   - Pending slice: real email authentication, server session validation, and
     remote delete-account behaviour after provider selection.
+  - Provider evaluation: `docs/account-auth-provider-evaluation.md` recommends
+    Firebase Authentication for native Apple, passwordless email links, provider
+    linking, and authenticated client-side deletion. Supabase would require an
+    additional trusted server boundary for its documented Auth Admin deletion.
+    No SDK, project, credential, entitlement, or domain was changed by this
+    recommendation; explicit approval remains required.
   - Acceptance: sign-in, cancellation, failure, restore, sign-out, revocation,
     and delete-account paths are real and tested; no local fake authentication.
 

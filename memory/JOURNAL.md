@@ -1,5 +1,17 @@
 # Journal
 
+## 2026-07-18 — Email authentication provider decision packet
+
+- Compared Firebase Authentication and Supabase Auth against the real Apple,
+  passwordless email, provider-linking, restore, and delete-account lifecycle.
+- Recommended Firebase because its Apple SDK documents passwordless Hosting links,
+  linked identities, and authenticated current-user deletion without adding a
+  TrafficVienna-owned privileged server. Supabase remains viable if remote Postgres
+  sync later justifies a trusted deletion function.
+- Added the approval-gated configuration, security, migration, and acceptance plan;
+  no SDK, Firebase project, credential, entitlement, domain, or external account was
+  created or changed.
+
 ## 2026-07-18 — Apple runtime revocation and device signing evidence
 
 - Subscribed the app lifecycle to Apple's credential-revoked notification and
