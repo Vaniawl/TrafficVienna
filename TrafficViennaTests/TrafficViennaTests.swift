@@ -567,6 +567,29 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testFavoritesLoadConcurrentlyWhilePreservingSavedOrder() async {
+        let routes = [
+            FavoriteRoute(diva: "3", lineName: "U1", destination: "Leopoldau"),
+            FavoriteRoute(diva: "1", lineName: "U1", destination: "Oberlaa"),
+            FavoriteRoute(diva: "2", lineName: "U1", destination: "Reumannplatz")
+        ]
+        let network = MockNetworkManager(monitorDelayNanoseconds: 50_000_000)
+        let widget = RecordingWidgetSync()
+        let viewModel = FavoritesListViewModel(
+            service: MonitorService(network: network, cacheTTL: 0, minInterval: 0),
+            favoritesRepo: CountingFavoritesRepository(routes: routes),
+            stationsRepo: CountingFavoriteStationsRepository(),
+            widgetSync: widget
+        )
+
+        await viewModel.loadFavorites()
+
+        XCTAssertGreaterThan(network.maxConcurrentMonitorCalls, 1)
+        XCTAssertEqual(viewModel.items.map(\.route), routes)
+        XCTAssertEqual(widget.savedData.map(\.destination), routes.map(\.destination))
+    }
+
+    @MainActor
     func testDisruptionRelevanceDoesNotReadFavoritesForEveryItem() async {
         let favorites = CountingFavoritesRepository(
             routes: [FavoriteRoute(diva: "60201435", lineName: "U1", destination: "Leopoldau")]
@@ -869,7 +892,8 @@ private struct NoopWidgetSync: WidgetSyncing {
 
 private final class RecordingWidgetSync: WidgetSyncing, @unchecked Sendable {
     private(set) var clearCallCount = 0
-    func save(_ data: [WidgetDepartureData]) {}
+    private(set) var savedData: [WidgetDepartureData] = []
+    func save(_ data: [WidgetDepartureData]) { savedData = data }
     func clear() { clearCallCount += 1 }
 }
 

@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Concurrent ordered Favourites loading
+
+- Replaced sequential favourite-route response waits with concurrent child tasks while keeping request starts governed by `MonitorService`.
+- Reassembled completed results by their saved-route index so the Favourites screen and widget top-three retain the user's chosen order.
+- Cancelled remaining child work with the parent load and avoided publishing partial results after cancellation.
+- Added a delayed-network regression proving response overlap, stable card order, and stable widget order.
+
 ## 2026-07-19 — Overlapped Nearby monitor loading
 
 - Replaced sequential Nearby response waits with concurrent tasks while leaving request-start cadence under the shared `MonitorService` throttle.

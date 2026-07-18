@@ -146,14 +146,25 @@ final class FavoritesListViewModel: ObservableObject {
         errorMessage = nil
         defer { isLoading = false }
         
-        var result: [FavoriteWithDeparture] = []
-        for route in routes {
-            guard !Task.isCancelled else { return }
-            let item = await loadItem(for: route)
-            result.append(item)
+        var result = Array<FavoriteWithDeparture?>(repeating: nil, count: routes.count)
+        await withTaskGroup(of: (Int, FavoriteWithDeparture).self) { group in
+            for (index, route) in routes.enumerated() {
+                group.addTask { @MainActor in
+                    (index, await self.loadItem(for: route))
+                }
+            }
+
+            for await (index, item) in group {
+                guard !Task.isCancelled else {
+                    group.cancelAll()
+                    return
+                }
+                result[index] = item
+            }
         }
-        
-        items = result
+
+        guard !Task.isCancelled else { return }
+        items = result.compactMap { $0 }
         syncWidget()
     }
     
