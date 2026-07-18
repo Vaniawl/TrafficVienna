@@ -84,6 +84,21 @@ final class CommuteRoutineStore: ObservableObject {
         save()
     }
 
+    func update(
+        id: UUID,
+        name: String,
+        station: FavoriteStation,
+        hour: Int,
+        minute: Int
+    ) {
+        guard let index = routines.firstIndex(where: { $0.id == id }) else { return }
+        routines[index].name = name
+        routines[index].station = station
+        routines[index].hour = hour
+        routines[index].minute = minute
+        save()
+    }
+
     func remove(at offsets: IndexSet) {
         for index in offsets.sorted(by: >) { routines.remove(at: index) }
         save()

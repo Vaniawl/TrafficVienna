@@ -5,7 +5,7 @@ const catalog = JSON.parse(fs.readFileSync(path, "utf8"));
 const original = JSON.stringify(catalog);
 
 const newEnglish = [
-  "Account", "Add a favourite station first, then create a daily routine.", "Add routine",
+  "Account", "Add a favourite station first, then create a daily routine.", "Add routine", "Cancel", "Edit", "Edit routine", "Save",
   "Allow location once and turn every nearby stop into a live departure board.",
   "Affects your favourites", "Authentication mode", "Choose", "Create account", "Discover",
   "Email", "Email account", "Email accounts are stored securely on this device. Apple ID uses Apple's private authentication flow.",
@@ -41,7 +41,7 @@ const de = {
   "%@, followed by %@ minutes":"%@, danach in %@ Minuten", "Updates this line in your favourites":"Aktualisiert diese Linie in deinen Favoriten",
   "%lld":"%lld", "—":"—",
   "Account":"Konto", "Add a favourite station first, then create a daily routine.":"Füge zuerst eine Lieblingsstation hinzu und erstelle dann eine tägliche Routine.",
-  "Add routine":"Routine hinzufügen", "Affects your favourites":"Betrifft deine Favoriten", "All clear":"Alles frei",
+  "Add routine":"Routine hinzufügen", "Affects your favourites":"Betrifft deine Favoriten", "All clear":"Alles frei", "Cancel":"Abbrechen", "Edit":"Bearbeiten", "Edit routine":"Routine bearbeiten", "Save":"Sichern",
   "Authentication mode":"Anmeldemodus", "Change theme":"Design ändern", "Choose":"Auswählen", "Couldn't load departures":"Abfahrten konnten nicht geladen werden",
   "Create account":"Konto erstellen", "Discover":"Entdecken", "Email":"E-Mail", "Email account":"E-Mail-Konto",
   "Email accounts are stored securely on this device. Apple ID uses Apple's private authentication flow.":"E-Mail-Konten werden sicher auf diesem Gerät gespeichert. Die Apple-ID nutzt Apples privaten Anmeldevorgang.",
@@ -80,7 +80,7 @@ const uk = {
   "%@, followed by %@ minutes":"%@, далі через %@ хв", "Updates this line in your favourites":"Оновлює цю лінію в обраному",
   "%lld":"%lld", "—":"—", "About":"Про застосунок", "Account":"Обліковий запис", "Add station to favourites":"Додати станцію до обраного",
   "Add to favourites":"Додати до обраного", "Add a favourite station first, then create a daily routine.":"Спочатку додайте улюблену станцію, а потім створіть щоденний сценарій.",
-  "Add routine":"Додати сценарій", "Affects your favourites":"Впливає на обрані маршрути", "Alerts":"Сповіщення", "All":"Усі", "All clear":"Усе гаразд",
+  "Add routine":"Додати сценарій", "Affects your favourites":"Впливає на обрані маршрути", "Alerts":"Сповіщення", "All":"Усі", "All clear":"Усе гаразд", "Cancel":"Скасувати", "Edit":"Редагувати", "Edit routine":"Редагувати сценарій", "Save":"Зберегти",
   "All lines are running normally.":"Усі лінії працюють нормально.", "Authentication mode":"Режим входу", "Change theme":"Змінити тему", "Choose":"Обрати",
   "Clear":"Очистити", "Couldn't load departures":"Не вдалося завантажити відправлення", "Couldn’t load departures":"Не вдалося завантажити відправлення",
   "Create account":"Створити акаунт", "Data":"Дані", "Data: Wiener Linien (Stadt Wien, CC BY).":"Дані: Wiener Linien (місто Відень, CC BY).",

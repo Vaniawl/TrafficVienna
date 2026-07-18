@@ -88,6 +88,29 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testCommuteRoutineEditPreservesIdentityAndPersists() throws {
+        let suite = "RoutineEditTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let originalStation = FavoriteStation(id: 1, diva: 123, name: "Karlsplatz")
+        let updatedStation = FavoriteStation(id: 2, diva: 456, name: "Praterstern")
+        let store = CommuteRoutineStore(defaults: defaults)
+        store.add(name: "Work", station: originalStation, hour: 8, minute: 0)
+        let id = try XCTUnwrap(store.routines.first?.id)
+
+        store.update(id: id, name: "Office", station: updatedStation, hour: 8, minute: 45)
+        let restored = CommuteRoutineStore(defaults: defaults)
+        let routine = try XCTUnwrap(restored.routines.first)
+
+        XCTAssertEqual(routine.id, id)
+        XCTAssertEqual(routine.name, "Office")
+        XCTAssertEqual(routine.station, updatedStation)
+        XCTAssertEqual(routine.hour, 8)
+        XCTAssertEqual(routine.minute, 45)
+        XCTAssertTrue(routine.isEnabled)
+    }
+
+    @MainActor
     func testEmailRegistrationAndSignIn() throws {
         let suite = "AuthStoreTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!

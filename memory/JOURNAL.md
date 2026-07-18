@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-07-18 — Editable commute routines
+
+- Added a visible pencil action for every commute routine and a focused edit form for name, station, hour, and minute.
+- Preserved the routine UUID and enabled state during edits, so Smart Home identity and toggles remain stable.
+- Kept a routine’s current station available in the editor even if it was later removed from Favourites, preventing accidental data loss.
+- Added validation that blocks empty names or missing stations and supports cancellation without mutation.
+- Localized the editing flow in German and Ukrainian and added persistence regression coverage; full shared-scheme tests, a final app/widget build, and repository validations pass.
+
 ## 2026-07-18 — Partial-failure-safe widget refresh
 
 - Added shared deterministic widget merge logic that follows selected favourite order, prefers fresh route data, and falls back to cached data only for routes whose refresh failed.
