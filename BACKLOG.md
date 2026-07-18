@@ -204,10 +204,13 @@
     committed catalogues with German values for every extracted key; account and
     empty-state hero symbols scale with Dynamic Type; Nearby distance accessibility
     text uses locale-aware measurements; saved-data status uses text plus an icon.
+    Shared departure rows now leave fixed columns at accessibility Dynamic Type
+    sizes and expose one localized VoiceOver summary for next/following times,
+    real-time state, disruption, and walking feasibility.
   - Evidence: `xcstringstool sync` comparison reports zero missing keys/values,
     both catalogues compile, SwiftUI source scan finds no active `caption2`,
     `onTapGesture`, `UIScreen.main`, deprecated navigation, or unlabeled icon-only
-    control introduced by the redesign.
+    control introduced by the redesign; full CI passes with 86 XCTest cases.
   - Pending acceptance: interactive accessibility-size and VoiceOver inspection
     after the macOS host is unlocked.
 - [x] **TV-CORE-022 - Refresh and network lifecycle.**

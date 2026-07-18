@@ -1,5 +1,19 @@
 # Journal
 
+## 2026-07-18 — Adaptive and understandable departure rows
+
+- Replaced the shared departure row's fixed-column layout at accessibility Dynamic
+  Type sizes with a flexible two-level composition, so long destinations and live
+  times are no longer forced into compact widths.
+- Combined the visual fragments into one localized VoiceOver element covering the
+  line, destination, next and following times, real-time prediction, disruption,
+  and walking feasibility; all new German catalogue values compile and extraction
+  reports no missing key.
+- Full CI passes warning-free with all 86 XCTest cases. Interactive VoiceOver and
+  accessibility-size visual acceptance remains pending because the host is locked.
+  The literal iPhone 17 destination was also ambiguous due to two existing devices,
+  so CI used the supported explicit-UUID override without deleting either device.
+
 ## 2026-07-18 — Email authentication provider decision packet
 
 - Compared Firebase Authentication and Supabase Auth against the real Apple,

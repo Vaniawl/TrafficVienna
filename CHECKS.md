@@ -43,3 +43,8 @@ archive reaches signing, then fails because the installed profile for
 `wellbe.TrafficVienna` lacks `com.apple.developer.applesignin`. Physical-device
 Sign in with Apple therefore requires enabling the capability for that App ID and
 regenerating the provisioning profile before archive/device acceptance can pass.
+
+The host currently has two available simulators named `iPhone 17`, so the literal
+name-only AGENTS destination is ambiguous. The latest full CI used the repository's
+supported `TRAFFICVIENNA_XCODE_DESTINATION` override with the existing simulator
+UUID `6B367A70-5FF5-4C39-B479-F27457824C34`; no simulator was created or removed.

@@ -44,7 +44,10 @@
   Nearby, and Favourites. Deterministic timing regressions and full CI pass.
 - Verified localisation source audit: app and widget compiler extraction has no
   missing catalogue key or German value; new hero symbols scale with Dynamic Type,
-  distance speech is locale-aware, and saved-data status is not color-only.
+  distance speech is locale-aware, and saved-data status is not color-only. Shared
+  departure rows switch from fixed columns to a flexible accessibility-size layout
+  and announce localized time, live, alert, and walking-feasibility context as one
+  VoiceOver element.
   Interactive accessibility-size and VoiceOver acceptance remains open while the
   macOS host is locked.
 - Verified dependency injection: every journey model now accepts narrow test

@@ -22,11 +22,12 @@ struct DepartureLineRow: View {
     var nextIsLive: Bool = false
     var showFollowUp: Bool = true
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     private enum CatchStatus { case comfortable, hurry, missed }
 
-    // Fixed column widths keep every row aligned regardless of badge or
-    // number length.
+    // Fixed columns align the compact layout. Accessibility sizes switch to
+    // the flexible vertical layout below so text is never forced into them.
     private let badgeColumn: CGFloat = 48
     private let glyphColumn: CGFloat = 16
     private let nextColumn: CGFloat = 60
@@ -36,6 +37,20 @@ struct DepartureLineRow: View {
         let next = minutes.first
         let status = next.map(catchStatus(next:)) ?? nil
 
+        Group {
+            if dynamicTypeSize.isAccessibilitySize {
+                accessibilitySizeLayout(next: next, status: status)
+            } else {
+                compactLayout(next: next, status: status)
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(accessibilityLabel))
+        .accessibilityValue(Text(accessibilityValue(next: next, status: status)))
+        .animation(Motion.quick(reduceMotion: reduceMotion), value: minutes)
+    }
+
+    private func compactLayout(next: Int?, status: CatchStatus?) -> some View {
         HStack(spacing: Spacing.sm) {
             LineBadge(line: lineName)
                 .frame(width: badgeColumn, alignment: .center)
@@ -64,7 +79,36 @@ struct DepartureLineRow: View {
                     .frame(width: followColumn, alignment: .trailing)
             }
         }
-        .animation(Motion.quick(reduceMotion: reduceMotion), value: minutes)
+    }
+
+    private func accessibilitySizeLayout(next: Int?, status: CatchStatus?) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            HStack(alignment: .firstTextBaseline, spacing: Spacing.sm) {
+                LineBadge(line: lineName)
+
+                Text(destination)
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Spacer(minLength: 0)
+
+                if hasDisruption {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.orange)
+                }
+            }
+
+            HStack(alignment: .firstTextBaseline, spacing: Spacing.sm) {
+                glyph(status: status, next: next)
+
+                nextTime(next: next, status: status)
+
+                if showFollowUp {
+                    followUp
+                }
+            }
+        }
     }
 
     @ViewBuilder
@@ -115,6 +159,65 @@ struct DepartureLineRow: View {
                 .monospacedDigit()
                 .foregroundStyle(.tertiary)
         }
+    }
+
+    // MARK: - Accessibility
+
+    private var accessibilityLabel: String {
+        String(localized: "Line \(lineName) to \(destination)")
+    }
+
+    private func accessibilityValue(next: Int?, status: CatchStatus?) -> String {
+        var details: [String] = []
+
+        if let next {
+            if next <= 0 {
+                details.append(String(localized: "Next departure now"))
+            } else {
+                let duration = formattedMinutes(next)
+                details.append(String(localized: "Next departure in \(duration)"))
+            }
+        } else {
+            details.append(String(localized: "No departure time available"))
+        }
+
+        let following = minutes.dropFirst().prefix(2).map(formattedMinutes)
+        if showFollowUp, !following.isEmpty {
+            let list = ListFormatter.localizedString(byJoining: following)
+            details.append(String(localized: "Following departures in \(list)"))
+        }
+
+        if hasDisruption {
+            details.append(String(localized: "Service alert"))
+        }
+
+        if nextIsLive, next.map({ $0 > 0 }) == true {
+            details.append(String(localized: "Real-time prediction"))
+        }
+
+        switch status {
+        case .comfortable:
+            details.append(String(localized: "Enough time to walk"))
+        case .hurry:
+            details.append(String(localized: "Hurry to catch this departure"))
+        case .missed:
+            details.append(String(localized: "Not enough time to walk"))
+        case nil:
+            break
+        }
+
+        return details.joined(separator: ". ")
+    }
+
+    private func formattedMinutes(_ minutes: Int) -> String {
+        Measurement(value: Double(minutes), unit: UnitDuration.minutes)
+            .formatted(
+                .measurement(
+                    width: .wide,
+                    usage: .asProvided,
+                    numberFormatStyle: .number.precision(.fractionLength(0))
+                )
+            )
     }
 
     // MARK: - Catch status
