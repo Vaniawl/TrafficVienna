@@ -8,7 +8,8 @@
 import SwiftUI
 
 private struct ShimmerModifier: ViewModifier {
-    @State private var phase: CGFloat = -1
+    @State private var isPresented = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     func body(content: Content) -> some View {
         content
@@ -21,15 +22,18 @@ private struct ShimmerModifier: ViewModifier {
                         endPoint: .trailing
                     )
                     .frame(width: width)
-                    .offset(x: phase * width)
+                    .offset(x: (isPresented ? 1 : -1) * width)
+                    .opacity(reduceMotion ? 0 : 1)
                     .mask(content)
                     .allowsHitTesting(false)
                 }
             }
-            .onAppear {
-                withAnimation(.linear(duration: 1.25).repeatForever(autoreverses: false)) {
-                    phase = 1
-                }
+            .animation(
+                reduceMotion ? nil : Motion.shimmer.repeatForever(autoreverses: false),
+                value: isPresented
+            )
+            .task(id: reduceMotion) {
+                isPresented = !reduceMotion
             }
     }
 }

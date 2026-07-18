@@ -35,7 +35,7 @@ struct OnboardingPageView: View {
         .opacity(isPresented ? 1 : 0)
         .offset(y: reduceMotion || isPresented ? 0 : 16)
         .task {
-            withAnimation(reduceMotion ? nil : .smooth.delay(0.08)) {
+            withAnimation(Motion.standard(reduceMotion: reduceMotion)?.delay(0.08)) {
                 isPresented = true
             }
         }

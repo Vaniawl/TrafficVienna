@@ -21,6 +21,7 @@ struct DepartureLineRow: View {
     var walkMinutes: Int? = nil
     var nextIsLive: Bool = false
     var showFollowUp: Bool = true
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private enum CatchStatus { case comfortable, hurry, missed }
 
@@ -63,7 +64,7 @@ struct DepartureLineRow: View {
                     .frame(width: followColumn, alignment: .trailing)
             }
         }
-        .animation(.snappy, value: minutes)
+        .animation(Motion.quick(reduceMotion: reduceMotion), value: minutes)
     }
 
     @ViewBuilder
@@ -78,7 +79,11 @@ struct DepartureLineRow: View {
                     Text("\(next)")
                         .font(.title2.weight(.semibold))
                         .monospacedDigit()
-                        .contentTransition(.numericText(value: Double(next)))
+                        .contentTransition(
+                            reduceMotion
+                                ? .identity
+                                : .numericText(value: Double(next))
+                        )
                         .foregroundStyle(timeColor(status))
                     Text("min")
                         .font(.caption)

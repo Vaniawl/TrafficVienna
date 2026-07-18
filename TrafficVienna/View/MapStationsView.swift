@@ -67,15 +67,11 @@ struct MapStationsView: View {
                 )
                 .padding(.horizontal, Spacing.md)
                 .padding(.bottom, Spacing.xs)
-                .transition(
-                    reduceMotion
-                        ? .opacity
-                        : .move(edge: .bottom).combined(with: .opacity)
-                )
+                .transition(Motion.edgeTransition(.bottom, reduceMotion: reduceMotion))
             }
         }
         .sensoryFeedback(.selection, trigger: selectedStation?.id)
-        .animation(reduceMotion ? nil : .snappy, value: selectedStation)
+        .animation(Motion.quick(reduceMotion: reduceMotion), value: selectedStation)
         .navigationTitle("Map")
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(for: Station.self) { station in

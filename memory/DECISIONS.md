@@ -1,5 +1,22 @@
 # Architectural Decisions
 
+## 2026-07-18 — Motion is shared, purposeful, and accessibility-aware
+
+**Context:** The redesigned journeys mixed local `.snappy`, `.smooth`, linear,
+and repeating animations. Live countdown, pulse, and shimmer motion did not all
+respond to Reduce Motion, and screen-state transitions lacked one visual rhythm.
+
+**Decision:** Keep four shared animation timings plus reusable state/edge
+transitions in `Motion.swift`. Use movement and subtle scale only for spatial
+changes; use stable identities for state replacement. When Reduce Motion is on,
+remove displacement, scale, pulse, shimmer, and numeric rolling, falling back to
+static content or opacity where the state change still needs visual continuity.
+
+**Consequences:** Onboarding, Search, Alerts, Map, offline status, and live
+departures share a restrained interaction rhythm without a third-party dependency.
+Timing can be tuned centrally, while interactive acceptance remains required before
+the motion work is considered visually complete.
+
 ## 2026-07-18 — Journey models depend on narrow runtime boundaries
 
 **Context:** Search, Map, Alerts, Favourites, and Station Detail accepted test

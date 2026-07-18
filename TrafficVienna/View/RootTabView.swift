@@ -48,22 +48,29 @@ struct RootTabView: View {
                 .overlay(alignment: .top) {
                     if !networkMonitor.isConnected {
                         OfflineStatusView()
+                            .transition(Motion.edgeTransition(.top, reduceMotion: reduceMotion))
                     }
                 }
+                .animation(
+                    Motion.quick(reduceMotion: reduceMotion),
+                    value: networkMonitor.isConnected
+                )
                 .onReceive(NotificationCenter.default.publisher(for: .init("shortcut"))) { note in
                     guard let type = note.object as? String else { return }
-                    withAnimation(reduceMotion ? nil : .snappy) {
+                    withAnimation(Motion.quick(reduceMotion: reduceMotion)) {
                         selectedTab = AppTab(rawValue: type) ?? .nearby
                     }
                 }
+                .transition(Motion.stateTransition(reduceMotion: reduceMotion))
             } else {
                 OnboardingView {
                     locationManager.requestLocationIfNeeded()
                     hasOnboarded = true
                 }
+                .transition(Motion.stateTransition(reduceMotion: reduceMotion))
             }
         }
-        .animation(reduceMotion ? nil : .smooth, value: hasOnboarded)
+        .animation(Motion.standard(reduceMotion: reduceMotion), value: hasOnboarded)
     }
 }
 

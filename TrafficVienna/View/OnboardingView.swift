@@ -46,7 +46,7 @@ struct OnboardingView: View {
             return
         }
 
-        withAnimation(reduceMotion ? nil : .smooth) {
+        withAnimation(Motion.standard(reduceMotion: reduceMotion)) {
             step = nextStep
         }
     }

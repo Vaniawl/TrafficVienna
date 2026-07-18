@@ -59,6 +59,8 @@ struct SearchView: View {
                 SearchResultsList(stations: viewModel.results)
             }
         }
+        .id(viewModel.status)
+        .transition(Motion.stateTransition(reduceMotion: reduceMotion))
         .navigationTitle("Search")
         .navigationDestination(for: Station.self) { station in
             StationDetailView(station: station)
@@ -73,7 +75,7 @@ struct SearchView: View {
         )
         .scrollDismissesKeyboard(.immediately)
         .background(DesignColor.background)
-        .animation(reduceMotion ? nil : .snappy, value: viewModel.status)
+        .animation(Motion.quick(reduceMotion: reduceMotion), value: viewModel.status)
         .task(id: viewModel.query) {
             await viewModel.updateSearch()
         }

@@ -1,5 +1,15 @@
 # Journal
 
+## 2026-07-18 — Shared accessible motion polish
+
+- Added one shared motion token set for quick state changes, standard full-screen
+  changes, live pulses, shimmer, state replacement, and edge presentation.
+- Applied consistent transitions to onboarding/app entry, Search, Alerts, Map
+  selection, the offline banner, and live departure countdowns.
+- Reduce Motion now removes displacement, scale, shimmer, pulse, and numeric rolling
+  instead of leaving live and loading components animated. Full CI passed with zero
+  warnings and 85 XCTest cases; interactive timing review remains pending unlock.
+
 ## 2026-07-18 — Evidence-backed network boundary cleanup
 
 - Audited production, widget, intent, and test references before changing the

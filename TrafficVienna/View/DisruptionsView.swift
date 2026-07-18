@@ -32,6 +32,8 @@ struct DisruptionsView: View {
                 DisruptionsList(viewModel: viewModel)
             }
         }
+        .id(viewModel.state)
+        .transition(Motion.stateTransition(reduceMotion: reduceMotion))
         .navigationTitle("Alerts")
         .navigationDestination(for: TrafficInfo.self, destination: DisruptionDetailView.init)
         .toolbar {
@@ -61,7 +63,7 @@ struct DisruptionsView: View {
             }
         }
         .background(DesignColor.background)
-        .animation(reduceMotion ? nil : .snappy, value: viewModel.state)
+        .animation(Motion.quick(reduceMotion: reduceMotion), value: viewModel.state)
     }
 
     private func refresh() {

@@ -44,6 +44,12 @@
   - Acceptance: light/dark simulator runs are readable; labels are localised and
     motion respects Reduce Motion.
   - Validation: warning-free build, 27 tests, and light/dark iPhone 17 screenshots.
+  - Motion polish: shared quick/standard/live/shimmer timings now drive onboarding,
+    app-state, search, alerts, map-card, offline-banner, and live-countdown changes.
+    Reduce Motion removes displacement, scale, pulse, shimmer, and numeric rolling
+    while retaining readable opacity transitions where state changes.
+  - Evidence: source audit finds no remaining ad hoc app animation timing outside
+    the shared motion tokens; warning-free full CI passes with 85 XCTest cases.
 
 ## Phase 2 - Redesign complete user journeys
 

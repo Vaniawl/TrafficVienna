@@ -52,6 +52,10 @@
 - Verified refactoring audit: repository-wide references proved the legacy stop-ID
   monitor request unreachable, so it was removed from production and test protocol
   conformers; active DIVA/traffic-info behaviour still passes full CI.
+- Verified motion source audit: one shared motion system now coordinates onboarding,
+  screen-state, map-card, offline, shimmer, live-pulse, and countdown transitions;
+  Reduce Motion disables movement, scale, pulse, shimmer, and numeric rolling.
+  Interactive timing acceptance remains open while the macOS host is locked.
 - Remaining work: select and configure an email identity provider, verify the
   physical-device provisioning capability, and complete remaining journey and
   accessibility inspection.

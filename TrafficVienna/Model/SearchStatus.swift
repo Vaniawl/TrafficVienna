@@ -1,4 +1,4 @@
-enum SearchStatus: Equatable {
+enum SearchStatus: Hashable {
     case idle
     case loadingCatalog
     case searching
