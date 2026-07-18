@@ -148,6 +148,13 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertThrowsError(try store.register(email: "rider@example.com", password: "short"))
     }
 
+    func testAuthInputValidationMatchesRegistrationRules() {
+        XCTAssertEqual(AuthStore.normalizedValidEmail(" Rider@Example.com "), "rider@example.com")
+        XCTAssertNil(AuthStore.normalizedValidEmail("invalid"))
+        XCTAssertFalse(AuthStore.isValidPassword("1234567"))
+        XCTAssertTrue(AuthStore.isValidPassword("12345678"))
+    }
+
     @MainActor
     func testMultipleEmailAccountsCanRegister() throws {
         let store = AuthStore(keychain: MemoryKeychain(), defaults: UserDefaults(suiteName: UUID().uuidString)!)

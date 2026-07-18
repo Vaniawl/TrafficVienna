@@ -101,6 +101,20 @@ struct AuthenticationView: View {
                 .background(.quaternary, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             }
 
+            VStack(alignment: .leading, spacing: 8) {
+                validationRequirement(
+                    "Valid email address",
+                    isSatisfied: isEmailValid,
+                    identifier: "auth.email.validation"
+                )
+                validationRequirement(
+                    "At least 8 characters",
+                    isSatisfied: isPasswordValid,
+                    identifier: "auth.password.validation"
+                )
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
             if let error = auth.errorMessage {
                 Text(error)
                     .font(.footnote)
@@ -116,6 +130,7 @@ struct AuthenticationView: View {
             }
             .buttonStyle(.borderedProminent)
             .tint(Color(hex: 0xE20917))
+            .disabled(!canSubmitEmail)
             .accessibilityIdentifier("auth.submit")
 
             HStack { Divider(); Text("or").font(.footnote).foregroundStyle(.secondary); Divider() }
@@ -148,6 +163,29 @@ struct AuthenticationView: View {
 #else
         false
 #endif
+    }
+
+    private var isEmailValid: Bool {
+        AuthStore.normalizedValidEmail(email) != nil
+    }
+
+    private var isPasswordValid: Bool {
+        AuthStore.isValidPassword(password)
+    }
+
+    private var canSubmitEmail: Bool {
+        isEmailValid && isPasswordValid
+    }
+
+    private func validationRequirement(
+        _ title: LocalizedStringKey,
+        isSatisfied: Bool,
+        identifier: String
+    ) -> some View {
+        Label(title, systemImage: isSatisfied ? "checkmark.circle.fill" : "circle")
+            .font(.footnote)
+            .foregroundStyle(isSatisfied ? .green : .secondary)
+            .accessibilityIdentifier(identifier)
     }
 
     private func submitEmail() {

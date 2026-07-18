@@ -26,7 +26,15 @@ final class TrafficViennaUITests: XCTestCase {
         password.typeText("tramline26")
 
         dismissKeyboardIfPresent()
-        tapCenter(of: app.buttons["auth.submit"])
+        let submit = app.buttons["auth.submit"]
+        XCTAssertTrue(submit.waitForExistence(timeout: 3))
+        let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: submit)
+        XCTAssertEqual(XCTWaiter.wait(for: [enabled], timeout: 3), .completed)
+        if !submit.isHittable {
+            app.scrollViews.firstMatch.swipeUp()
+        }
+        XCTAssertTrue(submit.isHittable)
+        submit.tap()
 
         let tabBar = app.tabBars.firstMatch
         XCTAssertTrue(tabBar.waitForExistence(timeout: 8))
@@ -45,9 +53,10 @@ final class TrafficViennaUITests: XCTestCase {
         password.tap()
         password.typeText("tramline26")
         dismissKeyboardIfPresent()
-        tapCenter(of: app.buttons["auth.submit"])
 
-        XCTAssertTrue(app.staticTexts["Enter a valid email address."].waitForExistence(timeout: 3))
+        XCTAssertFalse(app.buttons["auth.submit"].isEnabled)
+        XCTAssertTrue(app.staticTexts["auth.email.validation"].exists)
+        XCTAssertTrue(app.staticTexts["auth.password.validation"].exists)
     }
 
     func testUkrainianAuthenticationModesAreLocalized() {

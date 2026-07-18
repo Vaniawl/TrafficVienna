@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-18 — Proactive email registration validation
+
+- Promoted email normalization and password-length checks into shared nonisolated `AuthStore` validation helpers used by both business logic and SwiftUI.
+- Added live email/password requirement rows with accessible identifiers and disabled email submit until both requirements are satisfied.
+- Localized the new validation guidance in German and Ukrainian while keeping account-exists and credential errors on the secure submit boundary.
+- Added unit coverage for exact validation boundaries and updated UI regressions for disabled invalid input, scrolling to the CTA, and successful registration.
+
 ## 2026-07-18 — Accessible localized authentication
 
 - Reproduced email and Apple authentication in Ukrainian at the largest iOS Dynamic Type size on an iPhone 17 simulator.

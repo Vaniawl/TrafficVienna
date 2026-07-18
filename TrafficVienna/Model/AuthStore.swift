@@ -163,12 +163,21 @@ final class AuthStore: ObservableObject {
         }
     }
 
-    private func validated(email: String, password: String) throws -> String {
-        let email = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    nonisolated static func normalizedValidEmail(_ value: String) -> String? {
+        let email = value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard email.range(of: #"^[^\s@]+@[^\s@]+\.[^\s@]+$"#, options: .regularExpression) != nil else {
-            throw AuthError.invalidEmail
+            return nil
         }
-        guard password.count >= 8 else { throw AuthError.weakPassword }
+        return email
+    }
+
+    nonisolated static func isValidPassword(_ value: String) -> Bool {
+        value.count >= 8
+    }
+
+    private func validated(email: String, password: String) throws -> String {
+        guard let email = Self.normalizedValidEmail(email) else { throw AuthError.invalidEmail }
+        guard Self.isValidPassword(password) else { throw AuthError.weakPassword }
         return email
     }
 

@@ -257,6 +257,22 @@
         }
       }
     },
+    "At least 8 characters": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mindestens 8 Zeichen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Щонайменше 8 символів"
+          }
+        }
+      }
+    },
     "Authentication mode": {
       "localizations": {
         "de": {
@@ -2494,6 +2510,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Використовує Apple ID для створення або відкриття облікового запису"
+          }
+        }
+      }
+    },
+    "Valid email address": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gültige E-Mail-Adresse"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дійсна електронна адреса"
           }
         }
       }
