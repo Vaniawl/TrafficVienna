@@ -30,6 +30,11 @@ protocol NetworkManaging: Sendable {
     func fetchMonitorData(for stopId: Int) async throws -> MonitorResponse
     func fetchMonitorData(diva: Int, includeArea: Bool) async throws -> MonitorResponse
     func fetchTrafficInfoList() async throws -> MonitorResponse
+    nonisolated func removeCachedResponses()
+}
+
+extension NetworkManaging {
+    nonisolated func removeCachedResponses() {}
 }
 nonisolated final class NetworkManager: NetworkManaging {
     private let session: URLSession
@@ -64,6 +69,10 @@ nonisolated final class NetworkManager: NetworkManaging {
 
     func fetchTrafficInfoList() async throws -> MonitorResponse {
         try await perform("https://www.wienerlinien.at/ogd_realtime/trafficInfoList")
+    }
+
+    nonisolated func removeCachedResponses() {
+        session.configuration.urlCache?.removeAllCachedResponses()
     }
 
     // Shared request pipeline: fetch, detect the rate-limit body, then decode.

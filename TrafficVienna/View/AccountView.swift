@@ -2,9 +2,13 @@ import SwiftUI
 
 struct AccountView: View {
     @EnvironmentObject private var auth: AuthStore
+    @EnvironmentObject private var favoritesVM: FavoritesListViewModel
+    @EnvironmentObject private var routines: CommuteRoutineStore
+    @EnvironmentObject private var recentSearches: RecentSearchesStore
     @Environment(\.dismiss) private var dismiss
     @State private var showingAccountRemoval = false
     @State private var removalError: String?
+    @State private var showingTravelDataClear = false
 
     var body: some View {
         NavigationStack {
@@ -42,6 +46,9 @@ struct AccountView: View {
                     Button("Remove account from device", role: .destructive) {
                         showingAccountRemoval = true
                     }
+                    Button("Clear travel data", role: .destructive) {
+                        showingTravelDataClear = true
+                    }
                 }
             }
             .navigationTitle("Account")
@@ -66,6 +73,16 @@ struct AccountView: View {
             } message: {
                 Text(removalError ?? "")
             }
+            .confirmationDialog(
+                "Clear travel data",
+                isPresented: $showingTravelDataClear,
+                titleVisibility: .visible
+            ) {
+                Button("Clear data", role: .destructive) { clearTravelData() }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("This removes favourites, routines, recent searches, departure reminders, Live Activities, widget data, and cached departures. Your sign-in stays active.")
+            }
         }
     }
 
@@ -82,6 +99,18 @@ struct AccountView: View {
             dismiss()
         } catch {
             removalError = error.localizedDescription
+        }
+    }
+
+    private func clearTravelData() {
+        favoritesVM.clearTravelFavorites()
+        routines.removeAll()
+        recentSearches.clear()
+        TravelDataResetService().clearAuxiliaryData()
+        Task {
+            await DepartureReminderScheduler.removeAllScheduled()
+            await LiveActivityController.stopAll()
+            await MonitorService.shared.clearCache()
         }
     }
 }

@@ -8,6 +8,8 @@ enum DepartureReminderError: LocalizedError {
 }
 
 struct DepartureReminderScheduler {
+    private static let identifierPrefix = "departure."
+
     static func schedule(line: String, destination: String, stop: String, minutes: Int) async throws {
         let center = UNUserNotificationCenter.current()
         let settings = await center.notificationSettings()
@@ -28,8 +30,20 @@ struct DepartureReminderScheduler {
         content.interruptionLevel = .timeSensitive
         content.userInfo = ["line": line, "destination": destination, "stop": stop]
 
-        let identifier = "departure.\(line).\(stop).\(destination)"
+        let identifier = "\(identifierPrefix)\(line).\(stop).\(destination)"
         let request = UNNotificationRequest(identifier: identifier, content: content, trigger: UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(delay), repeats: false))
         try await center.add(request)
+    }
+
+    static func removeAllScheduled() async {
+        let center = UNUserNotificationCenter.current()
+        let pendingIdentifiers = await center.pendingNotificationRequests()
+            .map(\.identifier)
+            .filter { $0.hasPrefix(identifierPrefix) }
+        let deliveredIdentifiers = await center.deliveredNotifications()
+            .map(\.request.identifier)
+            .filter { $0.hasPrefix(identifierPrefix) }
+        center.removePendingNotificationRequests(withIdentifiers: pendingIdentifiers)
+        center.removeDeliveredNotifications(withIdentifiers: deliveredIdentifiers)
     }
 }

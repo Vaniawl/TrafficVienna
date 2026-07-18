@@ -29,6 +29,7 @@ struct RootTabView: View {
     @StateObject private var store = StationStore()
     @StateObject private var locationManager = LocationManager()
     @StateObject private var favoritesVM = FavoritesListViewModel()
+    @StateObject private var recentSearches = RecentSearchesStore()
     @StateObject private var disruptionsVM = DisruptionsViewModel()
     @StateObject private var networkMonitor = NetworkMonitor()
     @StateObject private var themeManager = ThemeManager.shared
@@ -81,6 +82,7 @@ struct RootTabView: View {
             }
             .environmentObject(themeManager)
             .environmentObject(favoritesVM)
+            .environmentObject(recentSearches)
     }
 
     private var tabs: some View {

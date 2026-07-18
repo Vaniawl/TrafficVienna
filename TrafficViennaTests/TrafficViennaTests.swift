@@ -401,6 +401,19 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(mock.callCount, 1, "Second call should hit cache, not network")
     }
 
+    func testMonitorServiceClearCacheForcesNextNetworkRequest() async throws {
+        let mock = MockNetworkManager()
+        let service = MonitorService(network: mock, cacheTTL: 30, minInterval: 0)
+        _ = try await service.monitor(diva: 60201435)
+        _ = try await service.monitor(diva: 60201435)
+        XCTAssertEqual(mock.callCount, 1)
+
+        await service.clearCache()
+        _ = try await service.monitor(diva: 60201435)
+
+        XCTAssertEqual(mock.callCount, 2)
+    }
+
     func testMonitorServiceForceRefreshBypassesCache() async throws {
         let mock = MockNetworkManager()
         let service = MonitorService(network: mock, cacheTTL: 30)
@@ -546,6 +559,62 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(routes.getAllCallCount, 1)
     }
 
+    @MainActor
+    func testClearTravelFavoritesUpdatesStateAndRepositories() {
+        let route = FavoriteRoute(diva: "60200657", lineName: "U1", destination: "Leopoldau")
+        let routes = CountingFavoritesRepository(routes: [route])
+        let station = FavoriteStation(id: 1, diva: 60200657, name: "Karlsplatz")
+        let stations = CountingFavoriteStationsRepository(stations: [station])
+        let widget = RecordingWidgetSync()
+        let viewModel = FavoritesListViewModel(
+            service: MonitorService(network: MockNetworkManager()),
+            favoritesRepo: routes,
+            stationsRepo: stations,
+            widgetSync: widget
+        )
+
+        viewModel.clearTravelFavorites()
+
+        XCTAssertTrue(viewModel.favoriteRoutes.isEmpty)
+        XCTAssertTrue(viewModel.stations.isEmpty)
+        XCTAssertTrue(routes.getAll().isEmpty)
+        XCTAssertTrue(stations.all().isEmpty)
+        XCTAssertEqual(widget.clearCallCount, 1)
+    }
+
+    func testTravelDataResetClearsOnlyAllowlistedAuxiliaryKeys() {
+        let suite = "TravelDataResetTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        TravelDataResetService.auxiliaryKeys.forEach { defaults.set("value", forKey: $0) }
+        defaults.set("keep", forKey: "themePreset")
+        defaults.set("keep", forKey: "auth.session")
+
+        TravelDataResetService(defaults: defaults).clearAuxiliaryData()
+
+        TravelDataResetService.auxiliaryKeys.forEach { XCTAssertNil(defaults.object(forKey: $0)) }
+        XCTAssertEqual(defaults.string(forKey: "themePreset"), "keep")
+        XCTAssertEqual(defaults.string(forKey: "auth.session"), "keep")
+    }
+
+    @MainActor
+    func testRemovingAllRoutinesClearsPersistence() {
+        let suite = "RoutineResetTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = CommuteRoutineStore(defaults: defaults)
+        store.add(
+            name: "Work",
+            station: FavoriteStation(id: 1, diva: 123, name: "Karlsplatz"),
+            hour: 8
+        )
+
+        store.removeAll()
+
+        XCTAssertTrue(store.routines.isEmpty)
+        XCTAssertNil(defaults.data(forKey: "commute_routines"))
+    }
+
     func testLineFavoritesPersistInsertionOrderAndRemainRollbackCompatible() throws {
         let suite = "OrderedFavoriteRouteTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
@@ -668,7 +737,11 @@ private final class CountingFavoritesRepository: FavoritesRepository, @unchecked
 
 private final class CountingFavoriteStationsRepository: FavoriteStationsStoring, @unchecked Sendable {
     private(set) var allCallCount = 0
-    private var stations: [FavoriteStation] = []
+    private var stations: [FavoriteStation]
+
+    init(stations: [FavoriteStation] = []) {
+        self.stations = stations
+    }
 
     func all() -> [FavoriteStation] {
         allCallCount += 1
@@ -687,10 +760,17 @@ private final class CountingFavoriteStationsRepository: FavoriteStationsStoring,
 
     func remove(id: Int) { stations.removeAll { $0.id == id } }
     func setOrder(_ stations: [FavoriteStation]) { self.stations = stations }
+    func removeAll() { stations = [] }
 }
 
 private struct NoopWidgetSync: WidgetSyncing {
     func save(_ data: [WidgetDepartureData]) {}
+}
+
+private final class RecordingWidgetSync: WidgetSyncing, @unchecked Sendable {
+    private(set) var clearCallCount = 0
+    func save(_ data: [WidgetDepartureData]) {}
+    func clear() { clearCallCount += 1 }
 }
 
 private final class MemoryKeychain: KeychainStoring {

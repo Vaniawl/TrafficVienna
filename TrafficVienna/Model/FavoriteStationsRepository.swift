@@ -32,6 +32,7 @@ protocol FavoriteStationsStoring: Sendable {
     func toggle(_ station: FavoriteStation)
     func remove(id: Int)
     func setOrder(_ stations: [FavoriteStation])
+    func removeAll()
 }
 
 nonisolated final class UserDefaultsFavoriteStationsRepository: FavoriteStationsStoring {
@@ -65,6 +66,10 @@ nonisolated final class UserDefaultsFavoriteStationsRepository: FavoriteStations
 
     func setOrder(_ stations: [FavoriteStation]) {
         save(stations)
+    }
+
+    func removeAll() {
+        storage.removeObject(forKey: key)
     }
 
     // MARK: - Persistence (ordered array)

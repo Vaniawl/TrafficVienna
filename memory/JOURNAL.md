@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-07-18 — Complete allowlisted travel-data reset
+
+- Added a confirmed “Clear travel data” action that preserves authentication, theme, onboarding, permissions, and the bundled station dataset.
+- Clears line/station favourites, commute routines, shared recent searches, widget data/timestamps, pending and delivered departure reminders, TrafficVienna Live Activities, and in-memory/disk departure caches.
+- Promoted recent searches to root-owned shared state so an already-created Search tab updates immediately after reset.
+- Added repository/store clear APIs and an allowlisted auxiliary reset service; deletion is idempotent and does not use broad UserDefaults domain removal.
+- Added UI-state/repository, allowlist preservation, routine persistence, and monitor-cache regression tests; security review found no Critical/High issues, full shared-scheme tests and repository validations pass.
+
 ## 2026-07-18 — Provider-aware local account removal
 
 - Added a destructive, confirmed Account action with explicit provider-aware explanations and localized German/Ukrainian copy.

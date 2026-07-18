@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SearchView: View {
     @ObservedObject var store: StationStore
-    @StateObject private var recents = RecentSearchesStore()
+    @EnvironmentObject private var recents: RecentSearchesStore
     @State private var query = ""
     @State private var results: [Station] = []
     @State private var isSearching = false
@@ -87,4 +87,7 @@ struct SearchView: View {
     }
 }
 
-#Preview { NavigationStack { SearchView(store: StationStore()) } }
+#Preview {
+    NavigationStack { SearchView(store: StationStore()) }
+        .environmentObject(RecentSearchesStore())
+}

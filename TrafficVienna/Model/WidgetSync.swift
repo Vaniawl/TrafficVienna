@@ -13,6 +13,11 @@ private let log = Logger(subsystem: "at.wellbe.TrafficVienna", category: "widget
 
 protocol WidgetSyncing: Sendable {
     func save(_ data: [WidgetDepartureData])
+    func clear()
+}
+
+extension WidgetSyncing {
+    func clear() { save([]) }
 }
 
 nonisolated final class WidgetSyncManager: WidgetSyncing {
@@ -55,5 +60,12 @@ nonisolated final class WidgetSyncManager: WidgetSyncing {
         WidgetCenter.shared.reloadTimelines(ofKind: widgetKind)
 
         log.debug("Saved \(data.count) items to widget")
+    }
+
+    func clear() {
+        guard let storage else { return }
+        [dataKey, lastUpdatedKey, "widget_last_fetch_attempt", "widget_refresh_requested_at"]
+            .forEach(storage.removeObject(forKey:))
+        WidgetCenter.shared.reloadTimelines(ofKind: widgetKind)
     }
 }

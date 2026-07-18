@@ -40,11 +40,9 @@ enum LiveActivityController {
         }
     }
 
-    static func stopAll() {
-        Task {
-            for activity in Activity<DepartureActivityAttributes>.activities {
-                await activity.end(nil, dismissalPolicy: .immediate)
-            }
+    static func stopAll() async {
+        for activity in Activity<DepartureActivityAttributes>.activities {
+            await activity.end(nil, dismissalPolicy: .immediate)
         }
     }
 }

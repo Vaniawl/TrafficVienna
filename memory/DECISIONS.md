@@ -1,5 +1,13 @@
 # Architectural Decisions
 
+## 2026-07-18 — Allowlisted travel-data reset distinct from identity removal
+
+**Context:** Travel preferences and runtime artifacts span App Group repositories, recent-search state, widget metadata, notifications, Live Activities, and monitor caches. They are device-level data rather than records owned by the current local authentication identity.
+
+**Decision:** Keep identity removal and travel-data reset as separate confirmed actions. Implement travel reset with an explicit key and side-effect allowlist, shared root-owned UI stores, targeted `departure.*` notification removal, TrafficVienna activity termination, and monitor cache clearing. Preserve auth, theme, onboarding, permissions, and bundled reference data.
+
+**Consequences:** Users can erase their travel history/preferences without losing sign-in access, and can remove a local identity without unexpectedly destroying travel setup. The reset is idempotent and testable; future user-generated stores must be deliberately added to the allowlist and reset verification.
+
 ## 2026-07-18 — Provider-aware local account removal boundary
 
 **Context:** Device-local email registration created a persistent Keychain password verifier, but Sign out removed only the active session. Sign in with Apple stores no app-owned credential that TrafficVienna can revoke, and there is no authentication backend.

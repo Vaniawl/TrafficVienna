@@ -160,6 +160,15 @@ actor MonitorService {
         }
     }
 
+    func clearCache() {
+        inFlight.values.forEach { $0.cancel() }
+        inFlight = [:]
+        cache = [:]
+        trafficInfoCache = nil
+        nextSlot = .distantPast
+        network.removeCachedResponses()
+    }
+
     // Shares one in-flight request per DIVA across concurrent callers.
     private func fetchCoalesced(diva: Int) async throws -> MonitorResponse {
         if let existing = inFlight[diva] {

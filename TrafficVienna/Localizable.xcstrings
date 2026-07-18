@@ -337,6 +337,38 @@
         }
       }
     },
+    "Clear data": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daten löschen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Очистити дані"
+          }
+        }
+      }
+    },
+    "Clear travel data": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reisedaten löschen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Очистити дані поїздок"
+          }
+        }
+      }
+    },
     "Collapsed": {
       "localizations": {
         "de": {
@@ -2158,6 +2190,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Це видалить локальний засіб перевірки пароля електронної пошти та виконає вихід. Збережені станції й сценарії залишаться на цьому пристрої."
+          }
+        }
+      }
+    },
+    "This removes favourites, routines, recent searches, departure reminders, Live Activities, widget data, and cached departures. Your sign-in stays active.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dadurch werden Favoriten, Routinen, letzte Suchanfragen, Abfahrtserinnerungen, Live-Aktivitäten, Widget-Daten und zwischengespeicherte Abfahrten gelöscht. Deine Anmeldung bleibt aktiv."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Це видалить обране, сценарії, недавні пошуки, нагадування про відправлення, Live Activities, дані віджета та кешовані відправлення. Вхід в акаунт залишиться активним."
           }
         }
       }

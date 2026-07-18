@@ -191,6 +191,15 @@ final class FavoritesListViewModel: ObservableObject {
         items = []
         syncWidget()
     }
+
+    func clearTravelFavorites() {
+        favoritesRepo.removeAll()
+        stationsRepo.removeAll()
+        favoriteRoutes = []
+        stations = []
+        items = []
+        widgetSync.clear()
+    }
     
     private func loadItem(for favorite: FavoriteRoute, forceRefresh: Bool = false) async -> FavoriteWithDeparture {
         guard let divaInt = Int(favorite.diva) else {
