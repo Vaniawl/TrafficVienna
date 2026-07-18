@@ -6,6 +6,7 @@ struct NearbyView: View {
     @StateObject private var vm: NearbyViewModel
     @ObservedObject private var locationManager: LocationManager
     @EnvironmentObject private var auth: AuthStore
+    @EnvironmentObject private var router: AppRouter
     @EnvironmentObject private var routines: CommuteRoutineStore
     @ObservedObject private var favoritesVM: FavoritesListViewModel
     @ObservedObject private var disruptionsVM: DisruptionsViewModel
@@ -218,7 +219,18 @@ struct NearbyView: View {
         .frame(maxWidth: .infinity)
     }
 
+    @ViewBuilder
     private var insightCard: some View {
+        if disruptionsVM.relevantCount == 0, routines.current != nil {
+            NavigationLink { RoutinesView() } label: { insightCardLabel }
+                .buttonStyle(.plain)
+        } else {
+            Button { router.navigate(to: insightDestination) } label: { insightCardLabel }
+                .buttonStyle(.plain)
+        }
+    }
+
+    private var insightCardLabel: some View {
         HStack(spacing: 16) {
             Image(systemName: "bolt.fill")
                 .foregroundStyle(Color(hex: 0x635BFF))
@@ -233,6 +245,12 @@ struct NearbyView: View {
         }
         .padding(18)
         .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+    }
+
+    private var insightDestination: AppRouter.Destination {
+        if disruptionsVM.relevantCount > 0 { return .alerts }
+        if !favoritesVM.stations.isEmpty { return .favourites }
+        return .search
     }
 
     private var smartInsightTitle: String {

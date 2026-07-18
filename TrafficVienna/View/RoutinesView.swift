@@ -2,10 +2,12 @@ import SwiftUI
 
 struct RoutinesView: View {
     @EnvironmentObject private var routines: CommuteRoutineStore
-    @State private var stations = UserDefaultsFavoriteStationsRepository().all()
+    @EnvironmentObject private var favoritesVM: FavoritesListViewModel
     @State private var name = ""
     @State private var selectedStationID: Int?
     @State private var time = Calendar.current.date(from: DateComponents(hour: 8)) ?? .now
+
+    private var stations: [FavoriteStation] { favoritesVM.stations }
 
     var body: some View {
         List {

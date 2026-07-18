@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-07-18 — Contextual Smart Insight navigation
+
+- Turned the Smart Home insight card from a decorative chevron into a real contextual action.
+- Routed relevant disruption insights to Alerts, active commute insights to Routines, saved-station insights to Favourites, and the empty default state to Search.
+- Added an explicit in-app `AppRouter.navigate(to:)` API so UI actions reuse the same tab-routing path as deep links without manufacturing URLs.
+- Connected `RoutinesView` to the shared favourite-station state, removing another direct UserDefaults read and keeping its station picker current.
+- Added router regression coverage; full shared-scheme tests and all repository validations pass.
+
 ## 2026-07-18 — Unified favourite-station UI state
 
 - Made the root-owned `FavoritesListViewModel` the single UI owner for favourite-station state across Nearby, Search, Map, Favourites, Station Detail, and deep-linked station sheets.

@@ -14,6 +14,10 @@ final class AppRouter: ObservableObject {
 
     @Published private(set) var destination: Destination?
 
+    func navigate(to destination: Destination) {
+        self.destination = destination
+    }
+
     func open(_ url: URL) {
         guard url.scheme == "trafficvienna" else { return }
         let components = [url.host].compactMap { $0 } + url.pathComponents.filter { $0 != "/" }

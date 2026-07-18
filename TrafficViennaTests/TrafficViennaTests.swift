@@ -19,6 +19,16 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testAppRouterNavigatesToInAppDestination() {
+        let router = AppRouter()
+
+        router.navigate(to: .favourites)
+        XCTAssertEqual(router.destination, .favourites)
+        router.consume()
+        XCTAssertNil(router.destination)
+    }
+
+    @MainActor
     func testCommuteRoutinePersistence() {
         let suite = "RoutineTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
