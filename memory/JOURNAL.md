@@ -1,5 +1,16 @@
 # Journal
 
+## 2026-07-18 — Unified redesign and executable test recovery
+
+- Removed selectable themes and consolidated the app around one adaptive
+  Vienna-red visual identity.
+- Rebuilt onboarding, added reactive favourite-station quick access, modernised
+  the tab API, and fixed recent-search persistence.
+- Restored the missing XCTest target; fixed the failures it exposed. Final local
+  evidence: app/widget build succeeded with zero warnings and 27 tests passed.
+- Email authentication remains blocked on a provider decision; no fake local
+  authentication was introduced.
+
 ## 2026-07-15 — OpenCode model and recovery readiness audit
 
 - Started from updated `main` at `07894ac1` on fresh branch `codex/reliability-model-audit`.

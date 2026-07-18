@@ -113,9 +113,10 @@ final class TrafficViennaTests: XCTestCase {
 
         let first = try await service.monitor(diva: 60201435)
         let cached = try await service.monitor(diva: 60201435)
+        let callCount = await mock.callCount
 
         XCTAssertEqual(first.data.monitors.count, cached.data.monitors.count)
-        XCTAssertEqual(mock.callCount, 1, "Second call should hit cache, not network")
+        XCTAssertEqual(callCount, 1, "Second call should hit cache, not network")
     }
 
     func testMonitorServiceForceRefreshBypassesCache() async throws {
@@ -124,16 +125,17 @@ final class TrafficViennaTests: XCTestCase {
 
         _ = try await service.monitor(diva: 60201435)
         _ = try await service.monitor(diva: 60201435, forceRefresh: true)
+        let callCount = await mock.callCount
 
-        XCTAssertEqual(mock.callCount, 2, "Force refresh should bypass cache")
+        XCTAssertEqual(callCount, 2, "Force refresh should bypass cache")
     }
 
     func testMonitorServiceFallbackToStaleCacheOnNetworkError() async throws {
-        let mock = MockNetworkManager(shouldFail: true)
-        let service = MonitorService(network: mock, cacheTTL: 30)
+        let mock = MockNetworkManager()
+        let service = MonitorService(network: mock, cacheTTL: 0)
 
         _ = try await service.monitor(diva: 60201435)
-        mock.shouldFail = true
+        await mock.setShouldFail(true)
 
         let result = try await service.monitor(diva: 60201435)
         XCTAssertFalse(result.data.monitors.isEmpty, "Should return stale cache on error")
@@ -180,11 +182,15 @@ final class TrafficViennaTests: XCTestCase {
 
 // MARK: - Mock Network Manager
 
-private final class MockNetworkManager: NetworkManaging {
-    var callCount = 0
-    var shouldFail = false
+private actor MockNetworkManager: NetworkManaging {
+    private(set) var callCount = 0
+    private var shouldFail = false
 
     init(shouldFail: Bool = false) {
+        self.shouldFail = shouldFail
+    }
+
+    func setShouldFail(_ shouldFail: Bool) {
         self.shouldFail = shouldFail
     }
 

@@ -73,7 +73,7 @@ actor MonitorService {
 
         do {
             let response = try await fetchCoalesced(diva: diva)
-            cache[diva] = CacheEntry(response: response, timestamp: Date())
+            cache[diva] = CacheEntry(response: response, timestamp: .now)
             return response
         } catch {
             if let stale = cache[diva] { return stale.response }
@@ -102,19 +102,19 @@ actor MonitorService {
     // MARK: - Internals
 
     private func isFresh(_ entry: CacheEntry) -> Bool {
-        Date().timeIntervalSince(entry.timestamp) < cacheTTL
+        Date.now.timeIntervalSince(entry.timestamp) < cacheTTL
     }
 
     // Claims the next time slot and sleeps until it's due. Reading and advancing
     // `nextSlot` happens with no suspension in between, so bursts get spaced out.
     private func throttle() async throws {
-        let now = Date()
+        let now = Date.now
         let slot = max(now, nextSlot)
         nextSlot = slot.addingTimeInterval(minInterval)
 
         let wait = slot.timeIntervalSince(now)
         if wait > 0 {
-            try await Task.sleep(nanoseconds: UInt64(wait * 1_000_000_000))
+            try await Task.sleep(for: .seconds(wait))
         }
     }
 
@@ -127,8 +127,8 @@ actor MonitorService {
                 guard attempt < maxRetries else { throw MonitorApiError.rateLimited }
                 let backoff = pow(2.0, Double(attempt)) * 0.8 // 0.8s, 1.6s, …
                 // Push the shared slot out so other queued calls also wait.
-                nextSlot = Date().addingTimeInterval(backoff)
-                try await Task.sleep(nanoseconds: UInt64(backoff * 1_000_000_000))
+                nextSlot = Date.now.addingTimeInterval(backoff)
+                try await Task.sleep(for: .seconds(backoff))
                 attempt += 1
             }
         }

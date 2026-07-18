@@ -1,5 +1,24 @@
 # Journal
 
+## 2026-07-18 - Single-design UI foundation, onboarding, quick access, and real tests
+
+- Removed the ten accent presets, appearance picker, `ThemeEngine`, and competing
+  runtime theme ownership. TrafficVienna now has one adaptive Vienna-red design
+  language that follows the system light/dark appearance.
+- Rebuilt onboarding as a three-step, reduced-motion-aware product tour with
+  responsive typography, a full-width CTA, and verified light/dark simulator
+  rendering on iPhone 17.
+- Modernised the root tab bar to the iOS 26 `Tab` API, extracted network/offline
+  state, fixed recent-search recording, and added reactive quick access to saved
+  stations on Nearby.
+- Restored the historical `TrafficViennaTests` target that the shared scheme still
+  referenced. The first real run exposed three failures; fixed ISO-8601 parsing,
+  countdown rounding, stale-cache coverage, Sendable test state, modern sleep,
+  and ActivityKit deprecations. Final result: 27 tests passed, zero warnings.
+- Account work remains intentionally incomplete: the repository has no identity
+  backend. Native Apple sign-in can be added without a third-party SDK, but a
+  truthful email sign-in requires selecting and configuring a provider.
+
 ## 2026-07-17 - Interrupted appearance and Nearby implementation
 
 - The implementer made real Swift edits but left its assigned UI scope, replaced

@@ -22,29 +22,28 @@
   accessibility evidence through TV-VERIFY-030/031/032.
 - [ ] **REQ-TV-007:** synchronize state and clear independent reviews through
   TV-VERIFY-033/034.
-- [ ] **REQ-TV-008:** finish the minimalist redesign, appearance control, and
+- [ ] **REQ-TV-008:** finish the minimalist redesign, single design identity, and
   evidence-backed favourites improvement through TV-UI-002 and Phase 2.
+- [ ] **REQ-TV-009:** implement optional Apple/email accounts after a real email
+  identity provider is selected; anonymous transport use must remain available.
 
 ## Phase 1 - Recover the shared visual foundation
 
-- [x] **TV-UI-001 - Remove conflicting theme ownership.**
-  - Outcome: one `ThemeEngine`, owned by `TrafficViennaApp`, persists appearance
-    mode and accent preset; obsolete `ThemeManager` and `DesignTheme` are gone.
-  - Paths: `TrafficVienna/Model/ThemeEngine.swift`, `Theme.swift`,
-    `DesignSystem.swift`, `AppColors.swift`, `TrafficViennaApp.swift`.
+- [x] **TV-UI-001 - Remove selectable designs and conflicting theme ownership.**
+  - Outcome: one adaptive Vienna-red design system follows the device appearance;
+    `ThemeEngine`, presets, and the appearance picker are gone.
+  - Paths: design token files, `AppColors.swift`, `TrafficViennaApp.swift`.
   - Dependencies: none.
-  - Acceptance: no stale theme symbols, empty compatibility files, or second
-    runtime `ThemeEngine` owner remain.
-  - Validation: source search and changed-file reread completed 2026-07-17.
+  - Acceptance: no runtime theme/preset owner or design picker remains.
+  - Validation: source search, warning-free build, and changed-file reread on
+    2026-07-18.
 - [x] **TV-UI-002 - Validate appearance behaviour.**
-  - Outcome: system/light/dark and accent selection update the whole app and
-    survive relaunch without dismissing the picker prematurely.
-  - Paths: `TrafficVienna/View/ThemePickerView.swift`, `RootTabView.swift`, and
-    affected previews.
+  - Outcome: the single design adapts to system light/dark without user presets.
+  - Paths: `RootTabView.swift`, onboarding, design tokens, and affected previews.
   - Dependencies: TV-UI-001.
-  - Acceptance: all modes and presets work in light/dark simulator runs; labels
-    are localised and accessible.
-  - Validation: `bash scripts/build.sh`, focused tests, simulator inspection.
+  - Acceptance: light/dark simulator runs are readable; labels are localised and
+    motion respects Reduce Motion.
+  - Validation: warning-free build, 27 tests, and light/dark iPhone 17 screenshots.
 
 ## Phase 2 - Redesign complete user journeys
 
@@ -91,13 +90,20 @@
   - Dependencies: TV-UI-010 through TV-UI-014 where shared navigation applies.
   - Acceptance: all current actions remain reachable with loading/error feedback.
 - [ ] **TV-UI-016 - Onboarding, settings, and secondary surfaces.**
-  - Outcome: onboarding, appearance settings, About, widget, and secondary views
+  - Outcome: onboarding, account/settings, About, widget, and secondary views
     use the same design language without changing product boundaries.
   - Paths: the corresponding SwiftUI views, widget views, assets, localisations.
   - Dependencies: TV-UI-002.
   - Acceptance: no old visual tokens, hard-coded user strings, or inaccessible
     controls remain in active secondary flows.
   - Validation: source review, widget build, simulator inspection.
+
+- [ ] **TV-UI-017 - Optional account access.**
+  - Outcome: anonymous use plus native Apple and email account entry with secure
+    lifecycle handling.
+  - Dependency: explicit email identity provider/backend selection.
+  - Acceptance: sign-in, cancellation, failure, restore, sign-out, revocation,
+    and delete-account paths are real and tested; no local fake authentication.
 
 ## Phase 3 - Focused refactoring and resilience
 
@@ -134,9 +140,11 @@
 - [x] **TV-VERIFY-030 - Server-side checks.** Run and record
   `git diff --check`, `bash scripts/validate-repository.sh`, and
   `bash scripts/validate-opencode.sh` after each coherent batch. Last run:
-  2026-07-17, all exited 0; rerun after subsequent source changes.
-- [ ] **TV-VERIFY-031 - macOS build and tests.** Run `bash scripts/ci.sh` on a
+  2026-07-18, all exited 0.
+- [x] **TV-VERIFY-031 - macOS build and tests.** Run `bash scripts/ci.sh` on a
   suitable macOS/Xcode host, including the app and widget targets.
+  - Evidence: full CI exited 0 on iPhone 17 simulator; app/widget build succeeded
+    and all 27 XCTest cases passed.
 - [ ] **TV-VERIFY-032 - Product inspection.** Exercise every Phase 2 journey in
   light/dark appearance, accessibility text sizes, and relevant failure states.
 - [ ] **TV-VERIFY-033 - Independent reviews.** Resolve every Blocking/Important

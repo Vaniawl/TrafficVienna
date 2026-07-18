@@ -1,5 +1,19 @@
 # Decisions
 
+## 2026-07-18 - One adaptive visual identity; accounts require a real identity boundary
+
+TrafficVienna uses one minimalist Vienna-red visual system and follows the
+device's light/dark appearance. Runtime accent presets and user-selectable design
+themes are removed because they fragment hierarchy, complicate testing, and now
+conflict with the explicit product request.
+
+Accounts remain optional so transport data and local favourites work without
+registration. Do not represent `UserDefaults`, a locally stored email, or an
+unverified token as authentication. Sign in with Apple may use the native
+AuthenticationServices flow, but email sign-in and cross-device account data
+require an explicitly selected backend/provider, secure token validation,
+Keychain storage, migration, and sign-out/delete-account behaviour.
+
 ## 2026-07-16 - Use global native OpenCode ownership
 
 TrafficVienna no longer defines project-local agents, models, permissions,
@@ -24,19 +38,23 @@ about material product ambiguity. A direct request to build, redesign, refactor,
 fix, or continue authorizes routine local implementation. Project Markdown
 preserves context and progress but does not act as an authorization database.
 
-## 2026-07-17 - Adopt minimalist UI redesign and new feature set
+## 2026-07-17 - Adopt minimalist UI redesign and new feature set (superseded)
 
 The user requested a clean, minimalist visual style with a unified colour
 palette and consistent typography, plus multi-favourite selection and an
 explicit theme mode control. Preserve core journeys and MVVM boundaries; deliver
 the work as small, testable product slices.
 
-## 2026-07-17 - Use one runtime theme owner
+Superseded on 2026-07-18 by the user's request to remove design selection.
+
+## 2026-07-17 - Use one runtime theme owner (superseded)
 
 `TrafficViennaApp` owns and injects one `ThemeEngine`. It persists appearance
 mode and accent preset. Views consume semantic SwiftUI colours and the shared
 environment instead of polling `UITraitCollection` or creating local theme
 singletons. Obsolete theme owners and empty compatibility files are removed.
+
+Superseded on 2026-07-18: runtime theme ownership was removed entirely.
 
 ## Existing product architecture
 

@@ -64,6 +64,9 @@ struct FavoritesView: View {
             vm.loadStations()
             await vm.loadFavorites()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .favoriteStationsDidChange)) { _ in
+            vm.loadStations()
+        }
         .background(Color(.systemBackground))
     }
 

@@ -15,6 +15,7 @@ diagnostic evidence only.
 | REQ-TV-006 | `bash scripts/ci.sh` | Full macOS repository, build, test, and whitespace validation exits 0. |
 | REQ-TV-007 | `bash scripts/validate-repository.sh` | State relationships pass, then reviewer and security-reviewer report no Blocking/Important findings. |
 | REQ-TV-008 | `bash scripts/test.sh` | Feature tests for new functionality pass. |
+| REQ-TV-009 | `bash scripts/test.sh` | Account lifecycle tests pass after provider configuration; anonymous use still works. |
 
 ## OpenCode migration checks
 

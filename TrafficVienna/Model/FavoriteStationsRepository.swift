@@ -8,6 +8,10 @@
 
 import Foundation
 
+extension Notification.Name {
+    nonisolated static let favoriteStationsDidChange = Notification.Name("favoriteStationsDidChange")
+}
+
 nonisolated struct FavoriteStation: Codable, Hashable, Identifiable {
     let id: Int        // HALTESTELLEN_ID
     let diva: Int?
@@ -79,5 +83,6 @@ nonisolated final class UserDefaultsFavoriteStationsRepository: FavoriteStations
     private func save(_ stations: [FavoriteStation]) {
         let data = try? JSONEncoder().encode(stations)
         storage.set(data, forKey: key)
+        NotificationCenter.default.post(name: .favoriteStationsDidChange, object: nil)
     }
 }

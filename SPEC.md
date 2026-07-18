@@ -17,7 +17,7 @@ product choice cannot be inferred safely.
 ### REQ-TV-001 - Preserve core journeys
 
 Nearby stops, station search, map browsing, disruptions, favourites, station
-details, widget data, Live Activity, onboarding, themes, localisation, and
+details, widget data, Live Activity, onboarding, localisation, and
 location-denied behaviour must remain functional unless the requested design
 explicitly replaces a flow.
 
@@ -63,12 +63,20 @@ changes must pass reviewer and security-reviewer validation before marking
 ### REQ-TV-008 - Add focused product improvements with the redesign
 
 The app should adopt a clean, minimalist visual style with a unified colour
-palette, consistent typography, and ample whitespace. Complete the explicit
-system/light/dark appearance control. Audit the existing favourites flow before
+palette, consistent typography, and ample whitespace. Remove selectable design
+and accent presets and follow the system light/dark appearance. Audit the
+existing favourites flow before
 adding behaviour: the app already stores multiple favourite stations, so add a
 quick-switching interaction only when discovery identifies a concrete missing
 user journey. New features must preserve current journeys and MVVM boundaries
 and must be delivered as small, testable slices.
+
+### REQ-TV-009 - Add optional, truthful account access
+
+Anonymous use remains available. Add native Sign in with Apple and email access
+only through a real identity boundary with secure credential storage, error and
+revocation handling, sign-out, and delete-account behaviour. Email sign-in must
+not be simulated locally; it requires a selected provider/backend.
 
 
 `PROJECT.md`, `SPEC.md`, `BACKLOG.md`, `STATUS.md`, `CHECKS.md`,

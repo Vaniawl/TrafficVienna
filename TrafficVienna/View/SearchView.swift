@@ -56,6 +56,9 @@ struct SearchView: View {
             ForEach(results) { station in
                 NavigationLink {
                     StationDetailView(station: station)
+                        .onAppear {
+                            recents.record(station.id)
+                        }
                 } label: {
                     HStack(spacing: Spacing.sm) {
                         Image(systemName: "tram.fill")
@@ -94,6 +97,9 @@ struct SearchView: View {
     private func stationLink(_ station: Station, icon: String = "tram.fill") -> some View {
         NavigationLink {
             StationDetailView(station: station)
+                .onAppear {
+                    recents.record(station.id)
+                }
         } label: {
             HStack(spacing: Spacing.sm) {
                 Image(systemName: icon)
@@ -103,9 +109,6 @@ struct SearchView: View {
             }
             .padding(.vertical, Spacing.xs)
         }
-        .simultaneousGesture(TapGesture().onEnded {
-            recents.record(station.id)
-        })
     }
 }
 

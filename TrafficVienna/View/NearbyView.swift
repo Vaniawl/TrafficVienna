@@ -16,6 +16,9 @@ struct NearbyView: View {
     @ObservedObject private var locationManager: LocationManager
     @Environment(\.openURL) private var openURL
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @State private var favoriteStations: [FavoriteStation] = []
+
+    private let favoriteStationsRepository = UserDefaultsFavoriteStationsRepository()
 
     init(store: StationStore, locationManager: LocationManager) {
         _vm = StateObject(wrappedValue: NearbyViewModel(store: store, location: locationManager))
@@ -60,15 +63,6 @@ struct NearbyView: View {
         }
         .navigationTitle("Nearby")
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    showThemePicker = true
-                } label: {
-                    Image(systemName: "paintpalette")
-                        .foregroundStyle(.secondary)
-                }
-                .accessibilityLabel("Appearance")
-            }
             if vm.hasLocation && !vm.items.isEmpty {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -86,23 +80,27 @@ struct NearbyView: View {
                 }
             }
         }
-        .sheet(isPresented: $showThemePicker) {
-            ThemePickerView()
-        }
         .task {
+            loadFavoriteStations()
             while !Task.isCancelled {
                 await vm.load(force: false)
                 try? await Task.sleep(for: .seconds(vm.items.isEmpty ? 5 : 60))
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .favoriteStationsDidChange)) { _ in
+            loadFavoriteStations()
+        }
         .background(Color(.systemBackground))
     }
-
-    @State private var showThemePicker = false
 
     private var stationList: some View {
         ScrollView {
             LazyVStack(spacing: Spacing.md) {
+                if !favoriteStations.isEmpty {
+                    FavoriteStationsQuickAccessView(stations: favoriteStations)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
                 if vm.isLoading {
                     skeletonView
                 }
@@ -122,11 +120,10 @@ struct NearbyView: View {
                     .buttonStyle(.plain)
                     .contextMenu {
                         let station = item.station
-                        let favRepo = UserDefaultsFavoriteStationsRepository()
-                        let isFav = favRepo.contains(id: station.id)
+                        let isFav = favoriteStationsRepository.contains(id: station.id)
 
                         Button {
-                            favRepo.toggle(FavoriteStation(station))
+                            favoriteStationsRepository.toggle(FavoriteStation(station))
                         } label: {
                             Label(
                                 isFav ? "Remove station from favourites" : "Add station to favourites",
@@ -170,9 +167,13 @@ struct NearbyView: View {
         "\(station.name) — live departures on Traffic Vienna"
     }
 
+    private func loadFavoriteStations() {
+        favoriteStations = favoriteStationsRepository.all()
+    }
+
     private func openInMaps(_ station: Station) {
-        let placemark = MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: station.lat, longitude: station.lon))
-        let mapItem = MKMapItem(placemark: placemark)
+        let location = CLLocation(latitude: station.lat, longitude: station.lon)
+        let mapItem = MKMapItem(location: location, address: nil)
         mapItem.name = station.name
         mapItem.openInMaps()
     }
@@ -239,5 +240,4 @@ struct NearbyView: View {
     return NavigationStack {
         NearbyView(store: StationStore(), locationManager: lm)
     }
-    .environmentObject(ThemeEngine())
 }

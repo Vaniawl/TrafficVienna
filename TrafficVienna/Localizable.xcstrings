@@ -70,7 +70,13 @@
         }
       }
     },
-    "Change theme" : {
+    "Allow location" : {
+
+    },
+    "Allow location access in Settings to see stops near you." : {
+
+    },
+    "Allow location access to see live departures around you." : {
 
     },
     "Clear" : {
@@ -87,6 +93,7 @@
 
     },
     "Couldn’t load departures" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -95,6 +102,9 @@
           }
         }
       }
+    },
+    "Couldn't load departures. Try again." : {
+
     },
     "Data" : {
       "localizations" : {
@@ -192,6 +202,9 @@
     "Filter" : {
 
     },
+    "Find stops near you" : {
+
+    },
     "Get started" : {
       "localizations" : {
         "de" : {
@@ -208,6 +221,19 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lizenz"
+          }
+        }
+      }
+    },
+    "Line %@" : {
+
+    },
+    "Line %@ to %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Line %1$@ to %2$@"
           }
         }
       }
@@ -236,6 +262,9 @@
         }
       }
     },
+    "Loading stations" : {
+
+    },
     "Loading..." : {
 
     },
@@ -249,6 +278,9 @@
         }
       }
     },
+    "Locating you" : {
+
+    },
     "Locating you…" : {
       "localizations" : {
         "de" : {
@@ -258,6 +290,15 @@
           }
         }
       }
+    },
+    "Location access denied" : {
+
+    },
+    "Location is off" : {
+
+    },
+    "Location permission needed" : {
+
     },
     "Map" : {
       "localizations" : {
@@ -289,6 +330,9 @@
         }
       }
     },
+    "Nearby stations" : {
+
+    },
     "No departures" : {
       "localizations" : {
         "de" : {
@@ -308,6 +352,12 @@
           }
         }
       }
+    },
+    "No live data for this stop" : {
+
+    },
+    "No stops nearby" : {
+
     },
     "Nothing scheduled right now." : {
       "localizations" : {
@@ -332,6 +382,12 @@
     "Offline" : {
 
     },
+    "Open in Maps" : {
+
+    },
+    "Open Settings" : {
+
+    },
     "Provider" : {
       "localizations" : {
         "de" : {
@@ -352,6 +408,9 @@
         }
       }
     },
+    "Refresh" : {
+
+    },
     "Refresh alerts" : {
       "localizations" : {
         "de" : {
@@ -371,6 +430,9 @@
           }
         }
       }
+    },
+    "Refreshing departures" : {
+
     },
     "Remove" : {
       "localizations" : {
@@ -498,6 +560,16 @@
         }
       }
     },
+    "Station %@, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Station %1$@, %2$@"
+          }
+        }
+      }
+    },
     "Stations" : {
       "localizations" : {
         "de" : {
@@ -507,6 +579,9 @@
           }
         }
       }
+    },
+    "There are no stations within 500 meters." : {
+
     },
     "Track on Lock Screen" : {
       "localizations" : {
@@ -527,6 +602,9 @@
           }
         }
       }
+    },
+    "Updated %@" : {
+
     },
     "updated %lldh ago" : {
       "localizations" : {
@@ -577,6 +655,139 @@
           }
         }
       }
+    },
+    "Check service alerts and the map before you leave, then adapt in seconds." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prüfe Störungsmeldungen und die Karte, bevor du losfährst, und passe deine Route in Sekunden an."
+          }
+        }
+      }
+    },
+    "Continue" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weiter"
+          }
+        }
+      }
+    },
+    "Know before you go" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informiert unterwegs"
+          }
+        }
+      }
+    },
+    "LIVE DEPARTURES" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "LIVE-ABFAHRTEN"
+          }
+        }
+      }
+    },
+    "MADE FOR YOU" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FÜR DICH GEMACHT"
+          }
+        }
+      }
+    },
+    "No account required. Your favourites stay on this device." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Konto erforderlich. Deine Favoriten bleiben auf diesem Gerät."
+          }
+        }
+      }
+    },
+    "No connection" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Verbindung"
+          }
+        }
+      }
+    },
+    "Quick access" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schnellzugriff"
+          }
+        }
+      }
+    },
+    "Save stations, follow favourite lines, and keep the next departure on your Lock Screen." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speichere Stationen, folge deinen Lieblingslinien und behalte die nächste Abfahrt auf dem Sperrbildschirm."
+          }
+        }
+      }
+    },
+    "See nearby stops and real-time departures without digging through timetables." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sieh Haltestellen in deiner Nähe und Echtzeit-Abfahrten, ohne Fahrpläne durchsuchen zu müssen."
+          }
+        }
+      }
+    },
+    "TRAVEL SMARTER" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CLEVER UNTERWEGS"
+          }
+        }
+      }
+    },
+    "Vienna at a glance" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wien auf einen Blick"
+          }
+        }
+      }
+    },
+    "Your commute, one tap away" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein Arbeitsweg mit einem Tipp"
+          }
+        }
+      }
+    },
+    "Walking distance" : {
+
     }
   },
   "version" : "1.0"

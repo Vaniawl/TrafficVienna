@@ -1,5 +1,17 @@
 # Architectural Decisions
 
+## 2026-07-18 — Single design identity and truthful optional accounts
+
+**Context:** The user asked to remove design selection and add Apple/email login.
+The app had ten accent presets but no authentication backend.
+
+**Decision:** Use one adaptive Vienna-red design system that follows system
+light/dark. Keep anonymous transport use. Add account methods only behind a real
+identity boundary; never treat a locally stored email as authentication.
+
+**Consequences:** UI hierarchy and testing are simpler. Native Apple sign-in is
+feasible, while email sign-in needs an explicit backend/provider decision.
+
 ## 2026-07-15 — Explicit OpenCode model assignment and state recovery contract
 
 **Context:** The OpenCode workflow needs production-readable model ownership and recovery behavior. Relying on implicit/default model selection makes audits and recovery harder, and long-running autonomous work needs a deterministic state-file contract.

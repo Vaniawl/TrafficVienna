@@ -16,7 +16,8 @@ home-screen widget and Live Activity.
 
 ## Current product scope
 
-- Five primary tabs: Nearby, Search, Map, Alerts, and Favourites.
+- Five primary tabs: Nearby, Search, Map, Alerts, and Favourites, using one
+  adaptive visual identity rather than selectable design presets.
 - Live departure and disruption data from public Wiener Linien endpoints.
 - Bundled station data for local search and map markers.
 - Local favourites and recent searches through `UserDefaults`.
@@ -39,9 +40,10 @@ home-screen widget and Live Activity.
 
 The active goal may improve design, accessibility, maintainability,
 performance, failure handling, and test coverage while preserving useful
-behaviour. Android, accounts, server-side synchronisation, ticket sales,
-route planning, production deployment, and new external services are outside
-the current scope.
+behaviour. Android, ticket sales, route planning, and production deployment are
+outside the current scope. Optional accounts are now in scope, but email
+authentication and server-side synchronisation require an explicit provider
+decision and secure configuration before implementation can be complete.
 
 ## Sources of truth
 
@@ -49,4 +51,3 @@ The root state files define the active goal. Current source and observed command
 results override older narrative documentation. `docs/CONTEXT.md` and
 `docs/REFERENCES.md` provide product background. Files under `memory/` are
 historical and are not autonomous workflow state.
-

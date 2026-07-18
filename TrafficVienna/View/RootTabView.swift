@@ -1,28 +1,4 @@
 import SwiftUI
-import Combine
-import Network
-
-@MainActor
-final class NetworkMonitor: ObservableObject {
-    @Published private(set) var isConnected = true
-    private let monitor = NWPathMonitor()
-    private let queue = DispatchQueue(label: "NetworkMonitor")
-
-    init() {
-        monitor.pathUpdateHandler = { [weak self] path in
-            let connected = path.status == .satisfied
-            Task { @MainActor [weak self] in
-                self?.isConnected = connected
-            }
-        }
-        monitor.start(queue: queue)
-        isConnected = monitor.currentPath.status == .satisfied
-    }
-
-    deinit { monitor.cancel() }
-}
-
-private enum Tab: String { case nearby, search, map, alerts, favourites }
 
 struct RootTabView: View {
     @StateObject private var store = StationStore()
@@ -31,78 +7,66 @@ struct RootTabView: View {
     @StateObject private var disruptionsVM = DisruptionsViewModel()
     @StateObject private var networkMonitor = NetworkMonitor()
     @AppStorage("hasOnboarded") private var hasOnboarded = false
-    @State private var selectedTab: Tab = .nearby
+    @State private var selectedTab: AppTab = .nearby
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        tabs
-            .overlay(alignment: .top) {
-                if !networkMonitor.isConnected {
-                    offlineBadge
+        Group {
+            if hasOnboarded {
+                TabView(selection: $selectedTab) {
+                    Tab("Nearby", systemImage: "location.fill", value: .nearby) {
+                        NavigationStack {
+                            NearbyView(store: store, locationManager: locationManager)
+                        }
+                    }
+
+                    Tab("Search", systemImage: "magnifyingglass", value: .search) {
+                        NavigationStack {
+                            SearchView(store: store)
+                        }
+                    }
+
+                    Tab("Map", systemImage: "map.fill", value: .map) {
+                        NavigationStack {
+                            MapStationsView(store: store, locationManager: locationManager)
+                        }
+                    }
+
+                    Tab("Alerts", systemImage: "exclamationmark.triangle.fill", value: .alerts) {
+                        NavigationStack {
+                            DisruptionsView(vm: disruptionsVM)
+                        }
+                    }
+                    .badge(disruptionsVM.infos.count)
+
+                    Tab("Favourites", systemImage: "star.fill", value: .favourites) {
+                        NavigationStack {
+                            FavoritesView(vm: favoritesVM)
+                        }
+                    }
                 }
-            }
-            .fullScreenCover(isPresented: Binding(get: { !hasOnboarded }, set: { _ in })) {
+                .overlay(alignment: .top) {
+                    if !networkMonitor.isConnected {
+                        OfflineStatusView()
+                    }
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .init("shortcut"))) { note in
+                    guard let type = note.object as? String else { return }
+                    withAnimation(reduceMotion ? nil : .snappy) {
+                        selectedTab = AppTab(rawValue: type) ?? .nearby
+                    }
+                }
+            } else {
                 OnboardingView {
                     locationManager.requestLocationIfNeeded()
                     hasOnboarded = true
                 }
             }
-            .onReceive(NotificationCenter.default.publisher(for: .init("shortcut"))) { note in
-                guard let type = note.object as? String else { return }
-                withAnimation { selectedTab = Tab(rawValue: type) ?? .nearby }
-            }
-    }
-
-    private var offlineBadge: some View {
-        HStack(spacing: 4) {
-            Image(systemName: "wifi.slash")
-                .font(.caption2.weight(.medium))
-            Text("Offline")
-                .font(.caption2.weight(.medium))
         }
-        .foregroundStyle(.red)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .background(.red.opacity(0.12), in: Capsule())
-        .padding(.top, 8)
-    }
-
-    private var tabs: some View {
-        TabView(selection: $selectedTab) {
-            NavigationStack {
-                NearbyView(store: store, locationManager: locationManager)
-            }
-            .tabItem { Label("Nearby", systemImage: "location.fill") }
-            .tag(Tab.nearby)
-
-            NavigationStack {
-                SearchView(store: store)
-            }
-            .tabItem { Label("Search", systemImage: "magnifyingglass") }
-            .tag(Tab.search)
-
-            NavigationStack {
-                MapStationsView(store: store, locationManager: locationManager)
-            }
-            .tabItem { Label("Map", systemImage: "map.fill") }
-            .tag(Tab.map)
-
-            NavigationStack {
-                DisruptionsView(vm: disruptionsVM)
-            }
-            .tabItem { Label("Alerts", systemImage: "exclamationmark.triangle.fill") }
-            .badge(disruptionsVM.infos.count)
-            .tag(Tab.alerts)
-
-            NavigationStack {
-                FavoritesView(vm: favoritesVM)
-            }
-            .tabItem { Label("Favourites", systemImage: "star.fill") }
-            .tag(Tab.favourites)
-        }
+        .animation(reduceMotion ? nil : .smooth, value: hasOnboarded)
     }
 }
 
 #Preview {
     RootTabView()
-        .environmentObject(ThemeEngine())
 }
