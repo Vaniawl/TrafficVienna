@@ -3,7 +3,7 @@
 //  TrafficVienna
 //
 //  Coordinates the Nearby tab. Instead of each card firing its own request
-//  (which used to flood the API), this loads the nearby stations *sequentially*
+//  (which used to flood the API), this loads nearby stations concurrently
 //  through the shared, throttled MonitorService, tracks a single "last updated"
 //  time and supports manual refresh.
 //
@@ -73,20 +73,32 @@ final class NearbyViewModel: ObservableObject {
         if firstFill { isLoading = true } else { isRefreshing = true }
         defer { isLoading = false; isRefreshing = false }
 
-        // Sequential: each await naturally spaces requests for the API.
-        for item in items {
-            guard !Task.isCancelled else { return }
-            guard let diva = item.station.diva else { continue }
-            do {
-                let result = try await service.monitorResult(diva: diva, forceRefresh: force)
-                update(id: item.id) {
+        // MonitorService owns request spacing; overlapping waits avoid adding
+        // response latency on top of the required API cadence.
+        await withTaskGroup(of: (Int, ServiceResult<MonitorResponse>?).self) { group in
+            for item in items {
+                guard let diva = item.station.diva else { continue }
+                group.addTask { @MainActor [service] in
+                    let result = try? await service.monitorResult(diva: diva, forceRefresh: force)
+                    return (item.id, result)
+                }
+            }
+
+            for await (id, result) in group {
+                guard !Task.isCancelled else {
+                    group.cancelAll()
+                    return
+                }
+                guard let result else {
+                    update(id: id) { $0.failed = true }
+                    continue
+                }
+                update(id: id) {
                     $0.lines = result.value.data.monitors.flatMap { $0.lines }
                     $0.failed = false
                     $0.updatedAt = result.freshness.updatedAt
                     $0.freshness = result.freshness
                 }
-            } catch {
-                update(id: item.id) { $0.failed = true }
             }
         }
     }

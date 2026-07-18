@@ -274,6 +274,22 @@ final class TrafficViennaTests: XCTestCase {
         }
     }
 
+    @MainActor
+    func testNearbyLoadsStationMonitorsConcurrentlyThroughService() async {
+        let network = MockNetworkManager(monitorDelayNanoseconds: 50_000_000)
+        let service = MonitorService(network: network, cacheTTL: 0, minInterval: 0)
+        let store = StationStore()
+        let location = LocationManager()
+        location.userLocation = CLLocation(latitude: 48.2082, longitude: 16.3738)
+        let viewModel = NearbyViewModel(store: store, location: location, service: service)
+
+        await viewModel.load()
+
+        XCTAssertGreaterThan(viewModel.items.count, 1)
+        XCTAssertTrue(viewModel.items.allSatisfy { !$0.lines.isEmpty })
+        XCTAssertGreaterThan(network.maxConcurrentMonitorCalls, 1)
+    }
+
     func testMapStationSelectionIsDistanceSortedAndLimited() {
         let store = StationStore()
         let center = CLLocation(latitude: 48.2082, longitude: 16.3738)
@@ -877,49 +893,82 @@ private final class MemoryKeychain: KeychainStoring {
 // MARK: - Mock Network Manager
 
 private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
-    var callCount = 0
+    private let lock = NSLock()
+    private var recordedCallCount = 0
+    private var activeMonitorCalls = 0
+    private var recordedMaxConcurrentMonitorCalls = 0
     var shouldFail = false
     var shouldRateLimit = false
     var responseSource: NetworkResponseSource = .network
     var trafficInfos: [TrafficInfo]?
+    var monitorDelayNanoseconds: UInt64
     var trafficInfoDelayNanoseconds: UInt64
+
+    var callCount: Int { lock.withLock { recordedCallCount } }
+    var maxConcurrentMonitorCalls: Int { lock.withLock { recordedMaxConcurrentMonitorCalls } }
 
     init(
         shouldFail: Bool = false,
         shouldRateLimit: Bool = false,
         responseSource: NetworkResponseSource = .network,
         trafficInfos: [TrafficInfo]? = nil,
+        monitorDelayNanoseconds: UInt64 = 0,
         trafficInfoDelayNanoseconds: UInt64 = 0
     ) {
         self.shouldFail = shouldFail
         self.shouldRateLimit = shouldRateLimit
         self.responseSource = responseSource
         self.trafficInfos = trafficInfos
+        self.monitorDelayNanoseconds = monitorDelayNanoseconds
         self.trafficInfoDelayNanoseconds = trafficInfoDelayNanoseconds
     }
 
     func fetchMonitorData(for stopId: Int) async throws -> MonitorResponse {
-        callCount += 1
+        beginMonitorCall()
+        defer { endMonitorCall() }
+        if monitorDelayNanoseconds > 0 {
+            try await Task.sleep(nanoseconds: monitorDelayNanoseconds)
+        }
         if shouldRateLimit { throw MonitorApiError.rateLimited }
         if shouldFail { throw URLError(.notConnectedToInternet) }
         return mockResponse()
     }
 
     func fetchMonitorData(diva: Int, includeArea: Bool) async throws -> MonitorResponse {
-        callCount += 1
+        beginMonitorCall()
+        defer { endMonitorCall() }
+        if monitorDelayNanoseconds > 0 {
+            try await Task.sleep(nanoseconds: monitorDelayNanoseconds)
+        }
         if shouldRateLimit { throw MonitorApiError.rateLimited }
         if shouldFail { throw URLError(.notConnectedToInternet) }
         return mockResponse()
     }
 
     func fetchTrafficInfoList() async throws -> MonitorResponse {
-        callCount += 1
+        recordCall()
         if trafficInfoDelayNanoseconds > 0 {
             try await Task.sleep(nanoseconds: trafficInfoDelayNanoseconds)
         }
         if shouldRateLimit { throw MonitorApiError.rateLimited }
         if shouldFail { throw URLError(.notConnectedToInternet) }
         return mockResponse()
+    }
+
+    private func beginMonitorCall() {
+        lock.withLock {
+            recordedCallCount += 1
+            activeMonitorCalls += 1
+            recordedMaxConcurrentMonitorCalls = max(recordedMaxConcurrentMonitorCalls, activeMonitorCalls)
+        }
+    }
+
+    private func endMonitorCall() {
+        lock.withLock { activeMonitorCalls -= 1 }
+    }
+
+    private func recordCall() {
+        lock.withLock { recordedCallCount += 1 }
     }
 
     private func mockResponse() -> MonitorResponse {

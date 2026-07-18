@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Overlapped Nearby monitor loading
+
+- Replaced sequential Nearby response waits with concurrent tasks while leaving request-start cadence under the shared `MonitorService` throttle.
+- Preserved distance-sorted card identity and order by applying each completed result through its station ID.
+- Cancelled remaining child work with the parent load and kept individual station failures isolated to their own card.
+- Added a regression proving multiple delayed monitor responses overlap and every nearby card still populates.
+
 ## 2026-07-18 — Keyboard-complete authentication flow
 
 - Added explicit SwiftUI focus ownership for email and password fields with a Next action from email and a Go action from password.
