@@ -53,3 +53,9 @@ The optional onboarding account step has source/build evidence plus eleven accou
 lifecycle and two sequence regressions. This is partial REQ-TV-009 evidence only:
 email provider configuration, remote deletion, physical-device Apple acceptance,
 and interactive onboarding inspection remain required.
+
+The location-independent Nearby dashboard has five presentation-state regressions,
+two existing load/freshness regressions, and fresh light/dark iPhone 17 renders with
+two simulator-only saved stations above an undecided location prompt. Full CI passes
+with 95 tests. Tap navigation, accessibility-size, and VoiceOver acceptance remain
+part of TV-VERIFY-032.

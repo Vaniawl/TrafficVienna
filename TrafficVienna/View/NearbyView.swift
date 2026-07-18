@@ -26,41 +26,7 @@ struct NearbyView: View {
     }
 
     var body: some View {
-        Group {
-            switch locationManager.authorizationStatus {
-            case .denied, .restricted:
-                emptyStateView(
-                    icon: "location.slash",
-                    title: "Location is off",
-                    subtitle: "Allow location access in Settings to see stops near you.",
-                    action: ("Open Settings", openSettings)
-                )
-                .accessibilityLabel("Location access denied")
-            case .notDetermined:
-                emptyStateView(
-                    icon: "location",
-                    title: "Find stops near you",
-                    subtitle: "Allow location access to see live departures around you.",
-                    action: ("Allow location", locationManager.requestLocationIfNeeded)
-                )
-                .accessibilityLabel("Location permission needed")
-            default:
-                if !vm.hasLocation {
-                    locatingView
-                } else if vm.items.isEmpty && !vm.isLoading {
-                    emptyStateView(
-                        icon: "tram.fill",
-                        title: "No stops nearby",
-                        subtitle: "There are no stations within 500 meters.",
-                        action: ("Refresh", { Task { await vm.load(force: true) } })
-                    )
-                    .accessibilityElement(children: .contain)
-                    .accessibilityLabel("No stops nearby")
-                } else {
-                    stationList
-                }
-            }
-        }
+        stationList
         .navigationTitle("Nearby")
         .toolbar {
             if vm.hasLocation && !vm.items.isEmpty {
@@ -90,7 +56,7 @@ struct NearbyView: View {
         .onReceive(NotificationCenter.default.publisher(for: .favoriteStationsDidChange)) { _ in
             loadFavoriteStations()
         }
-        .background(Color(.systemBackground))
+        .background(DesignColor.background)
     }
 
     private var stationList: some View {
@@ -101,43 +67,78 @@ struct NearbyView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
-                if vm.isLoading {
-                    skeletonView
-                }
-
-                ForEach(vm.items) { item in
-                    NavigationLink {
-                        StationDetailView(station: item.station)
-                    } label: {
-                        StationCardView(
-                            station: item.station,
-                            distance: item.distance,
-                            lines: item.lines,
-                            failed: item.failed,
-                            updatedAt: item.updatedAt,
-                            isStale: item.isStale
-                        )
+                switch dashboardState {
+                case .locationDenied:
+                    NearbyStatusCard(
+                        icon: "location.slash",
+                        title: "Location is off",
+                        message: "Allow location access in Settings to see stops near you.",
+                        actionTitle: "Open Settings",
+                        action: openSettings
+                    )
+                case .permissionRequired:
+                    NearbyStatusCard(
+                        icon: "location",
+                        title: "Find stops near you",
+                        message: "Allow location access to see live departures around you.",
+                        actionTitle: "Allow location",
+                        action: locationManager.requestLocationIfNeeded
+                    )
+                case .locating:
+                    NearbyStatusCard(
+                        icon: nil,
+                        title: "Locating you…",
+                        message: "Use your location to show the closest stops.",
+                        actionTitle: nil,
+                        action: nil
+                    )
+                case .noStations:
+                    NearbyStatusCard(
+                        icon: "tram.fill",
+                        title: "No stops nearby",
+                        message: "There are no stations within 500 meters.",
+                        actionTitle: "Refresh",
+                        action: refresh
+                    )
+                case .stations:
+                    if vm.isLoading {
+                        skeletonView
                     }
-                    .buttonStyle(.plain)
-                    .contextMenu {
-                        let station = item.station
-                        let isFav = favoriteStationsRepository.contains(id: station.id)
 
-                        Button {
-                            favoriteStationsRepository.toggle(FavoriteStation(station))
+                    ForEach(vm.items) { item in
+                        NavigationLink {
+                            StationDetailView(station: item.station)
                         } label: {
-                            Label(
-                                isFav ? "Remove station from favourites" : "Add station to favourites",
-                                systemImage: isFav ? "star.slash" : "star"
+                            StationCardView(
+                                station: item.station,
+                                distance: item.distance,
+                                lines: item.lines,
+                                failed: item.failed,
+                                updatedAt: item.updatedAt,
+                                isStale: item.isStale
                             )
                         }
+                        .buttonStyle(.plain)
+                        .contextMenu {
+                            let station = item.station
+                            let isFav = favoriteStationsRepository.contains(id: station.id)
 
-                        ShareLink(item: stationShareText(station))
+                            Button {
+                                favoriteStationsRepository.toggle(FavoriteStation(station))
+                            } label: {
+                                Label(
+                                    isFav ? "Remove station from favourites" : "Add station to favourites",
+                                    systemImage: isFav ? "star.slash" : "star"
+                                )
+                            }
 
-                        Button {
-                            openInMaps(station)
-                        } label: {
-                            Label("Open in Maps", systemImage: "map")
+                            ShareLink(item: stationShareText(station))
+
+                            Button {
+                                openInMaps(station)
+                            } label: {
+                                Label("Open in Maps", systemImage: "map")
+                            }
                         }
                     }
                 }
@@ -150,18 +151,12 @@ struct NearbyView: View {
         .accessibilityLabel("Nearby stations")
     }
 
-    private var locatingView: some View {
-        VStack(spacing: Spacing.sm) {
-            ProgressView()
-                .accessibilityLabel("Locating you")
-            Text("Locating you…")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-        }
-        .padding(Spacing.md)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel("Locating you")
+    private var dashboardState: NearbyDashboardState {
+        NearbyDashboardState(
+            authorizationStatus: locationManager.authorizationStatus,
+            hasLocation: vm.hasLocation,
+            hasStations: !vm.items.isEmpty
+        )
     }
 
     private func stationShareText(_ station: Station) -> String {
@@ -185,34 +180,8 @@ struct NearbyView: View {
         }
     }
 
-    private func emptyStateView(
-        icon: String,
-        title: LocalizedStringKey,
-        subtitle: LocalizedStringKey,
-        action: (title: LocalizedStringKey, perform: () -> Void)? = nil
-    ) -> some View {
-        VStack(spacing: Spacing.sm) {
-            Image(systemName: icon)
-                .font(.title.scaled(by: 1.4))
-                .foregroundStyle(.tertiary)
-            Text(title)
-                .font(.title3)
-                .bold()
-                .multilineTextAlignment(.center)
-            Text(subtitle)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-            if let action {
-                Button(action.title, action: action.perform)
-                    .buttonStyle(.borderedProminent)
-                    .padding(.top, Spacing.xs)
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(Spacing.xxxl)
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel(Text(title))
+    private func refresh() {
+        Task { await vm.load(force: true) }
     }
 
     private var skeletonView: some View {

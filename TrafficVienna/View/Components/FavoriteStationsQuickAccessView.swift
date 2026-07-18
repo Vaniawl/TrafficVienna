@@ -2,6 +2,8 @@ import SwiftUI
 
 struct FavoriteStationsQuickAccessView: View {
     let stations: [FavoriteStation]
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
@@ -9,7 +11,7 @@ struct FavoriteStationsQuickAccessView: View {
                 .font(.headline)
 
             ScrollView(.horizontal) {
-                HStack(spacing: Spacing.xs) {
+                LazyHStack(spacing: Spacing.sm) {
                     ForEach(stations) { station in
                         NavigationLink {
                             StationDetailView(
@@ -22,19 +24,32 @@ struct FavoriteStationsQuickAccessView: View {
                                 )
                             )
                         } label: {
-                            Label(station.name, systemImage: "star.fill")
-                                .font(.subheadline)
-                                .bold()
-                                .padding(.horizontal, Spacing.sm)
-                                .frame(minHeight: 44)
-                                .background(DesignColor.cardBackground, in: Capsule())
+                            FavoriteStationQuickAccessCard(station: station)
                         }
                         .buttonStyle(.plain)
+                        .containerRelativeFrame(
+                            .horizontal,
+                            count: cardGridCount,
+                            span: cardGridSpan,
+                            spacing: Spacing.sm
+                        )
                     }
                 }
+                .scrollTargetLayout()
             }
             .scrollIndicators(.hidden)
+            .scrollTargetBehavior(.viewAligned)
         }
         .accessibilityElement(children: .contain)
+    }
+
+    private var cardGridCount: Int {
+        if dynamicTypeSize.isAccessibilitySize { 1 }
+        else if horizontalSizeClass == .regular { 2 }
+        else { 12 }
+    }
+
+    private var cardGridSpan: Int {
+        dynamicTypeSize.isAccessibilitySize || horizontalSizeClass == .regular ? 1 : 10
     }
 }

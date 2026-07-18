@@ -8,11 +8,15 @@
   complete; continue visual inspection, remaining resilience work, and email
   account integration.
 - Verified: app and widget build successfully on iPhone 17 simulator with zero
-  warnings; the restored test target runs 90 passing XCTest cases.
+  warnings; the restored test target runs 95 passing XCTest cases.
 - Verified CI: repository/OpenCode/reliability checks, build, tests, and diff
   validation completed with `[ci] OK`.
 - Verified visually: the new onboarding renders correctly in system light and
   dark appearances and respects Reduce Motion in source.
+- Verified Nearby dashboard: saved stations remain visible and navigable before
+  location permission and when location is unavailable; the location state is a
+  separate card rather than a full-screen gate. Adaptive view-aligned quick-access
+  cards pass five state regressions plus fresh iPhone 17 light/dark rendering.
 - Verified security: native Apple profile data is minimised, device-only Keychain
   protected, never logged, and revoked/transferred credential states clear it.
   Runtime Apple revocation notifications now clear the session immediately.

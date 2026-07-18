@@ -61,6 +61,13 @@
   - Acceptance: location denied and successful station loading are both usable;
     Dynamic Type and VoiceOver do not hide essential data.
   - Validation: focused tests plus simulator accessibility inspection.
+  - Dashboard follow-up: saved stations now remain reachable above the location
+    state when permission is undecided, denied, or restricted. Quick access uses
+    adaptive view-aligned cards instead of compressed chips; accessibility Dynamic
+    Type receives one full-width card per page.
+  - Evidence: five deterministic dashboard-state regressions, two Nearby loading
+    regressions, warning-free full CI with 95 XCTest cases, and fresh iPhone 17
+    light/dark renders with two saved stations above the location prompt.
 - [ ] **TV-UI-011 - Search journey.**
   - Outcome: fast, minimal search with clear idle, no-result, failure, and result
     states.
@@ -115,9 +122,11 @@
   - Completed implementation: preserved the two existing repositories and Nearby
     quick access; added stable route identity/order, tested station reorder/remove,
     per-route unavailable/retry, forced refresh, cancellable polling, modern
-    station navigation, and widget exclusion for failed route data.
-  - Evidence: five focused tests and warning-free full CI with 65 passing XCTest
-    cases. Security review found no unresolved Blocking or Important issue.
+    station navigation, widget exclusion for failed route data, and location-
+    independent dashboard access to saved stations.
+  - Evidence: focused repository and dashboard-state tests, fresh light/dark
+    quick-access renders, and warning-free full CI with 95 passing XCTest cases.
+    Security review found no unresolved Blocking or Important issue.
   - Pending acceptance: interactive add/select/quick-switch, light/dark, and
     accessibility-size Simulator inspection after the locked host is available.
 - [ ] **TV-UI-015 - Station detail journey.**
@@ -151,7 +160,7 @@
     renders the decoded station name, uses safe relative dates, and has a complete
     embedded German catalogue.
   - Evidence: focused onboarding-order and route-order regressions,
-    localisation/build inspection, warning-free full CI, and 90 passing XCTest
+    localisation/build inspection, warning-free full CI, and 95 passing XCTest
     cases. Security review found no
     unresolved Blocking or Important issue.
   - Pending acceptance: interactive onboarding/account/About/widget inspection
@@ -216,7 +225,7 @@
   - Evidence: `xcstringstool sync` comparison reports zero missing keys/values,
     both catalogues compile, SwiftUI source scan finds no active `caption2`,
     `onTapGesture`, `UIScreen.main`, deprecated navigation, or unlabeled icon-only
-    control introduced by the redesign; full CI passes with 90 XCTest cases.
+    control introduced by the redesign; full CI passes with 95 XCTest cases.
   - Pending acceptance: interactive accessibility-size and VoiceOver inspection
     after the macOS host is unlocked.
 - [x] **TV-CORE-022 - Refresh and network lifecycle.**
@@ -259,7 +268,7 @@
 - [x] **TV-VERIFY-031 - macOS build and tests.** Run `bash scripts/ci.sh` on a
   suitable macOS/Xcode host, including the app and widget targets.
   - Evidence: full CI exited 0 on iPhone 17 simulator; app/widget build succeeded,
-    the freshness/lifecycle and dead-reference audits passed, and all 90 XCTest
+    the freshness/lifecycle and dead-reference audits passed, and all 95 XCTest
     cases pass.
 - [ ] **TV-VERIFY-032 - Product inspection.** Exercise every Phase 2 journey in
   light/dark appearance, accessibility text sizes, and relevant failure states.

@@ -1,5 +1,18 @@
 # Journal
 
+## 2026-07-18 — Location-independent Nearby dashboard
+
+- Kept saved-station quick access visible above every location state, so declining
+  or delaying location permission no longer hides device-local favourites. The
+  existing App Group repository and station-detail navigation remain authoritative.
+- Replaced compressed chips with adaptive, view-aligned cards. Compact layouts show
+  one wide card plus a carousel cue, accessibility Dynamic Type gets one full-width
+  card, and location/loading/empty states use a separate system content card.
+- Five dashboard-state and two Nearby loading regressions pass; full CI is warning-
+  free with 95 XCTest cases. Fresh iPhone 17 light/dark renders cover two saved
+  stations above an undecided location prompt. Interactive tap, accessibility-size,
+  and VoiceOver acceptance remain in the cross-journey gate.
+
 ## 2026-07-18 — Optional Apple entry in onboarding
 
 - Added a fourth onboarding step that exposes the existing native Apple boundary,
