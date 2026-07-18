@@ -111,6 +111,7 @@ final class StationDetailViewModel {
 
         do {
             let response = try await service.monitor(diva: diva, forceRefresh: forceRefresh)
+            guard !Task.isCancelled else { return }
             trafficInfos = response.data.trafficInfos ?? []
             allGroups = Self.departureGroups(from: response)
             lastUpdated = .now

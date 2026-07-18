@@ -182,6 +182,13 @@
   - Dependencies: Phase 2 discovery.
   - Acceptance: cancellation, coalescing, throttling, and stale-data tests pass.
   - Validation: focused tests and reproducible timing evidence where applicable.
+  - Completed slice: traffic alerts now share monitor request coalescing,
+    throttling, rate-limit backoff, and in-memory stale fallback; cancelled Nearby,
+    Favourites, Alerts, and Station Detail tasks cannot publish late responses.
+  - Evidence: concurrent alert refresh, stale fallback, and late-cancellation
+    regressions plus warning-free full CI with 78 passing XCTest cases.
+  - Remaining: expose cache freshness provenance to the UI and add deterministic
+    clock-based spacing/backoff tests before closing the lifecycle audit.
 - [ ] **TV-CORE-023 - Add dependency injection testability**
   - Outcome: enable unit testing of view models and services by injecting mock
     `NetworkManaging` and `MonitorService` instances.

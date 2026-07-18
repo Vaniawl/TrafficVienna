@@ -5,7 +5,8 @@
 - The app consumes public Wiener Linien transport endpoints.
 - Alerts decode plain title/description/category data from the fixed Wiener
   Linien HTTPS endpoint. HTML is not decoded or executed, search never changes
-  the request URL, and successful responses are cached in memory only.
+  the request URL, and successful responses are cached in memory only. Concurrent
+  alert refreshes share one request budget and stale fallback never adds persistence.
 - Precise location is device data and must remain in the application boundary;
   it must not be logged, committed, or sent to unrelated services.
 - Map and Nearby use precise location only in memory for local station filtering

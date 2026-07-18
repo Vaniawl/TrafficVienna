@@ -57,6 +57,23 @@ final class StationDetailViewModelTests: XCTestCase {
         XCTAssertNotNil(viewModel.refreshErrorMessage)
     }
 
+    func testCancelledLoadCannotPublishLateResponse() async {
+        let monitor = DetailMonitorProvider(
+            result: .success(responseWithMergedU1()),
+            delay: .milliseconds(100)
+        )
+        let viewModel = makeViewModel(service: monitor)
+        let load = Task { await viewModel.load() }
+        await Task.yield()
+
+        load.cancel()
+        await load.value
+
+        XCTAssertNil(viewModel.lastUpdated)
+        XCTAssertTrue(viewModel.groups.isEmpty)
+        XCTAssertFalse(viewModel.isLoadingRequest)
+    }
+
     func testStationAndRouteFavouritesUseExistingRepositories() async {
         let stations = DetailStationsRepository()
         let routes = DetailRoutesRepository()
@@ -156,9 +173,16 @@ private enum DetailTestError: Error { case failed }
 
 private actor DetailMonitorProvider: MonitorProviding {
     private var result: Result<MonitorResponse, Error>
-    init(result: Result<MonitorResponse, Error>) { self.result = result }
+    private let delay: Duration
+    init(result: Result<MonitorResponse, Error>, delay: Duration = .zero) {
+        self.result = result
+        self.delay = delay
+    }
     func setResult(_ result: Result<MonitorResponse, Error>) { self.result = result }
-    func monitor(diva: Int, forceRefresh: Bool) async throws -> MonitorResponse { try result.get() }
+    func monitor(diva: Int, forceRefresh: Bool) async throws -> MonitorResponse {
+        if delay != .zero { try? await Task.sleep(for: delay) }
+        return try result.get()
+    }
 }
 
 private final class DetailRoutesRepository: FavoritesRepository, @unchecked Sendable {

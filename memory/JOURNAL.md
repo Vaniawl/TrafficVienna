@@ -1,5 +1,17 @@
 # Journal
 
+## 2026-07-18 — Refresh and network lifecycle hardening
+
+- Routed traffic-alert refreshes through the same coalescing, throttling,
+  rate-limit backoff, and in-memory stale fallback as station monitor requests.
+- Added cancellation publication guards to Nearby, Favourites, Alerts, and Station
+  Detail so a departed screen cannot apply a late response or sync stale widget data.
+- Added concurrent refresh, stale fallback, and late-cancellation regressions. Full
+  CI passed with zero warnings and 78 XCTest cases; review found no new endpoint,
+  persistence, credential, logging, or unresolved Blocking/Important security issue.
+- Cache freshness provenance and deterministic clock-based throttle/backoff tests
+  remain before TV-CORE-022 can close.
+
 ## 2026-07-18 — Onboarding, About, and widget secondary surfaces
 
 - Unified onboarding and About with the adaptive design system, scalable text,

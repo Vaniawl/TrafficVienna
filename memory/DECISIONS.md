@@ -1,5 +1,20 @@
 # Architectural Decisions
 
+## 2026-07-18 — Alerts share the monitor request lifecycle
+
+**Context:** Station monitor calls were cached, coalesced, throttled, retried, and
+served stale on failure, but `trafficInfoList` bypassed those guarantees. The root
+tab badge and Alerts screen could therefore duplicate a burst request.
+
+**Decision:** Keep one in-flight traffic-info task inside `MonitorService`, claim
+the same shared request slots, apply bounded rate-limit backoff, and retain only the
+last successful in-memory alert list as failure fallback. Journey view models must
+ignore responses after their caller task is cancelled.
+
+**Consequences:** Badge and screen refreshes share one request, temporary outages
+do not erase usable alert data, and departed screens cannot publish late state. UI
+freshness provenance still requires a follow-up API rather than hidden inference.
+
 ## 2026-07-18 — App and widget share favourite-route identity
 
 **Context:** App and widget had separate `FavoriteRoute` definitions and ordering,

@@ -48,6 +48,7 @@ actor MonitorService {
     private var cache: [Int: CacheEntry] = [:]
     private var inFlight: [Int: Task<MonitorResponse, Error>] = [:]
     private var trafficInfoCache: (infos: [TrafficInfo], timestamp: Date)?
+    private var trafficInfoInFlight: Task<[TrafficInfo], Error>?
     // Next moment a network call is allowed to start (for spacing).
     private var nextSlot = Date.distantPast
 
@@ -89,9 +90,14 @@ actor MonitorService {
             return trafficInfoCache.infos
         }
 
-        let infos = try await network.fetchTrafficInfoList().data.trafficInfos ?? []
-        trafficInfoCache = (infos, .now)
-        return infos
+        do {
+            let infos = try await fetchTrafficInfoCoalesced()
+            trafficInfoCache = (infos, .now)
+            return infos
+        } catch {
+            if let trafficInfoCache { return trafficInfoCache.infos }
+            throw error
+        }
     }
 
     // Shares one in-flight request per DIVA across concurrent callers.
@@ -105,6 +111,21 @@ actor MonitorService {
         }
         inFlight[diva] = task
         defer { inFlight[diva] = nil }
+        return try await task.value
+    }
+
+    // Traffic alerts use the same request budget and stale-data policy as station
+    // monitors. Concurrent tab/badge refreshes therefore share one network call.
+    private func fetchTrafficInfoCoalesced() async throws -> [TrafficInfo] {
+        if let trafficInfoInFlight {
+            return try await trafficInfoInFlight.value
+        }
+        let task = Task<[TrafficInfo], Error> { [self] in
+            try await throttle()
+            return try await fetchTrafficInfoWithRetry()
+        }
+        trafficInfoInFlight = task
+        defer { trafficInfoInFlight = nil }
         return try await task.value
     }
 
@@ -136,7 +157,22 @@ actor MonitorService {
                 guard attempt < maxRetries else { throw MonitorApiError.rateLimited }
                 let backoff = pow(2.0, Double(attempt)) * 0.8 // 0.8s, 1.6s, …
                 // Push the shared slot out so other queued calls also wait.
-                nextSlot = Date.now.addingTimeInterval(backoff)
+                nextSlot = max(nextSlot, Date.now.addingTimeInterval(backoff))
+                try await Task.sleep(for: .seconds(backoff))
+                attempt += 1
+            }
+        }
+    }
+
+    private func fetchTrafficInfoWithRetry() async throws -> [TrafficInfo] {
+        var attempt = 0
+        while true {
+            do {
+                return try await network.fetchTrafficInfoList().data.trafficInfos ?? []
+            } catch MonitorApiError.rateLimited {
+                guard attempt < maxRetries else { throw MonitorApiError.rateLimited }
+                let backoff = pow(2.0, Double(attempt)) * 0.8
+                nextSlot = max(nextSlot, Date.now.addingTimeInterval(backoff))
                 try await Task.sleep(for: .seconds(backoff))
                 attempt += 1
             }

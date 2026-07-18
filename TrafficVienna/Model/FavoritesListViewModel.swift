@@ -58,14 +58,17 @@ final class FavoritesListViewModel {
 
         var result: [FavoriteWithDeparture] = []
         for route in routes {
+            guard !Task.isCancelled else { return }
             result.append(await loadItem(for: route, forceRefresh: forceRefresh))
         }
+        guard !Task.isCancelled else { return }
         items = result
         syncWidget()
     }
 
     func refresh(_ route: FavoriteRoute) async {
         let updated = await loadItem(for: route, forceRefresh: true)
+        guard !Task.isCancelled else { return }
         guard let index = items.firstIndex(where: { $0.route == route }) else { return }
         items[index] = updated
         syncWidget()

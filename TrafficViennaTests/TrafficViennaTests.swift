@@ -160,6 +160,31 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(callCount, 2)
     }
 
+    func testTrafficInfoListCoalescesConcurrentRequests() async throws {
+        let mock = MockNetworkManager(delay: .milliseconds(50))
+        let service = MonitorService(network: mock, cacheTTL: 0, minInterval: 0)
+
+        async let first = service.trafficInfoList(forceRefresh: true)
+        async let second = service.trafficInfoList(forceRefresh: true)
+        _ = try await (first, second)
+
+        let callCount = await mock.callCount
+        XCTAssertEqual(callCount, 1)
+    }
+
+    func testTrafficInfoListFallsBackToStaleCache() async throws {
+        let mock = MockNetworkManager()
+        let service = MonitorService(network: mock, cacheTTL: 0, minInterval: 0)
+
+        _ = try await service.trafficInfoList()
+        await mock.setShouldFail(true)
+
+        let stale = try await service.trafficInfoList(forceRefresh: true)
+        XCTAssertTrue(stale.isEmpty)
+        let callCount = await mock.callCount
+        XCTAssertEqual(callCount, 2)
+    }
+
     func testTrafficInfoDecodesFeedCategory() throws {
         let json = """
         {
@@ -235,9 +260,11 @@ final class TrafficViennaTests: XCTestCase {
 private actor MockNetworkManager: NetworkManaging {
     private(set) var callCount = 0
     private var shouldFail = false
+    private let delay: Duration
 
-    init(shouldFail: Bool = false) {
+    init(shouldFail: Bool = false, delay: Duration = .zero) {
         self.shouldFail = shouldFail
+        self.delay = delay
     }
 
     func setShouldFail(_ shouldFail: Bool) {
@@ -246,20 +273,28 @@ private actor MockNetworkManager: NetworkManaging {
 
     func fetchMonitorData(for stopId: Int) async throws -> MonitorResponse {
         callCount += 1
+        try await waitIfNeeded()
         if shouldFail { throw URLError(.notConnectedToInternet) }
         return mockResponse()
     }
 
     func fetchMonitorData(diva: Int, includeArea: Bool) async throws -> MonitorResponse {
         callCount += 1
+        try await waitIfNeeded()
         if shouldFail { throw URLError(.notConnectedToInternet) }
         return mockResponse()
     }
 
     func fetchTrafficInfoList() async throws -> MonitorResponse {
         callCount += 1
+        try await waitIfNeeded()
         if shouldFail { throw URLError(.notConnectedToInternet) }
         return mockResponse()
+    }
+
+    private func waitIfNeeded() async throws {
+        guard delay != .zero else { return }
+        try await Task.sleep(for: delay)
     }
 
     private func mockResponse() -> MonitorResponse {

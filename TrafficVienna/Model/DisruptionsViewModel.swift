@@ -80,7 +80,9 @@ final class DisruptionsViewModel {
         }
 
         do {
-            infos = Self.normalized(try await service.trafficInfoList(forceRefresh: force))
+            let response = try await service.trafficInfoList(forceRefresh: force)
+            guard !Task.isCancelled else { return }
+            infos = Self.normalized(response)
             state = .loaded
         } catch {
             let message = error.monitorDisplayMessage
