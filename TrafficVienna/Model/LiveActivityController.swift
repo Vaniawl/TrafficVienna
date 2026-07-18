@@ -1,8 +1,5 @@
 import Foundation
 import ActivityKit
-import OSLog
-
-private let log = Logger(subsystem: "at.wellbe.TrafficVienna", category: "live-activity")
 
 @MainActor
 enum LiveActivityController {
@@ -10,25 +7,23 @@ enum LiveActivityController {
         ActivityAuthorizationInfo().areActivitiesEnabled
     }
 
-    static func track(line: String, destination: String, stop: String, minutes: Int, isLive: Bool) {
-        guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+    static func track(line: String, destination: String, stop: String, minutes: Int, isLive: Bool) throws {
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else {
+            throw LiveActivityStartError.notAvailable
+        }
 
-        let departureDate = Date().addingTimeInterval(TimeInterval(max(0, minutes) * 60))
+        let departureDate = Date.now.addingTimeInterval(TimeInterval(max(0, minutes) * 60))
         let attributes = DepartureActivityAttributes(line: line, destination: destination, stopName: stop)
         let state = DepartureActivityAttributes.ContentState(departureDate: departureDate, isLive: isLive)
 
-        do {
-            _ = try Activity.request(
-                attributes: attributes,
-                content: .init(state: state, staleDate: departureDate.addingTimeInterval(120))
-            )
-        } catch {
-            log.error("start error: \(error, privacy: .public)")
-        }
+        _ = try Activity.request(
+            attributes: attributes,
+            content: .init(state: state, staleDate: departureDate.addingTimeInterval(120))
+        )
     }
 
     static func update(line: String, destination: String, stop: String, minutes: Int, isLive: Bool) {
-        let departureDate = Date().addingTimeInterval(TimeInterval(max(0, minutes) * 60))
+        let departureDate = Date.now.addingTimeInterval(TimeInterval(max(0, minutes) * 60))
         let state = DepartureActivityAttributes.ContentState(departureDate: departureDate, isLive: isLive)
         let content = ActivityContent(state: state, staleDate: departureDate.addingTimeInterval(120))
         let matching = Activity<DepartureActivityAttributes>.activities.first { a in

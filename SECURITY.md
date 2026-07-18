@@ -17,6 +17,9 @@
 - Failed favourite-route responses remain visible for retry but are excluded from
   widget synchronization; route loading no longer logs user-selected line and
   destination values.
+- Station Detail never writes widget payloads. Starting a Live Activity is an
+  explicit user action; its line, destination, station, and departure time become
+  system-managed Lock Screen content, and start failures are shown without logging.
 - The App Group identifier `group.wellbe.TrafficVienna` is used exclusively by this app.
 - The widget extension shares only the data required for widget behaviour.
 - Optional Apple account entry crosses the native `AuthenticationServices` trust
@@ -40,6 +43,8 @@
 - New dependencies, network destinations, analytics, or external services.
 - Apple credential cancellation, restore, revocation, transfer, sign-out, secure
   deletion failure, and production provisioning capability.
+- ActivityKit availability/failure handling and prevention of unrelated widget
+  mutation when a station is opened or refreshed.
 
 ## Agent boundary
 

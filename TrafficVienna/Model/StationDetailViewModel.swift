@@ -1,115 +1,62 @@
-//
-//  StationDetailViewModel.swift
-//  TrafficVienna
-//
-//  Created by Ivan Dovhosheia on 13.11.25.
-//
-
 import Foundation
-import Combine
+import Observation
 
-
-final class StationDetailViewModel: ObservableObject {
+@MainActor
+@Observable
+final class StationDetailViewModel {
     let station: Station
-    private let service: MonitorService
+    private(set) var state: StationDetailState = .loading
+    private(set) var isLoadingRequest = false
+    private(set) var refreshErrorMessage: String?
+    private(set) var trafficInfos: [TrafficInfo] = []
+    private(set) var lastUpdated: Date?
+    private(set) var isStationFavorited: Bool
+    private(set) var trackedDepartureID: StationDepartureID?
+    var categoryFilter: LineCategory?
+    var notice: StationDetailNotice?
+
+    private var allGroups: [StationDepartureGroup] = []
+    private var favoriteRoutes: Set<FavoriteRoute>
+    private let service: MonitorProviding
     private let favoritesRepo: FavoritesRepository
     private let stationsRepo: FavoriteStationsStoring
-
-    @Published var isLoading = false
-    @Published var errorMessage: String?
-    @Published var monitor: MonitorResponse?
-    @Published var lastUpdated: Date?
-    @Published var isStationFavorited = false
-    @Published var categoryFilter: LineCategory? = nil
-
-    // Active disruptions / notices for this station's lines.
-    var trafficInfos: [TrafficInfo] {
-        monitor?.data.trafficInfos ?? []
-    }
-
-    // Line names that are affected by at least one disruption.
-    private var disruptedLines: Set<String> {
-        Set(trafficInfos.flatMap { $0.relatedLines ?? [] })
-    }
-
-    func hasDisruption(lineName: String) -> Bool {
-        disruptedLines.contains(lineName)
-    }
-
-    // One departure direction at the station.
-    struct DepartureGroup: Identifiable {
-        let line: String
-        let destination: String
-        let minutes: [Int]   // live, ascending
-        let isLive: Bool
-        var id: String { line + "|" + destination }
-    }
-
-    // All departures across every platform, merged by line+direction and
-    // sorted so the soonest one is first. Replaces the per-platform grouping
-    // that produced repeated "<station>" section headers.
-    var groups: [DepartureGroup] {
-        guard let monitor else { return [] }
-        var merged: [String: (line: String, dest: String, mins: [Int], live: Bool)] = [:]
-        var order: [String] = []
-
-        for platform in monitor.data.monitors {
-            for line in platform.lines {
-                let key = line.name + "|" + line.towards
-                let mins = line.departures.departure.map { $0.departureTime.liveMinutes }
-                let live = line.departures.departure.first?.departureTime.timeReal != nil
-                if var existing = merged[key] {
-                    existing.mins += mins
-                    existing.live = existing.live || live
-                    merged[key] = existing
-                } else {
-                    merged[key] = (line.name, line.towards, mins, live)
-                    order.append(key)
-                }
-            }
-        }
-
-        let all = order.compactMap { merged[$0] }
-            .map { DepartureGroup(line: $0.line, destination: $0.dest,
-                                  minutes: $0.mins.sorted(), isLive: $0.live) }
-            .sorted { ($0.minutes.first ?? .max) < ($1.minutes.first ?? .max) }
-
-        guard let filter = categoryFilter else { return all }
-        return all.filter { LineCategory.of($0.line) == filter }
-    }
-
-    var availableCategories: [LineCategory] {
-        guard let monitor else { return [] }
-        let all = Set(
-            monitor.data.monitors
-                .flatMap { $0.lines }
-                .map { LineCategory.of($0.name) }
-        )
-        return LineCategory.allCases.filter(all.contains)
-    }
-
-    var lastUpdatedText: String? {
-        guard let lastUpdated else { return nil }
-        let seconds = Int(Date().timeIntervalSince(lastUpdated))
-        switch seconds {
-        case ..<10:    return "updated just now"
-        case ..<60:    return "updated \(seconds)s ago"
-        case ..<3600:  return "updated \(seconds / 60)m ago"
-        default:       return "updated \(seconds / 3600)h ago"
-        }
-    }
+    private let liveActivityStarter: LiveActivityStarting
 
     init(
         station: Station,
-        service: MonitorService = .shared,
+        service: MonitorProviding = MonitorService.shared,
         favoritesRepo: FavoritesRepository = UserDefaultsFavoritesRepository(),
-        stationsRepo: FavoriteStationsStoring = UserDefaultsFavoriteStationsRepository()
+        stationsRepo: FavoriteStationsStoring = UserDefaultsFavoriteStationsRepository(),
+        liveActivityStarter: LiveActivityStarting = SystemLiveActivityStarter()
     ) {
         self.station = station
         self.service = service
         self.favoritesRepo = favoritesRepo
         self.stationsRepo = stationsRepo
-        self.isStationFavorited = stationsRepo.contains(id: station.id)
+        self.liveActivityStarter = liveActivityStarter
+        isStationFavorited = stationsRepo.contains(id: station.id)
+        favoriteRoutes = Set(favoritesRepo.getAll())
+    }
+
+    var groups: [StationDepartureGroup] {
+        guard let categoryFilter else { return allGroups }
+        return allGroups.filter { LineCategory.of($0.line) == categoryFilter }
+    }
+
+    var availableCategories: [LineCategory] {
+        let categories = Set(allGroups.map { LineCategory.of($0.line) })
+        return LineCategory.allCases.filter(categories.contains)
+    }
+
+    func hasDisruption(lineName: String) -> Bool {
+        trafficInfos.contains { ($0.relatedLines ?? []).contains(lineName) }
+    }
+
+    func isFavorite(_ group: StationDepartureGroup) -> Bool {
+        guard let diva = station.diva else { return false }
+        return favoriteRoutes.contains(
+            FavoriteRoute(diva: String(diva), lineName: group.line, destination: group.destination)
+        )
     }
 
     func toggleStationFavorite() {
@@ -117,64 +64,94 @@ final class StationDetailViewModel: ObservableObject {
         isStationFavorited = stationsRepo.contains(id: station.id)
     }
 
-    // Loads live monitor data for the current station's DIVA.
-    @MainActor
-    func load(forceRefresh: Bool = false) async {
-        errorMessage = nil
-        isLoading = true
+    func toggleFavorite(_ group: StationDepartureGroup) {
+        guard let diva = station.diva else { return }
+        let route = FavoriteRoute(diva: String(diva), lineName: group.line, destination: group.destination)
+        favoritesRepo.toggle(diva: route.diva, lineName: route.lineName, destination: route.destination)
+        if favoriteRoutes.remove(route) == nil {
+            favoriteRoutes.insert(route)
+        }
+    }
 
-        defer { isLoading = false }
+    func startTracking(_ group: StationDepartureGroup) {
+        guard liveActivityStarter.isAvailable else {
+            notice = StationDetailNotice(
+                message: String(localized: "Enable Live Activities in Settings to track departures on the Lock Screen.")
+            )
+            return
+        }
+
+        do {
+            try liveActivityStarter.start(
+                line: group.line,
+                destination: group.destination,
+                stop: station.name,
+                minutes: group.minutes.first ?? 0,
+                isLive: group.isLive
+            )
+            trackedDepartureID = group.id
+        } catch {
+            notice = StationDetailNotice(
+                message: String(localized: "The Live Activity could not be started. Please try again.")
+            )
+        }
+    }
+
+    func load(forceRefresh: Bool = false) async {
+        guard !isLoadingRequest else { return }
+        isLoadingRequest = true
+        refreshErrorMessage = nil
+        if lastUpdated == nil { state = .loading }
+        defer { isLoadingRequest = false }
+
         guard let diva = station.diva else {
-            errorMessage = "No live data for this station"
+            state = .failed(String(localized: "No live data for this station."))
             return
         }
 
         do {
             let response = try await service.monitor(diva: diva, forceRefresh: forceRefresh)
-            self.monitor = response
-            self.lastUpdated = Date()
-            if let widgetData = widgetData(from: response) {
-                WidgetSyncManager().save([widgetData])
-            }
+            trafficInfos = response.data.trafficInfos ?? []
+            allGroups = Self.departureGroups(from: response)
+            lastUpdated = .now
+            state = allGroups.isEmpty ? .empty : .loaded
         } catch {
-            errorMessage = error.monitorDisplayMessage
+            if allGroups.isEmpty {
+                state = .failed(error.monitorDisplayMessage)
+            } else {
+                refreshErrorMessage = error.monitorDisplayMessage
+            }
         }
-    }
-    
-    func isFavorite(line: String, destination: String) -> Bool {
-        guard let divaInt = station.diva else { return false }
-        return favoritesRepo.isFavorite(
-            diva: String(divaInt),
-            lineName: line,
-            destination: destination
-        )
     }
 
-    func toggleFavorite(line: String, destination: String) {
-        guard let divaInt = station.diva else { return }
-        favoritesRepo.toggle(
-            diva: String(divaInt),
-            lineName: line,
-            destination: destination
-        )
-    }
-    
-    private func widgetData(from response: MonitorResponse) -> WidgetDepartureData? {
-        guard let monitor = response.data.monitors.first else {
-            return nil
+    private static func departureGroups(from response: MonitorResponse) -> [StationDepartureGroup] {
+        var merged: [StationDepartureID: (minutes: [Int], isLive: Bool)] = [:]
+
+        for line in response.data.monitors.flatMap(\.lines) {
+            let id = StationDepartureID(line: line.name, destination: line.towards)
+            let minutes = line.departures.departure.map { $0.departureTime.liveMinutes }
+            guard !minutes.isEmpty else { continue }
+            let isLive = line.departures.departure.contains { $0.departureTime.timeReal != nil }
+            let existing = merged[id] ?? ([], false)
+            merged[id] = (existing.minutes + minutes, existing.isLive || isLive)
         }
-        guard let line = monitor.lines.first else {
-            return nil
+
+        return merged.map { id, value in
+            StationDepartureGroup(
+                line: id.line,
+                destination: id.destination,
+                minutes: value.minutes.sorted(),
+                isLive: value.isLive
+            )
         }
-        let lineName = line.name
-        let stopName = monitor.locationStop.properties.title
-        let destination = line.towards
-        let allDepartures = line.departures.departure
-        let minutes = allDepartures.map { $0.departureTime.countdown }
-        let nextThree = Array(minutes.prefix(3))
-        
-        return WidgetDepartureData(
-            lineName: lineName, stopName: stopName, destination: destination, departures: nextThree
-        )
+        .sorted {
+            let left = $0.minutes.first ?? .max
+            let right = $1.minutes.first ?? .max
+            if left != right { return left < right }
+            if $0.line != $1.line {
+                return $0.line.localizedStandardCompare($1.line) == .orderedAscending
+            }
+            return $0.destination.localizedStandardCompare($1.destination) == .orderedAscending
+        }
     }
 }

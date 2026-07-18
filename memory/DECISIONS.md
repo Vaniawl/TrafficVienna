@@ -1,5 +1,20 @@
 # Architectural Decisions
 
+## 2026-07-18 — Station Detail does not own widget content
+
+**Context:** Every successful Station Detail refresh wrote its first returned line
+to the shared widget payload, silently replacing the user’s favourite routes.
+Refresh failure also replaced already visible departures with a full-screen error.
+
+**Decision:** Keep widget synchronization exclusively in the Favourites boundary.
+Project station responses into deterministic line/destination groups in a testable
+observable model, retain visible data on refresh failure, and expose ActivityKit
+start results as user feedback.
+
+**Consequences:** Visiting a station cannot mutate unrelated widget preferences.
+Departure state, filters, favourites, alert navigation, and Live Activity failure
+paths are independently testable without adding a dependency or network endpoint.
+
 ## 2026-07-18 — Favourite failures stay local to each saved route
 
 **Context:** A failed favourite request was converted into an empty departure row,

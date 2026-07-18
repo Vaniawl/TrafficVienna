@@ -120,6 +120,16 @@
   - Paths: `StationDetailView.swift`, `DepartureLineRow.swift`, related models/tests.
   - Dependencies: TV-UI-010 through TV-UI-014 where shared navigation applies.
   - Acceptance: all current actions remain reachable with loading/error feedback.
+  - Completed implementation: explicit loading/loaded/empty/initial-failure and
+    stale-refresh states, deterministic platform merging, transport filters,
+    navigable alerts, reactive station/route favourites, automatic freshness,
+    and discoverable Live Activity start with success/failure feedback.
+  - Correctness fix: Station Detail no longer overwrites the favourites widget
+    with an arbitrary first line from the current station.
+  - Evidence: nine focused tests, warning-free full CI, and 74 passing XCTest
+    cases. SwiftUI/security review found no unresolved Blocking or Important issue.
+  - Pending acceptance: interactive refresh/filter/favourite/Live Activity,
+    light/dark, and accessibility-size Simulator inspection after unlock.
 - [ ] **TV-UI-016 - Onboarding, settings, and secondary surfaces.**
   - Outcome: onboarding, account/settings, About, widget, and secondary views
     use the same design language without changing product boundaries.
@@ -180,7 +190,7 @@
 - [x] **TV-VERIFY-031 - macOS build and tests.** Run `bash scripts/ci.sh` on a
   suitable macOS/Xcode host, including the app and widget targets.
   - Evidence: full CI exited 0 on iPhone 17 simulator; app/widget build succeeded,
-    the post-hardening focused run passed, and all 65 XCTest cases pass.
+    the post-hardening focused run passed, and all 74 XCTest cases pass.
 - [ ] **TV-VERIFY-032 - Product inspection.** Exercise every Phase 2 journey in
   light/dark appearance, accessibility text sizes, and relevant failure states.
 - [ ] **TV-VERIFY-033 - Independent reviews.** Resolve every Blocking/Important

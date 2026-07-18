@@ -1,5 +1,16 @@
 # Journal
 
+## 2026-07-18 — Station Detail journey and widget ownership fix
+
+- Rebuilt Station Detail around explicit loading/loaded/empty/failure and
+  stale-refresh states with deterministic merged departure groups and filters.
+- Made alerts navigable, route/station favourites reactive, and Live Activity an
+  explicit accessible action with success and failure feedback.
+- Removed the hidden Station Detail write that replaced the favourites widget
+  with an arbitrary first station line; widget ownership stays with Favourites.
+- Full CI passed with zero warnings and 74 XCTest cases. Interactive detail and
+  Dynamic Type inspection remains pending because the host Mac is locked.
+
 ## 2026-07-18 — Favourites journey resilience
 
 - Modernised Favourites state ownership, gave route rows stable identity and

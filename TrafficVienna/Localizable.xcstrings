@@ -7,6 +7,39 @@
     "%lld" : {
 
     },
+    "Choose another transport type." : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Wähle ein anderes Verkehrsmittel." } } }
+    },
+    "Departures unavailable" : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrten nicht verfügbar" } } }
+    },
+    "Enable Live Activities in Settings to track departures on the Lock Screen." : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktiviere Live-Aktivitäten in den Einstellungen, um Abfahrten auf dem Sperrbildschirm zu verfolgen." } } }
+    },
+    "Live Activity" : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Live-Aktivität" } } }
+    },
+    "Loading departures…" : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrten werden geladen…" } } }
+    },
+    "More actions" : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Weitere Aktionen" } } }
+    },
+    "No live data for this station." : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Für diese Station sind keine Live-Daten verfügbar." } } }
+    },
+    "No matching departures" : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Keine passenden Abfahrten" } } }
+    },
+    "Nothing is scheduled right now." : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Derzeit sind keine Abfahrten geplant." } } }
+    },
+    "The Live Activity could not be started. Please try again." : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Die Live-Aktivität konnte nicht gestartet werden. Versuche es erneut." } } }
+    },
+    "Updated %@" : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktualisiert %@" } } }
+    },
     "Accessibility" : {
       "localizations" : {
         "de" : {
@@ -1219,9 +1252,6 @@
           }
         }
       }
-    },
-    "Updated %@" : {
-
     },
     "updated %lldh ago" : {
       "localizations" : {
