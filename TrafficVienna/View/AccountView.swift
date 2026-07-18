@@ -25,6 +25,14 @@ struct AccountView: View {
                 }
 
                 Section {
+                    NavigationLink {
+                        RoutinesView()
+                    } label: {
+                        Label("Travel routines", systemImage: "clock.arrow.2.circlepath")
+                    }
+                }
+
+                Section {
                     Button("Sign out", role: .destructive) {
                         auth.signOut()
                         dismiss()

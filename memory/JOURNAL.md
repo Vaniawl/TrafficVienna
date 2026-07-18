@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-07-18 — Routines, widget optimization, docs, and release audit
+
+- Added persisted commute routines tied to favourite stations and time; routines are managed from Account and surfaced by Smart Home.
+- Optimized widget requests by grouping favourite routes by DIVA, added request timeout, and restored real stop names from the widget monitor response.
+- Added routine persistence and deep-link parser regression tests.
+- Updated README/context to match actual authentication, routines, reminders, offline, tests, and distribution limitations.
+- Security review found no Critical/High issues in the local-only boundary; release verdict is Conditional Go pending Apple capability, URL association, backend identity, GTFS routing source, CI, and device QA.
+
 ## 2026-07-18 — Neobank system and smart travel slice
 
 - Added reusable neobank design tokens/components and migrated Search, Favourites, Alerts, Map accents, and Station Detail to shared rounded surfaces, headers, icons, and grouped backgrounds.

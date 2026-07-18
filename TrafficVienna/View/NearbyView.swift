@@ -6,6 +6,7 @@ struct NearbyView: View {
     @StateObject private var vm: NearbyViewModel
     @ObservedObject private var locationManager: LocationManager
     @EnvironmentObject private var auth: AuthStore
+    @EnvironmentObject private var routines: CommuteRoutineStore
     @ObservedObject private var favoritesVM: FavoritesListViewModel
     @ObservedObject private var disruptionsVM: DisruptionsViewModel
     @Environment(\.openURL) private var openURL
@@ -213,12 +214,15 @@ struct NearbyView: View {
 
     private var smartInsightTitle: String {
         if disruptionsVM.relevantCount > 0 { return "\(disruptionsVM.relevantCount) alert for your lines" }
+        if let routine = routines.current { return "\(routine.name): \(routine.station.name)" }
         if !favoritesVM.stations.isEmpty { return "\(favoritesVM.stations.count) favourite stations ready" }
         return "Live departures"
     }
 
     private var smartInsightSubtitle: String {
-        disruptionsVM.relevantCount > 0 ? "Check service changes before you leave" : "Automatic updates every 60 seconds"
+        if disruptionsVM.relevantCount > 0 { return "Check service changes before you leave" }
+        if let routine = routines.current { return "Scheduled around \(routine.hour.formatted(.number.precision(.integerLength(2)))):00" }
+        return "Automatic updates every 60 seconds"
     }
 
     private var departuresDashboard: some View {
@@ -337,4 +341,5 @@ private enum DashboardState {
 #Preview {
     NavigationStack { NearbyView(store: StationStore(), locationManager: LocationManager()) }
         .environmentObject(AuthStore())
+        .environmentObject(CommuteRoutineStore())
 }

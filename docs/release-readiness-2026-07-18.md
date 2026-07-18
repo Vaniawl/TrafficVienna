@@ -1,0 +1,35 @@
+# Release readiness — 2026-07-18
+
+## Verdict: Conditional Go
+
+The branch is suitable for draft-PR and simulator QA. It is not ready for App Store release until the external identity and distribution conditions below are completed.
+
+## Evidence
+
+- `xcodebuild ... test` passes on the iPhone 17 Simulator with the app, widget extension, and unit/performance test target.
+- Live API access is HTTPS-only, rate-limited, cached, coalesced, time-bounded, and has stale-response fallback.
+- Password verifiers are kept in Keychain; non-secret session metadata alone is kept in UserDefaults.
+- Polling is limited to the active tab and overlapping Nearby refreshes are rejected.
+
+## Security findings
+
+- **Medium, server-identity condition:** local email authentication uses a salted SHA-256 verifier. It is explicitly device-local and must not be promoted as a server account. Replace it with a backend using an adaptive password KDF and recovery flow before enabling cross-device identity.
+- **Medium, backend Apple condition:** the app checks Apple credential state locally but does not send and verify the identity token on a server. Server verification is required when backend identity is introduced.
+- **Low:** favourite line and destination values are public diagnostic strings. Do not add email, precise location, tokens, or credentials to logs.
+
+No Critical or High findings were observed in the reviewed local-only threat boundary.
+
+## Required external follow-up
+
+1. Enable Sign in with Apple for `wellbe.TrafficVienna` and regenerate provisioning profiles.
+2. Register the selected custom URL scheme or universal-link association.
+3. Select a backend before password recovery or cross-device account claims.
+4. Select a licensed GTFS/routing source before implementing A→B journeys.
+5. Run protected macOS CI and device-level notification, Apple ID, widget, and offline QA.
+
+## Compatibility and rollback
+
+- Existing favourites remain in the same App Group keys.
+- New routine data is additive under `commute_routines`.
+- No destructive data migration is required.
+- Rollback is a revert of the feature commits.

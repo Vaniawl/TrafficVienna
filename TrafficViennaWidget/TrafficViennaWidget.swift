@@ -34,7 +34,9 @@ private let favoritesKey = "favorite_routes"
 // DTOs for decoding monitor response inside the widget target
 private struct MonitorResponse: Decodable { let data: DataBlock }
 private struct DataBlock: Decodable { let monitors: [Monitor] }
-private struct Monitor: Decodable { let lines: [Lines] }
+private struct Monitor: Decodable { let locationStop: LocationStop; let lines: [Lines] }
+private struct LocationStop: Decodable { let properties: StopProperties }
+private struct StopProperties: Decodable { let title: String }
 private struct Lines: Decodable { let name: String; let towards: String; let departures: Departures }
 private struct Departures: Decodable { let departure: [Departure] }
 private struct Departure: Decodable { let departureTime: DepartureTime }
@@ -45,7 +47,9 @@ private func fetchMonitorData(diva: Int, includeArea: Bool) async throws -> Moni
     var urlString = "https://www.wienerlinien.at/ogd_realtime/monitor?diva=\(diva)"
     if includeArea { urlString += "&aArea=1" }
     guard let url = URL(string: urlString) else { throw URLError(.badURL) }
-    let (data, response) = try await URLSession.shared.data(from: url)
+    var request = URLRequest(url: url)
+    request.timeoutInterval = 12
+    let (data, response) = try await URLSession.shared.data(for: request)
     guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
         throw URLError(.badServerResponse)
     }
@@ -134,12 +138,16 @@ struct Provider: AppIntentTimelineProvider {
         guard !routes.isEmpty else { return nil }
 
         var results: [WidgetDepartureData] = []
-        for fav in routes.prefix(3) {
-            guard let diva = Int(fav.diva) else { continue }
+        let selected = Array(routes.prefix(3))
+        let grouped = Dictionary(grouping: selected, by: \.diva)
+        for (divaText, favourites) in grouped {
+            guard let diva = Int(divaText) else { continue }
             do {
                 let response = try await fetchMonitorData(diva: diva, includeArea: true)
-                if let item = extractWidgetData(from: response, matching: fav) {
-                    results.append(item)
+                for favourite in favourites {
+                    if let item = extractWidgetData(from: response, matching: favourite) {
+                        results.append(item)
+                    }
                 }
             } catch {
                 continue
@@ -160,7 +168,8 @@ struct Provider: AppIntentTimelineProvider {
 
         let minutes = line.departures.departure.map { $0.departureTime.countdown }
         let top = Array(minutes.prefix(3))
-        return WidgetDepartureData(lineName: fav.lineName, stopName: fav.diva, destination: fav.destination, departures: top)
+        let stopName = monitors.first?.locationStop.properties.title ?? fav.diva
+        return WidgetDepartureData(lineName: fav.lineName, stopName: stopName, destination: fav.destination, departures: top)
     }
 }
 

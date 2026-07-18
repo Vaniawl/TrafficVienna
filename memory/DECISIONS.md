@@ -1,5 +1,13 @@
 # Architectural Decisions
 
+## 2026-07-18 — Incremental neobank architecture and external routing boundary
+
+**Context:** The roadmap adds a unified dashboard, routines, reminders, offline behavior, sync foundations, and eventually A→B routing. A broad rewrite would put the existing realtime pipeline, widget, and Live Activities at unnecessary risk.
+
+**Decision:** Preserve SwiftUI/MVVM and `MonitorService`; add shared neobank view primitives and small additive stores/services. Keep commute routines in the existing App Group, local reminders in UserNotifications, and offline fallback in URLCache. Do not implement A→B routing until a verified licensed GTFS/routing source is selected. Do not claim cross-device identity until a backend verifies Apple/email credentials.
+
+**Consequences:** Current features remain compatible and independently revertible. Full routing, password recovery, account sync, and production deep-link association remain explicit integration projects rather than simulated local behavior.
+
 ## 2026-07-18 — Local-first authentication boundary
 
 **Context:** TrafficVienna had no authentication backend or third-party auth dependency. The requested email and Apple ID registration must not imply server-backed identity or store plaintext passwords locally.

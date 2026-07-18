@@ -4,6 +4,8 @@
 
 A SwiftUI iOS app for live Wiener Linien (Vienna public transport) departures. The app shows nearby stops, lets users search for any station, view live departure boards grouped by platform, save favourite stations and line/direction pairs, browse network-wide service alerts, explore stations on a map, and track a selected departure on the Lock Screen via Live Activities. A home-screen widget shows departures for the user's favourite station.
 
+The app also has a device-local authentication gate, a neobank-style dashboard, commute routines, personalised disruption priority, departure reminders, offline stale-response fallback, and tested deep-link routing foundations.
+
 ### Architecture
 
 - **5 tabs** (RootTabView): Nearby, Search, Map, Alerts, Favourites
@@ -11,11 +13,14 @@ A SwiftUI iOS app for live Wiener Linien (Vienna public transport) departures. T
 - **Key ViewModels**: StationDetailViewModel, NearbyViewModel, DisruptionsViewModel, FavoritesListViewModel
 - **Services**: MonitorService (actor, centralises API calls with caching + coalescing + throttling + rate-limit backoff), NetworkManager (protocol-based), LocationManager (CLLocationManager wrapper)
 - **Storage**: UserDefaults-based repositories for favourites (FavoriteRoute, FavoriteStation), RecentSearchesStore
+- **Authentication**: `AuthStore`; local email verifier records in Keychain, non-secret session in UserDefaults, and native AuthenticationServices for Apple
+- **Routines**: `CommuteRoutineStore` in the shared App Group
+- **Navigation**: `AppRouter` parses TrafficVienna destinations; distribution URL registration remains external configuration
 - **StationStore**: `@Published` + `StationStoring` protocol, loads bundled JSON (`wienerlinien-ogd-haltestellen.json`)
 - **DTOs** (DTO.swift): `MonitorResponse`, `Monitor`, `Lines`, `DepartureTime` — all `nonisolated` + `Sendable`, lenient decoding
 - **Live Activities**: via ActivityKit (LiveActivityController) + WidgetExtension with AppIntent
 - **Shared logic** in `WidgetShared/`: RouteMatching, LineColors, DepartureActivityAttributes
-- **No Combine** — async/await throughout
+- **Concurrency**: async/await for network work; Combine-backed observable state for SwiftUI models
 
 ## What good looks like
 
@@ -29,6 +34,6 @@ A SwiftUI iOS app for live Wiener Linien (Vienna public transport) departures. T
 
 - Android / watchOS / macOS versions.
 - Real-time vehicle tracking on the map (the API only provides stop-level departure counts).
-- User accounts, login, or server-side sync of favourites.
+- Server-backed accounts, password recovery, and cross-device favourites sync. Current email accounts are device-local.
 - Ticket purchase or routing between stations.
-- Push notifications (only local Live Activities and widget timelines are used).
+- Remote push notifications. Departure reminders are local notifications.
