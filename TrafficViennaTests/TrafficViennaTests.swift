@@ -290,6 +290,68 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertGreaterThan(network.maxConcurrentMonitorCalls, 1)
     }
 
+    @MainActor
+    func testNearbyManualRefreshBypassesMonitorCache() async {
+        let network = MockNetworkManager()
+        let service = MonitorService(network: network, cacheTTL: 600, minInterval: 0)
+        let store = StationStore()
+        let location = LocationManager()
+        location.userLocation = CLLocation(latitude: 48.2082, longitude: 16.3738)
+        let viewModel = NearbyViewModel(store: store, location: location, service: service)
+
+        await viewModel.load()
+        let firstRequestCount = network.callCount
+        await viewModel.load(force: true)
+
+        XCTAssertEqual(firstRequestCount, viewModel.items.count)
+        XCTAssertEqual(network.callCount, firstRequestCount * 2)
+    }
+
+    @MainActor
+    func testNearbyPollingDoesNotStartOverlappingBatch() async {
+        let network = MockNetworkManager(monitorDelayNanoseconds: 100_000_000)
+        let service = MonitorService(network: network, cacheTTL: 0, minInterval: 0)
+        let store = StationStore()
+        let location = LocationManager()
+        location.userLocation = CLLocation(latitude: 48.2082, longitude: 16.3738)
+        let viewModel = NearbyViewModel(store: store, location: location, service: service)
+
+        let first = Task { await viewModel.load() }
+        try? await Task.sleep(nanoseconds: 10_000_000)
+        await viewModel.load()
+        await first.value
+
+        XCTAssertEqual(network.callCount, viewModel.items.count)
+        XCTAssertTrue(viewModel.items.allSatisfy { !$0.lines.isEmpty })
+    }
+
+    @MainActor
+    func testNearbyManualRefreshSupersedesActivePollingBatch() async {
+        let network = MockNetworkManager(monitorDelayNanoseconds: 100_000_000)
+        let service = MonitorService(network: network, cacheTTL: 0, minInterval: 0)
+        let store = StationStore()
+        let location = LocationManager()
+        location.userLocation = CLLocation(latitude: 48.2082, longitude: 16.3738)
+        let viewModel = NearbyViewModel(store: store, location: location, service: service)
+        var manualRefreshCompleted = false
+
+        let polling = Task { await viewModel.load() }
+        try? await Task.sleep(nanoseconds: 10_000_000)
+        let manualRefresh = Task {
+            await viewModel.load(force: true)
+            manualRefreshCompleted = true
+        }
+        try? await Task.sleep(nanoseconds: 10_000_000)
+
+        XCTAssertFalse(manualRefreshCompleted)
+        await polling.value
+        await manualRefresh.value
+        XCTAssertEqual(network.callCount, viewModel.items.count)
+        XCTAssertTrue(viewModel.items.allSatisfy { !$0.lines.isEmpty })
+        XCTAssertFalse(viewModel.isLoading)
+        XCTAssertFalse(viewModel.isRefreshing)
+    }
+
     func testMapStationSelectionIsDistanceSortedAndLimited() {
         let store = StationStore()
         let center = CLLocation(latitude: 48.2082, longitude: 16.3738)

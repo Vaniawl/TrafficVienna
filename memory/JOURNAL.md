@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Race-safe Nearby refresh ownership
+
+- Versioned Nearby load batches so a manual refresh can supersede active polling and only the newest batch may update cards or loading state.
+- Kept ordinary overlapping polls suppressed while allowing forced refreshes to reuse `MonitorService` in-flight request coalescing without doubling API traffic.
+- Preserved real cache bypass after completed loads and reset loading/refreshing state safely when no nearby stations remain.
+- Added regressions for cache bypass, overlapping-poll suppression, concurrent response loading, and manual-refresh takeover during active polling.
+
 ## 2026-07-19 — Race-safe Favourites refresh ownership
 
 - Made pull-to-refresh bypass the monitor cache all the way through each favourite-route request instead of presenting cached data as a manual refresh.

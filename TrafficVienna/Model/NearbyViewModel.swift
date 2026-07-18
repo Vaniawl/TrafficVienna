@@ -35,6 +35,7 @@ final class NearbyViewModel: ObservableObject {
     private let service: MonitorService
     private let radius: Double = 500
     private let maxStations = 8
+    private var loadGeneration = 0
 
     init(store: StationStore, location: LocationManager, service: MonitorService = .shared) {
         self.store = store
@@ -65,13 +66,26 @@ final class NearbyViewModel: ObservableObject {
     }
 
     func load(force: Bool = false) async {
-        guard !isLoading && !isRefreshing else { return }
+        guard force || (!isLoading && !isRefreshing) else { return }
+        loadGeneration &+= 1
+        let generation = loadGeneration
         rebuildList()
-        guard !items.isEmpty else { return }
+        guard !items.isEmpty else {
+            isLoading = false
+            isRefreshing = false
+            return
+        }
 
         let firstFill = items.allSatisfy { $0.lines.isEmpty }
+        isLoading = false
+        isRefreshing = false
         if firstFill { isLoading = true } else { isRefreshing = true }
-        defer { isLoading = false; isRefreshing = false }
+        defer {
+            if generation == loadGeneration {
+                isLoading = false
+                isRefreshing = false
+            }
+        }
 
         // MonitorService owns request spacing; overlapping waits avoid adding
         // response latency on top of the required API cadence.
@@ -85,7 +99,7 @@ final class NearbyViewModel: ObservableObject {
             }
 
             for await (id, result) in group {
-                guard !Task.isCancelled else {
+                guard !Task.isCancelled, generation == loadGeneration else {
                     group.cancelAll()
                     return
                 }
