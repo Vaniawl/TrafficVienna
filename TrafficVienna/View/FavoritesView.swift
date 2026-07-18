@@ -10,6 +10,7 @@ import SwiftUI
 
 struct FavoritesView: View {
     @ObservedObject var vm: FavoritesListViewModel
+    var isActive = true
     @EnvironmentObject private var themeManager: ThemeManager
     @State private var showAbout = false
     @State private var showAccount = false
@@ -67,7 +68,8 @@ struct FavoritesView: View {
         }
         .sheet(isPresented: $showAbout) { AboutView() }
         .sheet(isPresented: $showAccount) { AccountView() }
-        .task {
+        .task(id: isActive) {
+            guard isActive else { return }
             vm.loadStations()
             while !Task.isCancelled {
                 await vm.loadFavorites()

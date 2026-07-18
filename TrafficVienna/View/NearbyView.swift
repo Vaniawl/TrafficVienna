@@ -8,10 +8,12 @@ struct NearbyView: View {
     @EnvironmentObject private var auth: AuthStore
     @Environment(\.openURL) private var openURL
     private let store: StationStore
+    private let isActive: Bool
     @State private var showAccount = false
 
-    init(store: StationStore, locationManager: LocationManager) {
+    init(store: StationStore, locationManager: LocationManager, isActive: Bool = true) {
         self.store = store
+        self.isActive = isActive
         _vm = StateObject(wrappedValue: NearbyViewModel(store: store, location: locationManager))
         _locationManager = ObservedObject(wrappedValue: locationManager)
     }
@@ -23,7 +25,8 @@ struct NearbyView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: $showAccount) { AccountView() }
-        .task {
+        .task(id: isActive) {
+            guard isActive else { return }
             while !Task.isCancelled {
                 await vm.load(force: false)
                 try? await Task.sleep(for: .seconds(vm.items.isEmpty ? 5 : 60))
@@ -241,8 +244,8 @@ struct NearbyView: View {
     }
 
     private func openInMaps(_ station: Station) {
-        let placemark = MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: station.lat, longitude: station.lon))
-        let mapItem = MKMapItem(placemark: placemark)
+        let location = CLLocation(latitude: station.lat, longitude: station.lon)
+        let mapItem = MKMapItem(location: location, address: nil)
         mapItem.name = station.name
         mapItem.openInMaps()
     }

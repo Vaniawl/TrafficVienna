@@ -32,6 +32,20 @@ protocol NetworkManaging: Sendable {
     func fetchTrafficInfoList() async throws -> MonitorResponse
 }
 nonisolated final class NetworkManager: NetworkManaging {
+    private let session: URLSession
+
+    init(session: URLSession? = nil) {
+        if let session {
+            self.session = session
+        } else {
+            let configuration = URLSessionConfiguration.default
+            configuration.timeoutIntervalForRequest = 12
+            configuration.timeoutIntervalForResource = 20
+            configuration.requestCachePolicy = .reloadRevalidatingCacheData
+            configuration.urlCache = URLCache(memoryCapacity: 4_000_000, diskCapacity: 20_000_000)
+            self.session = URLSession(configuration: configuration)
+        }
+    }
 
     // Uses stopId to get monitor data for a single stop/direction.
     func fetchMonitorData(for stopId: Int) async throws -> MonitorResponse {
@@ -56,7 +70,7 @@ nonisolated final class NetworkManager: NetworkManaging {
     private func perform(_ urlString: String) async throws -> MonitorResponse {
         guard let url = URL(string: urlString) else { throw URLError(.badURL) }
 
-        let (data, response) = try await URLSession.shared.data(from: url)
+        let (data, response) = try await session.data(from: url)
 
         // The API signals throttling with an HTTP 200 body whose message code is
         // 316, so inspect the message before trusting the status code.

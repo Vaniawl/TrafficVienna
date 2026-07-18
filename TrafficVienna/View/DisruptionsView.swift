@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DisruptionsView: View {
     @ObservedObject var vm: DisruptionsViewModel
+    var isActive = true
 
     var body: some View {
         content
@@ -19,7 +20,8 @@ struct DisruptionsView: View {
             }
             .refreshable { await vm.load(force: true) }
             .searchable(text: $vm.lineFilter, placement: .navigationBarDrawer(displayMode: .always), prompt: "Filter")
-            .task {
+            .task(id: isActive) {
+                guard isActive else { return }
                 while !Task.isCancelled {
                     await vm.load()
                     try? await Task.sleep(for: .seconds(120))

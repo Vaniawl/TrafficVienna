@@ -65,7 +65,7 @@ struct RootTabView: View {
     private var tabs: some View {
         TabView(selection: $selectedTab) {
             NavigationStack {
-                NearbyView(store: store, locationManager: locationManager)
+                NearbyView(store: store, locationManager: locationManager, isActive: selectedTab == .nearby)
             }
             .tabItem { Label("Nearby", systemImage: "location.fill") }
             .tag(Tab.nearby)
@@ -83,14 +83,14 @@ struct RootTabView: View {
             .tag(Tab.map)
 
             NavigationStack {
-                DisruptionsView(vm: disruptionsVM)
+                DisruptionsView(vm: disruptionsVM, isActive: selectedTab == .alerts)
             }
             .tabItem { Label("Alerts", systemImage: "exclamationmark.triangle.fill") }
             .badge(disruptionsVM.infos.count)
             .tag(Tab.alerts)
 
             NavigationStack {
-                FavoritesView(vm: favoritesVM)
+                FavoritesView(vm: favoritesVM, isActive: selectedTab == .favourites)
             }
             .tabItem { Label("Favourites", systemImage: "star.fill") }
             .tag(Tab.favourites)

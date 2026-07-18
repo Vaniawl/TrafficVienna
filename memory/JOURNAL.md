@@ -1,5 +1,14 @@
 # Journal
 
+## 2026-07-18 — Test foundation and first performance pass
+
+- Restored the missing `TrafficViennaTests` native target referenced by the shared scheme; the full XCTest suite now builds and runs on iPhone 17 Simulator.
+- Added performance baselines for indexed station-name search and nearby spatial queries, plus regression coverage for station ID lookup and traffic-info caching.
+- Added StationStore ID/search/spatial indexes so repeated search, recent lookup, Nearby, and Map queries avoid repeated normalization and full-dataset location scans.
+- Limited Nearby, Alerts, and Favourites polling to the active tab and guarded Nearby against overlapping refreshes.
+- Added cached/stale fallback behavior for traffic alerts, configured URLSession timeouts/cache policy, removed new Swift Sendable warnings, and migrated Maps opening to the iOS 26 API.
+- Validation: `xcodebuild ... test` passes cleanly on iPhone 17 Simulator.
+
 ## 2026-07-18 — Authentication redesign
 
 - Reworked the home screen again after user feedback into an original neobank-style experience inspired by Revolut's interaction principles: personal avatar header, large blue-violet live card, high-contrast primary action, circular quick actions, and modular information cards. Transport behavior and navigation remain native to TrafficVienna.

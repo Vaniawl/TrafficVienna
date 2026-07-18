@@ -46,6 +46,7 @@ actor MonitorService {
     }
 
     private var cache: [Int: CacheEntry] = [:]
+    private var trafficInfoCache: (items: [TrafficInfo], timestamp: Date)?
     private var inFlight: [Int: Task<MonitorResponse, Error>] = [:]
     // Next moment a network call is allowed to start (for spacing).
     private var nextSlot = Date.distantPast
@@ -82,7 +83,18 @@ actor MonitorService {
     }
 
     func trafficInfoList(forceRefresh: Bool = false) async throws -> [TrafficInfo] {
-        try await network.fetchTrafficInfoList().data.trafficInfos ?? []
+        if !forceRefresh, let trafficInfoCache,
+           Date().timeIntervalSince(trafficInfoCache.timestamp) < cacheTTL {
+            return trafficInfoCache.items
+        }
+        do {
+            let items = try await network.fetchTrafficInfoList().data.trafficInfos ?? []
+            trafficInfoCache = (items, Date())
+            return items
+        } catch {
+            if let trafficInfoCache { return trafficInfoCache.items }
+            throw error
+        }
     }
 
     // Shares one in-flight request per DIVA across concurrent callers.

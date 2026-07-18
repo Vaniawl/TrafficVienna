@@ -64,6 +64,7 @@ final class NearbyViewModel: ObservableObject {
     }
 
     func load(force: Bool = false) async {
+        guard !isLoading && !isRefreshing else { return }
         rebuildList()
         guard !items.isEmpty else { return }
 

@@ -35,6 +35,7 @@ protocol StationStoring {
     var stations: [Station] { get }     // All known stations loaded from the JSON dataset
     func diva(forExact name: String) -> Int?
     func stationsSuggestion(matching query: String) -> [Station]
+    func station(id: Int) -> Station?
     func stations(
         near location: CLLocation,
         radiusInMeters radius: Double
@@ -46,6 +47,16 @@ protocol StationStoring {
 final class StationStore: ObservableObject ,StationStoring {
     // All stations from the Wiener Linien JSON
     @Published private(set) var stations: [Station] = []
+    private var stationsByID: [Int: Station] = [:]
+    private var searchIndex: [(station: Station, normalizedName: String)] = []
+    private var spatialIndex: [SpatialCell: [Station]] = [:]
+
+    private struct SpatialCell: Hashable {
+        let latitude: Int
+        let longitude: Int
+    }
+
+    private static let spatialCellSize = 0.01
     
     init() {
         loadStations()
@@ -64,6 +75,9 @@ final class StationStore: ObservableObject ,StationStoring {
             let data = try Data(contentsOf: url)
             let decoded = try JSONDecoder().decode([Station].self, from: data)
             stations = decoded
+            stationsByID = Dictionary(uniqueKeysWithValues: decoded.map { ($0.id, $0) })
+            searchIndex = decoded.map { ($0, normalize($0.name)) }
+            spatialIndex = Dictionary(grouping: decoded, by: spatialCell(for:))
             log.debug("Loaded \(decoded.count) stations")
         } catch {
             log.error("Failed to load stations: \(error, privacy: .public)")
@@ -95,22 +109,42 @@ final class StationStore: ObservableObject ,StationStoring {
         
         guard !q.isEmpty else { return [] }
         
-        return stations.filter { station in
-            normalize(station.name).contains(q)
+        return searchIndex.compactMap { entry in
+            entry.normalizedName.contains(q) ? entry.station : nil
         }
     }
+
+    func station(id: Int) -> Station? { stationsByID[id] }
     
     // for nearby stations
     func stations(
         near location: CLLocation,
         radiusInMeters radius: Double
     ) -> [Station] {
-        stations.filter { station in
+        let center = spatialCell(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+        let cellRadius = max(1, Int(ceil(radius / 700)))
+        let candidates = (-cellRadius...cellRadius).flatMap { latitudeOffset in
+            (-cellRadius...cellRadius).flatMap { longitudeOffset in
+                spatialIndex[SpatialCell(latitude: center.latitude + latitudeOffset, longitude: center.longitude + longitudeOffset)] ?? []
+            }
+        }
+        return candidates.filter { station in
             let stationLocation = CLLocation(
                 latitude: station.lat,
                 longitude: station.lon
             )
             return stationLocation.distance(from: location) <= radius
         }
+    }
+
+    private func spatialCell(for station: Station) -> SpatialCell {
+        spatialCell(latitude: station.lat, longitude: station.lon)
+    }
+
+    private func spatialCell(latitude: Double, longitude: Double) -> SpatialCell {
+        SpatialCell(
+            latitude: Int(floor(latitude / Self.spatialCellSize)),
+            longitude: Int(floor(longitude / Self.spatialCellSize))
+        )
     }
 }

@@ -1,4 +1,5 @@
 import XCTest
+import CoreLocation
 @testable import TrafficVienna
 
 final class TrafficViennaTests: XCTestCase {
@@ -44,6 +45,31 @@ final class TrafficViennaTests: XCTestCase {
             exp.fulfill()
         }
         wait(for: [exp], timeout: 5)
+    }
+
+    func testStationLookupByIDUsesIndex() {
+        let store = StationStore()
+        guard let station = store.stations.first else { return XCTFail("Missing station fixture") }
+        XCTAssertEqual(store.station(id: station.id)?.name, station.name)
+    }
+
+    func testStationSearchPerformance() {
+        let store = StationStore()
+        measure {
+            for _ in 0..<100 {
+                _ = store.stationsSuggestion(matching: "Haupt")
+            }
+        }
+    }
+
+    func testNearbySpatialIndexPerformance() {
+        let store = StationStore()
+        let center = CLLocation(latitude: 48.2082, longitude: 16.3738)
+        measure {
+            for _ in 0..<100 {
+                _ = store.stations(near: center, radiusInMeters: 1_500)
+            }
+        }
     }
 
     // MARK: - RouteMatching
@@ -170,6 +196,14 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertFalse(result.data.monitors.isEmpty, "Should return stale cache on error")
     }
 
+    func testTrafficInfoListUsesCache() async throws {
+        let mock = MockNetworkManager()
+        let service = MonitorService(network: mock, cacheTTL: 30)
+        _ = try await service.trafficInfoList()
+        _ = try await service.trafficInfoList()
+        XCTAssertEqual(mock.callCount, 1)
+    }
+
     // MARK: - LineColors
 
     func testLineColorsU1() {
@@ -220,7 +254,7 @@ private final class MemoryKeychain: KeychainStoring {
 
 // MARK: - Mock Network Manager
 
-private final class MockNetworkManager: NetworkManaging {
+private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
     var callCount = 0
     var shouldFail = false
 

@@ -12,14 +12,10 @@ struct SearchView: View {
     @ObservedObject var store: StationStore
     @StateObject private var recents = RecentSearchesStore()
     @State private var query = ""
-
-    private var results: [Station] {
-        guard !query.isEmpty else { return [] }
-        return Array(store.stationsSuggestion(matching: query).prefix(50))
-    }
+    @State private var results: [Station] = []
 
     private var recentStations: [Station] {
-        recents.ids.compactMap { id in store.stations.first { $0.id == id } }
+        recents.ids.compactMap(store.station(id:))
     }
 
     var body: some View {
@@ -47,6 +43,15 @@ struct SearchView: View {
             prompt: "Enter stop name…"
         )
         .scrollDismissesKeyboard(.immediately)
+        .task(id: query) {
+            guard !query.isEmpty else {
+                results = []
+                return
+            }
+            try? await Task.sleep(for: .milliseconds(250))
+            guard !Task.isCancelled else { return }
+            results = Array(store.stationsSuggestion(matching: query).prefix(50))
+        }
     }
 
     private var resultList: some View {
