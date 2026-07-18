@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-18 — Fully localized Nearby actions and insights
+
+- Reproduced the redesigned Nearby dashboard in the Night theme with the Ukrainian app language on an iPhone 17 simulator.
+- Fixed quick actions that stayed English because their reusable component accepted runtime `String` values instead of localized keys.
+- Localized the default, favourite-line, favourite-station, and scheduled-routine Smart Insight copy in German and Ukrainian.
+- Confirmed the hero, quick actions, insight card, and system tab bar render coherently in Ukrainian dark mode without clipping or contrast regressions.
+
 ## 2026-07-18 — Accessible Nearby dashboard scaling
 
 - Reproduced the Nearby dashboard at the largest iOS Dynamic Type size on an iPhone 17 simulator.

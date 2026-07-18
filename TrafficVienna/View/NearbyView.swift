@@ -207,11 +207,11 @@ struct NearbyView: View {
         .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
 
-    private func actionButton(_ title: String, icon: String, action: @escaping () -> Void) -> some View {
+    private func actionButton(_ title: LocalizedStringKey, icon: String, action: @escaping () -> Void) -> some View {
         Button(action: action) { actionLabel(title, icon: icon) }
     }
 
-    private func actionLabel(_ title: String, icon: String) -> some View {
+    private func actionLabel(_ title: LocalizedStringKey, icon: String) -> some View {
         VStack(spacing: 9) {
             Image(systemName: icon)
                 .font(.system(size: 18, weight: .semibold))
@@ -258,16 +258,18 @@ struct NearbyView: View {
     }
 
     private var smartInsightTitle: String {
-        if disruptionsVM.relevantCount > 0 { return "\(disruptionsVM.relevantCount) alert for your lines" }
+        if disruptionsVM.relevantCount > 0 { return String(localized: "Alerts for your lines") }
         if let routine = routines.current { return "\(routine.name): \(routine.station.name)" }
-        if !favoritesVM.stations.isEmpty { return "\(favoritesVM.stations.count) favourite stations ready" }
-        return "Live departures"
+        if !favoritesVM.stations.isEmpty { return String(localized: "Favourite stations ready") }
+        return String(localized: "Live departures")
     }
 
     private var smartInsightSubtitle: String {
-        if disruptionsVM.relevantCount > 0 { return "Check service changes before you leave" }
-        if let routine = routines.current { return "Scheduled around \(routine.timeText)" }
-        return "Automatic updates every 60 seconds"
+        if disruptionsVM.relevantCount > 0 { return String(localized: "Check service changes before you leave") }
+        if let routine = routines.current {
+            return String(format: String(localized: "Scheduled around %@"), routine.timeText)
+        }
+        return String(localized: "Automatic updates every 60 seconds")
     }
 
     private var departuresDashboard: some View {

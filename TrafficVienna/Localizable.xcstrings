@@ -177,6 +177,22 @@
         }
       }
     },
+    "Alerts for your lines": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meldungen für deine Linien"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сповіщення для ваших ліній"
+          }
+        }
+      }
+    },
     "All": {
       "localizations": {
         "de": {
@@ -257,6 +273,22 @@
         }
       }
     },
+    "Automatic updates every 60 seconds": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatische Aktualisierung alle 60 Sekunden"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Автоматичне оновлення кожні 60 секунд"
+          }
+        }
+      }
+    },
     "Cancel": {
       "localizations": {
         "de": {
@@ -301,6 +333,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Змінює видимість пароля на екрані"
+          }
+        }
+      }
+    },
+    "Check service changes before you leave": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prüfe Änderungen vor der Abfahrt"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перевірте зміни перед поїздкою"
           }
         }
       }
@@ -813,6 +861,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Розгорнуто"
+          }
+        }
+      }
+    },
+    "Favourite stations ready": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favorisierte Stationen sind bereit"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обрані станції готові"
           }
         }
       }
@@ -1870,6 +1934,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Лише розклад"
+          }
+        }
+      }
+    },
+    "Scheduled around %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geplant gegen %@"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Заплановано приблизно на %@"
           }
         }
       }
