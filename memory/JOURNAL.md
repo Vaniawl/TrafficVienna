@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Visible non-destructive Alerts refresh failures
+
+- Kept the loaded city-wide alert list and personalized relevance count intact when a later refresh fails after the service cache is unavailable.
+- Surfaced the localized network failure as a compact warning card above existing alerts instead of silently hiding the failed update.
+- Cleared the warning after a successful recovery while preserving the blocking first-load error when no useful alert data exists.
+- Added regressions for success-to-failure-to-recovery behavior and the empty first-load failure boundary.
+
 ## 2026-07-19 — Non-destructive Station Detail refresh failures
 
 - Kept already loaded departures visible when a later manual or polling refresh fails instead of replacing the station screen with a blocking error state.

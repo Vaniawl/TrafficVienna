@@ -79,6 +79,15 @@ struct DisruptionsView: View {
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
                 }
+                if let refreshError = vm.errorMessage {
+                    Label(refreshError, systemImage: "wifi.exclamationmark")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                        .neoCard()
+                        .listRowInsets(EdgeInsets(top: 4, leading: 18, bottom: 8, trailing: 18))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                }
                 if vm.availableCategories.count > 1 {
                     FilterChips(categories: vm.availableCategories, selection: $vm.categoryFilter)
                         .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))

@@ -916,6 +916,54 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testAlertRefreshFailurePreservesUsefulContentAndRecovers() async {
+        let info = TrafficInfo(name: "u1", title: "U1 delay", description: nil, priority: "1", relatedLines: ["U1"])
+        let network = MockNetworkManager(trafficInfos: [info])
+        let service = MonitorService(network: network, cacheTTL: 0, minInterval: 0)
+        let viewModel = DisruptionsViewModel(
+            service: service,
+            favoritesRepo: CountingFavoritesRepository(
+                routes: [FavoriteRoute(diva: "1", lineName: "U1", destination: "Leopoldau")]
+            )
+        )
+        await viewModel.load()
+        let originalInfoIDs = viewModel.infos.map(\.id)
+        await service.clearCache()
+        network.shouldFail = true
+
+        await viewModel.load(force: true)
+
+        XCTAssertEqual(viewModel.infos.map(\.id), originalInfoIDs)
+        XCTAssertEqual(viewModel.relevantCount, 1)
+        XCTAssertNotNil(viewModel.errorMessage)
+        XCTAssertFalse(viewModel.isLoading)
+        XCTAssertFalse(viewModel.isRefreshing)
+
+        network.shouldFail = false
+        await viewModel.load(force: true)
+
+        XCTAssertNil(viewModel.errorMessage)
+        XCTAssertEqual(viewModel.infos.map(\.id), originalInfoIDs)
+        XCTAssertEqual(viewModel.relevantCount, 1)
+    }
+
+    @MainActor
+    func testAlertFirstLoadFailureRemainsBlockingWithoutContent() async {
+        let network = MockNetworkManager(shouldFail: true)
+        let viewModel = DisruptionsViewModel(
+            service: MonitorService(network: network, cacheTTL: 0, minInterval: 0),
+            favoritesRepo: CountingFavoritesRepository(routes: [])
+        )
+
+        await viewModel.load()
+
+        XCTAssertTrue(viewModel.infos.isEmpty)
+        XCTAssertNotNil(viewModel.errorMessage)
+        XCTAssertFalse(viewModel.isLoading)
+        XCTAssertFalse(viewModel.isRefreshing)
+    }
+
+    @MainActor
     func testAlertPollingDoesNotStartOverlappingRequest() async {
         let info = TrafficInfo(name: "u1", title: "U1 delay", description: nil, priority: "1", relatedLines: ["U1"])
         let network = MockNetworkManager(trafficInfos: [info], trafficInfoDelayNanoseconds: 100_000_000)

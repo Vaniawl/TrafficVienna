@@ -81,7 +81,7 @@ final class DisruptionsViewModel: ObservableObject {
             freshness = result.freshness
         } catch {
             guard !Task.isCancelled, generation == loadGeneration else { return }
-            if infos.isEmpty { errorMessage = error.monitorDisplayMessage }
+            errorMessage = error.monitorDisplayMessage
         }
     }
 
