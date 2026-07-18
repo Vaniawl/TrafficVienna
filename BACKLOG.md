@@ -75,6 +75,14 @@
   - Dependencies: TV-UI-002.
   - Acceptance: loading, permission failure, annotation selection, and station
     navigation work.
+  - Completed implementation: bounded nearest-marker state model, Vienna-centre
+    fallback, catalogue loading/empty/failure/retry, permission/denied/locating/
+    error banners, accessible selection card, haptics, reduced motion, and value
+    navigation to departures.
+  - Evidence: six focused tests, embedded German/English permission rationales,
+    and full CI pass; total XCTest count is 49.
+  - Pending acceptance: interactive light/dark and accessibility-size Simulator
+    inspection after the locked macOS host is available.
 - [ ] **TV-UI-013 - Disruptions journey.**
   - Outcome: alerts are grouped and prioritised with understandable empty/error
     states.
@@ -155,7 +163,7 @@
 - [x] **TV-VERIFY-031 - macOS build and tests.** Run `bash scripts/ci.sh` on a
   suitable macOS/Xcode host, including the app and widget targets.
   - Evidence: full CI exited 0 on iPhone 17 simulator; app/widget build succeeded,
-    the post-hardening focused run passed, and all 43 XCTest cases pass.
+    the post-hardening focused run passed, and all 49 XCTest cases pass.
 - [ ] **TV-VERIFY-032 - Product inspection.** Exercise every Phase 2 journey in
   light/dark appearance, accessibility text sizes, and relevant failure states.
 - [ ] **TV-VERIFY-033 - Independent reviews.** Resolve every Blocking/Important

@@ -5,6 +5,10 @@
 - The app consumes public Wiener Linien transport endpoints.
 - Precise location is device data and must remain in the application boundary;
   it must not be logged, committed, or sent to unrelated services.
+- Map and Nearby use precise location only in memory for local station filtering
+  and the system user annotation. Coordinates are not persisted or logged, and
+  the localized system rationale explicitly states that the app does not store
+  location.
 - Favourites, recent searches, widget data, and theme choices are local
   `UserDefaults` or App Group data.
 - The App Group identifier `group.wellbe.TrafficVienna` is used exclusively by this app.
@@ -20,6 +24,8 @@
 ## Required review areas
 
 - Location permission wording, denied/restricted states, and data minimisation.
+- Embedded English/German location permission rationale and Vienna-centre
+  fallback behaviour when permission is absent or a location update fails.
 - URL construction, API decoding, rate limiting, caching, and error handling.
 - App Group access and absence of sensitive values in logs.
 - Localisation of privacy-facing and error messages.

@@ -1,5 +1,26 @@
 # Journal
 
+## 2026-07-18 - Map journey, location privacy, and selection UX
+
+- Replaced Map's body-time distance sorting and duplicate selection/sheet state
+  with an injectable `MapStationsViewModel`. It now exposes tested catalogue
+  loading, ready, empty, unavailable/retry, marker sorting, and marker-limit
+  states while retaining the anonymous Vienna-centre fallback.
+- Added explicit permission-needed, denied, locating, and location-error material
+  banners. Marker selection now reveals a reduced-motion-aware bottom card with
+  haptic feedback and a deliberate value-navigation action to live departures,
+  rather than opening an immediate sheet.
+- Moved GCD-wrapped Core Location delegate assignments back to the main-isolated
+  delegate flow. Coordinates remain memory-only and are not logged or persisted.
+- Security review found no Critical/High issue. Its one Important finding—the
+  English-only permission rationale—was fixed with verified German and English
+  `InfoPlist.strings` output explicitly stating that the app does not store the
+  location.
+- Added six focused Map tests. Post-fix full CI built app/widget without warnings,
+  passed all 49 XCTest cases, ended `[ci] OK`, and embedded both locale files.
+- SwiftUI/MapKit source review passed. Interactive Map walkthrough remains open
+  because the host Mac is locked, so TV-UI-012 visual acceptance is not claimed.
+
 ## 2026-07-18 - Search journey state, cancellation, and recent-history refactor
 
 - Extracted Search business state from the SwiftUI view into an observable,

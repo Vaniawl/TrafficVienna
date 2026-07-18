@@ -67,10 +67,8 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
                          didUpdateLocations locations: [CLLocation]) {
         if isPreview { return }
         guard let loc = locations.last else { return }
-        DispatchQueue.main.async {
-            self.userLocation = loc
-            self.errorMessage = nil
-        }
+        userLocation = loc
+        errorMessage = nil
     }
     
     func locationManager(_ manager: CLLocationManager,
@@ -80,8 +78,6 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
             return
         }
 
-        DispatchQueue.main.async {
-            self.errorMessage = error.localizedDescription
-        }
+        errorMessage = error.localizedDescription
     }
 }

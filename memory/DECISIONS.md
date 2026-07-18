@@ -1,5 +1,17 @@
 # Architectural Decisions
 
+## 2026-07-18 — Map projection is testable and location stays ephemeral
+
+**Context:** Map recomputed marker distances in SwiftUI layout, hid catalogue
+failure, and opened station sheets immediately on marker selection.
+
+**Decision:** Derive a bounded nearest-marker projection in an injectable state
+model, keep Vienna-centre fallback, and show a deliberate material selection card.
+Use precise location only in memory and localize the system permission rationale.
+
+**Consequences:** Loading, permission, failure, retry, marker order, selection,
+and navigation are explicit without persisting or logging coordinates.
+
 ## 2026-07-18 — Search state belongs outside SwiftUI layout
 
 **Context:** Search mixed local filtering, recent persistence, navigation, and

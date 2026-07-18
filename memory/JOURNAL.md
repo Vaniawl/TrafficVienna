@@ -1,5 +1,16 @@
 # Journal
 
+## 2026-07-18 — Map journey and location privacy
+
+- Added a testable Map state model for bounded nearest markers, catalogue
+  loading/empty/failure/retry, Vienna fallback, and all location permission states.
+- Replaced immediate marker sheets with an accessible, reduced-motion-aware
+  selection card and explicit departure navigation.
+- Location remains memory-only and unlogged. German and English system permission
+  rationales are embedded and state that the app does not store location.
+- Full CI passed with zero warnings and 49 XCTest cases; Map interaction remains
+  pending because the host Mac is locked.
+
 ## 2026-07-18 — Search journey refactor
 
 - Added an injectable observable Search view model with explicit idle/loading,

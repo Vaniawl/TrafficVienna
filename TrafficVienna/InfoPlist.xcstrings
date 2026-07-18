@@ -1,0 +1,23 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "NSLocationWhenInUseUsageDescription" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Traffic Vienna verwendet deinen Standort, um Haltestellen in deiner Nähe anzuzeigen. Die App speichert ihn nicht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Traffic Vienna uses your location to show nearby stops. The app does not store it."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

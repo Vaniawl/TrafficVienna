@@ -36,6 +36,11 @@ final class StubStationStore: StationStoring {
         near location: CLLocation,
         radiusInMeters radius: Double
     ) -> [Station] {
-        stations
+        stations.filter { station in
+            CLLocation(
+                latitude: station.lat,
+                longitude: station.lon
+            ).distance(from: location) <= radius
+        }
     }
 }

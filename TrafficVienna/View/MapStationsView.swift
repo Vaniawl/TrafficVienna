@@ -1,88 +1,144 @@
-//
-//  MapStationsView.swift
-//  TrafficVienna
-//
-//  "Map" tab: nearby stations as markers. Tap a marker to see its live
-//  departures in a sheet.
-//
-
-import SwiftUI
 import MapKit
-import CoreLocation
+import SwiftUI
 
 struct MapStationsView: View {
-    @ObservedObject var store: StationStore
-    @ObservedObject var locationManager: LocationManager
-
+    @ObservedObject private var store: StationStore
+    @ObservedObject private var locationManager: LocationManager
+    @State private var viewModel: MapStationsViewModel
     @State private var position: MapCameraPosition = .automatic
-    @State private var selectedID: Int?
-    @State private var sheetStation: Station?
+    @State private var selectedStation: Station?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.openURL) private var openURL
 
-    // Vienna city centre, used until a real location is available.
-    private static let viennaCenter = CLLocationCoordinate2D(latitude: 48.2082, longitude: 16.3738)
-    private let radius: Double = 1500
-    private let maxMarkers = 60
-
-    private var center: CLLocation {
-        locationManager.userLocation ?? CLLocation(latitude: Self.viennaCenter.latitude,
-                                                    longitude: Self.viennaCenter.longitude)
-    }
-
-    private var stations: [Station] {
-        store.stations(near: center, radiusInMeters: radius)
-            .sorted {
-                CLLocation(latitude: $0.lat, longitude: $0.lon).distance(from: center) <
-                CLLocation(latitude: $1.lat, longitude: $1.lon).distance(from: center)
-            }
-            .prefix(maxMarkers)
-            .map { $0 }
+    init(store: StationStore, locationManager: LocationManager) {
+        _store = ObservedObject(wrappedValue: store)
+        _locationManager = ObservedObject(wrappedValue: locationManager)
+        _viewModel = State(
+            initialValue: MapStationsViewModel(stationStore: store)
+        )
     }
 
     var body: some View {
-        ZStack(alignment: .top) {
-            Map(position: $position, selection: $selectedID) {
+        Map(position: $position, selection: $selectedStation) {
+            if locationManager.userLocation != nil {
                 UserAnnotation()
-                ForEach(stations) { station in
-                    Marker(station.name, systemImage: "tram.fill",
-                           coordinate: CLLocationCoordinate2D(latitude: station.lat, longitude: station.lon))
-                        .tint(.red)
-                        .tag(station.id)
-                }
-            }
-            .mapControls {
-                MapUserLocationButton()
-                MapCompass()
             }
 
-            if locationManager.userLocation == nil {
-                Text("Showing Vienna centre — enable location to see stops near you.")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, Spacing.sm)
-                    .padding(.vertical, Spacing.xs)
-                    .background(.regularMaterial, in: Capsule())
-                    .padding(.top, Spacing.xs)
+            ForEach(viewModel.visibleStations) { station in
+                Marker(
+                    station.name,
+                    systemImage: "tram.fill",
+                    coordinate: CLLocationCoordinate2D(
+                        latitude: station.lat,
+                        longitude: station.lon
+                    )
+                )
+                .tint(.appAccent)
+                .tag(station)
             }
         }
+        .mapControls {
+            MapUserLocationButton()
+            MapCompass()
+            MapScaleView()
+        }
+        .overlay {
+            MapContentOverlay(
+                state: viewModel.contentState,
+                retry: retryCatalog
+            )
+        }
+        .safeAreaInset(edge: .top) {
+            if viewModel.locationStatus != .located {
+                MapLocationBannerView(
+                    status: viewModel.locationStatus,
+                    requestLocation: locationManager.requestLocationIfNeeded,
+                    openSettings: openSettings
+                )
+                .padding(.horizontal, Spacing.md)
+                .padding(.top, Spacing.xs)
+            }
+        }
+        .safeAreaInset(edge: .bottom) {
+            if let selectedStation {
+                MapStationSelectionCard(
+                    station: selectedStation,
+                    close: clearSelection
+                )
+                .padding(.horizontal, Spacing.md)
+                .padding(.bottom, Spacing.xs)
+                .transition(
+                    reduceMotion
+                        ? .opacity
+                        : .move(edge: .bottom).combined(with: .opacity)
+                )
+            }
+        }
+        .sensoryFeedback(.selection, trigger: selectedStation?.id)
+        .animation(reduceMotion ? nil : .snappy, value: selectedStation)
         .navigationTitle("Map")
         .navigationBarTitleDisplayMode(.inline)
-        .onChange(of: selectedID) { _, newValue in
-            sheetStation = stations.first { $0.id == newValue }
+        .navigationDestination(for: Station.self) { station in
+            StationDetailView(station: station)
         }
-        .sheet(item: $sheetStation, onDismiss: { selectedID = nil }) { station in
-            NavigationStack {
-                StationDetailView(station: station)
-            }
-            .presentationDetents([.medium, .large])
+        .task(id: refreshContext) {
+            refresh()
         }
-        .background(Color(.systemBackground))
+        .background(DesignColor.background)
+    }
+
+    private var refreshContext: MapRefreshContext {
+        MapRefreshContext(
+            catalogState: store.loadState,
+            authorizationStatus: locationManager.authorizationStatus,
+            location: locationManager.userLocation,
+            locationError: locationManager.errorMessage
+        )
+    }
+
+    private func refresh() {
+        viewModel.refresh(
+            location: locationManager.userLocation,
+            authorizationStatus: locationManager.authorizationStatus,
+            locationError: locationManager.errorMessage
+        )
+
+        if let selectedStation,
+           !viewModel.visibleStations.contains(selectedStation) {
+            self.selectedStation = nil
+        }
+    }
+
+    private func retryCatalog() {
+        viewModel.retry(
+            location: locationManager.userLocation,
+            authorizationStatus: locationManager.authorizationStatus,
+            locationError: locationManager.errorMessage
+        )
+    }
+
+    private func clearSelection() {
+        selectedStation = nil
+    }
+
+    private func openSettings() {
+        guard let settingsURL = URL(string: UIApplication.openSettingsURLString) else {
+            return
+        }
+        openURL(settingsURL)
     }
 }
 
 #Preview {
-    let lm = LocationManager()
-    lm.userLocation = CLLocation(latitude: 48.2008, longitude: 16.3695)
+    let locationManager = LocationManager()
+    locationManager.userLocation = CLLocation(
+        latitude: 48.2008,
+        longitude: 16.3695
+    )
     return NavigationStack {
-        MapStationsView(store: StationStore(), locationManager: lm)
+        MapStationsView(
+            store: StationStore(),
+            locationManager: locationManager
+        )
     }
 }

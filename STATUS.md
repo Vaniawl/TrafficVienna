@@ -3,11 +3,11 @@
 - Status: CONTINUE
 - Workspace: `/Users/ivandovhosheia/Swift/TrafficVienna`
 - Stack: native SwiftUI iOS application and widget extension.
-- Current phase: unified design/onboarding, native Apple account, and Search
+- Current phase: unified design/onboarding, native Apple account, Search, and Map
   implementation slices complete; continue visual inspection, remaining journey
   polish, and email account integration.
 - Verified: app and widget build successfully on iPhone 17 simulator with zero
-  warnings; the restored test target runs 43 passing XCTest cases.
+  warnings; the restored test target runs 49 passing XCTest cases.
 - Verified CI: repository/OpenCode/reliability checks, build, tests, and diff
   validation completed with `[ci] OK`.
 - Verified visually: the new onboarding renders correctly in system light and
@@ -17,6 +17,10 @@
 - Verified Search: explicit state machine, cancellable debounce, retry, recent
   persistence, value navigation, and German strings pass focused tests and full
   CI. Interactive visual acceptance remains open because macOS is locked.
+- Verified Map: bounded sorted markers, catalogue retry, Vienna fallback,
+  permission/error states, selection navigation, ephemeral location handling,
+  and localized permission rationale pass focused tests and build inspection.
+  Interactive visual acceptance remains open because macOS is locked.
 - Remaining work: select and configure an email identity provider, verify the
   physical-device provisioning capability, and complete remaining journey and
   accessibility inspection.

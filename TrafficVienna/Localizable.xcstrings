@@ -137,6 +137,26 @@
         }
       }
     },
+    "Finding your location…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein Standort wird ermittelt …"
+          }
+        }
+      }
+    },
+    "Location unavailable" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standort nicht verfügbar"
+          }
+        }
+      }
+    },
     "Loading stops…" : {
       "localizations" : {
         "de" : {
@@ -187,6 +207,36 @@
         }
       }
     },
+    "Map unavailable" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karte nicht verfügbar"
+          }
+        }
+      }
+    },
+    "No stops are available near this location." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In der Nähe dieses Standorts sind keine Haltestellen verfügbar."
+          }
+        }
+      }
+    },
+    "No stops in this area" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Haltestellen in diesem Gebiet"
+          }
+        }
+      }
+    },
     "Search Vienna" : {
       "localizations" : {
         "de" : {
@@ -233,6 +283,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mit Apple angemeldet"
+          }
+        }
+      }
+    },
+    "Retry location" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standort erneut versuchen"
+          }
+        }
+      }
+    },
+    "Selected stop" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgewählte Haltestelle"
+          }
+        }
+      }
+    },
+    "Showing Vienna centre" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wien Zentrum wird angezeigt"
+          }
+        }
+      }
+    },
+    "Showing Vienna centre while location recovers." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wien Zentrum wird angezeigt, während der Standort wiederhergestellt wird."
           }
         }
       }
@@ -303,6 +393,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Erneut versuchen"
+          }
+        }
+      }
+    },
+    "Use my location" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meinen Standort verwenden"
+          }
+        }
+      }
+    },
+    "Use your location to show the closest stops." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwende deinen Standort, um die nächsten Haltestellen anzuzeigen."
+          }
+        }
+      }
+    },
+    "Vienna centre stays available. Enable location in Settings for nearby stops." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wien Zentrum bleibt verfügbar. Aktiviere den Standort in den Einstellungen für Haltestellen in deiner Nähe."
+          }
+        }
+      }
+    },
+    "View departures" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abfahrten anzeigen"
           }
         }
       }

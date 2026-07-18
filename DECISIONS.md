@@ -1,5 +1,17 @@
 # Decisions
 
+## 2026-07-18 - Map derives bounded markers and keeps location ephemeral
+
+Map rendering consumes a bounded, distance-sorted station projection from an
+injectable view model rather than recomputing it in SwiftUI `body`. Catalogue and
+location states are explicit. Without permission or a valid fix, the map remains
+useful around Vienna centre and explains the fallback instead of blocking use.
+
+Precise location remains ephemeral: it is used in memory for local station
+filtering and the system user annotation, and is neither persisted nor logged.
+The permission rationale is localized in `InfoPlist.xcstrings`. Marker selection
+uses an accessible material card and explicit value navigation to departures.
+
 ## 2026-07-18 - Search owns a cancellable view model and local catalogue state
 
 Search query state, debouncing, results, retry, and recent-history projection are
