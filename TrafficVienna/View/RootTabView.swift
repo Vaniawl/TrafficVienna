@@ -16,7 +16,12 @@ struct RootTabView: View {
                 TabView(selection: $selectedTab) {
                     Tab("Nearby", systemImage: "location.fill", value: .nearby) {
                         NavigationStack {
-                            NearbyView(store: store, locationManager: locationManager)
+                            NearbyView(
+                                store: store,
+                                locationManager: locationManager,
+                                favoritesViewModel: favoritesVM,
+                                onShowFavourites: showFavourites
+                            )
                         }
                     }
 
@@ -61,6 +66,15 @@ struct RootTabView: View {
                         selectedTab = AppTab(rawValue: type) ?? .nearby
                     }
                 }
+                .onReceive(NotificationCenter.default.publisher(for: .favoriteStationsDidChange)) { _ in
+                    favoritesVM.loadStations()
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .favoriteRoutesDidChange)) { _ in
+                    Task { await favoritesVM.loadFavorites() }
+                }
+                .task {
+                    await refreshFavouritesContinuously()
+                }
                 .transition(Motion.stateTransition(reduceMotion: reduceMotion))
             } else {
                 OnboardingView {
@@ -71,6 +85,25 @@ struct RootTabView: View {
             }
         }
         .animation(Motion.standard(reduceMotion: reduceMotion), value: hasOnboarded)
+    }
+
+    private func showFavourites() {
+        withAnimation(Motion.quick(reduceMotion: reduceMotion)) {
+            selectedTab = .favourites
+        }
+    }
+
+    private func refreshFavouritesContinuously() async {
+        favoritesVM.loadStations()
+
+        while !Task.isCancelled {
+            await favoritesVM.loadFavorites()
+            do {
+                try await Task.sleep(for: .seconds(60))
+            } catch {
+                break
+            }
+        }
     }
 }
 

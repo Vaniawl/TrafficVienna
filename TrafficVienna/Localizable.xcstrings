@@ -1462,10 +1462,13 @@
     "Enough time to walk" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Genug Zeit für den Fußweg" } } } },
     "Following departures in %@" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Weitere Abfahrten in %@" } } } },
     "Hurry to catch this departure" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Beeile dich, um diese Abfahrt zu erreichen" } } } },
+    "Live" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Live" } } } },
+    "Next departure" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Nächste Abfahrt" } } } },
     "Next departure in %@" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Nächste Abfahrt in %@" } } } },
     "Next departure now" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Nächste Abfahrt jetzt" } } } },
     "No departure time available" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Keine Abfahrtszeit verfügbar" } } } },
     "Not enough time to walk" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Nicht genug Zeit für den Fußweg" } } } },
+    "Opens favourites" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Öffnet Favoriten" } } } },
     "Real-time prediction" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Echtzeitprognose" } } } },
     "Service alert" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Störungsmeldung" } } } },
     "Apple" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Apple" } } } },
@@ -1474,6 +1477,7 @@
     "OPTIONAL ACCOUNT" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "OPTIONALES KONTO" } } } },
     "Start exploring" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Jetzt entdecken" } } } },
     "Use a verified Apple profile, or continue with every transport feature without an account." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Verwende ein verifiziertes Apple-Profil oder nutze alle Verkehrsfunktionen ohne Konto weiter." } } } },
+    "View favourites" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Favoriten anzeigen" } } } },
     "You can change your account choice later in Favourites." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Du kannst deine Kontoauswahl später in Favoriten ändern." } } } },
     "Walking approximately %lld minutes" : {
       "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Ungefähr %lld Minuten zu Fuß" } } }

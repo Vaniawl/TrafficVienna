@@ -1,5 +1,18 @@
 # Journal
 
+## 2026-07-18 — Cross-journey next departure
+
+- Centralised favourite station and route loading in `RootTabView`, so Nearby and
+  Favourites consume one shared observable model instead of running duplicate
+  repositories and refresh loops. Route changes now refresh the shared state.
+- Added an adaptive Next departure card to Nearby. It selects the soonest
+  non-past available saved route, distinguishes live from saved data, remains
+  useful without location permission, and opens the existing Favourites tab.
+- Runtime iPhone 17 light, dark, and accessibility-size review caught and fixed a
+  dark-mode line-badge contrast defect plus an oversized header layout defect.
+  German extraction has no missing key; full CI is warning-free with 99 XCTest
+  cases. The simulator route/stations were temporary local acceptance fixtures.
+
 ## 2026-07-18 — Location-independent Nearby dashboard
 
 - Kept saved-station quick access visible above every location state, so declining

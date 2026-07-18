@@ -82,6 +82,58 @@ final class FavoritesListViewModelTests: XCTestCase {
         XCTAssertEqual(widget.lastSaved.first?.lineName, "U1")
     }
 
+    func testFeaturedDepartureSelectsSoonestNonnegativeSavedRoute() async {
+        let routes = StubFavoritesRepository(routes: [
+            route("U4", "Heiligenstadt"),
+            route("U1", "Leopoldau")
+        ])
+        let monitor = StubMonitorProvider(
+            result: .success(response(u1Countdown: 7, u4Countdown: 3))
+        )
+        let viewModel = makeViewModel(service: monitor, favoritesRepo: routes)
+
+        await viewModel.loadFavorites()
+
+        XCTAssertEqual(viewModel.featuredDeparture?.route.lineName, "U4")
+        XCTAssertEqual(viewModel.featuredDeparture?.departure.liveMinutes, 3)
+        XCTAssertEqual(viewModel.featuredDeparture?.stopName, "Test")
+    }
+
+    func testFeaturedDepartureIgnoresUnavailableRoutesAndMissingDepartures() async {
+        let routes = StubFavoritesRepository(routes: [route("U1", "Leopoldau")])
+        let viewModel = makeViewModel(
+            service: StubMonitorProvider(result: .failure(TestMonitorError.failed)),
+            favoritesRepo: routes
+        )
+
+        await viewModel.loadFavorites()
+
+        XCTAssertNil(viewModel.featuredDeparture)
+    }
+
+    func testFeaturedDepartureIgnoresPastDepartures() async {
+        let routes = StubFavoritesRepository(routes: [route("U1", "Leopoldau")])
+        let monitor = StubMonitorProvider(
+            result: .success(response(u1Countdown: -1, u4Countdown: 3))
+        )
+        let viewModel = makeViewModel(service: monitor, favoritesRepo: routes)
+
+        await viewModel.loadFavorites()
+
+        XCTAssertNil(viewModel.featuredDeparture)
+    }
+
+    func testToggleStationUsesSharedRepositoryAndRefreshesViewState() {
+        let stations = StubFavoriteStationsRepository()
+        let viewModel = makeViewModel(stationsRepo: stations)
+        let favorite = station(1, "A")
+
+        viewModel.toggleStation(favorite)
+
+        XCTAssertTrue(viewModel.containsStation(id: favorite.id))
+        XCTAssertEqual(viewModel.stations, [favorite])
+    }
+
     private func makeViewModel(
         service: StubMonitorProvider? = nil,
         favoritesRepo: StubFavoritesRepository = StubFavoritesRepository(),
@@ -104,9 +156,18 @@ final class FavoritesListViewModelTests: XCTestCase {
     }
 
     private func response(countdown: Int) -> MonitorResponse {
-        let departure = Departure(departureTime: DepartureTime(countdown: countdown, timePlanned: nil, timeReal: nil))
-        let line1 = Lines(name: "U1", towards: "Leopoldau", departures: Departures(departure: [departure]))
-        let line4 = Lines(name: "U4", towards: "Heiligenstadt", departures: Departures(departure: [departure]))
+        response(u1Countdown: countdown, u4Countdown: countdown)
+    }
+
+    private func response(u1Countdown: Int, u4Countdown: Int) -> MonitorResponse {
+        let line1Departure = Departure(
+            departureTime: DepartureTime(countdown: u1Countdown, timePlanned: nil, timeReal: nil)
+        )
+        let line4Departure = Departure(
+            departureTime: DepartureTime(countdown: u4Countdown, timePlanned: nil, timeReal: nil)
+        )
+        let line1 = Lines(name: "U1", towards: "Leopoldau", departures: Departures(departure: [line1Departure]))
+        let line4 = Lines(name: "U4", towards: "Heiligenstadt", departures: Departures(departure: [line4Departure]))
         let stop = LocationStop(
             properties: Properties(title: "Test", attributes: Attributes(rbl: 1)),
             geometry: nil
@@ -157,7 +218,13 @@ private final class StubFavoriteStationsRepository: FavoriteStationsStoring, @un
     init(stations: [FavoriteStation] = []) { self.stations = stations }
     func all() -> [FavoriteStation] { stations }
     func contains(id: Int) -> Bool { stations.contains { $0.id == id } }
-    func toggle(_ station: FavoriteStation) { }
+    func toggle(_ station: FavoriteStation) {
+        if let index = stations.firstIndex(where: { $0.id == station.id }) {
+            stations.remove(at: index)
+        } else {
+            stations.append(station)
+        }
+    }
     func remove(id: Int) { stations.removeAll { $0.id == id } }
     func setOrder(_ stations: [FavoriteStation]) { self.stations = stations }
 }

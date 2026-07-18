@@ -8,6 +8,7 @@ final class FavoritesListViewModel {
     private(set) var items: [FavoriteWithDeparture] = []
     private(set) var stations: [FavoriteStation] = []
     private(set) var isLoading = false
+    private(set) var featuredDeparture: FeaturedDeparture?
 
     private let service: MonitorProviding
     private let favoritesRepo: FavoritesRepository
@@ -34,6 +35,15 @@ final class FavoritesListViewModel {
         stations = stationsRepo.all()
     }
 
+    func containsStation(id: Int) -> Bool {
+        stations.contains { $0.id == id }
+    }
+
+    func toggleStation(_ station: FavoriteStation) {
+        stationsRepo.toggle(station)
+        loadStations()
+    }
+
     func removeStation(id: Int) {
         stationsRepo.remove(id: id)
         loadStations()
@@ -49,6 +59,7 @@ final class FavoritesListViewModel {
         let routes = favoritesRepo.getAll().sorted()
         guard !routes.isEmpty else {
             items = []
+            updateFeaturedDeparture()
             syncWidget()
             return
         }
@@ -63,6 +74,7 @@ final class FavoritesListViewModel {
         }
         guard !Task.isCancelled else { return }
         items = result
+        updateFeaturedDeparture()
         syncWidget()
     }
 
@@ -71,12 +83,14 @@ final class FavoritesListViewModel {
         guard !Task.isCancelled else { return }
         guard let index = items.firstIndex(where: { $0.route == route }) else { return }
         items[index] = updated
+        updateFeaturedDeparture()
         syncWidget()
     }
 
     func remove(_ route: FavoriteRoute) {
         favoritesRepo.toggle(diva: route.diva, lineName: route.lineName, destination: route.destination)
         items.removeAll { $0.route == route }
+        updateFeaturedDeparture()
         syncWidget()
     }
 
@@ -125,6 +139,31 @@ final class FavoritesListViewModel {
 
     private func unavailableItem(for route: FavoriteRoute) -> FavoriteWithDeparture {
         FavoriteWithDeparture(route: route, stopName: "", departures: [], state: .unavailable)
+    }
+
+    private func updateFeaturedDeparture() {
+        featuredDeparture = items
+            .filter { $0.state != .unavailable }
+            .compactMap { item -> FeaturedDeparture? in
+                guard let departure = item.departures
+                    .filter({ $0.liveMinutes >= 0 })
+                    .min(by: { $0.liveMinutes < $1.liveMinutes })
+                else { return nil }
+
+                return FeaturedDeparture(
+                    route: item.route,
+                    stopName: item.stopName,
+                    departure: departure,
+                    state: item.state
+                )
+            }
+            .min { lhs, rhs in
+                if lhs.departure.liveMinutes == rhs.departure.liveMinutes {
+                    lhs.route < rhs.route
+                } else {
+                    lhs.departure.liveMinutes < rhs.departure.liveMinutes
+                }
+            }
     }
 
     private func syncWidget() {

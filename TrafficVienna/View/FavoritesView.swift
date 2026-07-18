@@ -46,23 +46,9 @@ struct FavoritesView: View {
             StationDetailView(station: station)
         }
         .sheet(isPresented: $showAccount) { AccountView() }
-        .task {
-            viewModel.loadStations()
-            while !Task.isCancelled {
-                await viewModel.loadFavorites()
-                do {
-                    try await Task.sleep(for: .seconds(60))
-                } catch {
-                    break
-                }
-            }
-        }
         .refreshable {
             viewModel.loadStations()
             await viewModel.loadFavorites(forceRefresh: true)
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .favoriteStationsDidChange)) { _ in
-            viewModel.loadStations()
         }
         .background(Color(.systemBackground))
     }

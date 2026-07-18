@@ -14,15 +14,22 @@ import MapKit
 struct NearbyView: View {
     @State private var vm: NearbyViewModel
     @ObservedObject private var locationManager: LocationManager
+    @Bindable private var favoritesViewModel: FavoritesListViewModel
     @Environment(\.openURL) private var openURL
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @State private var favoriteStations: [FavoriteStation] = []
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    private let onShowFavourites: () -> Void
 
-    private let favoriteStationsRepository = UserDefaultsFavoriteStationsRepository()
-
-    init(store: StationStore, locationManager: LocationManager) {
+    init(
+        store: StationStore,
+        locationManager: LocationManager,
+        favoritesViewModel: FavoritesListViewModel,
+        onShowFavourites: @escaping () -> Void
+    ) {
         _vm = State(initialValue: NearbyViewModel(store: store, location: locationManager))
         _locationManager = ObservedObject(wrappedValue: locationManager)
+        _favoritesViewModel = Bindable(wrappedValue: favoritesViewModel)
+        self.onShowFavourites = onShowFavourites
     }
 
     var body: some View {
@@ -47,14 +54,10 @@ struct NearbyView: View {
             }
         }
         .task {
-            loadFavoriteStations()
             while !Task.isCancelled {
                 await vm.load(force: false)
                 try? await Task.sleep(for: .seconds(vm.items.isEmpty ? 5 : 60))
             }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .favoriteStationsDidChange)) { _ in
-            loadFavoriteStations()
         }
         .background(DesignColor.background)
     }
@@ -62,8 +65,16 @@ struct NearbyView: View {
     private var stationList: some View {
         ScrollView {
             LazyVStack(spacing: Spacing.md) {
-                if !favoriteStations.isEmpty {
-                    FavoriteStationsQuickAccessView(stations: favoriteStations)
+                if let featuredDeparture = favoritesViewModel.featuredDeparture {
+                    FavoriteNextDepartureCard(
+                        item: featuredDeparture,
+                        action: onShowFavourites
+                    )
+                    .transition(Motion.stateTransition(reduceMotion: reduceMotion))
+                }
+
+                if !favoritesViewModel.stations.isEmpty {
+                    FavoriteStationsQuickAccessView(stations: favoritesViewModel.stations)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
@@ -121,10 +132,10 @@ struct NearbyView: View {
                         .buttonStyle(.plain)
                         .contextMenu {
                             let station = item.station
-                            let isFav = favoriteStationsRepository.contains(id: station.id)
+                            let isFav = favoritesViewModel.containsStation(id: station.id)
 
                             Button {
-                                favoriteStationsRepository.toggle(FavoriteStation(station))
+                                favoritesViewModel.toggleStation(FavoriteStation(station))
                             } label: {
                                 Label(
                                     isFav ? "Remove station from favourites" : "Add station to favourites",
@@ -147,6 +158,10 @@ struct NearbyView: View {
             .padding(.vertical, Spacing.sm)
         }
         .refreshable { await vm.load(force: true) }
+        .animation(
+            Motion.standard(reduceMotion: reduceMotion),
+            value: favoritesViewModel.featuredDeparture?.id
+        )
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Nearby stations")
     }
@@ -161,10 +176,6 @@ struct NearbyView: View {
 
     private func stationShareText(_ station: Station) -> String {
         "\(station.name) — live departures on Traffic Vienna"
-    }
-
-    private func loadFavoriteStations() {
-        favoriteStations = favoriteStationsRepository.all()
     }
 
     private func openInMaps(_ station: Station) {
@@ -210,6 +221,11 @@ struct NearbyView: View {
     let lm = LocationManager()
     lm.userLocation = CLLocation(latitude: 48.200832, longitude: 16.369505)
     return NavigationStack {
-        NearbyView(store: StationStore(), locationManager: lm)
+        NearbyView(
+            store: StationStore(),
+            locationManager: lm,
+            favoritesViewModel: FavoritesListViewModel(),
+            onShowFavourites: {}
+        )
     }
 }

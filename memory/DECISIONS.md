@@ -1,5 +1,21 @@
 # Architectural Decisions
 
+## 2026-07-18 — Favourite lifecycle belongs to the app root
+
+**Context:** Favourites loaded routes only while its tab view was active, while
+Nearby independently read station favourites from a concrete repository. A
+cross-journey next-departure surface would otherwise duplicate requests and could
+show state that disagreed with the Favourites tab.
+
+**Decision:** Own one `FavoritesListViewModel` in `RootTabView`, run its cancellable
+refresh lifecycle once for the onboarded app, and observe station and route change
+notifications at that boundary. Nearby and Favourites receive the same observable
+instance; the featured departure is derived once when route items change.
+
+**Consequences:** Saved stations, saved routes, widget synchronization, and the
+Nearby feature card share one source of truth with immediate cross-tab updates and
+no additional service, persistence format, credential, or network destination.
+
 ## 2026-07-18 — Motion is shared, purposeful, and accessibility-aware
 
 **Context:** The redesigned journeys mixed local `.snappy`, `.smooth`, linear,

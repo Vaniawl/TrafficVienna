@@ -7,6 +7,10 @@
 
 import Foundation
 
+extension Notification.Name {
+    nonisolated static let favoriteRoutesDidChange = Notification.Name("favoriteRoutesDidChange")
+}
+
 protocol FavoritesRepository: Sendable {
     func isFavorite(diva: String, lineName: String, destination: String) -> Bool
     func toggle(diva: String, lineName: String, destination: String)
@@ -51,6 +55,7 @@ nonisolated final class UserDefaultsFavoritesRepository: FavoritesRepository {
     
     func removeAll() {
         storage.removeObject(forKey: key)
+        NotificationCenter.default.post(name: .favoriteRoutesDidChange, object: nil)
     }
     
     
@@ -67,6 +72,7 @@ nonisolated final class UserDefaultsFavoritesRepository: FavoritesRepository {
     private func save(_ routes: Set<FavoriteRoute>) {
         let data = try? JSONEncoder().encode(routes)
         storage.set(data, forKey: key)
+        NotificationCenter.default.post(name: .favoriteRoutesDidChange, object: nil)
     }
     
     // to check if isFavorite
@@ -75,4 +81,3 @@ nonisolated final class UserDefaultsFavoritesRepository: FavoritesRepository {
         save([])
     }
 }
-
