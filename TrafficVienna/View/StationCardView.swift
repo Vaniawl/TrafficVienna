@@ -144,22 +144,30 @@ struct StationCardView: View {
     }
 
     private var stationAccessibilityLabel: String {
-        let walkText = walkMinutes.map { "Walking approximately \($0) minutes" } ?? "Distance unknown"
-        let linesText = lines.isEmpty ? "No departures loaded" : "Departures available"
-        let freshness = isStale ? "Showing saved data." : ""
+        let walkText = walkMinutes.map {
+            String(localized: "Walking approximately \($0) minutes")
+        } ?? String(localized: "Distance unknown")
+        let linesText = lines.isEmpty
+            ? String(localized: "No departures loaded")
+            : String(localized: "Departures available")
+        let freshness = isStale ? String(localized: "Showing saved data.") : ""
         return "\(station.name). \(walkText). \(linesText). \(freshness)"
     }
 
     private var walkTextForAccessibility: String {
         guard let distance else { return "" }
         let walkMin = max(1, Int((distance / walkingSpeed).rounded()))
-        let dist = distance < 1000 ? "\(Int(distance)) meters" : String(format: "%.1f kilometers", distance / 1000)
-        return "Walking approximately \(walkMin) minutes, \(dist) away"
+        let measurement = distance < 1000
+            ? Measurement(value: distance.rounded(), unit: UnitLength.meters)
+            : Measurement(value: distance / 1000, unit: UnitLength.kilometers)
+        let distanceText = measurement.formatted(.measurement(width: .wide))
+        return String(localized: "Walking approximately \(walkMin) minutes, \(distanceText) away")
     }
 
     private func walkText(_ meters: Double) -> String {
         let walkMin = max(1, Int((meters / walkingSpeed).rounded()))
-        let dist = meters < 1000 ? "\(Int(meters)) m" : String(format: "%.1f km", meters / 1000)
+        let kilometers = (meters / 1000).formatted(.number.precision(.fractionLength(1)))
+        let dist = meters < 1000 ? "\(Int(meters)) m" : "\(kilometers) km"
         return "\(walkMin) min · \(dist)"
     }
 

@@ -175,6 +175,16 @@
   - Dependencies: Phase 2.
   - Acceptance: no required screen has clipped text or unlabeled controls.
   - Validation: localisation scan and simulator accessibility inspection.
+  - Completed source audit: app and widget `.stringsdata` extraction matches the
+    committed catalogues with German values for every extracted key; account and
+    empty-state hero symbols scale with Dynamic Type; Nearby distance accessibility
+    text uses locale-aware measurements; saved-data status uses text plus an icon.
+  - Evidence: `xcstringstool sync` comparison reports zero missing keys/values,
+    both catalogues compile, SwiftUI source scan finds no active `caption2`,
+    `onTapGesture`, `UIScreen.main`, deprecated navigation, or unlabeled icon-only
+    control introduced by the redesign.
+  - Pending acceptance: interactive accessibility-size and VoiceOver inspection
+    after the macOS host is unlocked.
 - [x] **TV-CORE-022 - Refresh and network lifecycle.**
   - Outcome: refresh work cancels correctly, avoids duplicate calls, and handles
     throttling and stale data clearly.

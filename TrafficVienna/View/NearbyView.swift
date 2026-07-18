@@ -193,10 +193,11 @@ struct NearbyView: View {
     ) -> some View {
         VStack(spacing: Spacing.sm) {
             Image(systemName: icon)
-                .font(.system(size: 44))
+                .font(.title.scaled(by: 1.4))
                 .foregroundStyle(.tertiary)
             Text(title)
-                .font(.title3.weight(.semibold))
+                .font(.title3)
+                .bold()
                 .multilineTextAlignment(.center)
             Text(subtitle)
                 .font(.subheadline)

@@ -1,5 +1,19 @@
 # Journal
 
+## 2026-07-18 — Localisation and source accessibility audit
+
+- Compared compiler-produced app and widget `.stringsdata` against the committed
+  catalogues with `xcstringstool sync`; added every missing format/preview key and
+  German value, leaving zero extraction gaps.
+- Replaced fixed account/empty-state hero symbol sizes with Dynamic Type scaling,
+  removed manual C-style distance formatting, and made Nearby VoiceOver distance
+  text locale-aware through `Measurement` formatting.
+- Source review found no active design picker, `caption2`, `onTapGesture`,
+  `UIScreen.main`, deprecated navigation, or unlabeled icon-only control introduced
+  by the redesign. App/widget build remains warning-free.
+- Interactive accessibility-size and VoiceOver acceptance is still pending because
+  the macOS host remained locked.
+
 ## 2026-07-18 — Truthful freshness and deterministic request timing
 
 - Added freshness-aware monitor and traffic-info snapshots that preserve the last

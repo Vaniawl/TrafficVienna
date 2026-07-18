@@ -1,23 +1,28 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "—" : {
-
-    },
-    "%lld" : {
-
-    },
+    "—" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "—" } } } },
+    "%lld" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "%lld" } } } },
     "Choose another transport type." : {
       "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Wähle ein anderes Verkehrsmittel." } } }
     },
     "Departures unavailable" : {
       "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrten nicht verfügbar" } } }
     },
+    "Departures available" : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrten verfügbar" } } }
+    },
+    "Distance unknown" : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Entfernung unbekannt" } } }
+    },
     "Enable Live Activities in Settings to track departures on the Lock Screen." : {
       "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktiviere Live-Aktivitäten in den Einstellungen, um Abfahrten auf dem Sperrbildschirm zu verfolgen." } } }
     },
     "Live Activity" : {
       "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Live-Aktivität" } } }
+    },
+    "live" : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "live" } } }
     },
     "Loading departures…" : {
       "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrten werden geladen…" } } }
@@ -27,6 +32,9 @@
     },
     "No live data for this station." : {
       "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Für diese Station sind keine Live-Daten verfügbar." } } }
+    },
+    "No departures loaded" : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Keine Abfahrten geladen" } } }
     },
     "No matching departures" : {
       "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Keine passenden Abfahrten" } } }
@@ -1411,6 +1419,16 @@
         }
       }
     },
+    "Showing saved data." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gespeicherte Daten werden angezeigt."
+          }
+        }
+      }
+    },
     "TRAVEL SMARTER" : {
       "localizations" : {
         "de" : {
@@ -1440,6 +1458,12 @@
           }
         }
       }
+    },
+    "Walking approximately %lld minutes" : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Ungefähr %lld Minuten zu Fuß" } } }
+    },
+    "Walking approximately %lld minutes, %@ away" : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Ungefähr %lld Minuten zu Fuß, %@ entfernt" } } }
     },
     "Walking distance" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Gehzeit" } } } }
   },

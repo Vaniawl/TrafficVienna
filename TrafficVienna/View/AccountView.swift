@@ -56,7 +56,7 @@ struct AccountView: View {
     private var accountHeader: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             Image(systemName: "person.crop.circle.fill")
-                .font(.system(size: 64))
+                .font(.largeTitle.scaled(by: 1.7))
                 .foregroundStyle(.appAccent)
                 .accessibilityHidden(true)
 

@@ -41,6 +41,11 @@
   journey tasks cannot publish late responses. Freshness snapshots preserve the
   real successful-update time and label saved data in Station Detail, Alerts,
   Nearby, and Favourites. Deterministic timing regressions and full CI pass.
+- Verified localisation source audit: app and widget compiler extraction has no
+  missing catalogue key or German value; new hero symbols scale with Dynamic Type,
+  distance speech is locale-aware, and saved-data status is not color-only.
+  Interactive accessibility-size and VoiceOver acceptance remains open while the
+  macOS host is locked.
 - Remaining work: select and configure an email identity provider, verify the
   physical-device provisioning capability, and complete remaining journey and
   accessibility inspection.
