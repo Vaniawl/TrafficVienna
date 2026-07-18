@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-18 — Localized authentication errors
+
+- Localized all five `AuthError` descriptions at the domain boundary instead of exposing fixed English strings through `LocalizedError`.
+- Added complete German and Ukrainian catalog entries for invalid email, weak password, existing account, invalid credentials, and temporary unavailability.
+- Added localized VoiceOver values to live email/password validation requirements so satisfied state is announced rather than conveyed by color and icon alone.
+- Added a Ukrainian sign-in UI regression that submits an unknown account and verifies the exact localized invalid-credentials message through a stable error identifier.
+
 ## 2026-07-18 — Proactive email registration validation
 
 - Promoted email normalization and password-length checks into shared nonisolated `AuthStore` validation helpers used by both business logic and SwiftUI.

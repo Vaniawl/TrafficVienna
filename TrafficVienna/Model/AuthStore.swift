@@ -26,11 +26,11 @@ enum AuthError: LocalizedError, Equatable {
 
     var errorDescription: String? {
         switch self {
-        case .invalidEmail: return "Enter a valid email address."
-        case .weakPassword: return "Use at least 8 characters for your password."
-        case .accountExists: return "An account with this email already exists."
-        case .invalidCredentials: return "Email or password is incorrect."
-        case .unavailable: return "Sign in is unavailable right now. Please try again."
+        case .invalidEmail: return String(localized: "Enter a valid email address.")
+        case .weakPassword: return String(localized: "Use at least 8 characters for your password.")
+        case .accountExists: return String(localized: "An account with this email already exists.")
+        case .invalidCredentials: return String(localized: "Email or password is incorrect.")
+        case .unavailable: return String(localized: "Sign in is unavailable right now. Please try again.")
         }
     }
 }

@@ -120,6 +120,7 @@ struct AuthenticationView: View {
                     .font(.footnote)
                     .foregroundStyle(.red)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityIdentifier("auth.error")
             }
 
             Button(action: submitEmail) {
@@ -186,6 +187,7 @@ struct AuthenticationView: View {
             .font(.footnote)
             .foregroundStyle(isSatisfied ? .green : .secondary)
             .accessibilityIdentifier(identifier)
+            .accessibilityValue(isSatisfied ? String(localized: "Satisfied") : String(localized: "Not satisfied"))
     }
 
     private func submitEmail() {

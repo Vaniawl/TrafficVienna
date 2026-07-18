@@ -79,6 +79,47 @@ final class TrafficViennaUITests: XCTestCase {
         XCTAssertEqual(submit.label, "Увійти")
     }
 
+    func testUkrainianInvalidCredentialsErrorIsLocalized() {
+        app.terminate()
+        app.launchArguments = [
+            "-ui-testing-reset",
+            "-AppleLanguages", "(uk)",
+            "-AppleLocale", "uk_UA"
+        ]
+        app.launch()
+
+        let signInMode = app.buttons["Увійти"].firstMatch
+        XCTAssertTrue(signInMode.waitForExistence(timeout: 5))
+        signInMode.tap()
+        XCTAssertEqual(app.buttons["auth.submit"].label, "Увійти")
+
+        let email = app.textFields["auth.email"]
+        email.tap()
+        email.typeText("missing@example.com")
+        let password = app.secureTextFields["auth.password"]
+        password.tap()
+        password.typeText("12345678")
+        dismissKeyboardIfPresent()
+
+        XCTAssertEqual(email.value as? String, "missing@example.com")
+        XCTAssertNotEqual(password.value as? String, "Пароль")
+        XCTAssertEqual(app.staticTexts["auth.email.validation"].value as? String, "Виконано")
+        XCTAssertEqual(app.staticTexts["auth.password.validation"].value as? String, "Виконано")
+
+        let submit = app.buttons["auth.submit"]
+        let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: submit)
+        XCTAssertEqual(XCTWaiter.wait(for: [enabled], timeout: 3), .completed)
+        if !submit.isHittable {
+            app.scrollViews.firstMatch.swipeUp()
+        }
+        XCTAssertTrue(submit.isHittable)
+        submit.tap()
+
+        let error = app.staticTexts["auth.error"]
+        XCTAssertTrue(error.waitForExistence(timeout: 3))
+        XCTAssertEqual(error.label, "Неправильна електронна адреса або пароль.")
+    }
+
     private func dismissKeyboardIfPresent() {
         let keyboard = app.keyboards.firstMatch
         if keyboard.exists {

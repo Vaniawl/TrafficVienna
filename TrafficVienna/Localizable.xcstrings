@@ -257,6 +257,22 @@
         }
       }
     },
+    "An account with this email already exists.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Konto mit dieser E-Mail-Adresse existiert bereits."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Акаунт із цією електронною адресою вже існує."
+          }
+        }
+      }
+    },
     "At least 8 characters": {
       "localizations": {
         "de": {
@@ -769,6 +785,22 @@
         }
       }
     },
+    "Email or password is incorrect.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E-Mail-Adresse oder Passwort ist falsch."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Неправильна електронна адреса або пароль."
+          }
+        }
+      }
+    },
     "Enable it in Settings to see nearby stops and real-time departures.": {
       "localizations": {
         "de": {
@@ -813,6 +845,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Введіть назву станції, щоб побачити актуальні відправлення."
+          }
+        }
+      }
+    },
+    "Enter a valid email address.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gib eine gültige E-Mail-Adresse ein."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Введіть дійсну електронну адресу."
           }
         }
       }
@@ -1522,6 +1570,22 @@
         }
       }
     },
+    "Not satisfied": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht erfüllt"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не виконано"
+          }
+        }
+      }
+    },
     "Nothing scheduled right now.": {
       "localizations": {
         "de": {
@@ -1874,6 +1938,22 @@
         }
       }
     },
+    "Satisfied": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erfüllt"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Виконано"
+          }
+        }
+      }
+    },
     "Save": {
       "localizations": {
         "de": {
@@ -2158,6 +2238,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Увійти"
+          }
+        }
+      }
+    },
+    "Sign in is unavailable right now. Please try again.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Anmeldung ist derzeit nicht verfügbar. Versuche es später erneut."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вхід зараз недоступний. Спробуйте ще раз пізніше."
           }
         }
       }
@@ -2494,6 +2590,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Оновлює цю лінію в обраному"
+          }
+        }
+      }
+    },
+    "Use at least 8 characters for your password.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verwende mindestens 8 Zeichen für dein Passwort."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Використовуйте щонайменше 8 символів для пароля."
           }
         }
       }
