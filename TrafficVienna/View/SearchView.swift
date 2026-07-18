@@ -3,6 +3,7 @@ import SwiftUI
 struct SearchView: View {
     @ObservedObject var store: StationStore
     @EnvironmentObject private var recents: RecentSearchesStore
+    @EnvironmentObject private var favoritesVM: FavoritesListViewModel
     @State private var query = ""
     @State private var results: [Station] = []
     @State private var isSearching = false
@@ -62,19 +63,36 @@ struct SearchView: View {
     }
 
     private func stationCard(_ station: Station, icon: String) -> some View {
-        NavigationLink { StationDetailView(station: station) } label: {
-            HStack(spacing: 14) {
-                NeoIcon(systemName: icon)
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(station.name).font(.headline).foregroundStyle(.primary)
-                    Text(station.diva == nil ? "Schedule only" : "Live departures").font(.caption).foregroundStyle(.secondary)
+        HStack(spacing: 8) {
+            NavigationLink { StationDetailView(station: station) } label: {
+                HStack(spacing: 14) {
+                    NeoIcon(systemName: icon)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(station.name).font(.headline).foregroundStyle(.primary)
+                        Text(station.diva == nil ? "Schedule only" : "Live departures").font(.caption).foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right").font(.caption.bold()).foregroundStyle(.tertiary)
                 }
-                Spacer()
-                Image(systemName: "chevron.right").font(.caption.bold()).foregroundStyle(.tertiary)
-            }.neoCard()
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .simultaneousGesture(TapGesture().onEnded { recents.record(station.id) })
+
+            let isFavorite = favoritesVM.isStationFavorite(id: station.id)
+            Button {
+                favoritesVM.toggleStation(station)
+            } label: {
+                Image(systemName: isFavorite ? "star.fill" : "star")
+                    .foregroundStyle(isFavorite ? .yellow : .secondary)
+                    .frame(width: 44, height: 44)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(isFavorite ? "Remove station from favourites" : "Add station to favourites")
+            .accessibilityHint(Text(verbatim: station.name))
+            .accessibilityIdentifier("search.favorite.\(station.id)")
         }
-        .buttonStyle(.plain)
-        .simultaneousGesture(TapGesture().onEnded { recents.record(station.id) })
+        .neoCard()
     }
 
     private func emptyCard(icon: String, title: LocalizedStringKey, text: LocalizedStringKey) -> some View {
@@ -90,4 +108,5 @@ struct SearchView: View {
 #Preview {
     NavigationStack { SearchView(store: StationStore()) }
         .environmentObject(RecentSearchesStore())
+        .environmentObject(FavoritesListViewModel())
 }

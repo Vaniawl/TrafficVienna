@@ -105,6 +105,7 @@ struct FavoritesView: View {
                     }
                     .neoCard()
                 }
+                .accessibilityIdentifier("favourites.station.\(station.id)")
                 .listRowInsets(EdgeInsets(top: 6, leading: 18, bottom: 6, trailing: 18))
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)

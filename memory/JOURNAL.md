@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Quick station favourites from Search
+
+- Added a visible 44-point star action to station search results and recent stations so saving no longer requires opening Station Detail.
+- Kept navigation and recents recording on the main card while the independent star updates the root-owned favourites state and repository immediately.
+- Reflected saved state with a filled yellow star, localized VoiceOver actions, the station-name hint, and stable Search/Favourites accessibility identifiers.
+- Added an end-to-end registration → Search → quick-save → Favourites regression that also handles pre-existing local favourite state deterministically.
+
 ## 2026-07-19 — Bigram-indexed station search
 
 - Built a normalized two-character inverted index together with the off-main station snapshot and retained the complete scan only for one-character queries.

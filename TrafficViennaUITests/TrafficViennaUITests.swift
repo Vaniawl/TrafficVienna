@@ -136,6 +136,81 @@ final class TrafficViennaUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Codex Rider"].waitForExistence(timeout: 3))
     }
 
+    func testSearchCanSaveStationWithoutOpeningDetails() {
+        let email = app.textFields["auth.email"]
+        XCTAssertTrue(email.waitForExistence(timeout: 5))
+        email.tap()
+        email.typeText("quick-favourite-\(UUID().uuidString.lowercased())@example.com")
+        let password = app.secureTextFields["auth.password"]
+        password.tap()
+        password.typeText("tramline26")
+        dismissKeyboardIfPresent()
+
+        let submit = app.buttons["auth.submit"]
+        let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: submit)
+        XCTAssertEqual(XCTWaiter.wait(for: [enabled], timeout: 3), .completed)
+        if !submit.isHittable { app.scrollViews.firstMatch.swipeUp() }
+        submit.tap()
+
+        let tabBar = app.tabBars.firstMatch
+        XCTAssertTrue(tabBar.waitForExistence(timeout: 8))
+        let searchTab = tabBar.buttons["Search"]
+        for _ in 0..<3 where !searchTab.isSelected {
+            searchTab.tap()
+            let selected = XCTNSPredicateExpectation(
+                predicate: NSPredicate(format: "selected == true"),
+                object: searchTab
+            )
+            _ = XCTWaiter.wait(for: [selected], timeout: 1)
+        }
+        XCTAssertTrue(searchTab.isSelected)
+
+        let searchField = app.searchFields["Station or stop"]
+        XCTAssertTrue(searchField.waitForExistence(timeout: 3))
+        searchField.tap()
+        searchField.typeText("Karlsplatz")
+        let keyboardSearch = app.keyboards.buttons.matching(
+            NSPredicate(format: "label ==[c] %@", "Search")
+        ).firstMatch
+        if keyboardSearch.exists { keyboardSearch.tap() }
+
+        let quickFavorite = app.buttons["search.favorite.1085618000"]
+        XCTAssertTrue(quickFavorite.waitForExistence(timeout: 5))
+        if quickFavorite.label == "Remove station from favourites" {
+            quickFavorite.tap()
+            let removed = XCTNSPredicateExpectation(
+                predicate: NSPredicate(format: "label == %@", "Add station to favourites"),
+                object: quickFavorite
+            )
+            XCTAssertEqual(XCTWaiter.wait(for: [removed], timeout: 3), .completed)
+        }
+        quickFavorite.tap()
+        let saved = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "label == %@", "Remove station from favourites"),
+            object: quickFavorite
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [saved], timeout: 3), .completed)
+
+        dismissKeyboardIfPresent()
+        let favouritesTab = tabBar.buttons["Favourites"]
+        for _ in 0..<3 where !favouritesTab.isSelected {
+            favouritesTab.tap()
+            let selected = XCTNSPredicateExpectation(
+                predicate: NSPredicate(format: "selected == true"),
+                object: favouritesTab
+            )
+            _ = XCTWaiter.wait(for: [selected], timeout: 1)
+        }
+        XCTAssertTrue(favouritesTab.isSelected)
+        let savedStation = app.descendants(matching: .any)["favourites.station.1085618000"]
+        XCTAssertTrue(savedStation.waitForExistence(timeout: 3))
+        let stationIsHittable = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "hittable == true"),
+            object: savedStation
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [stationIsHittable], timeout: 3), .completed)
+    }
+
     func testUkrainianAuthenticationModesAreLocalized() {
         app.terminate()
         app.launchArguments = [
