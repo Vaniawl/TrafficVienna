@@ -10,7 +10,7 @@ import SwiftUI
 
 struct FavoritesView: View {
     @ObservedObject var vm: FavoritesListViewModel
-    @State private var showAbout = false
+    @State private var showAccount = false
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     var body: some View {
@@ -42,17 +42,17 @@ struct FavoritesView: View {
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button {
-                    showAbout = true
+                    showAccount = true
                 } label: {
-                    Image(systemName: "info.circle")
+                    Image(systemName: "person.crop.circle")
                 }
-                .accessibilityLabel("About")
+                .accessibilityLabel("Account")
             }
             if !vm.stations.isEmpty {
                 ToolbarItem(placement: .topBarTrailing) { EditButton() }
             }
         }
-        .sheet(isPresented: $showAbout) { AboutView() }
+        .sheet(isPresented: $showAccount) { AccountView() }
         .task {
             vm.loadStations()
             while !Task.isCancelled {

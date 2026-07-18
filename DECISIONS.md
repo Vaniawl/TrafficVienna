@@ -1,5 +1,18 @@
 # Decisions
 
+## 2026-07-18 - Store only a minimal device-local Apple profile
+
+The optional Apple account surface uses `AuthenticationServices` directly. The
+app stores only the stable Apple user identifier and the one-time name/email
+profile fields in Keychain using a device-only accessibility class. It does not
+store or log identity tokens or authorization codes and does not present this
+local profile as a server session.
+
+Credential state is validated on launch through an injectable boundary. Revoked,
+missing, transferred, or unknown states clear the local session. Email login,
+cross-device identity, and remote account deletion remain outside this slice
+until a backend/provider is explicitly selected and configured.
+
 ## 2026-07-18 - One adaptive visual identity; accounts require a real identity boundary
 
 TrafficVienna uses one minimalist Vienna-red visual system and follows the

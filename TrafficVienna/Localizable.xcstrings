@@ -17,6 +17,216 @@
         }
       }
     },
+    "Account" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konto"
+          }
+        }
+      }
+    },
+    "Account error" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontofehler"
+          }
+        }
+      }
+    },
+    "Apple account" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple-Konto"
+          }
+        }
+      }
+    },
+    "Apple provides a verified identity. Traffic information and local favourites still work without an account." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple stellt eine verifizierte Identität bereit. Verkehrsinformationen und lokale Favoriten funktionieren weiterhin ohne Konto."
+          }
+        }
+      }
+    },
+    "Apple sign-in could not be completed. Please try again." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Anmeldung mit Apple konnte nicht abgeschlossen werden. Bitte versuche es erneut."
+          }
+        }
+      }
+    },
+    "Apple sign-in returned an invalid credential." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Anmeldung mit Apple hat ungültige Anmeldedaten zurückgegeben."
+          }
+        }
+      }
+    },
+    "Close" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schließen"
+          }
+        }
+      }
+    },
+    "Cancel" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abbrechen"
+          }
+        }
+      }
+    },
+    "Continue with Apple" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mit Apple fortfahren"
+          }
+        }
+      }
+    },
+    "Keep transport essentials fast and private. Signing in is always optional." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine wichtigsten Verkehrsinformationen bleiben schnell und privat. Die Anmeldung ist immer optional."
+          }
+        }
+      }
+    },
+    "Please try again." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitte versuche es erneut."
+          }
+        }
+      }
+    },
+    "OK" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
+    },
+    "Secure account storage is unavailable right now." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der sichere Kontospeicher ist derzeit nicht verfügbar."
+          }
+        }
+      }
+    },
+    "Sign out" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abmelden"
+          }
+        }
+      }
+    },
+    "Sign out of Traffic Vienna?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Von Traffic Vienna abmelden?"
+          }
+        }
+      }
+    },
+    "Signed in with Apple" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mit Apple angemeldet"
+          }
+        }
+      }
+    },
+    "Welcome back" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Willkommen zurück"
+          }
+        }
+      }
+    },
+    "Your account could not be saved securely." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein Konto konnte nicht sicher gespeichert werden."
+          }
+        }
+      }
+    },
+    "Your Apple account status could not be checked." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Status deines Apple-Kontos konnte nicht geprüft werden."
+          }
+        }
+      }
+    },
+    "Your Apple profile is stored only in this device’s Keychain. No identity token is saved or logged." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein Apple-Profil wird nur im Schlüsselbund dieses Geräts gespeichert. Es wird kein Identitätstoken gespeichert oder protokolliert."
+          }
+        }
+      }
+    },
+    "Your Traffic Vienna" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein Traffic Vienna"
+          }
+        }
+      }
+    },
     "Add station to favourites" : {
       "localizations" : {
         "de" : {

@@ -1,5 +1,17 @@
 # Architectural Decisions
 
+## 2026-07-18 — Device-local Apple profile, not a server session
+
+**Context:** Native Apple authentication can establish an Apple credential on
+device, but the app has no account backend.
+
+**Decision:** Store only Apple user ID, name, email, and provider in device-only
+Keychain; never persist or log tokens. Validate credential state on launch and
+clear revoked, missing, transferred, or unknown sessions. Keep anonymous use.
+
+**Consequences:** Apple entry is real and testable without a dependency. Email,
+cross-device identity, and remote account deletion wait for a selected provider.
+
 ## 2026-07-18 — Single design identity and truthful optional accounts
 
 **Context:** The user asked to remove design selection and add Apple/email login.

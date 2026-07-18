@@ -102,6 +102,11 @@
   - Outcome: anonymous use plus native Apple and email account entry with secure
     lifecycle handling.
   - Dependency: explicit email identity provider/backend selection.
+  - Completed slice: native Apple entry, minimal device-only Keychain profile,
+    restore, cancellation, failure, sign-out, and authorized/revoked/transferred
+    credential handling with focused tests. Anonymous use remains unchanged.
+  - Pending slice: real email authentication, server session validation, and
+    remote delete-account behaviour after provider selection.
   - Acceptance: sign-in, cancellation, failure, restore, sign-out, revocation,
     and delete-account paths are real and tested; no local fake authentication.
 
@@ -143,8 +148,8 @@
   2026-07-18, all exited 0.
 - [x] **TV-VERIFY-031 - macOS build and tests.** Run `bash scripts/ci.sh` on a
   suitable macOS/Xcode host, including the app and widget targets.
-  - Evidence: full CI exited 0 on iPhone 17 simulator; app/widget build succeeded
-    and all 27 XCTest cases passed.
+  - Evidence: full CI exited 0 on iPhone 17 simulator; app/widget build succeeded,
+    the post-hardening focused run passed, and all 35 XCTest cases pass.
 - [ ] **TV-VERIFY-032 - Product inspection.** Exercise every Phase 2 journey in
   light/dark appearance, accessibility text sizes, and relevant failure states.
 - [ ] **TV-VERIFY-033 - Independent reviews.** Resolve every Blocking/Important

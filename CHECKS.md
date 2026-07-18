@@ -35,9 +35,9 @@ bash scripts/validate-repository.sh
 bash scripts/validate-opencode.sh
 ```
 
-## Platform limitation
+## Platform evidence
 
-`xcodebuild` is unavailable on AIServer Ubuntu. Continue all safe implementation,
-review, documentation, and local validation work on the server. Final completion
-still requires a suitable macOS/Xcode environment; report `CONTINUE`, not
-`COMPLETE`, while that evidence is unavailable.
+The active workspace is on macOS with Xcode. The current branch has direct iPhone
+17 simulator build, widget, XCTest, and full CI evidence. Physical-device Sign in
+with Apple still requires the capability and provisioning profile to be enabled
+for the app identifier in the Apple Developer account.

@@ -1,5 +1,27 @@
 # Journal
 
+## 2026-07-18 - Native Apple account slice and secure lifecycle coverage
+
+- Added an optional account surface from Favourites using the native Sign in
+  with Apple control. Anonymous transport, favourites, widgets, and live data
+  remain available without an account.
+- Persist only Apple user ID, display name, email, and provider in Keychain with
+  `kSecAttrAccessibleWhenUnlockedThisDeviceOnly`; identity and authorization
+  tokens are neither retained nor logged.
+- Added launch-time credential validation and safe handling for authorized,
+  revoked, missing, transferred, unknown, cancellation, Keychain failure, and
+  sign-out paths. German account and privacy strings were added.
+- Added protocol seams and eight focused account lifecycle tests. Final evidence:
+  app/widget build succeeded, all 35 XCTest cases passed with zero warnings, and
+  the post-hardening full CI ended `[ci] OK`.
+- Security review found no unresolved Blocking or Important issue in this native
+  device-local slice. Real email authentication and remote account deletion still
+  require an explicitly selected backend/provider; no fake local login was added.
+- Simulator screenshot inspection confirmed the shared dark UI foundation. The
+  account screen's automated visual inspection could not run because macOS was
+  locked; its source, accessibility labels, build, and lifecycle behaviour were
+  inspected instead.
+
 ## 2026-07-18 - Single-design UI foundation, onboarding, quick access, and real tests
 
 - Removed the ten accent presets, appearance picker, `ThemeEngine`, and competing

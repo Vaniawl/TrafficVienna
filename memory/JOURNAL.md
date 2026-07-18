@@ -1,5 +1,16 @@
 # Journal
 
+## 2026-07-18 — Native Apple account slice
+
+- Added optional native Sign in with Apple from Favourites while preserving
+  anonymous transport use.
+- Minimal Apple profile data is stored in device-only Keychain; tokens are not
+  saved or logged. Credential revocation, transfer, sign-out, restore, and
+  storage failures have focused regression coverage.
+- App/widget build and 35 XCTest cases pass. Security review found no unresolved
+  Blocking or Important finding in the native slice.
+- Email authentication remains pending an explicit real backend/provider choice.
+
 ## 2026-07-18 — Unified redesign and executable test recovery
 
 - Removed selectable themes and consolidated the app around one adaptive

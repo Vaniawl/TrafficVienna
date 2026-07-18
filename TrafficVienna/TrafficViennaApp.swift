@@ -9,10 +9,16 @@ import SwiftUI
 
 @main
 struct TrafficViennaApp: App {
+    @State private var accountSession = AccountSession()
+
     var body: some Scene {
         WindowGroup {
             RootTabView()
                 .tint(.appAccent)
+                .environment(accountSession)
+                .task {
+                    await accountSession.validateCredential()
+                }
         }
     }
 }
