@@ -116,7 +116,7 @@ struct RootTabView: View {
                     DisruptionsView(vm: disruptionsVM, isActive: selectedTab == .alerts)
                 }
             }
-            .badge(disruptionsVM.infos.count)
+            .badge(disruptionsVM.relevantCount)
 
             Tab("Favourites", systemImage: "star.fill", value: .favourites) {
                 NavigationStack {

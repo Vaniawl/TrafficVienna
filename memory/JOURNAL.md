@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-18 — Personalized Alerts tab badge
+
+- Completed an iPhone 17 visual QA pass of the redesigned Nearby dashboard after the recent feature slices.
+- Replaced the city-wide traffic-info count on the Alerts tab with the count relevant to the user's favourite lines.
+- Removed the distracting three-digit badge for users without matching saved lines while preserving the full city-wide Alerts list.
+- Confirmed the corrected tab bar in a freshly installed simulator build; full shared-scheme tests and repository validations pass.
+
 ## 2026-07-18 — Complete allowlisted travel-data reset
 
 - Added a confirmed “Clear travel data” action that preserves authentication, theme, onboarding, permissions, and the bundled station dataset.
