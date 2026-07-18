@@ -15,6 +15,7 @@ struct StationCardView: View {
     var lines: [Lines] = []
     var failed: Bool = false
     var updatedAt: Date? = nil
+    var isStale = false
 
     private let maxLines = 4
 
@@ -66,6 +67,11 @@ struct StationCardView: View {
                     Text(updatedText(updatedAt))
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
+                }
+                if isStale {
+                    Label("Saved data", systemImage: "wifi.slash")
+                        .font(.caption2.bold())
+                        .foregroundStyle(.orange)
                 }
             }
         }

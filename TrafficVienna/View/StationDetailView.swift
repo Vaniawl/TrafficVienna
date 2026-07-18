@@ -85,6 +85,13 @@ struct StationDetailView: View {
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
 
+            if let staleMessage = vm.staleMessage {
+                StaleDataBanner(message: staleMessage)
+                    .listRowInsets(EdgeInsets(top: 4, leading: 18, bottom: 8, trailing: 18))
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+            }
+
             if !vm.trafficInfos.isEmpty {
                 Section {
                     ForEach(vm.trafficInfos) { info in
@@ -126,12 +133,13 @@ struct StationDetailView: View {
         if let text = vm.lastUpdatedText {
             HStack(spacing: 6) {
                 Circle()
-                    .fill(.green)
+                    .fill(vm.freshness?.isStale == true ? .orange : .green)
                     .frame(width: 6, height: 6)
                 Text(text)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
+            .accessibilityLabel(vm.freshness?.isStale == true ? "Saved data, \(text)" : text)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 6)
             .background(.bar)

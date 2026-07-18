@@ -228,8 +228,53 @@ final class TrafficViennaTests: XCTestCase {
         _ = try await service.monitor(diva: 60201435)
         mock.shouldFail = true
 
-        let result = try await service.monitor(diva: 60201435, forceRefresh: true)
-        XCTAssertFalse(result.data.monitors.isEmpty, "Should return stale cache on error")
+        let result = try await service.monitorResult(diva: 60201435, forceRefresh: true)
+        XCTAssertFalse(result.value.data.monitors.isEmpty, "Should return stale cache on error")
+        XCTAssertTrue(result.freshness.isStale)
+        if case let .stale(_, message) = result.freshness {
+            XCTAssertFalse(message.isEmpty)
+        } else {
+            XCTFail("Expected stale freshness metadata")
+        }
+    }
+
+    func testMonitorServiceReportsNetworkThenFreshCache() async throws {
+        let service = MonitorService(network: MockNetworkManager(), cacheTTL: 30, minInterval: 0)
+
+        let first = try await service.monitorResult(diva: 60201435)
+        let second = try await service.monitorResult(diva: 60201435)
+
+        if case .network = first.freshness {} else { XCTFail("First result should come from network") }
+        if case .cache = second.freshness {} else { XCTFail("Second result should come from fresh cache") }
+    }
+
+    func testRateLimitWithoutCacheRemainsVisibleAsError() async {
+        let mock = MockNetworkManager(shouldRateLimit: true)
+        let service = MonitorService(network: mock, minInterval: 0, maxRetries: 0)
+
+        do {
+            _ = try await service.monitorResult(diva: 60201435)
+            XCTFail("Expected rate-limit error")
+        } catch {
+            XCTAssertTrue(error is MonitorApiError)
+            XCTAssertFalse(error.monitorDisplayMessage.isEmpty)
+            XCTAssertEqual(mock.callCount, 1)
+        }
+    }
+
+    func testPersistentURLCacheIsReportedAsStale() async throws {
+        let storedAt = Date(timeIntervalSince1970: 1_700_000_000)
+        let mock = MockNetworkManager(responseSource: .urlCache(storedAt: storedAt))
+        let service = MonitorService(network: mock, minInterval: 0)
+
+        let result = try await service.monitorResult(diva: 60201435)
+
+        if case let .stale(date, message) = result.freshness {
+            XCTAssertEqual(date, storedAt)
+            XCTAssertFalse(message.isEmpty)
+        } else {
+            XCTFail("Persistent URL cache must be visible as stale data")
+        }
     }
 
     func testTrafficInfoListUsesCache() async throws {
@@ -339,25 +384,36 @@ private final class MemoryKeychain: KeychainStoring {
 private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
     var callCount = 0
     var shouldFail = false
+    var shouldRateLimit = false
+    var responseSource: NetworkResponseSource = .network
 
-    init(shouldFail: Bool = false) {
+    init(
+        shouldFail: Bool = false,
+        shouldRateLimit: Bool = false,
+        responseSource: NetworkResponseSource = .network
+    ) {
         self.shouldFail = shouldFail
+        self.shouldRateLimit = shouldRateLimit
+        self.responseSource = responseSource
     }
 
     func fetchMonitorData(for stopId: Int) async throws -> MonitorResponse {
         callCount += 1
+        if shouldRateLimit { throw MonitorApiError.rateLimited }
         if shouldFail { throw URLError(.notConnectedToInternet) }
         return mockResponse()
     }
 
     func fetchMonitorData(diva: Int, includeArea: Bool) async throws -> MonitorResponse {
         callCount += 1
+        if shouldRateLimit { throw MonitorApiError.rateLimited }
         if shouldFail { throw URLError(.notConnectedToInternet) }
         return mockResponse()
     }
 
     func fetchTrafficInfoList() async throws -> MonitorResponse {
         callCount += 1
+        if shouldRateLimit { throw MonitorApiError.rateLimited }
         if shouldFail { throw URLError(.notConnectedToInternet) }
         return mockResponse()
     }
@@ -371,6 +427,6 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
         let stop = LocationStop(properties: props, geometry: nil)
         let monitor = Monitor(locationStop: stop, lines: [line])
         let data = DataBlock(monitors: [monitor], trafficInfos: nil)
-        return MonitorResponse(data: data)
+        return MonitorResponse(data: data, source: responseSource)
     }
 }

@@ -20,6 +20,7 @@ final class NearbyViewModel: ObservableObject {
         var lines: [Lines] = []
         var failed: Bool = false
         var updatedAt: Date? = nil
+        var freshness: DataFreshness? = nil
 
         var id: Int { station.id }
         var walkMinutes: Int { max(1, Int((distance / walkingSpeed).rounded())) }
@@ -77,11 +78,12 @@ final class NearbyViewModel: ObservableObject {
             guard !Task.isCancelled else { return }
             guard let diva = item.station.diva else { continue }
             do {
-                let response = try await service.monitor(diva: diva, forceRefresh: force)
+                let result = try await service.monitorResult(diva: diva, forceRefresh: force)
                 update(id: item.id) {
-                    $0.lines = response.data.monitors.flatMap { $0.lines }
+                    $0.lines = result.value.data.monitors.flatMap { $0.lines }
                     $0.failed = false
-                    $0.updatedAt = Date()
+                    $0.updatedAt = result.freshness.updatedAt
+                    $0.freshness = result.freshness
                 }
             } catch {
                 update(id: item.id) { $0.failed = true }

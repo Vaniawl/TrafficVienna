@@ -73,6 +73,12 @@ struct DisruptionsView: View {
                     .listRowInsets(EdgeInsets(top: 12, leading: 18, bottom: 12, trailing: 18))
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
+                if let staleMessage = vm.staleMessage {
+                    StaleDataBanner(message: staleMessage)
+                        .listRowInsets(EdgeInsets(top: 4, leading: 18, bottom: 8, trailing: 18))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                }
                 if vm.availableCategories.count > 1 {
                     FilterChips(categories: vm.availableCategories, selection: $vm.categoryFilter)
                         .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))

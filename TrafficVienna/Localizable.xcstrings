@@ -1202,6 +1202,38 @@
         }
       }
     },
+    "No connection. Check your internet and try again.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Verbindung. Prüfe deine Internetverbindung und versuche es erneut."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Немає з’єднання. Перевірте інтернет і спробуйте ще раз."
+          }
+        }
+      }
+    },
+    "No connection. Showing the most recently saved data.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Verbindung. Die zuletzt gespeicherten Daten werden angezeigt."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Немає з’єднання. Показано останні збережені дані."
+          }
+        }
+      }
+    },
     "No departure time available": {
       "localizations": {
         "de": {
@@ -1650,6 +1682,38 @@
         }
       }
     },
+    "Saved data": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespeicherte Daten"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Збережені дані"
+          }
+        }
+      }
+    },
+    "Saved data, %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespeicherte Daten, %@"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Збережені дані, %@"
+          }
+        }
+      }
+    },
     "Schedule only": {
       "localizations": {
         "de": {
@@ -1730,6 +1794,22 @@
         }
       }
     },
+    "Service is busy right now. Please try again in a moment.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Dienst ist gerade ausgelastet. Versuche es gleich noch einmal."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сервіс зараз перевантажений. Спробуйте ще раз за мить."
+          }
+        }
+      }
+    },
     "SET UP": {
       "localizations": {
         "de": {
@@ -1790,6 +1870,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Показати пароль"
+          }
+        }
+      }
+    },
+    "Showing saved data": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespeicherte Daten werden angezeigt"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Показано збережені дані"
           }
         }
       }

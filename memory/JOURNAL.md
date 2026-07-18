@@ -1,5 +1,15 @@
 # Journal
 
+## 2026-07-18 — Explicit offline and stale-data UX
+
+- Added typed service freshness metadata for network, fresh memory cache, and stale fallback results without removing the existing response APIs.
+- Preserved disk URLCache fallback across cold launches while attaching its original storage date and reporting it as stale instead of incorrectly presenting it as live network data.
+- Propagated freshness through Nearby, Favourites, Alerts, and Station Detail view models.
+- Added localized saved-data banners, compact stale badges, orange freshness status, and inline per-favourite network errors while retaining useful cached departures.
+- Localized offline, stale-cache, and rate-limit explanations in German and Ukrainian.
+- Added regression tests for network-to-cache provenance, stale fallback metadata, persistent URLCache provenance, and rate-limit behavior without cache.
+- Full XCTest suite and a Ukrainian simulator smoke launch pass on iPhone 17 Simulator.
+
 ## 2026-07-18 — Polling and rendering energy optimization
 
 - Bound Nearby, Favourites, Alerts, and Station Detail polling to the active app scene; background/inactive transitions now cancel their polling tasks.

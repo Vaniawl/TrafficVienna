@@ -21,6 +21,7 @@ final class StationDetailViewModel: ObservableObject {
     @Published var lastUpdated: Date?
     @Published var isStationFavorited = false
     @Published var categoryFilter: LineCategory? = nil
+    @Published private(set) var freshness: DataFreshness?
 
     // Active disruptions / notices for this station's lines.
     var trafficInfos: [TrafficInfo] {
@@ -130,15 +131,21 @@ final class StationDetailViewModel: ObservableObject {
         }
 
         do {
-            let response = try await service.monitor(diva: diva, forceRefresh: forceRefresh)
-            self.monitor = response
-            self.lastUpdated = Date()
-            if let widgetData = widgetData(from: response) {
+            let result = try await service.monitorResult(diva: diva, forceRefresh: forceRefresh)
+            self.monitor = result.value
+            self.freshness = result.freshness
+            self.lastUpdated = result.freshness.updatedAt
+            if let widgetData = widgetData(from: result.value) {
                 WidgetSyncManager().save([widgetData])
             }
         } catch {
             errorMessage = error.monitorDisplayMessage
         }
+    }
+
+    var staleMessage: String? {
+        guard case let .stale(_, message) = freshness else { return nil }
+        return message
     }
     
     func isFavorite(line: String, destination: String) -> Bool {

@@ -263,7 +263,14 @@ struct NearbyView: View {
 
                 ForEach(vm.items) { item in
                     NavigationLink { StationDetailView(station: item.station) } label: {
-                        StationCardView(station: item.station, distance: item.distance, lines: item.lines, failed: item.failed, updatedAt: item.updatedAt)
+                        StationCardView(
+                            station: item.station,
+                            distance: item.distance,
+                            lines: item.lines,
+                            failed: item.failed,
+                            updatedAt: item.updatedAt,
+                            isStale: item.freshness?.isStale == true
+                        )
                     }
                     .buttonStyle(.plain)
                     .contextMenu {

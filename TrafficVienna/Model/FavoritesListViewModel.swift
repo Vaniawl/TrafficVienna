@@ -26,6 +26,8 @@ struct FavoriteWithDeparture: Identifiable {
     let route: FavoriteRoute
     let stopName: String
     let departures: [DepartureInfo]
+    var freshness: DataFreshness = .network(.now)
+    var loadError: String? = nil
 
     var id: FavoriteRoute { route }
 }
@@ -86,6 +88,13 @@ final class FavoritesListViewModel: ObservableObject {
 
     var isEmpty: Bool {
         items.isEmpty && stations.isEmpty
+    }
+
+    var staleMessage: String? {
+        for item in items {
+            if case let .stale(_, message) = item.freshness { return message }
+        }
+        return nil
     }
     
     func loadFavorites() async {
@@ -152,8 +161,8 @@ final class FavoritesListViewModel: ObservableObject {
         }
 
         do {
-            let response = try await service.monitor(diva: divaInt, forceRefresh: forceRefresh)
-            let monitors = response.data.monitors
+            let result = try await service.monitorResult(diva: divaInt, forceRefresh: forceRefresh)
+            let monitors = result.value.data.monitors
 
             guard !monitors.isEmpty else {
                 log.warning("No monitors for DIVA \(divaInt)")
@@ -169,11 +178,16 @@ final class FavoritesListViewModel: ObservableObject {
             let departures = mapDepartures(from: line)
 
             log.debug("Loaded \(favorite.lineName, privacy: .public) -> \(favorite.destination, privacy: .public), departures: \(departures.count)")
-            return FavoriteWithDeparture(route: favorite, stopName: stopName, departures: departures)
+            return FavoriteWithDeparture(route: favorite, stopName: stopName, departures: departures, freshness: result.freshness)
 
         } catch {
             log.error("Failed to load favorite \(favorite.lineName, privacy: .public): \(error, privacy: .public)")
-            return FavoriteWithDeparture(route: favorite, stopName: "", departures: [])
+            return FavoriteWithDeparture(
+                route: favorite,
+                stopName: "",
+                departures: [],
+                loadError: error.monitorDisplayMessage
+            )
         }
     }
     

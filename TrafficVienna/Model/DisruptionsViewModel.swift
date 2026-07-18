@@ -8,6 +8,7 @@ final class DisruptionsViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var categoryFilter: LineCategory?
     @Published var lineFilter = ""
+    @Published private(set) var freshness: DataFreshness?
 
     private let service: MonitorService
     private let favoritesRepo: FavoritesRepository
@@ -54,9 +55,16 @@ final class DisruptionsViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
-            infos = try await service.trafficInfoList(forceRefresh: force)
+            let result = try await service.trafficInfoResult(forceRefresh: force)
+            infos = result.value
+            freshness = result.freshness
         } catch {
             if infos.isEmpty { errorMessage = error.monitorDisplayMessage }
         }
+    }
+
+    var staleMessage: String? {
+        guard case let .stale(_, message) = freshness else { return nil }
+        return message
     }
 }

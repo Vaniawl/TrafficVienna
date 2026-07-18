@@ -18,15 +18,37 @@
 
 import Foundation
 
+nonisolated enum DataFreshness: Sendable, Equatable {
+    case network(Date)
+    case cache(Date)
+    case stale(Date, message: String)
+
+    var updatedAt: Date {
+        switch self {
+        case let .network(date), let .cache(date), let .stale(date, _): date
+        }
+    }
+
+    var isStale: Bool {
+        if case .stale = self { return true }
+        return false
+    }
+}
+
+nonisolated struct ServiceResult<Value: Sendable>: Sendable {
+    let value: Value
+    let freshness: DataFreshness
+}
+
 extension Error {
     // User-facing description, with a friendlier note for rate limiting.
-    var monitorDisplayMessage: String {
+    nonisolated var monitorDisplayMessage: String {
         if self is MonitorApiError {
-            return "Service is busy right now. Please try again in a moment."
+            return String(localized: "Service is busy right now. Please try again in a moment.")
         }
         let nsError = self as NSError
         if nsError.domain == NSURLErrorDomain {
-            return "No connection. Check your internet and try again."
+            return String(localized: "No connection. Check your internet and try again.")
         }
         return nsError.localizedDescription
     }
@@ -68,31 +90,72 @@ actor MonitorService {
     /// (even if stale) so the UI keeps showing departures instead of an error.
     /// - Parameter forceRefresh: bypass the freshness check (user refresh).
     func monitor(diva: Int, forceRefresh: Bool = false) async throws -> MonitorResponse {
+        try await monitorResult(diva: diva, forceRefresh: forceRefresh).value
+    }
+
+    func monitorResult(diva: Int, forceRefresh: Bool = false) async throws -> ServiceResult<MonitorResponse> {
         if !forceRefresh, let entry = cache[diva], isFresh(entry) {
-            return entry.response
+            return ServiceResult(value: entry.response, freshness: .cache(entry.timestamp))
         }
 
         do {
             let response = try await fetchCoalesced(diva: diva)
-            cache[diva] = CacheEntry(response: response, timestamp: Date())
-            return response
+            if case let .urlCache(storedAt) = response.source {
+                cache[diva] = CacheEntry(response: response, timestamp: storedAt)
+                return ServiceResult(
+                    value: response,
+                    freshness: .stale(
+                        storedAt,
+                        message: String(localized: "No connection. Showing the most recently saved data.")
+                    )
+                )
+            }
+            let timestamp = Date()
+            cache[diva] = CacheEntry(response: response, timestamp: timestamp)
+            return ServiceResult(value: response, freshness: .network(timestamp))
         } catch {
-            if let stale = cache[diva] { return stale.response }
+            if let stale = cache[diva] {
+                return ServiceResult(
+                    value: stale.response,
+                    freshness: .stale(stale.timestamp, message: error.monitorDisplayMessage)
+                )
+            }
             throw error
         }
     }
 
     func trafficInfoList(forceRefresh: Bool = false) async throws -> [TrafficInfo] {
+        try await trafficInfoResult(forceRefresh: forceRefresh).value
+    }
+
+    func trafficInfoResult(forceRefresh: Bool = false) async throws -> ServiceResult<[TrafficInfo]> {
         if !forceRefresh, let trafficInfoCache,
            Date().timeIntervalSince(trafficInfoCache.timestamp) < cacheTTL {
-            return trafficInfoCache.items
+            return ServiceResult(value: trafficInfoCache.items, freshness: .cache(trafficInfoCache.timestamp))
         }
         do {
-            let items = try await network.fetchTrafficInfoList().data.trafficInfos ?? []
-            trafficInfoCache = (items, Date())
-            return items
+            let response = try await network.fetchTrafficInfoList()
+            let items = response.data.trafficInfos ?? []
+            if case let .urlCache(storedAt) = response.source {
+                trafficInfoCache = (items, storedAt)
+                return ServiceResult(
+                    value: items,
+                    freshness: .stale(
+                        storedAt,
+                        message: String(localized: "No connection. Showing the most recently saved data.")
+                    )
+                )
+            }
+            let timestamp = Date()
+            trafficInfoCache = (items, timestamp)
+            return ServiceResult(value: items, freshness: .network(timestamp))
         } catch {
-            if let trafficInfoCache { return trafficInfoCache.items }
+            if let trafficInfoCache {
+                return ServiceResult(
+                    value: trafficInfoCache.items,
+                    freshness: .stale(trafficInfoCache.timestamp, message: error.monitorDisplayMessage)
+                )
+            }
             throw error
         }
     }

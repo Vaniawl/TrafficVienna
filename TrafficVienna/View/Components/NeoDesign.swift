@@ -44,6 +44,26 @@ struct NeoIcon: View {
     }
 }
 
+struct StaleDataBanner: View {
+    let message: String
+
+    var body: some View {
+        Label {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Showing saved data").font(.subheadline.bold())
+                Text(message).font(.caption).foregroundStyle(.secondary)
+            }
+        } icon: {
+            Image(systemName: "wifi.slash")
+                .foregroundStyle(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(14)
+        .background(.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .accessibilityElement(children: .combine)
+    }
+}
+
 extension View {
     func neoCard(padding: CGFloat = 18) -> some View {
         self

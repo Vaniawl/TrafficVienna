@@ -38,6 +38,12 @@ struct FavoritesView: View {
                         .listRowInsets(EdgeInsets(top: 12, leading: 18, bottom: 12, trailing: 18))
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
+                    if let staleMessage = vm.staleMessage {
+                        StaleDataBanner(message: staleMessage)
+                            .listRowInsets(EdgeInsets(top: 4, leading: 18, bottom: 8, trailing: 18))
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                    }
                     if !vm.stations.isEmpty { stationsSection }
                     if !vm.items.isEmpty { linesSection }
                 }
@@ -113,12 +119,19 @@ struct FavoritesView: View {
     private var linesSection: some View {
         Section("Lines") {
             ForEach(vm.items) { item in
-                DepartureLineRow(
-                    lineName: item.route.lineName,
-                    destination: item.route.destination,
-                    minutes: item.departures.map { $0.liveMinutes },
-                    nextIsLive: item.departures.first?.isRealtime ?? false
-                )
+                VStack(alignment: .leading, spacing: 8) {
+                    DepartureLineRow(
+                        lineName: item.route.lineName,
+                        destination: item.route.destination,
+                        minutes: item.departures.map { $0.liveMinutes },
+                        nextIsLive: item.departures.first?.isRealtime ?? false
+                    )
+                    if let loadError = item.loadError {
+                        Label(loadError, systemImage: "wifi.exclamationmark")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
+                }
                 .neoCard()
                 .listRowInsets(EdgeInsets(top: 6, leading: 18, bottom: 6, trailing: 18))
                 .listRowBackground(Color.clear)

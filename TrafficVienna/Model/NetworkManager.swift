@@ -72,12 +72,15 @@ nonisolated final class NetworkManager: NetworkManaging {
         let request = URLRequest(url: url, cachePolicy: .reloadRevalidatingCacheData, timeoutInterval: 12)
         let data: Data
         let response: URLResponse
+        let source: NetworkResponseSource
         do {
             (data, response) = try await session.data(for: request)
+            source = .network
         } catch {
             guard let cached = session.configuration.urlCache?.cachedResponse(for: request) else { throw error }
             data = cached.data
             response = cached.response
+            source = .urlCache(storedAt: cached.userInfo?["storedAt"] as? Date ?? .distantPast)
         }
 
         // The API signals throttling with an HTTP 200 body whose message code is
@@ -91,9 +94,18 @@ nonisolated final class NetworkManager: NetworkManaging {
             throw URLError(.badServerResponse)
         }
 
-        session.configuration.urlCache?.storeCachedResponse(CachedURLResponse(response: response, data: data), for: request)
+        if case .network = source {
+            let cached = CachedURLResponse(
+                response: response,
+                data: data,
+                userInfo: ["storedAt": Date()],
+                storagePolicy: .allowed
+            )
+            session.configuration.urlCache?.storeCachedResponse(cached, for: request)
+        }
 
-        return try JSONDecoder().decode(MonitorResponse.self, from: data)
+        let decoded = try JSONDecoder().decode(MonitorResponse.self, from: data)
+        return MonitorResponse(data: decoded.data, source: source)
     }
 }
 

@@ -18,8 +18,27 @@ import Foundation
 
 // MARK: - Monitor
 
+nonisolated enum NetworkResponseSource: Sendable {
+    case network
+    case urlCache(storedAt: Date)
+}
+
 nonisolated struct MonitorResponse: Decodable {
     let data: DataBlock
+    let source: NetworkResponseSource
+
+    init(data: DataBlock, source: NetworkResponseSource = .network) {
+        self.data = data
+        self.source = source
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        data = try container.decode(DataBlock.self, forKey: .data)
+        source = .network
+    }
+
+    private enum CodingKeys: String, CodingKey { case data }
 }
 
 nonisolated struct DataBlock: Decodable {
