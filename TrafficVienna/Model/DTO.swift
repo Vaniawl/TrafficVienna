@@ -41,14 +41,36 @@ nonisolated struct DataBlock: Decodable {
 }
 
 // A service disruption / info notice (roadworks, delays, lift outages…).
-nonisolated struct TrafficInfo: Decodable, Identifiable {
+nonisolated struct TrafficInfo: Decodable, Identifiable, Hashable {
     let name: String              // stable id, e.g. "I20260503-0024"
     let title: String
     let description: String?
     let priority: String?
     let relatedLines: [String]?
+    let categoryID: Int?
 
     var id: String { name }
+
+    enum CodingKeys: String, CodingKey {
+        case name, title, description, priority, relatedLines
+        case categoryID = "refTrafficInfoCategoryId"
+    }
+
+    init(
+        name: String,
+        title: String,
+        description: String?,
+        priority: String?,
+        relatedLines: [String]?,
+        categoryID: Int? = nil
+    ) {
+        self.name = name
+        self.title = title
+        self.description = description
+        self.priority = priority
+        self.relatedLines = relatedLines
+        self.categoryID = categoryID
+    }
 }
 
 nonisolated struct Monitor: Decodable {

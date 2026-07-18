@@ -1,5 +1,20 @@
 # Architectural Decisions
 
+## 2026-07-18 — Global alerts follow feed categories, not raw volume
+
+**Context:** The Wiener Linien global feed mixes service disruptions, lift
+outages, and hundreds of repeated stop-level notices. Rendering the response as
+one list made the badge and service status misleading.
+
+**Decision:** Decode the feed category, default to service disruptions, expose
+accessibility and stop changes as explicit filters, and remove only exact content
+duplicates. Cache successful alert responses in memory and surface refresh
+failure while the view model retains its last visible data.
+
+**Consequences:** The Alerts tab prioritises actionable service impact without
+hiding other official information. No data is persisted and no transport API or
+dependency changes are required.
+
 ## 2026-07-18 — Map projection is testable and location stays ephemeral
 
 **Context:** Map recomputed marker distances in SwiftUI layout, hid catalogue

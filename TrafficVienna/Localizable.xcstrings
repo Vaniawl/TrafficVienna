@@ -7,6 +7,196 @@
     "%lld" : {
 
     },
+    "Accessibility" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Barrierefreiheit"
+          }
+        }
+      }
+    },
+    "Affected lines" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betroffene Linien"
+          }
+        }
+      }
+    },
+    "Alert details" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meldungsdetails"
+          }
+        }
+      }
+    },
+    "Alerts unavailable" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meldungen nicht verfügbar"
+          }
+        }
+      }
+    },
+    "Alerts: %lld" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meldungen: %lld"
+          }
+        }
+      }
+    },
+    "All clear" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alles frei"
+          }
+        }
+      }
+    },
+    "Clear filters" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filter zurücksetzen"
+          }
+        }
+      }
+    },
+    "Loading alerts…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meldungen werden geladen…"
+          }
+        }
+      }
+    },
+    "No matching alerts" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine passenden Meldungen"
+          }
+        }
+      }
+    },
+    "No alerts in this category" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Meldungen in dieser Kategorie"
+          }
+        }
+      }
+    },
+    "Choose another alert type to see other service information." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle einen anderen Meldungstyp, um weitere Verkehrsinformationen zu sehen."
+          }
+        }
+      }
+    },
+    "No connection. Check your internet and try again." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Verbindung. Prüfe deine Internetverbindung und versuche es erneut."
+          }
+        }
+      }
+    },
+    "Not selected" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht ausgewählt"
+          }
+        }
+      }
+    },
+    "Search line or alert" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Linie oder Meldung suchen"
+          }
+        }
+      }
+    },
+    "Selected" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgewählt"
+          }
+        }
+      }
+    },
+    "Service" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betrieb"
+          }
+        }
+      }
+    },
+    "Service is busy right now. Please try again in a moment." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Dienst ist gerade ausgelastet. Versuche es gleich noch einmal."
+          }
+        }
+      }
+    },
+    "Stop changes" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haltestellenänderungen"
+          }
+        }
+      }
+    },
+    "Try another alert type, line, or search term." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versuche einen anderen Meldungstyp, eine andere Linie oder einen anderen Suchbegriff."
+          }
+        }
+      }
+    },
     "About" : {
       "localizations" : {
         "de" : {
@@ -476,9 +666,6 @@
           }
         }
       }
-    },
-    "All clear" : {
-
     },
     "All lines are running normally." : {
       "localizations" : {

@@ -4,7 +4,7 @@ struct RootTabView: View {
     @StateObject private var store = StationStore()
     @StateObject private var locationManager = LocationManager()
     @StateObject private var favoritesVM = FavoritesListViewModel()
-    @StateObject private var disruptionsVM = DisruptionsViewModel()
+    @State private var disruptionsVM = DisruptionsViewModel()
     @StateObject private var networkMonitor = NetworkMonitor()
     @AppStorage("hasOnboarded") private var hasOnboarded = false
     @State private var selectedTab: AppTab = .nearby
@@ -34,10 +34,10 @@ struct RootTabView: View {
 
                     Tab("Alerts", systemImage: "exclamationmark.triangle.fill", value: .alerts) {
                         NavigationStack {
-                            DisruptionsView(vm: disruptionsVM)
+                            DisruptionsView(viewModel: disruptionsVM)
                         }
                     }
-                    .badge(disruptionsVM.infos.count)
+                    .badge(disruptionsVM.activeServiceCount)
 
                     Tab("Favourites", systemImage: "star.fill", value: .favourites) {
                         NavigationStack {

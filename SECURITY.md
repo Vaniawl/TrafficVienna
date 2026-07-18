@@ -3,6 +3,9 @@
 ## Product trust boundaries
 
 - The app consumes public Wiener Linien transport endpoints.
+- Alerts decode plain title/description/category data from the fixed Wiener
+  Linien HTTPS endpoint. HTML is not decoded or executed, search never changes
+  the request URL, and successful responses are cached in memory only.
 - Precise location is device data and must remain in the application boundary;
   it must not be logged, committed, or sent to unrelated services.
 - Map and Nearby use precise location only in memory for local station filtering
@@ -27,6 +30,8 @@
 - Embedded English/German location permission rationale and Vienna-centre
   fallback behaviour when permission is absent or a location update fails.
 - URL construction, API decoding, rate limiting, caching, and error handling.
+- Alert category decoding, duplicate handling, refresh-failure disclosure, and
+  the absence of server-provided HTML rendering or arbitrary outbound links.
 - App Group access and absence of sensitive values in logs.
 - Localisation of privacy-facing and error messages.
 - New dependencies, network destinations, analytics, or external services.

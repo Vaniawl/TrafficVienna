@@ -1,5 +1,16 @@
 # Journal
 
+## 2026-07-18 — Alerts journey and feed prioritisation
+
+- Split the live feed into service, accessibility, and stop-change categories;
+  service alerts are the default and exact station-notice duplicates are removed.
+- Added explicit loading, empty, filtered-empty, failure, retry, refresh-error,
+  detail, affected-line, and searchable/filterable states with German strings.
+- Alert requests now use the existing in-memory cache while forced refresh stays
+  observable; no HTML, external link, secret, log, or new network destination was added.
+- Full CI passed with zero warnings and 60 XCTest cases. Interactive light/dark
+  and accessibility-size inspection remains pending because the host Mac is locked.
+
 ## 2026-07-18 — Map journey and location privacy
 
 - Added a testable Map state model for bounded nearest markers, catalogue

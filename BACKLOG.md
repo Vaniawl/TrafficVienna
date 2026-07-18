@@ -90,6 +90,15 @@
   - Dependencies: TV-UI-002.
   - Acceptance: severity, affected lines, details, retry, and empty state remain
     understandable with accessibility labels.
+  - Completed implementation: official feed categories split service,
+    accessibility, and stop-change information; service alerts drive the badge,
+    exact duplicates are removed, and line/search filters, details, explicit
+    loading/empty/failure/stale-refresh states, and German strings are present.
+  - Evidence: seven focused view-model tests, three feed/cache regressions,
+    warning-free full CI, and 60 passing XCTest cases. Security review found no
+    unresolved Blocking or Important issue.
+  - Pending acceptance: interactive light/dark and accessibility-size Simulator
+    inspection after the locked macOS host is available.
 - [ ] **TV-UI-014 - Favourites journey and product audit.**
   - Outcome: preserve the existing multiple-station collection and add only the
     missing quick-switch interaction proven useful by code and flow discovery.
@@ -163,7 +172,7 @@
 - [x] **TV-VERIFY-031 - macOS build and tests.** Run `bash scripts/ci.sh` on a
   suitable macOS/Xcode host, including the app and widget targets.
   - Evidence: full CI exited 0 on iPhone 17 simulator; app/widget build succeeded,
-    the post-hardening focused run passed, and all 49 XCTest cases pass.
+    the post-hardening focused run passed, and all 60 XCTest cases pass.
 - [ ] **TV-VERIFY-032 - Product inspection.** Exercise every Phase 2 journey in
   light/dark appearance, accessibility text sizes, and relevant failure states.
 - [ ] **TV-VERIFY-033 - Independent reviews.** Resolve every Blocking/Important

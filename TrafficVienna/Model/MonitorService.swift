@@ -22,11 +22,11 @@ extension Error {
     // User-facing description, with a friendlier note for rate limiting.
     var monitorDisplayMessage: String {
         if self is MonitorApiError {
-            return "Service is busy right now. Please try again in a moment."
+            return String(localized: "Service is busy right now. Please try again in a moment.")
         }
         let nsError = self as NSError
         if nsError.domain == NSURLErrorDomain {
-            return "No connection. Check your internet and try again."
+            return String(localized: "No connection. Check your internet and try again.")
         }
         return nsError.localizedDescription
     }
@@ -47,6 +47,7 @@ actor MonitorService {
 
     private var cache: [Int: CacheEntry] = [:]
     private var inFlight: [Int: Task<MonitorResponse, Error>] = [:]
+    private var trafficInfoCache: (infos: [TrafficInfo], timestamp: Date)?
     // Next moment a network call is allowed to start (for spacing).
     private var nextSlot = Date.distantPast
 
@@ -82,7 +83,15 @@ actor MonitorService {
     }
 
     func trafficInfoList(forceRefresh: Bool = false) async throws -> [TrafficInfo] {
-        try await network.fetchTrafficInfoList().data.trafficInfos ?? []
+        if !forceRefresh,
+           let trafficInfoCache,
+           Date.now.timeIntervalSince(trafficInfoCache.timestamp) < cacheTTL {
+            return trafficInfoCache.infos
+        }
+
+        let infos = try await network.fetchTrafficInfoList().data.trafficInfos ?? []
+        trafficInfoCache = (infos, .now)
+        return infos
     }
 
     // Shares one in-flight request per DIVA across concurrent callers.

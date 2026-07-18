@@ -33,8 +33,8 @@ home-screen widget and Live Activity.
   backoff.
 - `NetworkManager` protocol boundary for network testability.
 - Shared app/widget logic under `TrafficVienna/WidgetShared/`.
-- Xcode project with application and widget extension targets. The repository
-  contains Swift tests, but test-target wiring must be verified on macOS.
+- Xcode project with application, widget extension, and XCTest targets verified
+  on the macOS iPhone 17 simulator.
 
 ## Boundaries
 

@@ -5,37 +5,32 @@ struct FilterChips: View {
     @Binding var selection: LineCategory?
 
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 4) {
-                chip(title: String(localized: "All").uppercased(), category: nil, color: .appAccent)
+        ScrollView(.horizontal) {
+            HStack(spacing: Spacing.xxs) {
+                FilterChip(
+                    title: String(localized: "All").uppercased(),
+                    category: nil,
+                    color: .appAccent,
+                    selection: $selection
+                )
+
                 ForEach(categories) { category in
-                    chip(title: category.rawValue.uppercased(), category: category, color: category.color)
+                    FilterChip(
+                        title: category.rawValue.uppercased(),
+                        category: category,
+                        color: category.color,
+                        selection: $selection
+                    )
                 }
             }
-            .padding(.horizontal)
+            .padding(.horizontal, Spacing.md)
         }
-    }
-
-    private func chip(title: String, category: LineCategory?, color: Color) -> some View {
-        let selected = selection == category
-        return Button {
-            selection = category
-        } label: {
-            Text(title)
-                .font(.caption.weight(.medium))
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(selected ? color : Color.appChipBg, in: Capsule())
-                .foregroundStyle(selected ? .white : .secondary)
-        }
-        .buttonStyle(.plain)
-        .accessibilityAddTraits(selected ? .isSelected : [])
-        .accessibilityLabel(selected ? "\(title), selected" : title)
+        .scrollIndicators(.hidden)
     }
 }
 
 #Preview {
-    @Previewable @State var filter: LineCategory? = nil
+    @Previewable @State var filter: LineCategory?
     FilterChips(categories: [.metro, .tram, .bus, .night, .sbahn], selection: $filter)
         .padding()
 }

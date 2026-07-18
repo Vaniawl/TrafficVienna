@@ -138,6 +138,50 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertFalse(result.data.monitors.isEmpty, "Should return stale cache on error")
     }
 
+    func testTrafficInfoListUsesCache() async throws {
+        let mock = MockNetworkManager()
+        let service = MonitorService(network: mock, cacheTTL: 30)
+
+        _ = try await service.trafficInfoList()
+        _ = try await service.trafficInfoList()
+        let callCount = await mock.callCount
+
+        XCTAssertEqual(callCount, 1)
+    }
+
+    func testTrafficInfoListForceRefreshBypassesCache() async throws {
+        let mock = MockNetworkManager()
+        let service = MonitorService(network: mock, cacheTTL: 30)
+
+        _ = try await service.trafficInfoList()
+        _ = try await service.trafficInfoList(forceRefresh: true)
+        let callCount = await mock.callCount
+
+        XCTAssertEqual(callCount, 2)
+    }
+
+    func testTrafficInfoDecodesFeedCategory() throws {
+        let json = """
+        {
+          "data": {
+            "monitors": [],
+            "trafficInfos": [{
+              "refTrafficInfoCategoryId": 3,
+              "name": "stop-change",
+              "title": "Betrieb ab Hirschengasse",
+              "description": "Haltestelle verlegt",
+              "priority": "1",
+              "relatedLines": ["57A"]
+            }]
+          }
+        }
+        """
+
+        let response = try JSONDecoder().decode(MonitorResponse.self, from: Data(json.utf8))
+
+        XCTAssertEqual(response.data.trafficInfos?.first?.categoryID, 3)
+    }
+
     // MARK: - LineColors
 
     func testLineColorsU1() {
