@@ -1,5 +1,17 @@
 # Decisions
 
+## 2026-07-18 - Search owns a cancellable view model and local catalogue state
+
+Search query state, debouncing, results, retry, and recent-history projection are
+owned by an injectable `SearchViewModel`; the SwiftUI view only renders states and
+routes selected `Station` values. The local `StationStore` exposes a minimal
+loading/loaded/failed state plus reload so a missing or invalid bundled catalogue
+is visible and recoverable instead of silently becoming an empty search.
+
+Filtering remains local and anonymous. Recent station identifiers remain in the
+existing App Group defaults because they are non-sensitive UI history, while the
+store protocol makes ordering, limits, persistence, and clearing testable.
+
 ## 2026-07-18 - Store only a minimal device-local Apple profile
 
 The optional Apple account surface uses `AuthenticationServices` directly. The

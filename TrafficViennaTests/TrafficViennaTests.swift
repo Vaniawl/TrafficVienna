@@ -7,12 +7,9 @@ final class TrafficViennaTests: XCTestCase {
 
     func testLoadStationsNotEmpty() {
         let store = StationStore()
-        let exp = expectation(description: "Stations loaded")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            XCTAssertGreaterThan(store.stations.count, 0)
-            exp.fulfill()
-        }
-        wait(for: [exp], timeout: 5)
+
+        XCTAssertEqual(store.loadState, .loaded)
+        XCTAssertGreaterThan(store.stations.count, 0)
     }
 
     // MARK: - RouteMatching

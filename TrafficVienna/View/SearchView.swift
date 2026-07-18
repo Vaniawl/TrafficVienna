@@ -1,113 +1,87 @@
-//
-//  SearchView.swift
-//  TrafficVienna
-//
-//  "Search" tab: type a stop name, tap a result to open its live departures.
-//  Recently opened stations are offered when the search field is empty.
-//
-
 import SwiftUI
 
 struct SearchView: View {
-    @ObservedObject var store: StationStore
-    @StateObject private var recents = RecentSearchesStore()
-    @State private var query = ""
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @State private var viewModel: SearchViewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private var results: [Station] {
-        guard !query.isEmpty else { return [] }
-        return Array(store.stationsSuggestion(matching: query).prefix(50))
-    }
-
-    private var recentStations: [Station] {
-        recents.ids.compactMap { id in store.stations.first { $0.id == id } }
+    init(
+        store: StationStoring,
+        recentSearches: RecentSearchesStoring = RecentSearchesStore()
+    ) {
+        _viewModel = State(
+            initialValue: SearchViewModel(
+                stationStore: store,
+                recentSearches: recentSearches
+            )
+        )
     }
 
     var body: some View {
+        @Bindable var viewModel = viewModel
+
         Group {
-            if query.isEmpty {
-                if recentStations.isEmpty {
-                    ContentUnavailableView(
-                        "Search for a stop",
-                        systemImage: "magnifyingglass",
-                        description: Text("Enter a station name to see live departures.")
-                    )
-                } else {
-                    recentList
+            switch viewModel.status {
+            case .loadingCatalog, .searching:
+                ProgressView(
+                    viewModel.status == .loadingCatalog
+                        ? "Loading stops…"
+                        : "Searching…"
+                )
+                .controlSize(.large)
+
+            case .unavailable:
+                ContentUnavailableView {
+                    Label("Search unavailable", systemImage: "exclamationmark.magnifyingglass")
+                } description: {
+                    Text("The stop catalogue could not be loaded.")
+                } actions: {
+                    Button("Try again", systemImage: "arrow.clockwise", action: retry)
+                        .buttonStyle(.borderedProminent)
                 }
-            } else if results.isEmpty {
-                ContentUnavailableView.search(text: query)
-            } else {
-                resultList
+
+            case .idle where viewModel.recentStations.isEmpty:
+                ContentUnavailableView(
+                    "Search Vienna",
+                    systemImage: "magnifyingglass",
+                    description: Text("Enter a stop name to see live departures.")
+                )
+
+            case .idle:
+                RecentStationsList(
+                    stations: viewModel.recentStations,
+                    onClear: viewModel.clearRecents
+                )
+
+            case .noResults:
+                ContentUnavailableView.search
+
+            case .results:
+                SearchResultsList(stations: viewModel.results)
             }
         }
         .navigationTitle("Search")
+        .navigationDestination(for: Station.self) { station in
+            StationDetailView(station: station)
+                .onAppear {
+                    viewModel.record(station)
+                }
+        }
         .searchable(
-            text: $query,
+            text: $viewModel.query,
             placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Enter stop name…"
         )
         .scrollDismissesKeyboard(.immediately)
-        .background(Color(.systemBackground))
-    }
-
-    private var resultList: some View {
-        List {
-            ForEach(results) { station in
-                NavigationLink {
-                    StationDetailView(station: station)
-                        .onAppear {
-                            recents.record(station.id)
-                        }
-                } label: {
-                    HStack(spacing: Spacing.sm) {
-                        Image(systemName: "tram.fill")
-                            .foregroundStyle(.secondary)
-                        Text(station.name)
-                            .font(.body)
-                    }
-                    .padding(.vertical, Spacing.xs)
-                }
-            }
+        .background(DesignColor.background)
+        .animation(reduceMotion ? nil : .snappy, value: viewModel.status)
+        .task(id: viewModel.query) {
+            await viewModel.updateSearch()
         }
-        .listStyle(.plain)
     }
 
-    private var recentList: some View {
-        List {
-            Section {
-                ForEach(recentStations) { station in
-                    stationLink(station, icon: "clock.arrow.circlepath")
-                }
-            } header: {
-                HStack {
-                    Text("Recent")
-                        .font(.headline)
-                    Spacer()
-                    Button("Clear") { recents.clear() }
-                        .font(.caption)
-                        .textCase(nil)
-                }
-                .padding(.vertical, Spacing.xs)
-            }
-        }
-        .listStyle(.insetGrouped)
-    }
-
-    private func stationLink(_ station: Station, icon: String = "tram.fill") -> some View {
-        NavigationLink {
-            StationDetailView(station: station)
-                .onAppear {
-                    recents.record(station.id)
-                }
-        } label: {
-            HStack(spacing: Spacing.sm) {
-                Image(systemName: icon)
-                    .foregroundStyle(.secondary)
-                Text(station.name)
-                    .font(.body)
-            }
-            .padding(.vertical, Spacing.xs)
+    private func retry() {
+        Task {
+            await viewModel.retry()
         }
     }
 }

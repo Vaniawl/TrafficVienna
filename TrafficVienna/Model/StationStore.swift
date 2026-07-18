@@ -14,7 +14,7 @@ private let log = Logger(subsystem: "at.wellbe.TrafficVienna", category: "store"
 
 
 // data  will be downloadedd from json file
-nonisolated struct Station: Decodable, Identifiable { // describes ONE station
+nonisolated struct Station: Decodable, Identifiable, Hashable, Sendable { // describes ONE station
     let id: Int
     let diva: Int?
     let name: String
@@ -33,8 +33,10 @@ nonisolated struct Station: Decodable, Identifiable { // describes ONE station
 
 protocol StationStoring {
     var stations: [Station] { get }     // All known stations loaded from the JSON dataset
+    var loadState: StationCatalogState { get }
     func diva(forExact name: String) -> Int?
     func stationsSuggestion(matching query: String) -> [Station]
+    func reload()
     func stations(
         near location: CLLocation,
         radiusInMeters radius: Double
@@ -46,16 +48,25 @@ protocol StationStoring {
 final class StationStore: ObservableObject ,StationStoring {
     // All stations from the Wiener Linien JSON
     @Published private(set) var stations: [Station] = []
+    @Published private(set) var loadState: StationCatalogState = .loading
     
     init() {
         loadStations()
     }
 
+    func reload() {
+        loadStations()
+    }
+
     private func loadStations() {
+        loadState = .loading
+
         guard let url = Bundle.main.url(
             forResource: "wienerlinien-ogd-haltestellen",
             withExtension: "json"
         ) else {
+            stations = []
+            loadState = .failed
             log.error("JSON file NOT FOUND")
             return
         }
@@ -64,8 +75,11 @@ final class StationStore: ObservableObject ,StationStoring {
             let data = try Data(contentsOf: url)
             let decoded = try JSONDecoder().decode([Station].self, from: data)
             stations = decoded
+            loadState = .loaded
             log.debug("Loaded \(decoded.count) stations")
         } catch {
+            stations = []
+            loadState = .failed
             log.error("Failed to load stations: \(error, privacy: .public)")
         }
     }
@@ -84,7 +98,7 @@ final class StationStore: ObservableObject ,StationStoring {
     // Normalizes a string for station name matching
     private func normalize(_ s: String) -> String {
         s.folding(options: .diacriticInsensitive, locale: .current)
-         .replacingOccurrences(of: "ß", with: "ss")
+         .replacing("ß", with: "ss")
          .lowercased()
          .trimmingCharacters(in: .whitespacesAndNewlines)
     }
@@ -96,7 +110,7 @@ final class StationStore: ObservableObject ,StationStoring {
         guard !q.isEmpty else { return [] }
         
         return stations.filter { station in
-            normalize(station.name).contains(q)
+            normalize(station.name).localizedStandardContains(q)
         }
     }
     

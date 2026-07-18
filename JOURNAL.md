@@ -1,5 +1,24 @@
 # Journal
 
+## 2026-07-18 - Search journey state, cancellation, and recent-history refactor
+
+- Extracted Search business state from the SwiftUI view into an observable,
+  injectable `SearchViewModel`. Search now has explicit catalogue loading,
+  searching, idle, results, no-results, and unavailable states.
+- Added cancellable debouncing through `.task(id:)`, a real retry path for local
+  catalogue failures, a 50-result cap, trimmed and localised matching, and modern
+  value-based navigation to station detail.
+- Refactored recent history behind an injectable store, fixed standard-defaults
+  fallback restoration, preserved unique most-recent ordering, and added clear
+  behaviour. Result and recent rows now share one accessible, Dynamic-Type row.
+- Added German strings and nine focused tests for query state, cancellation,
+  retry, failure initialization, result limits, recent ordering, persistence,
+  and clearing. Final full CI built app/widget without warnings, passed all 43
+  XCTest cases, and ended `[ci] OK`.
+- `swiftui-pro` source review found no remaining issue in the changed Search
+  files. Interactive Simulator inspection was attempted but macOS remained
+  locked, so TV-UI-011 visual acceptance and TV-VERIFY-032 remain open.
+
 ## 2026-07-18 - Native Apple account slice and secure lifecycle coverage
 
 - Added an optional account surface from Favourites using the native Sign in

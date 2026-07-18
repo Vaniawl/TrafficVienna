@@ -1,5 +1,18 @@
 # Architectural Decisions
 
+## 2026-07-18 — Search state belongs outside SwiftUI layout
+
+**Context:** Search mixed local filtering, recent persistence, navigation, and
+all rendering branches inside one view and silently treated catalogue failure as
+no results.
+
+**Decision:** Use an injectable observable Search view model and expose minimal
+load/reload state from the local station catalogue. Keep filtering and recent
+station history device-local.
+
+**Consequences:** Debounce cancellation, retry, failure, result limits, and
+recent ordering are independently testable without changing transport APIs.
+
 ## 2026-07-18 — Device-local Apple profile, not a server session
 
 **Context:** Native Apple authentication can establish an Apple credential on

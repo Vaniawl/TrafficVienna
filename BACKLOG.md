@@ -62,6 +62,12 @@
   - Dependencies: TV-UI-002.
   - Acceptance: search, cancellation, selection, retry, and empty result work.
   - Validation: focused tests plus simulator inspection.
+  - Completed implementation: explicit idle/loading/searching/results/no-results/
+    unavailable states, cancellable debounce, catalogue retry, modern value
+    navigation, accessible rows, recent persistence/clear, and German strings.
+  - Evidence: nine focused tests and full CI pass; total XCTest count is 43.
+  - Pending acceptance: interactive light/dark and accessibility-size Simulator
+    inspection after the locked macOS host is available.
 - [ ] **TV-UI-012 - Map journey.**
   - Outcome: stations, selection, and navigation remain readable without visual
     clutter or redundant requests.
@@ -149,7 +155,7 @@
 - [x] **TV-VERIFY-031 - macOS build and tests.** Run `bash scripts/ci.sh` on a
   suitable macOS/Xcode host, including the app and widget targets.
   - Evidence: full CI exited 0 on iPhone 17 simulator; app/widget build succeeded,
-    the post-hardening focused run passed, and all 35 XCTest cases pass.
+    the post-hardening focused run passed, and all 43 XCTest cases pass.
 - [ ] **TV-VERIFY-032 - Product inspection.** Exercise every Phase 2 journey in
   light/dark appearance, accessibility text sizes, and relevant failure states.
 - [ ] **TV-VERIFY-033 - Independent reviews.** Resolve every Blocking/Important

@@ -1,5 +1,14 @@
 # Journal
 
+## 2026-07-18 — Search journey refactor
+
+- Added an injectable observable Search view model with explicit idle/loading,
+  results, no-results, unavailable, retry, and cancellable debounce behaviour.
+- Modernised station navigation and accessible result/recent rows; recent IDs now
+  have tested unique ordering, persistence, limits, and clear behaviour.
+- Full CI passed with app/widget build, zero warnings, and 43 XCTest cases.
+- Simulator interaction remains pending because the host Mac was locked.
+
 ## 2026-07-18 — Native Apple account slice
 
 - Added optional native Sign in with Apple from Favourites while preserving

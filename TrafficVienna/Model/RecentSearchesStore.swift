@@ -1,26 +1,30 @@
 import Foundation
-import Combine
 import OSLog
 
 private let log = Logger(subsystem: "at.wellbe.TrafficVienna", category: "store")
 
-final class RecentSearchesStore: ObservableObject {
-    @Published private(set) var ids: [Int] = []
+final class RecentSearchesStore: RecentSearchesStoring {
+    private(set) var ids: [Int] = []
 
-    private let key = "recent_search_ids"
-    private let maxCount = 8
+    private let key: String
+    private let maxCount: Int
     private let defaults: UserDefaults
 
-    init() {
+    init(
+        defaults: UserDefaults? = UserDefaults(suiteName: "group.wellbe.TrafficVienna"),
+        key: String = "recent_search_ids",
+        maxCount: Int = 8
+    ) {
         let groupID = "group.wellbe.TrafficVienna"
-        guard let store = UserDefaults(suiteName: groupID) else {
+        if let defaults {
+            self.defaults = defaults
+        } else {
             log.error("RecentSearchesStore: App Group \(groupID) unavailable, falling back to standard")
-            defaults = .standard
-            ids = []
-            return
+            self.defaults = .standard
         }
-        defaults = store
-        ids = store.array(forKey: key) as? [Int] ?? []
+        self.key = key
+        self.maxCount = maxCount
+        ids = self.defaults.array(forKey: key) as? [Int] ?? []
     }
 
     func record(_ id: Int) {
