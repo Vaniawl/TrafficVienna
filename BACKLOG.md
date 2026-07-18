@@ -137,7 +137,16 @@
   - Dependencies: TV-UI-002.
   - Acceptance: no old visual tokens, hard-coded user strings, or inaccessible
     controls remain in active secondary flows.
-  - Validation: source review, widget build, simulator inspection.
+  - Completed implementation: onboarding and About use the shared adaptive
+    design tokens and Dynamic Type; onboarding scrolls at accessibility sizes;
+    the app and widget share one deterministic favourite-route model; the widget
+    renders the decoded station name, uses safe relative dates, and has a complete
+    embedded German catalogue.
+  - Evidence: focused route-order regression, localisation/build inspection,
+    warning-free full CI, and 75 passing XCTest cases. Security review found no
+    unresolved Blocking or Important issue.
+  - Pending acceptance: interactive onboarding/account/About/widget inspection
+    after the locked macOS host is available.
 
 - [ ] **TV-UI-017 - Optional account access.**
   - Outcome: anonymous use plus native Apple and email account entry with secure

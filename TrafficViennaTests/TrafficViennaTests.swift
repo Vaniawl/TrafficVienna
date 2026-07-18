@@ -219,6 +219,15 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(decoded.lineName, "U1")
         XCTAssertEqual(decoded.departures, [2, 5, 12])
     }
+
+    func testFavoriteRouteOrderIsSharedAndDeterministic() {
+        let routes = [
+            FavoriteRoute(diva: "2", lineName: "U4", destination: "Heiligenstadt"),
+            FavoriteRoute(diva: "1", lineName: "U1", destination: "Leopoldau"),
+        ]
+
+        XCTAssertEqual(routes.sorted().map(\.lineName), ["U1", "U4"])
+    }
 }
 
 // MARK: - Mock Network Manager

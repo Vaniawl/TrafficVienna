@@ -7,13 +7,6 @@
 
 import Foundation
 
-// describes one users favotite route
-nonisolated struct FavoriteRoute: Codable, Hashable {
-    let diva: String
-    let lineName: String
-    let destination: String
-}
-
 protocol FavoritesRepository: Sendable {
     func isFavorite(diva: String, lineName: String, destination: String) -> Bool
     func toggle(diva: String, lineName: String, destination: String)
@@ -82,5 +75,4 @@ nonisolated final class UserDefaultsFavoritesRepository: FavoritesRepository {
         save([])
     }
 }
-
 

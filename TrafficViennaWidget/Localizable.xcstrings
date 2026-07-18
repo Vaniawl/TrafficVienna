@@ -1,0 +1,17 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Departures" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrten" } } } },
+    "Live departures for your favourite lines." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Live-Abfahrten für deine bevorzugten Linien." } } } },
+    "No favourites yet" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Noch keine Favoriten" } } } },
+    "Refresh" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktualisieren" } } } },
+    "Refresh Favorites" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Favoriten aktualisieren" } } } },
+    "Request the widget to refresh its data." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Fordert das Widget auf, seine Daten zu aktualisieren." } } } },
+    "Tap the heart on a line in the app." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Tippe in der App bei einer Linie auf das Herz." } } } },
+    "Updated %@" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktualisiert %@" } } } },
+    "min" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Min." } } } },
+    "now" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "jetzt" } } } },
+    "to departure" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "bis zur Abfahrt" } } } }
+  },
+  "version" : "1.0"
+}

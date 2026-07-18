@@ -58,6 +58,7 @@
 			membershipExceptions = (
 				Model/WidgetSync.swift,
 				WidgetShared/DepartureActivityAttributes.swift,
+				WidgetShared/FavoriteRoute.swift,
 				WidgetShared/LineColors.swift,
 				WidgetShared/RouteMatching.swift,
 				WidgetShared/WidgetSharedModel.swift,

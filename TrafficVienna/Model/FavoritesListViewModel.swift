@@ -46,7 +46,7 @@ final class FavoritesListViewModel {
 
     func loadFavorites(forceRefresh: Bool = false) async {
         guard !isLoading else { return }
-        let routes = favoritesRepo.getAll().sorted(by: Self.routeOrder)
+        let routes = favoritesRepo.getAll().sorted()
         guard !routes.isEmpty else {
             items = []
             syncWidget()
@@ -137,12 +137,5 @@ final class FavoritesListViewModel {
                 )
             }
         widgetSync.save(Array(widgetItems))
-    }
-
-    private static func routeOrder(_ lhs: FavoriteRoute, _ rhs: FavoriteRoute) -> Bool {
-        if lhs.lineName != rhs.lineName {
-            return lhs.lineName.localizedStandardCompare(rhs.lineName) == .orderedAscending
-        }
-        return lhs.destination.localizedStandardCompare(rhs.destination) == .orderedAscending
     }
 }

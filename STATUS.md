@@ -4,10 +4,11 @@
 - Workspace: `/Users/ivandovhosheia/Swift/TrafficVienna`
 - Stack: native SwiftUI iOS application and widget extension.
 - Current phase: unified design/onboarding, native Apple account, Search, Map,
-  Alerts, Favourites, and Station Detail implementation slices complete; continue visual inspection,
-  remaining journey polish, and email account integration.
+  Alerts, Favourites, Station Detail, and secondary-surface implementation slices
+  complete; continue visual inspection, remaining resilience work, and email
+  account integration.
 - Verified: app and widget build successfully on iPhone 17 simulator with zero
-  warnings; the restored test target runs 74 passing XCTest cases.
+  warnings; the restored test target runs 75 passing XCTest cases.
 - Verified CI: repository/OpenCode/reliability checks, build, tests, and diff
   validation completed with `[ci] OK`.
 - Verified visually: the new onboarding renders correctly in system light and
@@ -31,8 +32,12 @@
 - Verified Station Detail: deterministic merged departures, filters, stale refresh,
   alert navigation, favourites, and Live Activity feedback pass focused tests;
   station visits no longer overwrite the favourites widget. Visual acceptance is open.
+- Verified secondary surfaces: onboarding/About use shared adaptive tokens and
+  Dynamic Type, favourite-route ordering is shared by app and widget, the widget
+  shows decoded station names, and app/widget German catalogues are complete.
+  Interactive acceptance is open because macOS remains locked.
 - Remaining work: select and configure an email identity provider, verify the
   physical-device provisioning capability, and complete remaining journey and
   accessibility inspection.
-- Next action: complete onboarding/settings/widget secondary surfaces while visual
-  inspection waits for an unlocked host; email still needs a real provider choice.
+- Next action: continue the refresh/network lifecycle audit while visual inspection
+  waits for an unlocked host; email still needs a real provider choice.

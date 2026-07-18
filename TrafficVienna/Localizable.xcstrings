@@ -710,15 +710,9 @@
         }
       }
     },
-    "Allow location" : {
-
-    },
-    "Allow location access in Settings to see stops near you." : {
-
-    },
-    "Allow location access to see live departures around you." : {
-
-    },
+    "Allow location" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Standort erlauben" } } } },
+    "Allow location access in Settings to see stops near you." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Erlaube den Standortzugriff in den Einstellungen, um Haltestellen in deiner Nähe zu sehen." } } } },
+    "Allow location access to see live departures around you." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Erlaube den Standortzugriff, um Live-Abfahrten in deiner Nähe zu sehen." } } } },
     "Clear" : {
       "localizations" : {
         "de" : {
@@ -729,9 +723,7 @@
         }
       }
     },
-    "Couldn't load departures" : {
-
-    },
+    "Couldn't load departures" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrten konnten nicht geladen werden" } } } },
     "Couldn’t load departures" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -743,9 +735,7 @@
         }
       }
     },
-    "Couldn't load departures. Try again." : {
-
-    },
+    "Couldn't load departures. Try again." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrten konnten nicht geladen werden. Versuche es erneut." } } } },
     "Data" : {
       "localizations" : {
         "de" : {
@@ -826,9 +816,7 @@
         }
       }
     },
-    "Error" : {
-
-    },
+    "Error" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Fehler" } } } },
     "Favourites" : {
       "localizations" : {
         "de" : {
@@ -839,12 +827,8 @@
         }
       }
     },
-    "Filter" : {
-
-    },
-    "Find stops near you" : {
-
-    },
+    "Filter" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Filtern" } } } },
+    "Find stops near you" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Haltestellen in deiner Nähe finden" } } } },
     "Get started" : {
       "localizations" : {
         "de" : {
@@ -865,15 +849,19 @@
         }
       }
     },
-    "Line %@" : {
-
-    },
+    "Line %@" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Linie %@" } } } },
     "Line %@ to %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "Line %1$@ to %2$@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Linie %1$@ nach %2$@"
           }
         }
       }
@@ -888,9 +876,7 @@
         }
       }
     },
-    "Live departures, wherever you are." : {
-
-    },
+    "Live departures, wherever you are." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Live-Abfahrten, wo immer du bist." } } } },
     "Live Wiener Linien departures, wherever you are." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -902,12 +888,8 @@
         }
       }
     },
-    "Loading stations" : {
-
-    },
-    "Loading..." : {
-
-    },
+    "Loading stations" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Stationen werden geladen" } } } },
+    "Loading..." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Wird geladen..." } } } },
     "Loading…" : {
       "localizations" : {
         "de" : {
@@ -918,9 +900,7 @@
         }
       }
     },
-    "Locating you" : {
-
-    },
+    "Locating you" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Standort wird ermittelt" } } } },
     "Locating you…" : {
       "localizations" : {
         "de" : {
@@ -931,15 +911,9 @@
         }
       }
     },
-    "Location access denied" : {
-
-    },
-    "Location is off" : {
-
-    },
-    "Location permission needed" : {
-
-    },
+    "Location access denied" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Standortzugriff verweigert" } } } },
+    "Location is off" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Standort ist deaktiviert" } } } },
+    "Location permission needed" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Standortfreigabe erforderlich" } } } },
     "Map" : {
       "localizations" : {
         "de" : {
@@ -970,9 +944,7 @@
         }
       }
     },
-    "Nearby stations" : {
-
-    },
+    "Nearby stations" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Stationen in der Nähe" } } } },
     "No departures" : {
       "localizations" : {
         "de" : {
@@ -993,12 +965,8 @@
         }
       }
     },
-    "No live data for this stop" : {
-
-    },
-    "No stops nearby" : {
-
-    },
+    "No live data for this stop" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Keine Live-Daten für diese Haltestelle" } } } },
+    "No stops nearby" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Keine Haltestellen in der Nähe" } } } },
     "Nothing scheduled right now." : {
       "localizations" : {
         "de" : {
@@ -1019,15 +987,9 @@
         }
       }
     },
-    "Offline" : {
-
-    },
-    "Open in Maps" : {
-
-    },
-    "Open Settings" : {
-
-    },
+    "Offline" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Offline" } } } },
+    "Open in Maps" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "In Karten öffnen" } } } },
+    "Open Settings" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Einstellungen öffnen" } } } },
     "Provider" : {
       "localizations" : {
         "de" : {
@@ -1048,9 +1010,7 @@
         }
       }
     },
-    "Refresh" : {
-
-    },
+    "Refresh" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktualisieren" } } } },
     "Refresh alerts" : {
       "localizations" : {
         "de" : {
@@ -1071,9 +1031,7 @@
         }
       }
     },
-    "Refreshing departures" : {
-
-    },
+    "Refreshing departures" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrten werden aktualisiert" } } } },
     "Remove" : {
       "localizations" : {
         "de" : {
@@ -1114,9 +1072,7 @@
         }
       }
     },
-    "Retry" : {
-
-    },
+    "Retry" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Erneut versuchen" } } } },
     "Save %@ to favourites" : {
       "localizations" : {
         "de" : {
@@ -1187,9 +1143,7 @@
         }
       }
     },
-    "Showing Vienna centre — enable location to see stops near you." : {
-
-    },
+    "Showing Vienna centre — enable location to see stops near you." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Wien Zentrum wird angezeigt — aktiviere den Standort für Haltestellen in deiner Nähe." } } } },
     "Source" : {
       "localizations" : {
         "de" : {
@@ -1217,6 +1171,12 @@
             "state" : "new",
             "value" : "Station %1$@, %2$@"
           }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Station %1$@, %2$@"
+          }
         }
       }
     },
@@ -1230,9 +1190,7 @@
         }
       }
     },
-    "There are no stations within 500 meters." : {
-
-    },
+    "There are no stations within 500 meters." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Im Umkreis von 500 Metern gibt es keine Stationen." } } } },
     "Track on Lock Screen" : {
       "localizations" : {
         "de" : {
@@ -1433,9 +1391,7 @@
         }
       }
     },
-    "Walking distance" : {
-
-    }
+    "Walking distance" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Gehzeit" } } } }
   },
   "version" : "1.0"
 }

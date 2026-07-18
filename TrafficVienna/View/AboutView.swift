@@ -21,22 +21,25 @@ struct AboutView: View {
         NavigationStack {
             List {
                 Section {
-                    VStack(spacing: 12) {
-                        RoundedRectangle(cornerRadius: 18, style: .continuous)
-                            .fill(Color(hex: 0xE20917))
+                    VStack(spacing: Spacing.md) {
+                        RoundedRectangle(cornerRadius: CornerRadius.lg)
+                            .fill(Color.appAccent)
                             .frame(width: 72, height: 72)
-                            .overlay(
+                            .overlay {
                                 Image(systemName: "tram.fill")
-                                    .font(.system(size: 34, weight: .semibold))
+                                    .font(.title)
+                                    .bold()
                                     .foregroundStyle(.white)
-                            )
-                        Text("Traffic Vienna").font(.title2.weight(.semibold))
+                            }
+                        Text("Traffic Vienna")
+                            .font(.title2)
+                            .bold()
                         Text("Version \(version)")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
+                    .padding(.vertical, Spacing.sm)
                     .listRowBackground(Color.clear)
                 }
 
@@ -44,8 +47,10 @@ struct AboutView: View {
                     LabeledContent("Source", value: "Wiener Linien")
                     LabeledContent("Provider", value: "Stadt Wien")
                     LabeledContent("Licence", value: "CC BY 4.0")
-                    Link(destination: URL(string: "https://www.data.gv.at")!) {
-                        Label("data.gv.at", systemImage: "safari")
+                    if let dataSourceURL = URL(string: "https://www.data.gv.at") {
+                        Link(destination: dataSourceURL) {
+                            Label("data.gv.at", systemImage: "safari")
+                        }
                     }
                 }
 

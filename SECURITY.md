@@ -22,6 +22,10 @@
   system-managed Lock Screen content, and start failures are shown without logging.
 - The App Group identifier `group.wellbe.TrafficVienna` is used exclusively by this app.
 - The widget extension shares only the data required for widget behaviour.
+- Widget refreshes use only the fixed Wiener Linien HTTPS endpoint and validate
+  the stored stop identifier as an integer before requesting. Decoded station
+  titles and favourite routes remain plain local App Group data; no HTML, token,
+  credential, or new network destination was introduced by the widget polish.
 - Optional Apple account entry crosses the native `AuthenticationServices` trust
   boundary. Only Apple user ID, display name, email, and provider are retained in
   device-only Keychain storage; tokens and authorization codes are not retained

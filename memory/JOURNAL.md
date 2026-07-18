@@ -1,5 +1,18 @@
 # Journal
 
+## 2026-07-18 — Onboarding, About, and widget secondary surfaces
+
+- Unified onboarding and About with the adaptive design system, scalable text,
+  reduced-motion behaviour, and scrollable accessibility-size layouts.
+- Moved `FavoriteRoute` into shared app/widget code with deterministic ordering;
+  the widget now decodes and displays the actual station name instead of its DIVA
+  identifier and uses safe relative-date rendering.
+- Added an embedded German widget catalogue and completed missing German app
+  strings. Full CI passed with zero warnings and 75 XCTest cases; security review
+  found no unresolved Blocking or Important issue.
+- Interactive secondary-surface inspection remains pending because the macOS host
+  was still locked; no unlock attempt or permission choice was made.
+
 ## 2026-07-18 — Station Detail journey and widget ownership fix
 
 - Rebuilt Station Detail around explicit loading/loaded/empty/failure and

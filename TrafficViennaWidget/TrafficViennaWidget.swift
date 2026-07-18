@@ -22,19 +22,14 @@ private let widgetDataKey = "widget_departure"
 private let widgetLastUpdatedKey = "widget_last_updated"
 private let widgetLastFetchAttemptKey = "widget_last_fetch_attempt"
 
-// Local copy of favorites model stored in App Group
-private struct FavoriteRoute: Codable, Hashable {
-    let diva: String
-    let lineName: String
-    let destination: String
-}
-
 private let favoritesKey = "favorite_routes"
 
 // DTOs for decoding monitor response inside the widget target
 private struct MonitorResponse: Decodable { let data: DataBlock }
 private struct DataBlock: Decodable { let monitors: [Monitor] }
-private struct Monitor: Decodable { let lines: [Lines] }
+private struct Monitor: Decodable { let locationStop: LocationStop?; let lines: [Lines] }
+private struct LocationStop: Decodable { let properties: StopProperties }
+private struct StopProperties: Decodable { let title: String }
 private struct Lines: Decodable { let name: String; let towards: String; let departures: Departures }
 private struct Departures: Decodable { let departure: [Departure] }
 private struct Departure: Decodable { let departureTime: DepartureTime }
@@ -57,7 +52,7 @@ private func loadFavoritesFromDefaults() -> [FavoriteRoute] {
     guard let data = defaults?.data(forKey: favoritesKey),
           let decoded = try? JSONDecoder().decode(Set<FavoriteRoute>.self, from: data)
     else { return [] }
-    return Array(decoded)
+    return decoded.sorted()
 }
 
 struct Provider: AppIntentTimelineProvider {
@@ -69,7 +64,7 @@ struct Provider: AppIntentTimelineProvider {
                 WidgetDepartureData(lineName: "U1", stopName: "Stephansplatz", destination: "Leopoldau", departures: [2,7,12]),
                 WidgetDepartureData(lineName: "O", stopName: "Praterstern", destination: "Migerka", departures: [3,9,14])
             ],
-            lastUpdated: Date()
+            lastUpdated: .now
         )
     }
 
@@ -84,7 +79,7 @@ struct Provider: AppIntentTimelineProvider {
 
     func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
         let defaults = UserDefaults(suiteName: appGroupID)
-        let now = Date()
+        let now = Date.now
         let lastAttempt = defaults?.object(forKey: widgetLastFetchAttemptKey) as? Date ?? .distantPast
         let canFetch = now.timeIntervalSince(lastAttempt) >= 60
 
@@ -100,7 +95,8 @@ struct Provider: AppIntentTimelineProvider {
         }
 
         let entry = SimpleEntry(date: now, items: items, lastUpdated: lastUpdated)
-        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 1, to: now)!
+        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 1, to: now)
+            ?? now.addingTimeInterval(60)
         return Timeline(entries: [entry], policy: .after(nextUpdate))
     }
 
@@ -160,7 +156,8 @@ struct Provider: AppIntentTimelineProvider {
 
         let minutes = line.departures.departure.map { $0.departureTime.countdown }
         let top = Array(minutes.prefix(3))
-        return WidgetDepartureData(lineName: fav.lineName, stopName: fav.diva, destination: fav.destination, departures: top)
+        let stopName = monitors.first?.locationStop?.properties.title ?? fav.diva
+        return WidgetDepartureData(lineName: fav.lineName, stopName: stopName, destination: fav.destination, departures: top)
     }
 }
 
@@ -202,7 +199,7 @@ struct TrafficViennaWidgetEntryView: View {
             Text("No favourites yet")
                 .font(.subheadline.weight(.medium))
             Text("Tap the heart on a line in the app.")
-                .font(.caption2)
+                .font(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
         }
@@ -228,15 +225,17 @@ struct TrafficViennaWidgetEntryView: View {
 
             HStack(alignment: .firstTextBaseline, spacing: 3) {
                 Text(item.departures.first.map(timeString) ?? "–")
-                    .font(.system(size: 34, weight: .semibold))
+                    .font(.title)
+                    .bold()
                     .monospacedDigit()
                 if let first = item.departures.first, first > 0 {
                     Text("min").font(.caption).foregroundStyle(.secondary)
                 }
             }
             if item.departures.count > 1 {
-                Text("then " + item.departures.dropFirst().prefix(2).map { "\($0)" }.joined(separator: ", ") + " min")
-                    .font(.caption2)
+                let following = item.departures.dropFirst().prefix(2).map(String.init).joined(separator: ", ")
+                Text("\(following) min")
+                    .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
@@ -257,7 +256,8 @@ struct TrafficViennaWidgetEntryView: View {
             ForEach(entry.items.prefix(3).indices, id: \.self) { idx in
                 row(entry.items[idx])
                 if idx != min(2, entry.items.count - 1) {
-                    Divider().opacity(0.25)
+                    Divider()
+                        .foregroundStyle(.tertiary)
                 }
             }
             Spacer(minLength: 0)
@@ -277,7 +277,7 @@ struct TrafficViennaWidgetEntryView: View {
                     .font(.headline)
                     .monospacedDigit()
                 if let first = item.departures.first, first > 0 {
-                    Text("min").font(.caption2).foregroundStyle(.secondary)
+                    Text("min").font(.caption).foregroundStyle(.secondary)
                 }
             }
             if item.departures.count > 1 {
@@ -294,7 +294,7 @@ struct TrafficViennaWidgetEntryView: View {
 
     private var refreshButton: some View {
         Button(intent: RefreshFavoritesIntent()) {
-            Image(systemName: "arrow.clockwise").font(.caption2)
+            Image(systemName: "arrow.clockwise").font(.caption)
         }
         .buttonStyle(.plain)
         .foregroundStyle(.secondary)
@@ -304,8 +304,8 @@ struct TrafficViennaWidgetEntryView: View {
     @ViewBuilder
     private var updatedLabel: some View {
         if let last = entry.lastUpdated {
-            Text(relativeUpdatedString(since: last))
-                .font(.caption2)
+            Text("Updated \(last, style: .relative)")
+                .font(.caption)
                 .foregroundStyle(.tertiary)
         }
     }
@@ -314,11 +314,6 @@ struct TrafficViennaWidgetEntryView: View {
         minutes <= 0 ? "now" : "\(minutes)"
     }
 
-    private func relativeUpdatedString(since date: Date) -> String {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .short
-        return "Updated \(formatter.localizedString(for: date, relativeTo: .now))"
-    }
 }
 
 // Widget setup
@@ -339,7 +334,7 @@ struct TrafficViennaWidget: Widget {
 // MARK: - Live Activity (Lock Screen + Dynamic Island)
 
 private func clampedRange(to end: Date) -> ClosedRange<Date> {
-    let now = Date()
+    let now = Date.now
     return now ... max(end, now.addingTimeInterval(1))
 }
 
@@ -359,11 +354,11 @@ struct DepartureLiveActivity: Widget {
                         .monospacedDigit()
                         .multilineTextAlignment(.trailing)
                         .frame(width: 78)
-                    Text("to departure").font(.caption2).foregroundStyle(.secondary)
+                    Text("to departure").font(.caption).foregroundStyle(.secondary)
                 }
             }
             .padding()
-            .activityBackgroundTint(Color(hex: 0x15171C))
+            .activityBackgroundTint(.black)
             .activitySystemActionForegroundColor(.white)
         } dynamicIsland: { context in
             DynamicIsland {
@@ -406,11 +401,11 @@ private let previewItems = [
 #Preview(as: .systemSmall) {
     TrafficViennaWidget()
 } timeline: {
-    SimpleEntry(date: .now, items: previewItems, lastUpdated: Date())
+    SimpleEntry(date: .now, items: previewItems, lastUpdated: .now)
 }
 
 #Preview(as: .systemMedium) {
     TrafficViennaWidget()
 } timeline: {
-    SimpleEntry(date: .now, items: previewItems, lastUpdated: Date())
+    SimpleEntry(date: .now, items: previewItems, lastUpdated: .now)
 }
