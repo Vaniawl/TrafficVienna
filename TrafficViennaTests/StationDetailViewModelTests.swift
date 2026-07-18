@@ -74,6 +74,22 @@ final class StationDetailViewModelTests: XCTestCase {
         XCTAssertFalse(viewModel.isLoadingRequest)
     }
 
+    func testStaleSnapshotKeepsOriginalTimestampAndShowsSavedDataNotice() async {
+        let updatedAt = Date(timeIntervalSince1970: 1_700_000_000)
+        let monitor = DetailMonitorProvider(
+            result: .success(responseWithMergedU1()),
+            isStale: true,
+            updatedAt: updatedAt
+        )
+        let viewModel = makeViewModel(service: monitor)
+
+        await viewModel.load(forceRefresh: true)
+
+        XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertEqual(viewModel.lastUpdated, updatedAt)
+        XCTAssertNotNil(viewModel.refreshErrorMessage)
+    }
+
     func testStationAndRouteFavouritesUseExistingRepositories() async {
         let stations = DetailStationsRepository()
         let routes = DetailRoutesRepository()
@@ -174,14 +190,30 @@ private enum DetailTestError: Error { case failed }
 private actor DetailMonitorProvider: MonitorProviding {
     private var result: Result<MonitorResponse, Error>
     private let delay: Duration
-    init(result: Result<MonitorResponse, Error>, delay: Duration = .zero) {
+    private let isStale: Bool
+    private let updatedAt: Date
+    init(
+        result: Result<MonitorResponse, Error>,
+        delay: Duration = .zero,
+        isStale: Bool = false,
+        updatedAt: Date = .now
+    ) {
         self.result = result
         self.delay = delay
+        self.isStale = isStale
+        self.updatedAt = updatedAt
     }
     func setResult(_ result: Result<MonitorResponse, Error>) { self.result = result }
     func monitor(diva: Int, forceRefresh: Bool) async throws -> MonitorResponse {
         if delay != .zero { try? await Task.sleep(for: delay) }
         return try result.get()
+    }
+    func monitorSnapshot(diva: Int, forceRefresh: Bool) async throws -> MonitorSnapshot {
+        MonitorSnapshot(
+            response: try await monitor(diva: diva, forceRefresh: forceRefresh),
+            updatedAt: updatedAt,
+            isStale: isStale
+        )
     }
 }
 

@@ -89,8 +89,8 @@ final class FavoritesListViewModel {
         }
 
         do {
-            let response = try await service.monitor(diva: diva, forceRefresh: forceRefresh)
-            guard let line = response.data.monitors
+            let snapshot = try await service.monitorSnapshot(diva: diva, forceRefresh: forceRefresh)
+            guard let line = snapshot.response.data.monitors
                 .flatMap(\.lines)
                 .first(where: {
                     RouteMatching.matches(
@@ -114,9 +114,9 @@ final class FavoritesListViewModel {
             }
             return FavoriteWithDeparture(
                 route: favorite,
-                stopName: response.data.monitors.first?.locationStop.properties.title ?? "",
+                stopName: snapshot.response.data.monitors.first?.locationStop.properties.title ?? "",
                 departures: departures,
-                state: .available
+                state: snapshot.isStale ? .cached : .available
             )
         } catch {
             return unavailableItem(for: favorite)
@@ -129,7 +129,7 @@ final class FavoritesListViewModel {
 
     private func syncWidget() {
         let widgetItems = items
-            .filter { $0.state == .available }
+            .filter { $0.state != .unavailable }
             .prefix(3)
             .map { favorite in
                 WidgetDepartureData(

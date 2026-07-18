@@ -1,5 +1,21 @@
 # Architectural Decisions
 
+## 2026-07-18 — Cached transport data carries freshness provenance
+
+**Context:** `MonitorService` could correctly retain usable data during a temporary
+outage, but callers received a bare response and rendered it as newly refreshed.
+Wall-clock sleeps also made throttle/backoff behaviour impractical to prove.
+
+**Decision:** Return freshness-aware snapshots at the service protocol boundary,
+including the last successful timestamp and stale flag, while keeping compatibility
+methods for response-only callers. Drive request time through an injected scheduler
+and label stale values with text and an icon in every live-departure journey.
+
+**Consequences:** Saved data remains useful without masquerading as live, favourite
+widget content survives a temporary outage, and spacing/backoff tests run instantly
+and deterministically. Snapshots remain in memory and add no network or storage
+boundary.
+
 ## 2026-07-18 — Alerts share the monitor request lifecycle
 
 **Context:** Station monitor calls were cached, coalesced, throttled, retried, and

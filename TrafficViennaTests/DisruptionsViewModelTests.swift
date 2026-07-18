@@ -100,6 +100,18 @@ final class DisruptionsViewModelTests: XCTestCase {
         XCTAssertNotNil(viewModel.refreshErrorMessage)
     }
 
+    func testStaleSnapshotShowsSavedDataNotice() async {
+        let viewModel = DisruptionsViewModel(
+            service: StubTrafficInfoProvider(result: .success([serviceInfo]), isStale: true)
+        )
+
+        await viewModel.load(force: true)
+
+        XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["service"])
+        XCTAssertNotNil(viewModel.refreshErrorMessage)
+    }
+
     private func makeLoadedViewModel() -> DisruptionsViewModel {
         DisruptionsViewModel(
             service: StubTrafficInfoProvider(
@@ -158,9 +170,11 @@ private enum TestError: Error {
 
 private actor StubTrafficInfoProvider: TrafficInfoProviding {
     private var result: Result<[TrafficInfo], Error>
+    private let isStale: Bool
 
-    init(result: Result<[TrafficInfo], Error>) {
+    init(result: Result<[TrafficInfo], Error>, isStale: Bool = false) {
         self.result = result
+        self.isStale = isStale
     }
 
     func setResult(_ result: Result<[TrafficInfo], Error>) {
@@ -169,5 +183,13 @@ private actor StubTrafficInfoProvider: TrafficInfoProviding {
 
     func trafficInfoList(forceRefresh: Bool) async throws -> [TrafficInfo] {
         try result.get()
+    }
+
+    func trafficInfoSnapshot(forceRefresh: Bool) async throws -> TrafficInfoSnapshot {
+        TrafficInfoSnapshot(
+            infos: try await trafficInfoList(forceRefresh: forceRefresh),
+            updatedAt: .now,
+            isStale: isStale
+        )
     }
 }

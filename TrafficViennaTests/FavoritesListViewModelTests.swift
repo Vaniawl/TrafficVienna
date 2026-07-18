@@ -66,6 +66,22 @@ final class FavoritesListViewModelTests: XCTestCase {
         XCTAssertEqual(forceRefreshValues, [false, true])
     }
 
+    func testCachedRouteIsLabelledAndRemainsEligibleForWidget() async {
+        let favorite = route("U1", "Leopoldau")
+        let widget = StubWidgetSync()
+        let viewModel = FavoritesListViewModel(
+            service: StubMonitorProvider(result: .success(response(countdown: 5)), isStale: true),
+            favoritesRepo: StubFavoritesRepository(routes: [favorite]),
+            stationsRepo: StubFavoriteStationsRepository(),
+            widgetSync: widget
+        )
+
+        await viewModel.loadFavorites(forceRefresh: true)
+
+        XCTAssertEqual(viewModel.items.first?.state, .cached)
+        XCTAssertEqual(widget.lastSaved.first?.lineName, "U1")
+    }
+
     private func makeViewModel(
         service: StubMonitorProvider? = nil,
         favoritesRepo: StubFavoritesRepository = StubFavoritesRepository(),
@@ -104,12 +120,23 @@ private enum TestMonitorError: Error { case failed }
 private actor StubMonitorProvider: MonitorProviding {
     private var result: Result<MonitorResponse, Error>
     private(set) var forceRefreshValues: [Bool] = []
+    private let isStale: Bool
 
-    init(result: Result<MonitorResponse, Error>) { self.result = result }
+    init(result: Result<MonitorResponse, Error>, isStale: Bool = false) {
+        self.result = result
+        self.isStale = isStale
+    }
     func setResult(_ result: Result<MonitorResponse, Error>) { self.result = result }
     func monitor(diva: Int, forceRefresh: Bool) async throws -> MonitorResponse {
         forceRefreshValues.append(forceRefresh)
         return try result.get()
+    }
+    func monitorSnapshot(diva: Int, forceRefresh: Bool) async throws -> MonitorSnapshot {
+        MonitorSnapshot(
+            response: try await monitor(diva: diva, forceRefresh: forceRefresh),
+            updatedAt: .now,
+            isStale: isStale
+        )
     }
 }
 

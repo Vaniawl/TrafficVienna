@@ -110,11 +110,15 @@ final class StationDetailViewModel {
         }
 
         do {
-            let response = try await service.monitor(diva: diva, forceRefresh: forceRefresh)
+            let snapshot = try await service.monitorSnapshot(diva: diva, forceRefresh: forceRefresh)
             guard !Task.isCancelled else { return }
+            let response = snapshot.response
             trafficInfos = response.data.trafficInfos ?? []
             allGroups = Self.departureGroups(from: response)
-            lastUpdated = .now
+            lastUpdated = snapshot.updatedAt
+            if snapshot.isStale {
+                refreshErrorMessage = String(localized: "Showing saved data from the last successful update.")
+            }
             state = allGroups.isEmpty ? .empty : .loaded
         } catch {
             if allGroups.isEmpty {

@@ -131,11 +131,13 @@ final class TrafficViennaTests: XCTestCase {
         let mock = MockNetworkManager()
         let service = MonitorService(network: mock, cacheTTL: 0)
 
-        _ = try await service.monitor(diva: 60201435)
+        let current = try await service.monitorSnapshot(diva: 60201435)
         await mock.setShouldFail(true)
 
-        let result = try await service.monitor(diva: 60201435)
-        XCTAssertFalse(result.data.monitors.isEmpty, "Should return stale cache on error")
+        let result = try await service.monitorSnapshot(diva: 60201435)
+        XCTAssertFalse(result.response.data.monitors.isEmpty, "Should return stale cache on error")
+        XCTAssertTrue(result.isStale)
+        XCTAssertEqual(result.updatedAt, current.updatedAt)
     }
 
     func testTrafficInfoListUsesCache() async throws {
@@ -176,13 +178,53 @@ final class TrafficViennaTests: XCTestCase {
         let mock = MockNetworkManager()
         let service = MonitorService(network: mock, cacheTTL: 0, minInterval: 0)
 
-        _ = try await service.trafficInfoList()
+        let current = try await service.trafficInfoSnapshot()
         await mock.setShouldFail(true)
 
-        let stale = try await service.trafficInfoList(forceRefresh: true)
-        XCTAssertTrue(stale.isEmpty)
+        let stale = try await service.trafficInfoSnapshot(forceRefresh: true)
+        XCTAssertTrue(stale.infos.isEmpty)
+        XCTAssertTrue(stale.isStale)
+        XCTAssertEqual(stale.updatedAt, current.updatedAt)
         let callCount = await mock.callCount
         XCTAssertEqual(callCount, 2)
+    }
+
+    func testMonitorServiceSpacesNetworkCallsWithInjectedScheduler() async throws {
+        let scheduler = TestMonitorScheduler()
+        let service = MonitorService(
+            network: MockNetworkManager(),
+            cacheTTL: 0,
+            minInterval: 0.5,
+            scheduler: scheduler
+        )
+
+        _ = try await service.monitor(diva: 1, forceRefresh: true)
+        _ = try await service.monitor(diva: 2, forceRefresh: true)
+
+        let sleeps = await scheduler.sleeps
+        XCTAssertEqual(sleeps.count, 1)
+        XCTAssertEqual(sleeps.first ?? .nan, 0.5, accuracy: 0.000_001)
+    }
+
+    func testMonitorServiceUsesBoundedExponentialRateLimitBackoff() async throws {
+        let scheduler = TestMonitorScheduler()
+        let network = RateLimitedNetworkManager(failuresBeforeSuccess: 2)
+        let service = MonitorService(
+            network: network,
+            cacheTTL: 0,
+            minInterval: 0,
+            maxRetries: 2,
+            scheduler: scheduler
+        )
+
+        _ = try await service.monitor(diva: 1, forceRefresh: true)
+
+        let sleeps = await scheduler.sleeps
+        let callCount = await network.callCount
+        XCTAssertEqual(sleeps.count, 2)
+        XCTAssertEqual(sleeps.first ?? .nan, 0.8, accuracy: 0.000_001)
+        XCTAssertEqual(sleeps.last ?? .nan, 1.6, accuracy: 0.000_001)
+        XCTAssertEqual(callCount, 3)
     }
 
     func testTrafficInfoDecodesFeedCategory() throws {
@@ -307,5 +349,53 @@ private actor MockNetworkManager: NetworkManaging {
         let monitor = Monitor(locationStop: stop, lines: [line])
         let data = DataBlock(monitors: [monitor], trafficInfos: nil)
         return MonitorResponse(data: data)
+    }
+}
+
+private actor TestMonitorScheduler: MonitorScheduling {
+    private var current = Date(timeIntervalSince1970: 1_700_000_000)
+    private(set) var sleeps: [TimeInterval] = []
+
+    func now() async -> Date {
+        current
+    }
+
+    func sleep(for duration: Duration) async throws {
+        try Task.checkCancellation()
+        let components = duration.components
+        let interval = Double(components.seconds)
+            + Double(components.attoseconds) / 1_000_000_000_000_000_000
+        sleeps.append(interval)
+        current = current.addingTimeInterval(interval)
+    }
+}
+
+private actor RateLimitedNetworkManager: NetworkManaging {
+    private var failuresRemaining: Int
+    private(set) var callCount = 0
+
+    init(failuresBeforeSuccess: Int) {
+        failuresRemaining = failuresBeforeSuccess
+    }
+
+    func fetchMonitorData(for stopId: Int) async throws -> MonitorResponse {
+        try response()
+    }
+
+    func fetchMonitorData(diva: Int, includeArea: Bool) async throws -> MonitorResponse {
+        try response()
+    }
+
+    func fetchTrafficInfoList() async throws -> MonitorResponse {
+        try response()
+    }
+
+    private func response() throws -> MonitorResponse {
+        callCount += 1
+        if failuresRemaining > 0 {
+            failuresRemaining -= 1
+            throw MonitorApiError.rateLimited
+        }
+        return MonitorResponse(data: DataBlock(monitors: [], trafficInfos: []))
     }
 }

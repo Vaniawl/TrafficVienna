@@ -80,9 +80,12 @@ final class DisruptionsViewModel {
         }
 
         do {
-            let response = try await service.trafficInfoList(forceRefresh: force)
+            let snapshot = try await service.trafficInfoSnapshot(forceRefresh: force)
             guard !Task.isCancelled else { return }
-            infos = Self.normalized(response)
+            infos = Self.normalized(snapshot.infos)
+            if snapshot.isStale {
+                refreshErrorMessage = String(localized: "Showing saved data from the last successful update.")
+            }
             state = .loaded
         } catch {
             let message = error.monitorDisplayMessage

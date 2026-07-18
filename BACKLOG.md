@@ -16,7 +16,7 @@
 - [ ] **REQ-TV-003:** perform only evidence-backed refactoring through TV-CORE-020.
 - [ ] **REQ-TV-004:** complete localised loading, empty, error, retry, and stale
   states through Phase 2 and TV-CORE-021.
-- [ ] **REQ-TV-005:** verify cancellation, refresh, throttling, and performance
+- [x] **REQ-TV-005:** verify cancellation, refresh, throttling, and performance
   through TV-CORE-022.
 - [ ] **REQ-TV-006:** collect fresh repository, build, test, widget, UI, and
   accessibility evidence through TV-VERIFY-030/031/032.
@@ -175,20 +175,22 @@
   - Dependencies: Phase 2.
   - Acceptance: no required screen has clipped text or unlabeled controls.
   - Validation: localisation scan and simulator accessibility inspection.
-- [ ] **TV-CORE-022 - Refresh and network lifecycle.**
+- [x] **TV-CORE-022 - Refresh and network lifecycle.**
   - Outcome: refresh work cancels correctly, avoids duplicate calls, and handles
     throttling and stale data clearly.
   - Paths: view models, `MonitorService`, network boundary, focused tests.
   - Dependencies: Phase 2 discovery.
   - Acceptance: cancellation, coalescing, throttling, and stale-data tests pass.
   - Validation: focused tests and reproducible timing evidence where applicable.
-  - Completed slice: traffic alerts now share monitor request coalescing,
+  - Completed implementation: traffic alerts share monitor request coalescing,
     throttling, rate-limit backoff, and in-memory stale fallback; cancelled Nearby,
     Favourites, Alerts, and Station Detail tasks cannot publish late responses.
-  - Evidence: concurrent alert refresh, stale fallback, and late-cancellation
-    regressions plus warning-free full CI with 78 passing XCTest cases.
-  - Remaining: expose cache freshness provenance to the UI and add deterministic
-    clock-based spacing/backoff tests before closing the lifecycle audit.
+    Freshness-aware snapshots retain the real successful-update timestamp and
+    explicitly label saved data in all four journeys.
+  - Evidence: concurrent alert refresh, stale fallback, late-cancellation,
+    freshness propagation, widget eligibility, deterministic 0.5-second spacing,
+    and bounded 0.8/1.6-second backoff regressions; warning-free full CI passes
+    with 83 XCTest cases.
 - [ ] **TV-CORE-023 - Add dependency injection testability**
   - Outcome: enable unit testing of view models and services by injecting mock
     `NetworkManaging` and `MonitorService` instances.
@@ -206,7 +208,7 @@
 - [x] **TV-VERIFY-031 - macOS build and tests.** Run `bash scripts/ci.sh` on a
   suitable macOS/Xcode host, including the app and widget targets.
   - Evidence: full CI exited 0 on iPhone 17 simulator; app/widget build succeeded,
-    the post-hardening focused run passed, and all 74 XCTest cases pass.
+    the freshness/lifecycle focused runs passed, and all 83 XCTest cases pass.
 - [ ] **TV-VERIFY-032 - Product inspection.** Exercise every Phase 2 journey in
   light/dark appearance, accessibility text sizes, and relevant failure states.
 - [ ] **TV-VERIFY-033 - Independent reviews.** Resolve every Blocking/Important

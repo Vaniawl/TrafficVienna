@@ -39,6 +39,7 @@ actor MonitorService {
     private let cacheTTL: TimeInterval
     private let minInterval: TimeInterval
     private let maxRetries: Int
+    private let scheduler: MonitorScheduling
 
     private struct CacheEntry {
         let response: MonitorResponse
@@ -56,12 +57,14 @@ actor MonitorService {
         network: NetworkManaging = NetworkManager(),
         cacheTTL: TimeInterval = 30,
         minInterval: TimeInterval = 0.5,
-        maxRetries: Int = 2
+        maxRetries: Int = 2,
+        scheduler: MonitorScheduling = SystemMonitorScheduler()
     ) {
         self.network = network
         self.cacheTTL = cacheTTL
         self.minInterval = minInterval
         self.maxRetries = maxRetries
+        self.scheduler = scheduler
     }
 
     /// Returns monitor data for a station DIVA, served from cache when fresh.
@@ -69,33 +72,57 @@ actor MonitorService {
     /// (even if stale) so the UI keeps showing departures instead of an error.
     /// - Parameter forceRefresh: bypass the freshness check (user refresh).
     func monitor(diva: Int, forceRefresh: Bool = false) async throws -> MonitorResponse {
-        if !forceRefresh, let entry = cache[diva], isFresh(entry) {
-            return entry.response
+        try await monitorSnapshot(diva: diva, forceRefresh: forceRefresh).response
+    }
+
+    func monitorSnapshot(diva: Int, forceRefresh: Bool = false) async throws -> MonitorSnapshot {
+        let now = await scheduler.now()
+        if !forceRefresh, let entry = cache[diva], isFresh(entry, now: now) {
+            return MonitorSnapshot(response: entry.response, updatedAt: entry.timestamp, isStale: false)
         }
 
         do {
             let response = try await fetchCoalesced(diva: diva)
-            cache[diva] = CacheEntry(response: response, timestamp: .now)
-            return response
+            let updatedAt = await scheduler.now()
+            cache[diva] = CacheEntry(response: response, timestamp: updatedAt)
+            return MonitorSnapshot(response: response, updatedAt: updatedAt, isStale: false)
         } catch {
-            if let stale = cache[diva] { return stale.response }
+            if let stale = cache[diva] {
+                return MonitorSnapshot(response: stale.response, updatedAt: stale.timestamp, isStale: true)
+            }
             throw error
         }
     }
 
     func trafficInfoList(forceRefresh: Bool = false) async throws -> [TrafficInfo] {
+        try await trafficInfoSnapshot(forceRefresh: forceRefresh).infos
+    }
+
+    func trafficInfoSnapshot(forceRefresh: Bool = false) async throws -> TrafficInfoSnapshot {
+        let now = await scheduler.now()
         if !forceRefresh,
            let trafficInfoCache,
-           Date.now.timeIntervalSince(trafficInfoCache.timestamp) < cacheTTL {
-            return trafficInfoCache.infos
+           now.timeIntervalSince(trafficInfoCache.timestamp) < cacheTTL {
+            return TrafficInfoSnapshot(
+                infos: trafficInfoCache.infos,
+                updatedAt: trafficInfoCache.timestamp,
+                isStale: false
+            )
         }
 
         do {
             let infos = try await fetchTrafficInfoCoalesced()
-            trafficInfoCache = (infos, .now)
-            return infos
+            let updatedAt = await scheduler.now()
+            trafficInfoCache = (infos, updatedAt)
+            return TrafficInfoSnapshot(infos: infos, updatedAt: updatedAt, isStale: false)
         } catch {
-            if let trafficInfoCache { return trafficInfoCache.infos }
+            if let trafficInfoCache {
+                return TrafficInfoSnapshot(
+                    infos: trafficInfoCache.infos,
+                    updatedAt: trafficInfoCache.timestamp,
+                    isStale: true
+                )
+            }
             throw error
         }
     }
@@ -131,20 +158,20 @@ actor MonitorService {
 
     // MARK: - Internals
 
-    private func isFresh(_ entry: CacheEntry) -> Bool {
-        Date.now.timeIntervalSince(entry.timestamp) < cacheTTL
+    private func isFresh(_ entry: CacheEntry, now: Date) -> Bool {
+        now.timeIntervalSince(entry.timestamp) < cacheTTL
     }
 
     // Claims the next time slot and sleeps until it's due. Reading and advancing
     // `nextSlot` happens with no suspension in between, so bursts get spaced out.
     private func throttle() async throws {
-        let now = Date.now
+        let now = await scheduler.now()
         let slot = max(now, nextSlot)
         nextSlot = slot.addingTimeInterval(minInterval)
 
         let wait = slot.timeIntervalSince(now)
         if wait > 0 {
-            try await Task.sleep(for: .seconds(wait))
+            try await scheduler.sleep(for: .seconds(wait))
         }
     }
 
@@ -157,8 +184,9 @@ actor MonitorService {
                 guard attempt < maxRetries else { throw MonitorApiError.rateLimited }
                 let backoff = pow(2.0, Double(attempt)) * 0.8 // 0.8s, 1.6s, …
                 // Push the shared slot out so other queued calls also wait.
-                nextSlot = max(nextSlot, Date.now.addingTimeInterval(backoff))
-                try await Task.sleep(for: .seconds(backoff))
+                let now = await scheduler.now()
+                nextSlot = max(nextSlot, now.addingTimeInterval(backoff))
+                try await scheduler.sleep(for: .seconds(backoff))
                 attempt += 1
             }
         }
@@ -172,8 +200,9 @@ actor MonitorService {
             } catch MonitorApiError.rateLimited {
                 guard attempt < maxRetries else { throw MonitorApiError.rateLimited }
                 let backoff = pow(2.0, Double(attempt)) * 0.8
-                nextSlot = max(nextSlot, Date.now.addingTimeInterval(backoff))
-                try await Task.sleep(for: .seconds(backoff))
+                let now = await scheduler.now()
+                nextSlot = max(nextSlot, now.addingTimeInterval(backoff))
+                try await scheduler.sleep(for: .seconds(backoff))
                 attempt += 1
             }
         }

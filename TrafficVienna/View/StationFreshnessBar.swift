@@ -2,13 +2,18 @@ import SwiftUI
 
 struct StationFreshnessBar: View {
     let lastUpdated: Date
+    let isStale: Bool
 
     var body: some View {
         Label {
-            Text("Updated \(lastUpdated, style: .relative)")
+            if isStale {
+                Text("Saved \(lastUpdated, style: .relative)")
+            } else {
+                Text("Updated \(lastUpdated, style: .relative)")
+            }
         } icon: {
-            Image(systemName: "dot.radiowaves.left.and.right")
-                .foregroundStyle(.green)
+            Image(systemName: isStale ? "clock.badge.exclamationmark" : "dot.radiowaves.left.and.right")
+                .foregroundStyle(isStale ? .orange : .green)
         }
         .font(.footnote)
         .foregroundStyle(.secondary)

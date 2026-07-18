@@ -14,6 +14,7 @@ struct StationCardView: View {
     var lines: [Lines] = []
     var failed: Bool = false
     var updatedAt: Date? = nil
+    var isStale = false
 
     private let maxLines = 4
 
@@ -65,10 +66,17 @@ struct StationCardView: View {
                         .accessibilityLabel("Walking distance")
                 }
                 if let updatedAt {
-                    Text(updatedText(updatedAt))
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                        .accessibilityLabel("Updated \(RelativeTime.updated(since: updatedAt))")
+                    if isStale {
+                        Label("Saved data", systemImage: "clock.badge.exclamationmark")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                            .accessibilityLabel("Saved data from \(RelativeTime.updated(since: updatedAt))")
+                    } else {
+                        Text(updatedText(updatedAt))
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
+                            .accessibilityLabel("Updated \(RelativeTime.updated(since: updatedAt))")
+                    }
                 }
             }
         }
@@ -138,7 +146,8 @@ struct StationCardView: View {
     private var stationAccessibilityLabel: String {
         let walkText = walkMinutes.map { "Walking approximately \($0) minutes" } ?? "Distance unknown"
         let linesText = lines.isEmpty ? "No departures loaded" : "Departures available"
-        return "\(station.name). \(walkText). \(linesText)."
+        let freshness = isStale ? "Showing saved data." : ""
+        return "\(station.name). \(walkText). \(linesText). \(freshness)"
     }
 
     private var walkTextForAccessibility: String {

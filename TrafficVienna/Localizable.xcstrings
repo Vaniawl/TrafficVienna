@@ -1351,12 +1351,62 @@
         }
       }
     },
+    "Saved %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gespeichert %@"
+          }
+        }
+      }
+    },
+    "Saved data" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gespeicherte Daten"
+          }
+        }
+      }
+    },
+    "Saved data from %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gespeicherte Daten von %@"
+          }
+        }
+      }
+    },
+    "Saved departures" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gespeicherte Abfahrten"
+          }
+        }
+      }
+    },
     "See nearby stops and real-time departures without digging through timetables." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sieh Haltestellen in deiner Nähe und Echtzeit-Abfahrten, ohne Fahrpläne durchsuchen zu müssen."
+          }
+        }
+      }
+    },
+    "Showing saved data from the last successful update." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gespeicherte Daten der letzten erfolgreichen Aktualisierung werden angezeigt."
           }
         }
       }

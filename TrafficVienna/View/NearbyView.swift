@@ -114,7 +114,8 @@ struct NearbyView: View {
                             distance: item.distance,
                             lines: item.lines,
                             failed: item.failed,
-                            updatedAt: item.updatedAt
+                            updatedAt: item.updatedAt,
+                            isStale: item.isStale
                         )
                     }
                     .buttonStyle(.plain)
@@ -222,7 +223,8 @@ struct NearbyView: View {
                     distance: Double(index * 100),
                     lines: [],
                     failed: false,
-                    updatedAt: nil
+                    updatedAt: nil,
+                    isStale: false
                 )
                 if index < 2 { Divider() }
             }

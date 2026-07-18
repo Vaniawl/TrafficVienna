@@ -49,7 +49,10 @@ struct StationDeparturesList: View {
         .listStyle(.insetGrouped)
         .safeAreaInset(edge: .bottom) {
             if let lastUpdated = viewModel.lastUpdated {
-                StationFreshnessBar(lastUpdated: lastUpdated)
+                StationFreshnessBar(
+                    lastUpdated: lastUpdated,
+                    isStale: viewModel.refreshErrorMessage != nil
+                )
             }
         }
     }

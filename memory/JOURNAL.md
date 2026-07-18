@@ -1,5 +1,18 @@
 # Journal
 
+## 2026-07-18 — Truthful freshness and deterministic request timing
+
+- Added freshness-aware monitor and traffic-info snapshots that preserve the last
+  successful timestamp and distinguish current from stale in-memory responses.
+- Station Detail, Alerts, Nearby cards, and favourite routes now label saved data
+  with text plus an icon; cached favourite departures remain eligible for the widget.
+- Injected a scheduler into `MonitorService` and proved 0.5-second request spacing
+  plus bounded 0.8/1.6-second rate-limit backoff without wall-clock sleeps.
+- Full CI passed with zero warnings and 83 XCTest cases. Security review found no
+  new endpoint, persistence, secret, log, dependency, or unresolved Blocking/
+  Important issue. Interactive Simulator inspection is still pending because the
+  macOS host remained locked.
+
 ## 2026-07-18 — Refresh and network lifecycle hardening
 
 - Routed traffic-alert refreshes through the same coalescing, throttling,

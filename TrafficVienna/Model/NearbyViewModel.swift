@@ -20,6 +20,7 @@ final class NearbyViewModel: ObservableObject {
         var lines: [Lines] = []
         var failed: Bool = false
         var updatedAt: Date? = nil
+        var isStale = false
 
         var id: Int { station.id }
         var walkMinutes: Int { max(1, Int((distance / walkingSpeed).rounded())) }
@@ -59,7 +60,9 @@ final class NearbyViewModel: ObservableObject {
                 Item(station: pair.station,
                      distance: pair.distance,
                      lines: previous[pair.station.id]?.lines ?? [],
-                     failed: false)
+                     failed: false,
+                     updatedAt: previous[pair.station.id]?.updatedAt,
+                     isStale: previous[pair.station.id]?.isStale ?? false)
             }
     }
 
@@ -76,15 +79,19 @@ final class NearbyViewModel: ObservableObject {
             guard !Task.isCancelled else { return }
             guard let diva = item.station.diva else { continue }
             do {
-                let response = try await service.monitor(diva: diva, forceRefresh: force)
+                let snapshot = try await service.monitorSnapshot(diva: diva, forceRefresh: force)
                 guard !Task.isCancelled else { return }
                 update(id: item.id) {
-                    $0.lines = response.data.monitors.flatMap { $0.lines }
+                    $0.lines = snapshot.response.data.monitors.flatMap { $0.lines }
                     $0.failed = false
-                    $0.updatedAt = Date()
+                    $0.updatedAt = snapshot.updatedAt
+                    $0.isStale = snapshot.isStale
                 }
             } catch {
-                update(id: item.id) { $0.failed = true }
+                update(id: item.id) {
+                    $0.failed = true
+                    $0.isStale = !$0.lines.isEmpty
+                }
             }
         }
     }

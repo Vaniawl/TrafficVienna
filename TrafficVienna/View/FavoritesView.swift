@@ -109,6 +109,10 @@ struct FavoritesView: View {
                             Task { await viewModel.refresh(item.route) }
                         }
                         .font(.footnote)
+                    } else if item.state == .cached {
+                        Label("Saved departures", systemImage: "clock.badge.exclamationmark")
+                            .font(.footnote)
+                            .foregroundStyle(.orange)
                     }
                 }
                 .padding(.vertical, Spacing.xs)

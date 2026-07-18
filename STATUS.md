@@ -8,7 +8,7 @@
   complete; continue visual inspection, remaining resilience work, and email
   account integration.
 - Verified: app and widget build successfully on iPhone 17 simulator with zero
-  warnings; the restored test target runs 78 passing XCTest cases.
+  warnings; the restored test target runs 83 passing XCTest cases.
 - Verified CI: repository/OpenCode/reliability checks, build, tests, and diff
   validation completed with `[ci] OK`.
 - Verified visually: the new onboarding renders correctly in system light and
@@ -36,12 +36,13 @@
   Dynamic Type, favourite-route ordering is shared by app and widget, the widget
   shows decoded station names, and app/widget German catalogues are complete.
   Interactive acceptance is open because macOS remains locked.
-- Verified network lifecycle slice: alert requests are coalesced, throttled,
-  retried with shared backoff, and fall back to in-memory stale data; cancelled
-  journey tasks cannot publish late responses. Focused regressions and full CI pass.
+- Verified network lifecycle: alert requests are coalesced, throttled, retried
+  with bounded shared backoff, and fall back to in-memory stale data; cancelled
+  journey tasks cannot publish late responses. Freshness snapshots preserve the
+  real successful-update time and label saved data in Station Detail, Alerts,
+  Nearby, and Favourites. Deterministic timing regressions and full CI pass.
 - Remaining work: select and configure an email identity provider, verify the
   physical-device provisioning capability, and complete remaining journey and
   accessibility inspection.
-- Next action: add explicit cache-freshness provenance and deterministic timing
-  coverage while visual inspection waits for an unlocked host; email still needs
-  a real provider choice.
+- Next action: run the cross-journey completion/accessibility audit while visual
+  inspection waits for an unlocked host; email still needs a real provider choice.

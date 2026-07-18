@@ -6,7 +6,9 @@
 - Alerts decode plain title/description/category data from the fixed Wiener
   Linien HTTPS endpoint. HTML is not decoded or executed, search never changes
   the request URL, and successful responses are cached in memory only. Concurrent
-  alert refreshes share one request budget and stale fallback never adds persistence.
+  alert refreshes share one bounded request budget and stale fallback never adds
+  persistence. Freshness snapshots contain only the decoded public response, its
+  in-memory timestamp, and a stale flag.
 - Precise location is device data and must remain in the application boundary;
   it must not be logged, committed, or sent to unrelated services.
 - Map and Nearby use precise location only in memory for local station filtering
