@@ -5,7 +5,7 @@ const catalog = JSON.parse(fs.readFileSync(path, "utf8"));
 const original = JSON.stringify(catalog);
 
 const newEnglish = [
-  "Account", "Add a favourite station first, then create a daily routine.", "Add routine", "Cancel", "Edit", "Edit routine", "Save",
+  "Account", "Add a favourite station first, then create a daily routine.", "Add routine", "Cancel", "Display name", "Edit", "Edit display name", "Edit routine", "Save",
   "Remove account", "Remove account from device", "Couldn’t remove account",
   "Clear data", "Clear travel data",
   "This removes favourites, routines, recent searches, departure reminders, Live Activities, widget data, and cached departures. Your sign-in stays active.",
@@ -47,6 +47,7 @@ const de = {
   "%lld":"%lld", "—":"—",
   "Account":"Konto", "Add a favourite station first, then create a daily routine.":"Füge zuerst eine Lieblingsstation hinzu und erstelle dann eine tägliche Routine.",
   "Add routine":"Routine hinzufügen", "Affects your favourites":"Betrifft deine Favoriten", "All clear":"Alles frei", "Cancel":"Abbrechen", "Edit":"Bearbeiten", "Edit routine":"Routine bearbeiten", "Save":"Sichern",
+  "Display name":"Anzeigename", "Edit display name":"Anzeigenamen bearbeiten",
   "Remove account":"Konto entfernen", "Remove account from device":"Konto von diesem Gerät entfernen", "Couldn’t remove account":"Konto konnte nicht entfernt werden",
   "Clear data":"Daten löschen", "Clear travel data":"Reisedaten löschen",
   "This removes favourites, routines, recent searches, departure reminders, Live Activities, widget data, and cached departures. Your sign-in stays active.":"Dadurch werden Favoriten, Routinen, letzte Suchanfragen, Abfahrtserinnerungen, Live-Aktivitäten, Widget-Daten und zwischengespeicherte Abfahrten gelöscht. Deine Anmeldung bleibt aktiv.",
@@ -91,6 +92,7 @@ const uk = {
   "%lld":"%lld", "—":"—", "About":"Про застосунок", "Account":"Обліковий запис", "Add station to favourites":"Додати станцію до обраного",
   "Add to favourites":"Додати до обраного", "Add a favourite station first, then create a daily routine.":"Спочатку додайте улюблену станцію, а потім створіть щоденний сценарій.",
   "Add routine":"Додати сценарій", "Affects your favourites":"Впливає на обрані маршрути", "Alerts":"Сповіщення", "All":"Усі", "All clear":"Усе гаразд", "Cancel":"Скасувати", "Edit":"Редагувати", "Edit routine":"Редагувати сценарій", "Save":"Зберегти",
+  "Display name":"Ім’я профілю", "Edit display name":"Редагувати ім’я профілю",
   "Remove account":"Видалити акаунт", "Remove account from device":"Видалити акаунт із пристрою", "Couldn’t remove account":"Не вдалося видалити акаунт",
   "Clear data":"Очистити дані", "Clear travel data":"Очистити дані поїздок",
   "This removes favourites, routines, recent searches, departure reminders, Live Activities, widget data, and cached departures. Your sign-in stays active.":"Це видалить обране, сценарії, недавні пошуки, нагадування про відправлення, Live Activities, дані віджета та кешовані відправлення. Вхід в акаунт залишиться активним.",

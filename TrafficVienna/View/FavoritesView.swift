@@ -65,6 +65,7 @@ struct FavoritesView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Button { showAccount = true } label: { Image(systemName: "person.crop.circle") }
                     .accessibilityLabel("Account")
+                    .accessibilityIdentifier("favourites.account")
             }
             if !vm.stations.isEmpty || !vm.favoriteRoutes.isEmpty {
                 ToolbarItem(placement: .topBarTrailing) { EditButton() }

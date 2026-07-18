@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Device-local profile display name
+
+- Added an editable profile alias for email and Apple sessions without changing the authentication identity, provider, or Keychain boundary.
+- Normalized repeated whitespace, capped names at 40 characters, allowed an empty value to restore the provider fallback, and persisted the non-secret session value.
+- Updated Account and the Nearby dashboard to show the personalized name immediately while retaining the email address in profile details.
+- Added German and Ukrainian localization plus persistence, normalization-boundary, and end-to-end registration UI coverage.
+
 ## 2026-07-19 — User-controlled favourite route priority
 
 - Added Edit-mode drag reordering for saved line/destination routes alongside the existing favourite-station ordering.

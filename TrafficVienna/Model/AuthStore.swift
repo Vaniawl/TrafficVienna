@@ -149,6 +149,16 @@ final class AuthStore: ObservableObject {
         errorMessage = nil
     }
 
+    func updateDisplayName(_ value: String) {
+        guard let session else { return }
+        setSession(AuthSession(
+            userID: session.userID,
+            email: session.email,
+            displayName: Self.normalizedDisplayName(value),
+            provider: session.provider
+        ))
+    }
+
     func removeCurrentAccountFromDevice() throws {
         guard let session else { return }
         if session.provider == .email {
@@ -177,6 +187,14 @@ final class AuthStore: ObservableObject {
 
     nonisolated static func isValidPassword(_ value: String) -> Bool {
         value.count >= 8
+    }
+
+    nonisolated static func normalizedDisplayName(_ value: String) -> String? {
+        let normalized = value
+            .split(whereSeparator: { $0.isWhitespace })
+            .joined(separator: " ")
+        guard !normalized.isEmpty else { return nil }
+        return String(normalized.prefix(40))
     }
 
     private func validated(email: String, password: String) throws -> String {

@@ -9,6 +9,8 @@ struct AccountView: View {
     @State private var showingAccountRemoval = false
     @State private var removalError: String?
     @State private var showingTravelDataClear = false
+    @State private var showingDisplayNameEditor = false
+    @State private var displayNameDraft = ""
 
     var body: some View {
         NavigationStack {
@@ -22,8 +24,13 @@ struct AccountView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(auth.session?.displayName ?? auth.session?.email ?? "Traffic Vienna user")
                                 .font(.headline)
+                            if auth.session?.displayName != nil, let email = auth.session?.email {
+                                Text(email)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
                             Text(auth.session?.provider == .apple ? "Apple ID" : "Email account")
-                                .font(.subheadline)
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -31,6 +38,14 @@ struct AccountView: View {
                 }
 
                 Section {
+                    Button {
+                        displayNameDraft = auth.session?.displayName ?? ""
+                        showingDisplayNameEditor = true
+                    } label: {
+                        Label("Edit display name", systemImage: "person.text.rectangle")
+                    }
+                    .accessibilityIdentifier("account.editDisplayName")
+
                     NavigationLink {
                         RoutinesView()
                     } label: {
@@ -54,6 +69,13 @@ struct AccountView: View {
             .navigationTitle("Account")
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
+            }
+            .alert("Edit display name", isPresented: $showingDisplayNameEditor) {
+                TextField("Display name", text: $displayNameDraft)
+                    .textContentType(.name)
+                    .accessibilityIdentifier("account.displayNameField")
+                Button("Save") { auth.updateDisplayName(displayNameDraft) }
+                Button("Cancel", role: .cancel) {}
             }
             .confirmationDialog(
                 "Remove account from device",

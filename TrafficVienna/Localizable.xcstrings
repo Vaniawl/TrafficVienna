@@ -673,6 +673,22 @@
         }
       }
     },
+    "Display name": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anzeigename"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ім’я профілю"
+          }
+        }
+      }
+    },
     "Done": {
       "localizations": {
         "de": {
@@ -717,6 +733,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Редагувати"
+          }
+        }
+      }
+    },
+    "Edit display name": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anzeigenamen bearbeiten"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Редагувати ім’я профілю"
           }
         }
       }

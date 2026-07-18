@@ -165,6 +165,33 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testDisplayNameNormalizesAndPersistsWithoutChangingIdentity() throws {
+        let suite = "DisplayNameTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let keychain = MemoryKeychain()
+        let store = AuthStore(keychain: keychain, defaults: defaults)
+        try store.register(email: "rider@example.com", password: "tramline26")
+
+        store.updateDisplayName("  Ivan   Dovhosheia  ")
+
+        XCTAssertEqual(store.session?.displayName, "Ivan Dovhosheia")
+        XCTAssertEqual(store.session?.userID, "rider@example.com")
+        XCTAssertEqual(store.session?.provider, .email)
+        let restored = AuthStore(keychain: keychain, defaults: defaults)
+        XCTAssertEqual(restored.session?.displayName, "Ivan Dovhosheia")
+
+        restored.updateDisplayName("   ")
+        XCTAssertNil(restored.session?.displayName)
+        XCTAssertEqual(AuthStore(keychain: keychain, defaults: defaults).session?.email, "rider@example.com")
+    }
+
+    func testDisplayNameHasDeterministicLengthBoundary() {
+        XCTAssertEqual(AuthStore.normalizedDisplayName(String(repeating: "a", count: 50))?.count, 40)
+        XCTAssertNil(AuthStore.normalizedDisplayName("\n\t "))
+    }
+
+    @MainActor
     func testRemovingLocalEmailAccountDeletesVerifierAndSession() throws {
         let suite = "AuthRemovalTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!

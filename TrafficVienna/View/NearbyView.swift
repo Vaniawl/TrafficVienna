@@ -99,6 +99,7 @@ struct NearbyView: View {
                     .background(Color.black, in: Circle())
             }
             .accessibilityLabel("Account")
+            .accessibilityIdentifier("nearby.account")
     }
 
     private var accountTitle: some View {

@@ -78,6 +78,54 @@ final class TrafficViennaUITests: XCTestCase {
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 8))
     }
 
+    func testEmailUserCanPersonalizeDisplayName() {
+        let email = app.textFields["auth.email"]
+        XCTAssertTrue(email.waitForExistence(timeout: 5))
+        email.tap()
+        email.typeText("profile-\(UUID().uuidString.lowercased())@example.com")
+        let password = app.secureTextFields["auth.password"]
+        password.tap()
+        password.typeText("tramline26")
+        dismissKeyboardIfPresent()
+
+        let submit = app.buttons["auth.submit"]
+        let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: submit)
+        XCTAssertEqual(XCTWaiter.wait(for: [enabled], timeout: 3), .completed)
+        if !submit.isHittable { app.scrollViews.firstMatch.swipeUp() }
+        submit.tap()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 8))
+        let favouritesTab = app.tabBars.buttons["Favourites"]
+        for _ in 0..<3 where !favouritesTab.isSelected {
+            favouritesTab.tap()
+            let selected = XCTNSPredicateExpectation(
+                predicate: NSPredicate(format: "selected == true"),
+                object: favouritesTab
+            )
+            _ = XCTWaiter.wait(for: [selected], timeout: 1)
+        }
+        XCTAssertTrue(favouritesTab.isSelected)
+        let account = app.buttons["favourites.account"]
+        XCTAssertTrue(account.waitForExistence(timeout: 3))
+        let editName = app.descendants(matching: .any)["account.editDisplayName"]
+        for _ in 0..<3 where !editName.exists {
+            account.tap()
+            _ = editName.waitForExistence(timeout: 1)
+        }
+        XCTAssertTrue(editName.waitForExistence(timeout: 3))
+        editName.tap()
+
+        let nameField = app.textFields["Display name"]
+        XCTAssertTrue(nameField.waitForExistence(timeout: 3))
+        nameField.typeText("Codex Rider")
+        app.buttons["Save"].tap()
+
+        XCTAssertTrue(app.staticTexts["Codex Rider"].waitForExistence(timeout: 3))
+        app.buttons["Done"].tap()
+        app.tabBars.buttons["Nearby"].tap()
+        XCTAssertTrue(app.staticTexts["Codex Rider"].waitForExistence(timeout: 3))
+    }
+
     func testUkrainianAuthenticationModesAreLocalized() {
         app.terminate()
         app.launchArguments = [
