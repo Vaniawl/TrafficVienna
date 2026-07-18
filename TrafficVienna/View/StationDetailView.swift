@@ -42,7 +42,7 @@ struct StationDetailView: View {
                     } label: {
                         Image(systemName: "arrow.clockwise")
                     }
-                    .disabled(vm.isLoading)
+                    .disabled(vm.isLoading || vm.isRefreshing)
                     .accessibilityLabel("Refresh departures")
                 }
             }

@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Race-safe Station Detail refresh ownership
+
+- Added request ownership to Station Detail so routine polling cannot overlap and a manual refresh can supersede active work without doubling coalesced monitor traffic.
+- Split initial loading from in-place refreshing and disabled the toolbar refresh action while existing departures are being updated.
+- Injected the existing `WidgetSyncing` boundary so only the newest accepted response may update both the screen and widget, with isolated test storage.
+- Added regressions for monitor-cache bypass, overlapping polling, forced takeover, busy-state presentation, and single-winner widget synchronization.
+
 ## 2026-07-19 — Race-safe Alerts refresh ownership
 
 - Added independent Alerts request ownership so background polling cannot overlap after content is already visible and forced refreshes alone supersede active work.

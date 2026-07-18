@@ -352,6 +352,93 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertFalse(viewModel.isRefreshing)
     }
 
+    @MainActor
+    func testStationDetailManualRefreshBypassesMonitorCache() async {
+        let station = Station(id: 1, diva: 1, name: "Test Stop", lat: 48.2, lon: 16.3)
+        let network = MockNetworkManager()
+        let viewModel = StationDetailViewModel(
+            station: station,
+            service: MonitorService(network: network, cacheTTL: 600, minInterval: 0),
+            widgetSync: NoopWidgetSync()
+        )
+
+        await viewModel.load()
+        await viewModel.load(forceRefresh: true)
+
+        XCTAssertEqual(network.callCount, 2)
+        XCTAssertFalse(viewModel.groups.isEmpty)
+    }
+
+    @MainActor
+    func testStationDetailPollingDoesNotStartOverlappingRequest() async {
+        let station = Station(id: 1, diva: 1, name: "Test Stop", lat: 48.2, lon: 16.3)
+        let network = MockNetworkManager(monitorDelayNanoseconds: 100_000_000)
+        let viewModel = StationDetailViewModel(
+            station: station,
+            service: MonitorService(network: network, cacheTTL: 0, minInterval: 0),
+            widgetSync: NoopWidgetSync()
+        )
+
+        let first = Task { await viewModel.load() }
+        try? await Task.sleep(nanoseconds: 10_000_000)
+        await viewModel.load()
+        await first.value
+
+        XCTAssertEqual(network.callCount, 1)
+        XCTAssertFalse(viewModel.groups.isEmpty)
+    }
+
+    @MainActor
+    func testStationDetailManualRefreshSupersedesActivePollingRequest() async {
+        let station = Station(id: 1, diva: 1, name: "Test Stop", lat: 48.2, lon: 16.3)
+        let network = MockNetworkManager(monitorDelayNanoseconds: 100_000_000)
+        let widget = RecordingWidgetSync()
+        let viewModel = StationDetailViewModel(
+            station: station,
+            service: MonitorService(network: network, cacheTTL: 0, minInterval: 0),
+            widgetSync: widget
+        )
+        var manualRefreshCompleted = false
+
+        let polling = Task { await viewModel.load() }
+        try? await Task.sleep(nanoseconds: 10_000_000)
+        let manualRefresh = Task {
+            await viewModel.load(forceRefresh: true)
+            manualRefreshCompleted = true
+        }
+        try? await Task.sleep(nanoseconds: 10_000_000)
+
+        XCTAssertFalse(manualRefreshCompleted)
+        await polling.value
+        await manualRefresh.value
+        XCTAssertEqual(network.callCount, 1)
+        XCTAssertEqual(widget.saveCallCount, 1)
+        XCTAssertFalse(viewModel.groups.isEmpty)
+        XCTAssertFalse(viewModel.isLoading)
+        XCTAssertFalse(viewModel.isRefreshing)
+    }
+
+    @MainActor
+    func testStationDetailRefreshPublishesBusyStateWithExistingContent() async {
+        let station = Station(id: 1, diva: 1, name: "Test Stop", lat: 48.2, lon: 16.3)
+        let network = MockNetworkManager()
+        let viewModel = StationDetailViewModel(
+            station: station,
+            service: MonitorService(network: network, cacheTTL: 0, minInterval: 0),
+            widgetSync: NoopWidgetSync()
+        )
+        await viewModel.load()
+        network.monitorDelayNanoseconds = 100_000_000
+
+        let refresh = Task { await viewModel.load(forceRefresh: true) }
+        try? await Task.sleep(nanoseconds: 10_000_000)
+
+        XCTAssertTrue(viewModel.isRefreshing)
+        XCTAssertFalse(viewModel.isLoading)
+        await refresh.value
+        XCTAssertFalse(viewModel.isRefreshing)
+    }
+
     func testMapStationSelectionIsDistanceSortedAndLimited() {
         let store = StationStore()
         let center = CLLocation(latitude: 48.2082, longitude: 16.3738)
@@ -1119,8 +1206,12 @@ private struct NoopWidgetSync: WidgetSyncing {
 
 private final class RecordingWidgetSync: WidgetSyncing, @unchecked Sendable {
     private(set) var clearCallCount = 0
+    private(set) var saveCallCount = 0
     private(set) var savedData: [WidgetDepartureData] = []
-    func save(_ data: [WidgetDepartureData]) { savedData = data }
+    func save(_ data: [WidgetDepartureData]) {
+        saveCallCount += 1
+        savedData = data
+    }
     func clear() { clearCallCount += 1 }
 }
 

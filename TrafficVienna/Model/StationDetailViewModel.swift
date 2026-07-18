@@ -12,8 +12,12 @@ import Combine
 final class StationDetailViewModel: ObservableObject {
     let station: Station
     private let service: MonitorService
+    private let widgetSync: WidgetSyncing
+    private var isRequesting = false
+    private var loadGeneration = 0
 
     @Published var isLoading = false
+    @Published private(set) var isRefreshing = false
     @Published var errorMessage: String?
     @Published var monitor: MonitorResponse?
     @Published var lastUpdated: Date?
@@ -99,19 +103,31 @@ final class StationDetailViewModel: ObservableObject {
 
     init(
         station: Station,
-        service: MonitorService = .shared
+        service: MonitorService = .shared,
+        widgetSync: WidgetSyncing = WidgetSyncManager()
     ) {
         self.station = station
         self.service = service
+        self.widgetSync = widgetSync
     }
 
     // Loads live monitor data for the current station's DIVA.
     @MainActor
     func load(forceRefresh: Bool = false) async {
+        guard forceRefresh || !isRequesting else { return }
+        loadGeneration &+= 1
+        let generation = loadGeneration
+        isRequesting = true
         errorMessage = nil
-        isLoading = true
+        if monitor == nil { isLoading = true } else { isRefreshing = true }
 
-        defer { isLoading = false }
+        defer {
+            if generation == loadGeneration {
+                isRequesting = false
+                isLoading = false
+                isRefreshing = false
+            }
+        }
         guard let diva = station.diva else {
             errorMessage = "No live data for this station"
             return
@@ -119,13 +135,15 @@ final class StationDetailViewModel: ObservableObject {
 
         do {
             let result = try await service.monitorResult(diva: diva, forceRefresh: forceRefresh)
+            guard !Task.isCancelled, generation == loadGeneration else { return }
             self.monitor = result.value
             self.freshness = result.freshness
             self.lastUpdated = result.freshness.updatedAt
             if let widgetData = widgetData(from: result.value) {
-                WidgetSyncManager().save([widgetData])
+                widgetSync.save([widgetData])
             }
         } catch {
+            guard !Task.isCancelled, generation == loadGeneration else { return }
             errorMessage = error.monitorDisplayMessage
         }
     }
