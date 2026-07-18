@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Off-main station dataset preparation
+
+- Moved bundled station JSON I/O, decoding, name normalization, search sorting, DIVA indexing, and spatial bucketing off the main actor for the production Root flow.
+- Added an explicit readiness boundary so dependent tabs are created only after a complete snapshot is available instead of observing partially built indexes.
+- Kept deterministic synchronous construction available for isolated tests and previews while the app shows a short localized preparation state.
+- Added an asynchronous-load regression that verifies the store starts empty, reaches readiness, and publishes a usable ID index with the station array.
+
 ## 2026-07-19 — User-managed departure reminders
 
 - Added an Account destination that lists pending TrafficVienna departure reminders with route, stop, and scheduled fire time.

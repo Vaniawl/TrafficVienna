@@ -10,17 +10,15 @@ import Combine
 import CoreLocation
 import OSLog
 
-private let log = Logger(subsystem: "at.wellbe.TrafficVienna", category: "store")
+nonisolated private let log = Logger(subsystem: "at.wellbe.TrafficVienna", category: "store")
 
-
-// data  will be downloadedd from json file
-nonisolated struct Station: Decodable, Identifiable { // describes ONE station
+nonisolated struct Station: Decodable, Identifiable, Sendable {
     let id: Int
     let diva: Int?
     let name: String
     let lat: Double
     let lon: Double
-    
+
     enum CodingKeys: String, CodingKey {
         case id   = "HALTESTELLEN_ID"
         case diva = "DIVA"
@@ -42,80 +40,130 @@ protocol StationStoring {
     ) -> [Station]    // finds stations in radius
 }
 
-// Concrete implementation that loads stations from a bundled JSON file
-// and provides search helpers for the UI
-final class StationStore: ObservableObject ,StationStoring {
+// Loads the bundled station dataset and builds indexes used by search and map views.
+final class StationStore: ObservableObject, StationStoring {
     // All stations from the Wiener Linien JSON
     @Published private(set) var stations: [Station] = []
+    @Published private(set) var isReady = false
     private var stationsByID: [Int: Station] = [:]
-    private var searchIndex: [(station: Station, normalizedName: String, words: [String])] = []
+    private var searchIndex: [SearchEntry] = []
     private var divaByNormalizedName: [String: Int] = [:]
     private var spatialIndex: [SpatialCell: [Station]] = [:]
+    private var loadingTask: Task<Void, Never>?
 
-    private struct SpatialCell: Hashable {
+    nonisolated private struct SpatialCell: Hashable, Sendable {
         let latitude: Int
         let longitude: Int
     }
 
-    private static let spatialCellSize = 0.01
-    
-    init() {
-        loadStations()
+    nonisolated private struct SearchEntry: Sendable {
+        let station: Station
+        let normalizedName: String
+        let words: [String]
     }
 
-    private func loadStations() {
+    nonisolated private struct Snapshot: Sendable {
+        let stations: [Station]
+        let stationsByID: [Int: Station]
+        let searchIndex: [SearchEntry]
+        let divaByNormalizedName: [String: Int]
+        let spatialIndex: [SpatialCell: [Station]]
+    }
+
+    nonisolated private static let spatialCellSize = 0.01
+
+    init(loadSynchronously: Bool = true) {
         guard let url = Bundle.main.url(
             forResource: "wienerlinien-ogd-haltestellen",
             withExtension: "json"
         ) else {
             log.error("JSON file NOT FOUND")
+            isReady = true
             return
         }
 
+        if loadSynchronously {
+            apply(Self.loadSnapshot(from: url))
+        } else {
+            loadingTask = Task { [weak self] in
+                let snapshot = await Task.detached(priority: .userInitiated) {
+                    Self.loadSnapshot(from: url)
+                }.value
+                self?.apply(snapshot)
+            }
+        }
+    }
+
+    nonisolated private static func loadSnapshot(from url: URL) -> Snapshot? {
         do {
             let data = try Data(contentsOf: url)
             let decoded = try JSONDecoder().decode([Station].self, from: data)
-            stations = decoded
-            stationsByID = Dictionary(uniqueKeysWithValues: decoded.map { ($0.id, $0) })
-            searchIndex = decoded
+            let searchIndex = decoded
                 .map { station in
                     let name = normalize(station.name)
-                    return (station, name, name.split(separator: " ").map(String.init))
+                    return SearchEntry(
+                        station: station,
+                        normalizedName: name,
+                        words: name.split(separator: " ").map(String.init)
+                    )
                 }
                 .sorted {
                     ($0.normalizedName, $0.station.id) < ($1.normalizedName, $1.station.id)
                 }
-            divaByNormalizedName = decoded.reduce(into: [:]) { index, station in
+            let divaByNormalizedName = decoded.reduce(into: [String: Int]()) { index, station in
                 guard let diva = station.diva else { return }
                 index[normalize(station.name), default: diva] = diva
             }
-            spatialIndex = Dictionary(grouping: decoded, by: spatialCell(for:))
-            log.debug("Loaded \(decoded.count) stations")
+            return Snapshot(
+                stations: decoded,
+                stationsByID: Dictionary(uniqueKeysWithValues: decoded.map { ($0.id, $0) }),
+                searchIndex: searchIndex,
+                divaByNormalizedName: divaByNormalizedName,
+                spatialIndex: Dictionary(grouping: decoded, by: spatialCell(for:))
+            )
         } catch {
             log.error("Failed to load stations: \(error, privacy: .public)")
+            return nil
         }
     }
-    
+
+    private func apply(_ snapshot: Snapshot?) {
+        if let snapshot {
+            stationsByID = snapshot.stationsByID
+            searchIndex = snapshot.searchIndex
+            divaByNormalizedName = snapshot.divaByNormalizedName
+            spatialIndex = snapshot.spatialIndex
+            stations = snapshot.stations
+            log.debug("Loaded \(snapshot.stations.count) stations")
+        }
+        isReady = true
+        loadingTask = nil
+    }
+
+    func waitUntilReady() async {
+        await loadingTask?.value
+    }
+
     // Returns the DIVA number for a station whose normalized name
     // matches the provided name exactly
     func diva(forExact name: String) -> Int? {
-        divaByNormalizedName[normalize(name)]
+        divaByNormalizedName[Self.normalize(name)]
     }
-    
+
     // Normalizes a string for station name matching
-    private func normalize(_ s: String) -> String {
+    nonisolated private static func normalize(_ s: String) -> String {
         s.folding(options: .diacriticInsensitive, locale: .current)
          .replacingOccurrences(of: "ß", with: "ss")
          .lowercased()
          .trimmingCharacters(in: .whitespacesAndNewlines)
     }
-    
+
     // Returns stations that roughly match the query by name
     func stationsSuggestion(matching query: String) -> [Station] {
-        let q = normalize(query)
-        
+        let q = Self.normalize(query)
+
         guard !q.isEmpty else { return [] }
-        
+
         var ranked = Array(repeating: [Station](), count: 4)
         for entry in searchIndex {
             guard entry.normalizedName.contains(q) else { continue }
@@ -133,13 +181,13 @@ final class StationStore: ObservableObject ,StationStoring {
     }
 
     func station(id: Int) -> Station? { stationsByID[id] }
-    
+
     // for nearby stations
     func stations(
         near location: CLLocation,
         radiusInMeters radius: Double
     ) -> [Station] {
-        let center = spatialCell(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+        let center = Self.spatialCell(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
         let cellRadius = max(1, Int(ceil(radius / 700)))
         let candidates = (-cellRadius...cellRadius).flatMap { latitudeOffset in
             (-cellRadius...cellRadius).flatMap { longitudeOffset in
@@ -155,11 +203,11 @@ final class StationStore: ObservableObject ,StationStoring {
         }
     }
 
-    private func spatialCell(for station: Station) -> SpatialCell {
+    nonisolated private static func spatialCell(for station: Station) -> SpatialCell {
         spatialCell(latitude: station.lat, longitude: station.lon)
     }
 
-    private func spatialCell(latitude: Double, longitude: Double) -> SpatialCell {
+    nonisolated private static func spatialCell(latitude: Double, longitude: Double) -> SpatialCell {
         SpatialCell(
             latitude: Int(floor(latitude / Self.spatialCellSize)),
             longitude: Int(floor(longitude / Self.spatialCellSize))

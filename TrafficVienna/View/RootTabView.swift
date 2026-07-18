@@ -26,7 +26,7 @@ private enum AppTab: String { case nearby, search, map, alerts, favourites }
 
 struct RootTabView: View {
     @EnvironmentObject private var router: AppRouter
-    @StateObject private var store = StationStore()
+    @StateObject private var store = StationStore(loadSynchronously: false)
     @StateObject private var locationManager = LocationManager()
     @StateObject private var favoritesVM = FavoritesListViewModel()
     @StateObject private var recentSearches = RecentSearchesStore()
@@ -38,7 +38,20 @@ struct RootTabView: View {
     @State private var routedStation: Station?
 
     var body: some View {
-        tabs
+        Group {
+            if store.isReady {
+                tabs
+            } else {
+                VStack(spacing: 14) {
+                    ProgressView()
+                    Text("Preparing Vienna…")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(.systemGroupedBackground))
+            }
+        }
             .overlay(alignment: .top) {
                 if !networkMonitor.isConnected {
                     Text("Offline")

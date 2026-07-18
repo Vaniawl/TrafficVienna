@@ -1874,6 +1874,22 @@
         }
       }
     },
+    "Preparing Vienna…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wien wird vorbereitet…"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Готуємо Відень…"
+          }
+        }
+      }
+    },
     "Provider": {
       "localizations": {
         "de": {

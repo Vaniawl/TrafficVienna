@@ -293,14 +293,19 @@ final class TrafficViennaTests: XCTestCase {
 
     // MARK: - StationStore
 
-    func testLoadStationsNotEmpty() {
-        let store = StationStore()
-        let exp = expectation(description: "Stations loaded")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            XCTAssertGreaterThan(store.stations.count, 0)
-            exp.fulfill()
-        }
-        wait(for: [exp], timeout: 5)
+    @MainActor
+    func testStationStoreLoadsAsynchronouslyWithoutPublishingPartialIndexes() async {
+        let store = StationStore(loadSynchronously: false)
+
+        XCTAssertFalse(store.isReady)
+        XCTAssertTrue(store.stations.isEmpty)
+
+        await store.waitUntilReady()
+
+        XCTAssertTrue(store.isReady)
+        XCTAssertGreaterThan(store.stations.count, 0)
+        guard let station = store.stations.first else { return }
+        XCTAssertEqual(store.station(id: station.id)?.name, station.name)
     }
 
     func testStationLookupByIDUsesIndex() {
