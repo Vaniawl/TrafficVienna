@@ -8,9 +8,16 @@ struct AuthenticationView: View {
     @State private var password = ""
     @State private var isPasswordVisible = false
 
-    private enum Mode: String, CaseIterable {
-        case register = "Create account"
-        case signIn = "Sign in"
+    private enum Mode: CaseIterable {
+        case register
+        case signIn
+
+        var title: LocalizedStringKey {
+            switch self {
+            case .register: "Create account"
+            case .signIn: "Sign in"
+            }
+        }
     }
 
     var body: some View {
@@ -48,12 +55,13 @@ struct AuthenticationView: View {
                 .foregroundStyle(.secondary)
         }
         .multilineTextAlignment(.center)
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
 
     private var authCard: some View {
         VStack(spacing: 18) {
             Picker("Authentication mode", selection: $mode) {
-                ForEach(Mode.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+                ForEach(Mode.allCases, id: \.self) { Text($0.title).tag($0) }
             }
             .pickerStyle(.segmented)
 
@@ -101,7 +109,7 @@ struct AuthenticationView: View {
             }
 
             Button(action: submitEmail) {
-                Text(mode.rawValue)
+                Text(mode.title)
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
@@ -131,6 +139,7 @@ struct AuthenticationView: View {
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
         .overlay { RoundedRectangle(cornerRadius: 28, style: .continuous).stroke(.white.opacity(0.4)) }
         .shadow(color: .black.opacity(0.08), radius: 24, y: 12)
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
 
     private var isUITesting: Bool {

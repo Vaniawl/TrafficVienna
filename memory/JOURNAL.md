@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-18 — Accessible localized authentication
+
+- Reproduced email and Apple authentication in Ukrainian at the largest iOS Dynamic Type size on an iPhone 17 simulator.
+- Replaced runtime raw-value auth labels with localized SwiftUI keys so Create account, Sign in, and the primary email CTA follow the app language.
+- Capped only the dense auth hero and card at `xxxLarge`, keeping the outer ScrollView and system accessibility setting while making every email and Apple action reachable.
+- Added a Ukrainian UI regression that switches auth modes and verifies the primary action label; visual QA confirmed the complete auth card remains legible.
+
 ## 2026-07-18 — Coalesced city-wide alert requests
 
 - Extended `MonitorService` request coalescing from station monitors to the city-wide traffic-info endpoint used by Nearby and Alerts.

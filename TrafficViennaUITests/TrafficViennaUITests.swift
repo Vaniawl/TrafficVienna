@@ -50,6 +50,26 @@ final class TrafficViennaUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Enter a valid email address."].waitForExistence(timeout: 3))
     }
 
+    func testUkrainianAuthenticationModesAreLocalized() {
+        app.terminate()
+        app.launchArguments = [
+            "-ui-testing-reset",
+            "-AppleLanguages", "(uk)",
+            "-AppleLocale", "uk_UA"
+        ]
+        app.launch()
+
+        let submit = app.buttons["auth.submit"]
+        XCTAssertTrue(submit.waitForExistence(timeout: 5))
+        XCTAssertEqual(submit.label, "Створити акаунт")
+
+        let signInMode = app.buttons["Увійти"].firstMatch
+        XCTAssertTrue(signInMode.exists)
+        signInMode.tap()
+
+        XCTAssertEqual(submit.label, "Увійти")
+    }
+
     private func dismissKeyboardIfPresent() {
         let keyboard = app.keyboards.firstMatch
         if keyboard.exists {
