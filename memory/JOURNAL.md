@@ -2,6 +2,7 @@
 
 ## 2026-07-18 — Authentication redesign
 
+- Reworked the home screen again after user feedback into an original neobank-style experience inspired by Revolut's interaction principles: personal avatar header, large blue-violet live card, high-contrast primary action, circular quick actions, and modular information cards. Transport behavior and navigation remain native to TrafficVienna.
 - Replaced the legacy Nearby screen with a full Vienna-branded home experience: custom traffic identity header, time-aware greeting, editorial hero typography, material live-location card, status metrics, integrated account/theme controls, refreshed departure-list header, and material tab bar.
 - Started from clean local `main` and created `codex/auth-redesign`; remote refresh was blocked by the machine's missing GitHub SSH authorization.
 - Added a redesigned auth gate with a Vienna-inspired gradient, registration/sign-in switcher, accessible email/password fields, native Sign in with Apple, validation, and clear device-local privacy copy.

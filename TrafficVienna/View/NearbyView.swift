@@ -5,38 +5,21 @@ import SwiftUI
 struct NearbyView: View {
     @StateObject private var vm: NearbyViewModel
     @ObservedObject private var locationManager: LocationManager
-    @EnvironmentObject private var themeManager: ThemeManager
+    @EnvironmentObject private var auth: AuthStore
     @Environment(\.openURL) private var openURL
+    private let store: StationStore
     @State private var showAccount = false
 
     init(store: StationStore, locationManager: LocationManager) {
+        self.store = store
         _vm = StateObject(wrappedValue: NearbyViewModel(store: store, location: locationManager))
         _locationManager = ObservedObject(wrappedValue: locationManager)
     }
 
     var body: some View {
         ZStack {
-            LinearGradient(
-                colors: [themeManager.preset.accentColor.opacity(0.14), Color(.systemGroupedBackground), Color(.systemGroupedBackground)],
-                startPoint: .topLeading,
-                endPoint: .center
-            )
-            .ignoresSafeArea()
-
-            switch locationManager.authorizationStatus {
-            case .denied, .restricted:
-                stateScreen(icon: "location.slash.fill", eyebrow: "LOCATION REQUIRED", title: "Vienna is waiting", subtitle: "Turn on location to discover live departures and stations around you.", action: ("Open Settings", openSettings))
-            case .notDetermined:
-                stateScreen(icon: "location.fill", eyebrow: "START YOUR JOURNEY", title: "What’s moving nearby?", subtitle: "See every tram, bus and train around you — live and in one place.", action: ("Use my location", locationManager.requestLocationIfNeeded))
-            default:
-                if !vm.hasLocation {
-                    stateScreen(icon: "location.circle.fill", eyebrow: "LOCATING", title: "Finding your place in Vienna", subtitle: "This will only take a moment.", showsProgress: true)
-                } else if vm.items.isEmpty && !vm.isLoading {
-                    stateScreen(icon: "tram.fill", eyebrow: "NO STOPS FOUND", title: "Nothing within 500 m", subtitle: "Move a little closer to a station and refresh the results.")
-                } else {
-                    stationList
-                }
-            }
+            Color(.systemGroupedBackground).ignoresSafeArea()
+            content
         }
         .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: $showAccount) { AccountView() }
@@ -48,150 +31,180 @@ struct NearbyView: View {
         }
     }
 
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 22) {
-            HStack {
-                HStack(spacing: 10) {
-                    Image(systemName: "tram.fill")
-                        .font(.system(size: 17, weight: .bold))
-                        .foregroundStyle(.white)
-                        .frame(width: 40, height: 40)
-                        .background(themeManager.preset.accentColor, in: RoundedRectangle(cornerRadius: 13, style: .continuous))
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text("TRAFFIC").font(.caption2.bold()).tracking(1.8)
-                        Text("VIENNA").font(.caption2.bold()).tracking(1.8).foregroundStyle(themeManager.preset.accentColor)
-                    }
-                }
-                Spacer()
-                themeMenu
-                Button { showAccount = true } label: {
-                    Image(systemName: "person.crop.circle.fill")
-                        .font(.title2)
-                        .frame(width: 42, height: 42)
-                        .background(.thinMaterial, in: Circle())
-                }
-                .accessibilityLabel("Account")
-            }
-
-            VStack(alignment: .leading, spacing: 6) {
-                Text(greeting).font(.subheadline.weight(.medium)).foregroundStyle(.secondary)
-                Text("Move through Vienna\nwithout the guesswork.")
-                    .font(.system(size: 34, weight: .bold, design: .rounded))
-                    .tracking(-0.7)
+    @ViewBuilder
+    private var content: some View {
+        switch locationManager.authorizationStatus {
+        case .denied, .restricted:
+            dashboard(state: .locationOff)
+        case .notDetermined:
+            dashboard(state: .permission)
+        default:
+            if !vm.hasLocation {
+                dashboard(state: .locating)
+            } else if vm.items.isEmpty && !vm.isLoading {
+                dashboard(state: .empty)
+            } else {
+                departuresDashboard
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 12)
     }
 
-    private var themeMenu: some View {
-        Menu {
-            ForEach(ThemePreset.allCases) { preset in
-                Button {
-                    ThemeManager.shared.preset = preset
-                } label: {
-                    Label(preset.displayName, systemImage: ThemeManager.shared.preset == preset ? "checkmark.circle.fill" : "circle")
-                }
+    private var topBar: some View {
+        HStack(spacing: 12) {
+            Button { showAccount = true } label: {
+                Text(initials)
+                    .font(.subheadline.bold())
+                    .foregroundStyle(.white)
+                    .frame(width: 44, height: 44)
+                    .background(Color.black, in: Circle())
             }
-        } label: {
-            Image(systemName: "paintpalette.fill")
-                .frame(width: 42, height: 42)
-                .background(.thinMaterial, in: Circle())
+            .accessibilityLabel("Account")
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text(greeting).font(.caption).foregroundStyle(.secondary)
+                Text(auth.session?.displayName ?? "Traffic Vienna")
+                    .font(.headline)
+                    .lineLimit(1)
+            }
+            Spacer()
+            Button { Task { await vm.load(force: true) } } label: {
+                Image(systemName: "arrow.clockwise")
+                    .font(.system(size: 16, weight: .semibold))
+                    .frame(width: 44, height: 44)
+                    .background(Color(.secondarySystemGroupedBackground), in: Circle())
+            }
+            .disabled(vm.isRefreshing)
+            .accessibilityLabel("Refresh departures")
         }
-        .accessibilityLabel("Change theme")
     }
 
-    private var greeting: String {
-        let hour = Calendar.current.component(.hour, from: .now)
-        let period = hour < 12 ? "Good morning" : (hour < 18 ? "Good afternoon" : "Good evening")
-        return "\(period) · Live city departures"
-    }
-
-    private func stateScreen(icon: String, eyebrow: String, title: String, subtitle: String, action: (title: String, perform: () -> Void)? = nil, showsProgress: Bool = false) -> some View {
+    private func dashboard(state: DashboardState) -> some View {
         ScrollView {
-            VStack(spacing: 26) {
-                header
-                VStack(alignment: .leading, spacing: 24) {
-                    HStack(alignment: .top) {
-                        Image(systemName: icon)
-                            .font(.system(size: 32, weight: .semibold))
-                            .foregroundStyle(.white)
-                            .frame(width: 68, height: 68)
-                            .background(themeManager.preset.accentColor.gradient, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-                        Spacer()
-                        Text("LIVE")
-                            .font(.caption2.bold()).tracking(1.5)
-                            .foregroundStyle(themeManager.preset.accentColor)
-                            .padding(.horizontal, 10).padding(.vertical, 7)
-                            .background(themeManager.preset.accentColor.opacity(0.1), in: Capsule())
-                    }
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(eyebrow).font(.caption.bold()).tracking(1.4).foregroundStyle(themeManager.preset.accentColor)
-                        Text(title).font(.title2.bold())
-                        Text(subtitle).font(.body).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-                    }
-                    if showsProgress { ProgressView().tint(themeManager.preset.accentColor) }
-                    if let action {
-                        Button(action: action.perform) {
-                            HStack {
-                                Text(action.title).fontWeight(.semibold)
-                                Spacer()
-                                Image(systemName: "arrow.up.right")
-                            }
-                            .padding(.horizontal, 18).frame(height: 54)
-                        }
-                        .buttonStyle(.plain)
-                        .foregroundStyle(.white)
-                        .background(themeManager.preset.accentColor, in: RoundedRectangle(cornerRadius: 17, style: .continuous))
-                    }
-                }
-                .padding(22)
-                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
-                .overlay { RoundedRectangle(cornerRadius: 28, style: .continuous).stroke(.white.opacity(0.55)) }
-                .shadow(color: .black.opacity(0.08), radius: 24, y: 14)
-                .padding(.horizontal, 20)
-
-                HStack(spacing: 0) {
-                    metric("5", "transport modes")
-                    Divider().frame(height: 36)
-                    metric("24/7", "live updates")
-                    Divider().frame(height: 36)
-                    metric("500 m", "nearby radius")
-                }
-                .padding(.vertical, 16)
-                .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-                .padding(.horizontal, 20)
+            VStack(spacing: 24) {
+                topBar
+                heroCard(state)
+                quickActions
+                insightCard
             }
-            .padding(.bottom, 30)
+            .padding(.horizontal, 18)
+            .padding(.top, 12)
+            .padding(.bottom, 32)
         }
     }
 
-    private func metric(_ value: String, _ label: String) -> some View {
-        VStack(spacing: 3) {
-            Text(value).font(.subheadline.bold())
-            Text(label).font(.caption2).foregroundStyle(.secondary)
+    private func heroCard(_ state: DashboardState) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                Label("VIENNA LIVE", systemImage: "wave.3.right")
+                    .font(.caption2.bold()).tracking(1.2)
+                Spacer()
+                Text(state.badge)
+                    .font(.caption.bold())
+                    .padding(.horizontal, 10).padding(.vertical, 6)
+                    .background(.white.opacity(0.18), in: Capsule())
+            }
+
+            Spacer(minLength: 34)
+
+            Image(systemName: state.icon)
+                .font(.system(size: 30, weight: .semibold))
+                .frame(width: 60, height: 60)
+                .background(.white.opacity(0.18), in: Circle())
+
+            Spacer(minLength: 22)
+
+            Text(state.title)
+                .font(.system(size: 32, weight: .bold, design: .rounded))
+                .tracking(-0.7)
+            Text(state.subtitle)
+                .font(.subheadline)
+                .foregroundStyle(.white.opacity(0.78))
+                .padding(.top, 8)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if state.showsProgress {
+                ProgressView().tint(.white).padding(.top, 20)
+            } else if let actionTitle = state.actionTitle {
+                Button {
+                    state.perform(using: locationManager, openSettings: openSettings)
+                } label: {
+                    HStack {
+                        Text(actionTitle).fontWeight(.semibold)
+                        Spacer()
+                        Image(systemName: "arrow.right")
+                    }
+                    .foregroundStyle(.black)
+                    .padding(.horizontal, 18)
+                    .frame(height: 52)
+                    .background(.white, in: Capsule())
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 24)
+            }
+        }
+        .foregroundStyle(.white)
+        .padding(22)
+        .frame(maxWidth: .infinity, minHeight: 370, alignment: .topLeading)
+        .background(
+            LinearGradient(colors: [Color(hex: 0x635BFF), Color(hex: 0x2F28C9), Color(hex: 0x15112E)], startPoint: .topLeading, endPoint: .bottomTrailing),
+            in: RoundedRectangle(cornerRadius: 30, style: .continuous)
+        )
+        .shadow(color: Color(hex: 0x4338CA).opacity(0.24), radius: 24, y: 14)
+    }
+
+    private var quickActions: some View {
+        HStack(alignment: .top, spacing: 0) {
+            actionButton("Locate", icon: "location.fill") { locationManager.requestLocationIfNeeded() }
+            NavigationLink { SearchView(store: store) } label: { actionLabel("Search", icon: "magnifyingglass") }
+            NavigationLink { MapStationsView(store: store, locationManager: locationManager) } label: { actionLabel("Map", icon: "map.fill") }
+            actionButton("Refresh", icon: "arrow.clockwise") { Task { await vm.load(force: true) } }
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func actionButton(_ title: String, icon: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) { actionLabel(title, icon: icon) }
+    }
+
+    private func actionLabel(_ title: String, icon: String) -> some View {
+        VStack(spacing: 9) {
+            Image(systemName: icon)
+                .font(.system(size: 18, weight: .semibold))
+                .frame(width: 52, height: 52)
+                .background(Color(.secondarySystemGroupedBackground), in: Circle())
+            Text(title).font(.caption).foregroundStyle(.primary)
         }
         .frame(maxWidth: .infinity)
     }
 
-    private var stationList: some View {
+    private var insightCard: some View {
+        HStack(spacing: 16) {
+            Image(systemName: "bolt.fill")
+                .foregroundStyle(Color(hex: 0x635BFF))
+                .frame(width: 44, height: 44)
+                .background(Color(hex: 0x635BFF).opacity(0.12), in: Circle())
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Live departures").font(.headline)
+                Text("Automatic updates every 60 seconds").font(.subheadline).foregroundStyle(.secondary)
+            }
+            Spacer()
+            Image(systemName: "chevron.right").font(.caption.bold()).foregroundStyle(.tertiary)
+        }
+        .padding(18)
+        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+    }
+
+    private var departuresDashboard: some View {
         ScrollView {
             LazyVStack(spacing: 12) {
-                header
-                HStack {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("AROUND YOU").font(.caption2.bold()).tracking(1.4).foregroundStyle(themeManager.preset.accentColor)
-                        Text("Next departures").font(.title2.bold())
-                    }
-                    Spacer()
-                    Button { Task { await vm.load(force: true) } } label: {
-                        if vm.isRefreshing { ProgressView().controlSize(.small) } else { Image(systemName: "arrow.clockwise") }
-                    }
-                    .frame(width: 42, height: 42)
-                    .background(.thinMaterial, in: Circle())
-                    .disabled(vm.isRefreshing)
+                topBar.padding(.horizontal, 18)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Nearby now").font(.system(size: 34, weight: .bold, design: .rounded))
+                    Text("Live departures within 500 metres").font(.subheadline).foregroundStyle(.secondary)
                 }
-                .padding(.horizontal, 20).padding(.top, 8)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 18).padding(.vertical, 12)
+                quickActions.padding(.horizontal, 8).padding(.bottom, 8)
 
                 ForEach(vm.items) { item in
                     NavigationLink { StationDetailView(station: item.station) } label: {
@@ -208,12 +221,23 @@ struct NearbyView: View {
                         ShareLink(item: "\(station.name) — live departures on Traffic Vienna")
                         Button { openInMaps(station) } label: { Label("Open in Maps", systemImage: "map") }
                     }
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, 18)
                 }
             }
-            .padding(.bottom, 20)
+            .padding(.top, 12).padding(.bottom, 24)
         }
         .refreshable { await vm.load(force: true) }
+    }
+
+    private var initials: String {
+        let source = auth.session?.displayName ?? auth.session?.email ?? "TV"
+        let words = source.split(whereSeparator: { $0 == " " || $0 == "@" })
+        return words.prefix(2).compactMap(\.first).map(String.init).joined().uppercased()
+    }
+
+    private var greeting: String {
+        let hour = Calendar.current.component(.hour, from: .now)
+        return hour < 12 ? "Good morning" : (hour < 18 ? "Good afternoon" : "Good evening")
     }
 
     private func openInMaps(_ station: Station) {
@@ -228,8 +252,62 @@ struct NearbyView: View {
     }
 }
 
+private enum DashboardState {
+    case permission, locationOff, locating, empty
+
+    var badge: String {
+        switch self {
+        case .permission: "SET UP"
+        case .locationOff: "OFFLINE"
+        case .locating: "CONNECTING"
+        case .empty: "NO RESULTS"
+        }
+    }
+    var icon: String {
+        switch self {
+        case .permission: "location.fill"
+        case .locationOff: "location.slash.fill"
+        case .locating: "scope"
+        case .empty: "tram.fill"
+        }
+    }
+    var title: String {
+        switch self {
+        case .permission: "Everything around you, live."
+        case .locationOff: "Location is turned off."
+        case .locating: "Finding nearby departures."
+        case .empty: "No stops within 500 m."
+        }
+    }
+    var subtitle: String {
+        switch self {
+        case .permission: "Allow location once and turn every nearby stop into a live departure board."
+        case .locationOff: "Enable it in Settings to see nearby stops and real-time departures."
+        case .locating: "Connecting your position to Vienna’s transport network."
+        case .empty: "Try again from another location or open the map to explore the city."
+        }
+    }
+    var actionTitle: String? {
+        switch self {
+        case .permission: "Enable location"
+        case .locationOff: "Open Settings"
+        case .empty: nil
+        case .locating: nil
+        }
+    }
+    var showsProgress: Bool { self == .locating }
+
+    func perform(using manager: LocationManager, openSettings: () -> Void) {
+        switch self {
+        case .permission: manager.requestLocationIfNeeded()
+        case .locationOff: openSettings()
+        case .empty: break
+        case .locating: break
+        }
+    }
+}
+
 #Preview {
     NavigationStack { NearbyView(store: StationStore(), locationManager: LocationManager()) }
-        .environmentObject(ThemeManager.shared)
         .environmentObject(AuthStore())
 }
