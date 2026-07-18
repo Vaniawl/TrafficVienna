@@ -41,6 +41,17 @@
                ReferencedContainer = "container:TrafficVienna.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B10000000000000000000003"
+               BuildableName = "TrafficViennaUITests.xctest"
+               BlueprintName = "TrafficViennaUITests"
+               ReferencedContainer = "container:TrafficVienna.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

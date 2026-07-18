@@ -1,5 +1,15 @@
 # Journal
 
+## 2026-07-18 — Auth and navigation UI automation
+
+- Added a native `TrafficViennaUITests` target to the shared scheme and kept it non-parallel to avoid shared simulator state races.
+- Added stable accessibility identifiers for email, password, and submit controls.
+- Added UI smoke coverage for email registration through main-tab navigation and invalid-email validation feedback.
+- Added a DEBUG-only `-ui-testing-reset` launch path that clears the session, skips onboarding, and uses an isolated in-memory Keychain substitute; production storage remains unchanged.
+- Removed the obsolete CI escape hatch that treated a missing XCTest bundle as success now that both unit and UI targets are explicitly wired.
+- Updated README, troubleshooting, and release evidence to match the verified test configuration.
+- The full shared scheme passes on iPhone 17 Simulator with unit, performance, and UI tests.
+
 ## 2026-07-18 — Explicit offline and stale-data UX
 
 - Added typed service freshness metadata for network, fresh memory cache, and stale fallback results without removing the existing response APIs.

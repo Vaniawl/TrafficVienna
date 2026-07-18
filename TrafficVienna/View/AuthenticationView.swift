@@ -64,6 +64,7 @@ struct AuthenticationView: View {
                         .keyboardType(.emailAddress)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .accessibilityIdentifier("auth.email")
                 } icon: { Image(systemName: "envelope") }
                 .padding(14)
                 .background(.quaternary, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
@@ -78,6 +79,7 @@ struct AuthenticationView: View {
                             }
                         }
                         .textContentType(mode == .register ? .newPassword : .password)
+                        .accessibilityIdentifier("auth.password")
 
                         Button { isPasswordVisible.toggle() } label: {
                             Image(systemName: isPasswordVisible ? "eye.slash" : "eye")
@@ -106,6 +108,7 @@ struct AuthenticationView: View {
             }
             .buttonStyle(.borderedProminent)
             .tint(Color(hex: 0xE20917))
+            .accessibilityIdentifier("auth.submit")
 
             HStack { Divider(); Text("or").font(.footnote).foregroundStyle(.secondary); Divider() }
 

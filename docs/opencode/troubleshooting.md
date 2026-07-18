@@ -19,7 +19,7 @@ explicit XCTest skip after repository and OpenCode validation pass.
 
 ## `There are no test bundles available to test`
 
-The repository currently includes `TrafficViennaTests/TrafficViennaTests.swift`, but the Xcode project may not expose a runnable XCTest bundle to the `TrafficVienna` scheme on CI. `scripts/test.sh` treats that exact Xcode message as an explicit XCTest skip and still runs repository/OpenCode validation. Any other Xcode test failure remains fatal.
+The shared `TrafficVienna` scheme includes both `TrafficViennaTests` and `TrafficViennaUITests`. This message indicates a project/scheme wiring regression and `scripts/test.sh` treats it as a failure. Confirm both targets still appear in `xcodebuild -project TrafficVienna.xcodeproj -list` and both `TestableReference` entries remain in the shared scheme.
 
 ## `opencode: command not found`
 

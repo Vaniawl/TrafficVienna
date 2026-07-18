@@ -13,6 +13,15 @@ struct TrafficViennaApp: App {
     @StateObject private var router = AppRouter()
     @StateObject private var routines = CommuteRoutineStore()
 
+    init() {
+#if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-ui-testing-reset") {
+            UserDefaults.standard.removeObject(forKey: "auth.session")
+            UserDefaults.standard.set(true, forKey: "hasOnboarded")
+        }
+#endif
+    }
+
     var body: some Scene {
         WindowGroup {
             Group {

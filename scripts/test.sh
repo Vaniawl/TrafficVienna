@@ -38,9 +38,4 @@ if [[ "$status" -eq 0 ]]; then
   exit 0
 fi
 
-if grep -q "There are no test bundles available to test" "$test_log"; then
-  echo "[test] no runnable XCTest bundle is configured for the TrafficVienna scheme; skipping XCTest"
-  exit 0
-fi
-
 exit "$status"

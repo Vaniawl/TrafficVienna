@@ -46,11 +46,20 @@ final class AuthStore: ObservableObject {
     private let passwordIterations: UInt32 = 120_000
 
     init(keychain: KeychainStoring? = nil, defaults: UserDefaults = .standard) {
-        self.keychain = keychain ?? KeychainStore()
+        self.keychain = keychain ?? Self.defaultKeychain()
         self.defaults = defaults
         if let data = defaults.data(forKey: sessionKey) {
             session = try? JSONDecoder().decode(AuthSession.self, from: data)
         }
+    }
+
+    private static func defaultKeychain() -> KeychainStoring {
+#if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-ui-testing-reset") {
+            return UITestKeychainStore()
+        }
+#endif
+        return KeychainStore()
     }
 
     func register(email: String, password: String) throws {
@@ -189,6 +198,19 @@ final class AuthStore: ObservableObject {
         }
     }
 }
+
+#if DEBUG
+private final class UITestKeychainStore: KeychainStoring {
+    private var storage: [String: Data] = [:]
+
+    func data(for key: String) -> Data? { storage[key] }
+
+    func set(_ data: Data, for key: String) -> Bool {
+        storage[key] = data
+        return true
+    }
+}
+#endif
 
 private struct EmailAccount: Codable {
     let email: String

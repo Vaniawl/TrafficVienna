@@ -6,7 +6,7 @@ The branch is suitable for draft-PR and simulator QA. It is not ready for App St
 
 ## Evidence
 
-- `xcodebuild ... test` passes on the iPhone 17 Simulator with the app, widget extension, and unit/performance test target.
+- `xcodebuild ... test` passes on the iPhone 17 Simulator with the app, widget extension, unit/performance target, and UI smoke target covering email registration plus primary navigation.
 - Live API access is HTTPS-only, rate-limited, cached, coalesced, time-bounded, and has stale-response fallback.
 - Password verifiers are kept in Keychain; non-secret session metadata alone is kept in UserDefaults.
 - Polling is limited to the active tab and overlapping Nearby refreshes are rejected.

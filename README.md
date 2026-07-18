@@ -16,7 +16,7 @@ SwiftUI iOS app for live Vienna public transport departures.
 xcodebuild -scheme TrafficVienna -project TrafficVienna.xcodeproj -destination 'platform=iOS Simulator,name=iPhone 17' test
 ```
 
-The shared scheme includes the application, widget extension, and `TrafficViennaTests` unit/performance target.
+The shared scheme includes the application, widget extension, `TrafficViennaTests` unit/performance target, and `TrafficViennaUITests` smoke target. UI coverage verifies email registration, validation messaging, and primary tab navigation with an isolated DEBUG-only test store.
 
 ## Distribution limitations
 
