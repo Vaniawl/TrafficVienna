@@ -7,6 +7,12 @@ struct AuthenticationView: View {
     @State private var email = ""
     @State private var password = ""
     @State private var isPasswordVisible = false
+    @FocusState private var focusedField: Field?
+
+    private enum Field {
+        case email
+        case password
+    }
 
     private enum Mode: CaseIterable {
         case register
@@ -72,6 +78,9 @@ struct AuthenticationView: View {
                         .keyboardType(.emailAddress)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .submitLabel(.next)
+                        .focused($focusedField, equals: .email)
+                        .onSubmit { focusedField = .password }
                         .accessibilityIdentifier("auth.email")
                 } icon: { Image(systemName: "envelope") }
                 .padding(14)
@@ -82,14 +91,23 @@ struct AuthenticationView: View {
                         Group {
                             if isPasswordVisible {
                                 TextField("Password", text: $password)
+                                    .focused($focusedField, equals: .password)
+                                    .submitLabel(.go)
+                                    .onSubmit(submitFromKeyboard)
                             } else {
                                 SecureField("Password", text: $password)
+                                    .focused($focusedField, equals: .password)
+                                    .submitLabel(.go)
+                                    .onSubmit(submitFromKeyboard)
                             }
                         }
                         .textContentType(isUITesting ? nil : (mode == .register ? .newPassword : .password))
                         .accessibilityIdentifier("auth.password")
 
-                        Button { isPasswordVisible.toggle() } label: {
+                        Button {
+                            isPasswordVisible.toggle()
+                            focusedField = .password
+                        } label: {
                             Image(systemName: isPasswordVisible ? "eye.slash" : "eye")
                                 .foregroundStyle(.secondary)
                         }
@@ -151,6 +169,9 @@ struct AuthenticationView: View {
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
         }
+        .onChange(of: email) { _, _ in auth.clearError() }
+        .onChange(of: password) { _, _ in auth.clearError() }
+        .onChange(of: mode) { _, _ in auth.clearError() }
         .padding(20)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
         .overlay { RoundedRectangle(cornerRadius: 28, style: .continuous).stroke(.white.opacity(0.4)) }
@@ -191,6 +212,8 @@ struct AuthenticationView: View {
     }
 
     private func submitEmail() {
+        guard canSubmitEmail else { return }
+        focusedField = nil
         do {
             if mode == .register {
                 try auth.register(email: email, password: password)
@@ -200,6 +223,11 @@ struct AuthenticationView: View {
         } catch {
             auth.errorMessage = error.localizedDescription
         }
+    }
+
+    private func submitFromKeyboard() {
+        guard canSubmitEmail else { return }
+        submitEmail()
     }
 }
 

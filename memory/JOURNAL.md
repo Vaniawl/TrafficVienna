@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-18 — Keyboard-complete authentication flow
+
+- Added explicit SwiftUI focus ownership for email and password fields with a Next action from email and a Go action from password.
+- Allowed a valid form to register or sign in directly from the keyboard while guarding the same shared validation boundary as the visible CTA.
+- Kept password focus when toggling visibility and dismissed focus before secure authentication work begins.
+- Cleared stale presentation errors when the user edits either field or switches auth mode; UI regressions cover keyboard registration and error recovery.
+
 ## 2026-07-18 — Localized authentication errors
 
 - Localized all five `AuthError` descriptions at the domain boundary instead of exposing fixed English strings through `LocalizedError`.

@@ -145,6 +145,10 @@ final class AuthStore: ObservableObject {
         errorMessage = nil
     }
 
+    func clearError() {
+        errorMessage = nil
+    }
+
     func removeCurrentAccountFromDevice() throws {
         guard let session else { return }
         if session.provider == .email {

@@ -59,6 +59,25 @@ final class TrafficViennaUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["auth.password.validation"].exists)
     }
 
+    func testKeyboardNextAndGoCompleteEmailRegistration() {
+        let email = app.textFields["auth.email"]
+        XCTAssertTrue(email.waitForExistence(timeout: 5))
+        email.tap()
+        email.typeText("keyboard-\(UUID().uuidString.lowercased())@example.com")
+
+        let next = app.keyboards.buttons.matching(NSPredicate(format: "label ==[c] %@", "Next")).firstMatch
+        XCTAssertTrue(next.exists)
+        next.tap()
+
+        let password = app.secureTextFields["auth.password"]
+        password.typeText("tramline26")
+        let go = app.keyboards.buttons.matching(NSPredicate(format: "label ==[c] %@", "Go")).firstMatch
+        XCTAssertTrue(go.exists)
+        go.tap()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 8))
+    }
+
     func testUkrainianAuthenticationModesAreLocalized() {
         app.terminate()
         app.launchArguments = [
@@ -118,6 +137,11 @@ final class TrafficViennaUITests: XCTestCase {
         let error = app.staticTexts["auth.error"]
         XCTAssertTrue(error.waitForExistence(timeout: 3))
         XCTAssertEqual(error.label, "Неправильна електронна адреса або пароль.")
+
+        app.scrollViews.firstMatch.swipeDown()
+        email.tap()
+        email.typeText("x")
+        XCTAssertFalse(error.exists)
     }
 
     private func dismissKeyboardIfPresent() {
