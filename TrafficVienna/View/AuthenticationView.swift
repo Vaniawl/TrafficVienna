@@ -83,6 +83,8 @@ struct AuthenticationView: View {
                             Image(systemName: isPasswordVisible ? "eye.slash" : "eye")
                                 .foregroundStyle(.secondary)
                         }
+                        .accessibilityLabel(isPasswordVisible ? "Hide password" : "Show password")
+                        .accessibilityHint("Changes whether the password is visible on screen")
                     }
                 } icon: { Image(systemName: "lock") }
                 .padding(14)
@@ -115,6 +117,7 @@ struct AuthenticationView: View {
             .signInWithAppleButtonStyle(.black)
             .frame(height: 50)
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .accessibilityHint("Uses your Apple ID to create or open your account")
 
             Text("Email accounts are stored securely on this device. Apple ID uses Apple's private authentication flow.")
                 .font(.caption)

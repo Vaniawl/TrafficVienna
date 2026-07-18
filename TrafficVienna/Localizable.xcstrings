@@ -17,6 +17,22 @@
         }
       }
     },
+    "%@, followed by %@ minutes": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, danach in %@ Minuten"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, далі через %@ хв"
+          }
+        }
+      }
+    },
     "%lld": {
       "localizations": {
         "uk": {
@@ -209,6 +225,22 @@
         }
       }
     },
+    "Allow location once and turn every nearby stop into a live departure board.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erlaube einmalig den Standortzugriff und verwandle jede Haltestelle in der Nähe in eine Live-Abfahrtstafel."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Надайте доступ до геолокації один раз і перетворіть кожну зупинку поруч на табло актуальних відправлень."
+          }
+        }
+      }
+    },
     "Authentication mode": {
       "localizations": {
         "de": {
@@ -237,6 +269,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Змінити тему"
+          }
+        }
+      }
+    },
+    "Changes whether the password is visible on screen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Legt fest, ob das Passwort auf dem Bildschirm sichtbar ist"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Змінює видимість пароля на екрані"
           }
         }
       }
@@ -273,6 +321,22 @@
         }
       }
     },
+    "Collapsed": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eingeklappt"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Згорнуто"
+          }
+        }
+      }
+    },
     "CONNECTING": {
       "localizations": {
         "de": {
@@ -285,6 +349,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "ПІДКЛЮЧЕННЯ"
+          }
+        }
+      }
+    },
+    "Connecting your position to Vienna’s transport network.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Standort wird mit dem Wiener Verkehrsnetz verbunden."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Підключаємо ваше місцезнаходження до транспортної мережі Відня."
           }
         }
       }
@@ -385,6 +465,22 @@
         }
       }
     },
+    "departing now": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "fährt jetzt ab"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "відправляється зараз"
+          }
+        }
+      }
+    },
     "Departure times are provided live by Wiener Linien and may differ from actual service.": {
       "localizations": {
         "de": {
@@ -449,6 +545,22 @@
         }
       }
     },
+    "Double-tap to show or hide the full description": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Doppeltippen, um die vollständige Beschreibung ein- oder auszublenden"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Двічі торкніться, щоб показати або приховати повний опис"
+          }
+        }
+      }
+    },
     "Email": {
       "localizations": {
         "de": {
@@ -493,6 +605,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Акаунти електронної пошти безпечно зберігаються на цьому пристрої. Apple ID використовує приватний процес автентифікації Apple."
+          }
+        }
+      }
+    },
+    "Enable it in Settings to see nearby stops and real-time departures.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktiviere den Standort in den Einstellungen, um Haltestellen und Echtzeit-Abfahrten in deiner Nähe zu sehen."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Увімкніть геолокацію в Параметрах, щоб бачити зупинки поруч і відправлення в реальному часі."
           }
         }
       }
@@ -577,6 +705,22 @@
         }
       }
     },
+    "Expanded": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausgeklappt"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Розгорнуто"
+          }
+        }
+      }
+    },
     "Favourites": {
       "localizations": {
         "de": {
@@ -621,6 +765,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Знайдіть свою станцію"
+          }
+        }
+      }
+    },
+    "Finding nearby departures.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abfahrten in der Nähe werden gesucht."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Шукаємо найближчі відправлення."
           }
         }
       }
@@ -689,6 +849,22 @@
         }
       }
     },
+    "Hide password": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passwort ausblenden"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Приховати пароль"
+          }
+        }
+      }
+    },
     "Licence": {
       "localizations": {
         "de": {
@@ -701,6 +877,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ліцензія"
+          }
+        }
+      }
+    },
+    "Line %@ towards %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linie %@ Richtung %@"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Лінія %@ у напрямку %@"
           }
         }
       }
@@ -898,6 +1090,22 @@
         }
       }
     },
+    "Location is turned off.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Standort ist deaktiviert."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Геолокацію вимкнено."
+          }
+        }
+      }
+    },
     "Map": {
       "localizations": {
         "de": {
@@ -978,6 +1186,38 @@
         }
       }
     },
+    "next departure in %lld minutes": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nächste Abfahrt in %lld Minuten"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "наступне відправлення через %lld хв"
+          }
+        }
+      }
+    },
+    "No departure time available": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Abfahrtszeit verfügbar"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Час відправлення недоступний"
+          }
+        }
+      }
+    },
     "No departures": {
       "localizations": {
         "de": {
@@ -1054,6 +1294,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Немає сценаріїв"
+          }
+        }
+      }
+    },
+    "No stops within 500 m.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Haltestellen im Umkreis von 500 m."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У радіусі 500 м немає зупинок."
           }
         }
       }
@@ -1522,6 +1778,22 @@
         }
       }
     },
+    "Show password": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passwort anzeigen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Показати пароль"
+          }
+        }
+      }
+    },
     "Showing Vienna centre — enable location to see stops near you.": {
       "localizations": {
         "uk": {
@@ -1730,6 +2002,22 @@
         }
       }
     },
+    "Try again from another location or open the map to explore the city.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versuche es an einem anderen Ort erneut oder öffne die Karte, um die Stadt zu erkunden."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Спробуйте ще раз в іншому місці або відкрийте мапу, щоб переглянути місто."
+          }
+        }
+      }
+    },
     "Try another station name.": {
       "localizations": {
         "de": {
@@ -1806,6 +2094,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "щойно оновлено"
+          }
+        }
+      }
+    },
+    "Updates this line in your favourites": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktualisiert diese Linie in deinen Favoriten"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оновлює цю лінію в обраному"
+          }
+        }
+      }
+    },
+    "Uses your Apple ID to create or open your account": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verwendet deine Apple-ID, um dein Konto zu erstellen oder zu öffnen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Використовує Apple ID для створення або відкриття облікового запису"
           }
         }
       }

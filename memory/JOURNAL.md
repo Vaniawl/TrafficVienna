@@ -1,5 +1,14 @@
 # Journal
 
+## 2026-07-18 — Dark mode and VoiceOver pass
+
+- Added concise VoiceOver labels and hints for password visibility, Apple sign-in, station refresh, and favourite-line controls.
+- Combined each departure row into one meaningful accessibility element with localized line, destination, next-departure, and follow-up values.
+- Added expanded/collapsed semantics and an accessibility activation action to long disruption descriptions; decorative shared icons are hidden from the accessibility tree.
+- Departure-row numeric transitions now respect Reduce Motion.
+- Completed missing German and Ukrainian localization for all dynamically generated dashboard states and the new accessibility copy.
+- Verified the Ukrainian home in dark mode with accessibility-extra-large text and increased contrast on iPhone 17 Simulator; full XCTest and repository validations pass.
+
 ## 2026-07-18 — Ukrainian localization and accessibility polish
 
 - Completed German and Ukrainian translations for the current UI catalog and added a deterministic localization updater/check to repository validation.

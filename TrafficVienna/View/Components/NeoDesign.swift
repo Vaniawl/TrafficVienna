@@ -40,6 +40,7 @@ struct NeoIcon: View {
             .foregroundStyle(tint)
             .frame(width: 46, height: 46)
             .background(tint.opacity(0.12), in: Circle())
+            .accessibilityHidden(true)
     }
 }
 

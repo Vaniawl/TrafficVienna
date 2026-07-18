@@ -56,6 +56,13 @@ struct DisruptionRow: View {
         .onTapGesture {
             if hasLongDescription { withAnimation(.easeInOut(duration: 0.2)) { expanded.toggle() } }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(hasLongDescription ? .isButton : [])
+        .accessibilityValue(hasLongDescription ? (expanded ? "Expanded" : "Collapsed") : "")
+        .accessibilityHint(hasLongDescription ? "Double-tap to show or hide the full description" : "")
+        .accessibilityAction {
+            if hasLongDescription { expanded.toggle() }
+        }
         .padding(.vertical, 2)
     }
 }

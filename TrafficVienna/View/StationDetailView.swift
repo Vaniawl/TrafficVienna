@@ -41,6 +41,7 @@ struct StationDetailView: View {
                         Image(systemName: "arrow.clockwise")
                     }
                     .disabled(vm.isLoading)
+                    .accessibilityLabel("Refresh departures")
                 }
             }
             .task {
@@ -156,6 +157,7 @@ struct StationDetailView: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(isFav ? "Remove \(group.line) from favourites" : "Save \(group.line) to favourites")
+                .accessibilityHint("Updates this line in your favourites")
             } else {
                 Color.clear
                     .frame(width: 44)

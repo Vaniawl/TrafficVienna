@@ -14,6 +14,8 @@
 import SwiftUI
 
 struct DepartureLineRow: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     let lineName: String
     let destination: String
     var minutes: [Int] = []
@@ -63,7 +65,10 @@ struct DepartureLineRow: View {
                     .frame(width: followColumn, alignment: .trailing)
             }
         }
-        .animation(.snappy, value: minutes)
+        .animation(reduceMotion ? nil : .snappy, value: minutes)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityLabel)
+        .accessibilityValue(accessibilityValue)
     }
 
     @ViewBuilder
@@ -145,6 +150,20 @@ struct DepartureLineRow: View {
         case .hurry:  return .orange
         default:      return .primary
         }
+    }
+
+    private var accessibilityLabel: String {
+        String(localized: "Line \(lineName) towards \(destination)")
+    }
+
+    private var accessibilityValue: String {
+        guard let next = minutes.first else { return String(localized: "No departure time available") }
+        let nextText = next <= 0
+            ? String(localized: "departing now")
+            : String(localized: "next departure in \(next) minutes")
+        let following = minutes.dropFirst().prefix(2).map(String.init).joined(separator: ", ")
+        guard !following.isEmpty else { return nextText }
+        return String(localized: "\(nextText), followed by \(following) minutes")
     }
 }
 
