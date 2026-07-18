@@ -10,6 +10,7 @@ The branch is suitable for draft-PR and simulator QA. It is not ready for App St
 - Live API access is HTTPS-only, rate-limited, cached, coalesced, time-bounded, and has stale-response fallback.
 - Password verifiers are kept in Keychain; non-secret session metadata alone is kept in UserDefaults.
 - Polling is limited to the active tab and overlapping Nearby refreshes are rejected.
+- The built app and widget bundles each contain a valid `PrivacyInfo.xcprivacy`; UserDefaults usage declares `CA92.1`/`1C8F.1` as applicable, with tracking disabled and no collected-data types for the current on-device architecture.
 
 ## Security findings
 
@@ -26,6 +27,8 @@ No Critical or High findings were observed in the reviewed local-only threat bou
 3. Select a backend before password recovery or cross-device account claims.
 4. Select a licensed GTFS/routing source before implementing A→B journeys.
 5. Run protected macOS CI and device-level notification, Apple ID, widget, and offline QA.
+6. Publish `docs/PRIVACY.md` at a stable public HTTPS URL and enter it in App Store Connect.
+7. Obtain or verify the Wiener Linien realtime API's IP logging/retention terms and use that evidence to finalize the App Store Connect privacy label.
 
 ## Compatibility and rollback
 

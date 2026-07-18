@@ -1,5 +1,14 @@
 # Journal
 
+## 2026-07-18 — App Store privacy manifest readiness
+
+- Audited required-reason API usage against the app and widget source: the app uses app-only and App Group UserDefaults, while the widget uses App Group UserDefaults.
+- Added valid app and widget `PrivacyInfo.xcprivacy` files with `CA92.1` and/or `1C8F.1`, tracking disabled, no tracking domains, and no collected-data entries for the current developer-controlled on-device architecture.
+- Extended repository validation to require and lint both manifests, verify their reason codes, and preserve unit/UI scheme wiring.
+- Added `docs/PRIVACY.md` as privacy-policy source text and documented the required public hosting step.
+- Recorded an explicit App Store label condition: Wiener Linien public material discusses IP logging for online services, but API-specific `ogd_realtime` retention terms still need confirmation.
+- An unsigned generic iOS archive succeeds and contains valid privacy manifests at both the app root and embedded widget root.
+
 ## 2026-07-18 — Auth and navigation UI automation
 
 - Added a native `TrafficViennaUITests` target to the shared scheme and kept it non-parallel to avoid shared simulator state races.

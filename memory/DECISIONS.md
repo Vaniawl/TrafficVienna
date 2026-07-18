@@ -1,5 +1,13 @@
 # Architectural Decisions
 
+## 2026-07-18 — Per-executable privacy manifests and conservative label boundary
+
+**Context:** The app and widget both use required-reason `UserDefaults` APIs, including a shared App Group. TrafficVienna itself keeps identity, location, favourites, and search state on device, but direct Wiener Linien API requests necessarily expose network metadata to the API operator and the repository has no API-specific retention agreement.
+
+**Decision:** Ship a privacy manifest in each executable bundle. Declare app-only UserDefaults as `CA92.1`, shared App Group defaults as `1C8F.1`, and no tracking. Keep App Store privacy-label completion conditional on verified `ogd_realtime` IP logging and retention terms instead of inferring them from unrelated Wiener Linien web policies.
+
+**Consequences:** Required-reason declarations are explicit, valid, and independently packaged for the app and widget. The current code-controlled privacy posture is documented, while public policy hosting and third-party API retention remain release gates rather than unsupported claims.
+
 ## 2026-07-18 — Incremental neobank architecture and external routing boundary
 
 **Context:** The roadmap adds a unified dashboard, routines, reminders, offline behavior, sync foundations, and eventually A→B routing. A broad rewrite would put the existing realtime pipeline, widget, and Live Activities at unnecessary risk.

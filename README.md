@@ -9,6 +9,7 @@ SwiftUI iOS app for live Vienna public transport departures.
 - Device-local email authentication and native Sign in with Apple.
 - Departure reminders, Live Activities, Dynamic Island, and a home-screen widget.
 - Indexed station search/spatial queries, throttled API access, active-tab polling, and stale offline fallback.
+- App and widget privacy manifests with declared UserDefaults reasons and no tracking/data-collection declaration.
 
 ## Validation
 
@@ -24,3 +25,4 @@ The shared scheme includes the application, widget extension, `TrafficViennaTest
 - Sign in with Apple must be enabled for the production App ID in Apple Developer.
 - The `trafficvienna://` URL scheme is registered and routed in-app; universal links still require an Associated Domains deployment configuration.
 - Full A→B route planning needs a verified GTFS/routing source and is not implemented by the departure-monitor API alone.
+- App Store submission still requires publishing the [privacy policy](docs/PRIVACY.md) at a public URL.
