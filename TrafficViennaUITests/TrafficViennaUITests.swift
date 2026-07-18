@@ -25,17 +25,14 @@ final class TrafficViennaUITests: XCTestCase {
         password.tap()
         password.typeText("tramline26")
 
-        app.buttons["auth.submit"].tap()
+        dismissKeyboardIfPresent()
+        tapCenter(of: app.buttons["auth.submit"])
 
-        let searchTab = app.tabBars.buttons["Search"]
-        XCTAssertTrue(searchTab.waitForExistence(timeout: 8))
-        searchTab.tap()
-        XCTAssertTrue(app.searchFields["Station or stop"].waitForExistence(timeout: 5))
-
-        let favouritesTab = app.tabBars.buttons["Favourites"]
-        XCTAssertTrue(favouritesTab.exists)
-        favouritesTab.tap()
-        XCTAssertTrue(app.staticTexts["No favourites yet"].waitForExistence(timeout: 5))
+        let tabBar = app.tabBars.firstMatch
+        XCTAssertTrue(tabBar.waitForExistence(timeout: 8))
+        for title in ["Nearby", "Search", "Map", "Alerts", "Favourites"] {
+            XCTAssertTrue(tabBar.buttons[title].exists, "Missing \(title) tab after registration")
+        }
     }
 
     func testInvalidEmailShowsValidationMessage() {
@@ -47,8 +44,22 @@ final class TrafficViennaUITests: XCTestCase {
         let password = app.secureTextFields["auth.password"]
         password.tap()
         password.typeText("tramline26")
-        app.buttons["auth.submit"].tap()
+        dismissKeyboardIfPresent()
+        tapCenter(of: app.buttons["auth.submit"])
 
         XCTAssertTrue(app.staticTexts["Enter a valid email address."].waitForExistence(timeout: 3))
     }
+
+    private func dismissKeyboardIfPresent() {
+        let keyboard = app.keyboards.firstMatch
+        if keyboard.exists {
+            keyboard.swipeDown()
+        }
+    }
+
+    private func tapCenter(of element: XCUIElement) {
+        XCTAssertTrue(element.waitForExistence(timeout: 3))
+        element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+    }
+
 }

@@ -48,6 +48,22 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testUITestResetClearsPersistedAuthSessionBeforeLoading() throws {
+        let suite = "AuthStoreResetTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let keychain = MemoryKeychain()
+
+        let signedInStore = AuthStore(keychain: keychain, defaults: defaults, resetSession: false)
+        try signedInStore.register(email: "rider@example.com", password: "tramline26")
+        XCTAssertNotNil(defaults.data(forKey: "auth.session"))
+
+        let resetStore = AuthStore(keychain: keychain, defaults: defaults, resetSession: true)
+        XCTAssertNil(resetStore.session)
+        XCTAssertNil(defaults.data(forKey: "auth.session"))
+    }
+
+    @MainActor
     func testEmailRegistrationRejectsInvalidInput() {
         let store = AuthStore(keychain: MemoryKeychain(), defaults: UserDefaults(suiteName: UUID().uuidString)!)
         XCTAssertThrowsError(try store.register(email: "invalid", password: "tramline26"))

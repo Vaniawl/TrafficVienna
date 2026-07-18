@@ -16,7 +16,6 @@ struct TrafficViennaApp: App {
     init() {
 #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("-ui-testing-reset") {
-            UserDefaults.standard.removeObject(forKey: "auth.session")
             UserDefaults.standard.set(true, forKey: "hasOnboarded")
         }
 #endif

@@ -45,10 +45,16 @@ final class AuthStore: ObservableObject {
     private let sessionKey = "auth.session"
     private let passwordIterations: UInt32 = 120_000
 
-    init(keychain: KeychainStoring? = nil, defaults: UserDefaults = .standard) {
+    init(
+        keychain: KeychainStoring? = nil,
+        defaults: UserDefaults = .standard,
+        resetSession: Bool = ProcessInfo.processInfo.arguments.contains("-ui-testing-reset")
+    ) {
         self.keychain = keychain ?? Self.defaultKeychain()
         self.defaults = defaults
-        if let data = defaults.data(forKey: sessionKey) {
+        if resetSession {
+            defaults.removeObject(forKey: sessionKey)
+        } else if let data = defaults.data(forKey: sessionKey) {
             session = try? JSONDecoder().decode(AuthSession.self, from: data)
         }
     }

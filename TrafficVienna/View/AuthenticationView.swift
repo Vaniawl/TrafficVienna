@@ -78,7 +78,7 @@ struct AuthenticationView: View {
                                 SecureField("Password", text: $password)
                             }
                         }
-                        .textContentType(mode == .register ? .newPassword : .password)
+                        .textContentType(isUITesting ? nil : (mode == .register ? .newPassword : .password))
                         .accessibilityIdentifier("auth.password")
 
                         Button { isPasswordVisible.toggle() } label: {
@@ -131,6 +131,14 @@ struct AuthenticationView: View {
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
         .overlay { RoundedRectangle(cornerRadius: 28, style: .continuous).stroke(.white.opacity(0.4)) }
         .shadow(color: .black.opacity(0.08), radius: 24, y: 12)
+    }
+
+    private var isUITesting: Bool {
+#if DEBUG
+        ProcessInfo.processInfo.arguments.contains("-ui-testing-reset")
+#else
+        false
+#endif
     }
 
     private func submitEmail() {

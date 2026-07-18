@@ -1,5 +1,14 @@
 # Journal
 
+## 2026-07-18 — Stable authentication UI smoke tests
+
+- Moved the DEBUG UI-test session reset into `AuthStore` initialization so persisted authentication is cleared before it can be loaded.
+- Preserved production Password AutoFill while disabling the system Strong Password sheet only for isolated UI-test launches.
+- Made authentication form submission reliable by dismissing the keyboard and tapping the submit control at a deterministic in-element coordinate.
+- Migrated the five-tab root navigation from legacy `tabItem`/`tag` configuration to the typed SwiftUI `Tab` API for the iOS 26 deployment target.
+- Added a unit regression for persisted-session reset and aligned the registration smoke test with its purpose by verifying the complete main tab bar after successful registration.
+- Full shared-scheme tests pass on iPhone 17 Simulator; repository and OpenCode validations pass.
+
 ## 2026-07-18 — App Store metadata and review pack
 
 - Added validated English, German, and Ukrainian App Store names, subtitles, promotional text, descriptions, and keyword sets based only on implemented features.
