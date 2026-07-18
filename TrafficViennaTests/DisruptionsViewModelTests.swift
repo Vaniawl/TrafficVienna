@@ -36,6 +36,17 @@ final class DisruptionsViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.selectedKind, .service)
         XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["service"])
         XCTAssertEqual(viewModel.activeServiceCount, 1)
+        XCTAssertEqual(viewModel.dashboardStatus, .alerts(count: 1, isSaved: false))
+    }
+
+    func testEmptySuccessfulFeedShowsAllClearDashboardStatus() async {
+        let viewModel = DisruptionsViewModel(
+            service: StubTrafficInfoProvider(result: .success([]))
+        )
+
+        await viewModel.load()
+
+        XCTAssertEqual(viewModel.dashboardStatus, .allClear(isSaved: false))
     }
 
     func testSelectingKindClearsIncompatibleCategoryFilter() async {
@@ -85,6 +96,7 @@ final class DisruptionsViewModelTests: XCTestCase {
             return XCTFail("Expected an explicit failure state")
         }
         XCTAssertTrue(viewModel.infos.isEmpty)
+        XCTAssertEqual(viewModel.dashboardStatus, .unavailable)
     }
 
     func testRefreshFailureKeepsExistingAlertsVisible() async {
@@ -98,6 +110,7 @@ final class DisruptionsViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.state, .loaded)
         XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["service"])
         XCTAssertNotNil(viewModel.refreshErrorMessage)
+        XCTAssertEqual(viewModel.dashboardStatus, .alerts(count: 1, isSaved: true))
     }
 
     func testStaleSnapshotShowsSavedDataNotice() async {
@@ -110,6 +123,7 @@ final class DisruptionsViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.state, .loaded)
         XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["service"])
         XCTAssertNotNil(viewModel.refreshErrorMessage)
+        XCTAssertEqual(viewModel.dashboardStatus, .alerts(count: 1, isSaved: true))
     }
 
     private func makeLoadedViewModel() -> DisruptionsViewModel {

@@ -20,7 +20,9 @@ struct RootTabView: View {
                                 store: store,
                                 locationManager: locationManager,
                                 favoritesViewModel: favoritesVM,
-                                onShowFavourites: showFavourites
+                                disruptionsViewModel: disruptionsVM,
+                                onShowFavourites: showFavourites,
+                                onShowAlerts: showAlerts
                             )
                         }
                     }
@@ -75,6 +77,9 @@ struct RootTabView: View {
                 .task {
                     await refreshFavouritesContinuously()
                 }
+                .task {
+                    await refreshDisruptionsContinuously()
+                }
                 .transition(Motion.stateTransition(reduceMotion: reduceMotion))
             } else {
                 OnboardingView {
@@ -93,6 +98,12 @@ struct RootTabView: View {
         }
     }
 
+    private func showAlerts() {
+        withAnimation(Motion.quick(reduceMotion: reduceMotion)) {
+            selectedTab = .alerts
+        }
+    }
+
     private func refreshFavouritesContinuously() async {
         favoritesVM.loadStations()
 
@@ -100,6 +111,17 @@ struct RootTabView: View {
             await favoritesVM.loadFavorites()
             do {
                 try await Task.sleep(for: .seconds(60))
+            } catch {
+                break
+            }
+        }
+    }
+
+    private func refreshDisruptionsContinuously() async {
+        while !Task.isCancelled {
+            await disruptionsVM.load()
+            do {
+                try await Task.sleep(for: .seconds(120))
             } catch {
                 break
             }

@@ -1,5 +1,18 @@
 # Journal
 
+## 2026-07-18 — App-level service status dashboard
+
+- Moved the shared disruptions refresh loop to `RootTabView`, so the Alerts badge
+  and Nearby dashboard receive current service data before the Alerts tab is opened.
+  `DisruptionsView` keeps explicit retry and pull-to-refresh without a second poller.
+- Added a compact Service status card with loading, all-clear, active-alert,
+  saved-data, and unavailable states plus an existing-tab shortcut. The state model
+  is covered by fresh, empty, stale, refresh-failure, and initial-failure tests.
+- Fresh iPhone 17 runtime renders showed 10 real service alerts in sync with the tab
+  badge. Light, dark, and accessibility-size review passed after constraining only
+  decorative symbol scaling. Full CI is warning-free with 100 XCTest cases; no new
+  endpoint, storage, permission, dependency, secret, or logging boundary was added.
+
 ## 2026-07-18 — Cross-journey next departure
 
 - Centralised favourite station and route loading in `RootTabView`, so Nearby and

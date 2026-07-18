@@ -15,21 +15,27 @@ struct NearbyView: View {
     @State private var vm: NearbyViewModel
     @ObservedObject private var locationManager: LocationManager
     @Bindable private var favoritesViewModel: FavoritesListViewModel
+    @Bindable private var disruptionsViewModel: DisruptionsViewModel
     @Environment(\.openURL) private var openURL
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     private let onShowFavourites: () -> Void
+    private let onShowAlerts: () -> Void
 
     init(
         store: StationStore,
         locationManager: LocationManager,
         favoritesViewModel: FavoritesListViewModel,
-        onShowFavourites: @escaping () -> Void
+        disruptionsViewModel: DisruptionsViewModel,
+        onShowFavourites: @escaping () -> Void,
+        onShowAlerts: @escaping () -> Void
     ) {
         _vm = State(initialValue: NearbyViewModel(store: store, location: locationManager))
         _locationManager = ObservedObject(wrappedValue: locationManager)
         _favoritesViewModel = Bindable(wrappedValue: favoritesViewModel)
+        _disruptionsViewModel = Bindable(wrappedValue: disruptionsViewModel)
         self.onShowFavourites = onShowFavourites
+        self.onShowAlerts = onShowAlerts
     }
 
     var body: some View {
@@ -72,6 +78,16 @@ struct NearbyView: View {
                     )
                     .transition(Motion.stateTransition(reduceMotion: reduceMotion))
                 }
+
+                ServiceStatusCard(
+                    status: disruptionsViewModel.dashboardStatus,
+                    action: onShowAlerts
+                )
+                .transition(Motion.stateTransition(reduceMotion: reduceMotion))
+                .animation(
+                    Motion.quick(reduceMotion: reduceMotion),
+                    value: disruptionsViewModel.dashboardStatus
+                )
 
                 if !favoritesViewModel.stations.isEmpty {
                     FavoriteStationsQuickAccessView(stations: favoritesViewModel.stations)
@@ -225,7 +241,9 @@ struct NearbyView: View {
             store: StationStore(),
             locationManager: lm,
             favoritesViewModel: FavoritesListViewModel(),
-            onShowFavourites: {}
+            disruptionsViewModel: DisruptionsViewModel(),
+            onShowFavourites: {},
+            onShowAlerts: {}
         )
     }
 }

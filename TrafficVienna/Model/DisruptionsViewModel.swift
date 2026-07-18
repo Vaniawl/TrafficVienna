@@ -7,6 +7,7 @@ final class DisruptionsViewModel {
     private(set) var infos: [TrafficInfo] = []
     private(set) var state: DisruptionsViewState = .loading
     private(set) var isLoadingRequest = false
+    private(set) var isShowingSavedData = false
     private(set) var refreshErrorMessage: String?
     var selectedKind: DisruptionKind = .service
     var categoryFilter: LineCategory?
@@ -20,6 +21,19 @@ final class DisruptionsViewModel {
 
     var activeServiceCount: Int {
         infos.count { DisruptionKind(categoryID: $0.categoryID) == .service }
+    }
+
+    var dashboardStatus: ServiceDashboardStatus {
+        switch state {
+        case .loading:
+            .loading
+        case .failed:
+            .unavailable
+        case .loaded where activeServiceCount == 0:
+            .allClear(isSaved: isShowingSavedData)
+        case .loaded:
+            .alerts(count: activeServiceCount, isSaved: isShowingSavedData)
+        }
     }
 
     var availableCategories: [LineCategory] {
@@ -73,6 +87,7 @@ final class DisruptionsViewModel {
         isLoadingRequest = true
         if infos.isEmpty {
             state = .loading
+            isShowingSavedData = false
         }
         refreshErrorMessage = nil
         defer {
@@ -83,6 +98,7 @@ final class DisruptionsViewModel {
             let snapshot = try await service.trafficInfoSnapshot(forceRefresh: force)
             guard !Task.isCancelled else { return }
             infos = Self.normalized(snapshot.infos)
+            isShowingSavedData = snapshot.isStale
             if snapshot.isStale {
                 refreshErrorMessage = String(localized: "Showing saved data from the last successful update.")
             }
@@ -91,8 +107,10 @@ final class DisruptionsViewModel {
             let message = error.monitorDisplayMessage
             if infos.isEmpty {
                 state = .failed(message)
+                isShowingSavedData = false
             } else {
                 refreshErrorMessage = message
+                isShowingSavedData = true
             }
         }
     }

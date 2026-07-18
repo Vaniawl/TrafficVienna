@@ -51,17 +51,6 @@ struct DisruptionsView: View {
         .refreshable {
             await viewModel.load(force: true)
         }
-        .task {
-            await viewModel.load()
-            while !Task.isCancelled {
-                do {
-                    try await Task.sleep(for: .seconds(120))
-                } catch {
-                    break
-                }
-                await viewModel.load()
-            }
-        }
         .background(DesignColor.background)
         .animation(Motion.quick(reduceMotion: reduceMotion), value: viewModel.state)
     }

@@ -1,5 +1,21 @@
 # Architectural Decisions
 
+## 2026-07-18 — Cross-tab service summaries refresh at the app root
+
+**Context:** The shared `DisruptionsViewModel` drove the tab badge, but its polling
+lived inside `DisruptionsView`. Until that tab appeared, the badge and any dashboard
+summary remained at their initial loading values; keeping another Nearby poller
+would duplicate lifecycle ownership.
+
+**Decision:** Run the cancellable two-minute disruptions refresh loop from
+`RootTabView` while the onboarded tab hierarchy is active. Let Alerts remain the
+interactive presentation and manual-refresh surface, while Nearby and the badge
+read a small freshness-aware dashboard projection from the same observable model.
+
+**Consequences:** Service status is available across tabs without a second request
+loop, and existing MonitorService cache/coalescing remains authoritative. This adds
+no persistence, background execution entitlement, or alternate navigation path.
+
 ## 2026-07-18 — Favourite lifecycle belongs to the app root
 
 **Context:** Favourites loaded routes only while its tab view was active, while
