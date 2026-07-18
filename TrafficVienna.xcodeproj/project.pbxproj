@@ -53,6 +53,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AF20B24D2EC254DF004B34AC /* Exceptions for "TrafficVienna" folder in "TrafficVienna" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = AF8F2D672EBDE79300E69513 /* TrafficVienna */;
+		};
 		AF0D9F012ED5CA0E005FD8FB /* Exceptions for "TrafficVienna" folder in "TrafficViennaWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -91,6 +98,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				AF0D9F012ED5CA0E005FD8FB /* Exceptions for "TrafficVienna" folder in "TrafficViennaWidgetExtension" target */,
+				AF20B24D2EC254DF004B34AC /* Exceptions for "TrafficVienna" folder in "TrafficVienna" target */,
 			);
 			path = TrafficVienna;
 			sourceTree = "<group>";
@@ -563,7 +571,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = KZNP8PH94C;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TrafficVienna/Info.plist;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We use your location to show nearby stops.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -598,7 +607,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = KZNP8PH94C;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TrafficVienna/Info.plist;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We use your location to show nearby stops.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

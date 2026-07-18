@@ -12,7 +12,7 @@
 
 **Context:** TrafficVienna had no authentication backend or third-party auth dependency. The requested email and Apple ID registration must not imply server-backed identity or store plaintext passwords locally.
 
-**Decision:** Add an app-level `AuthStore` gate. Email accounts are device-local: normalized account identifiers and salted SHA-256 password digests are stored in Keychain, while only the active non-secret session is stored in UserDefaults. Sign in with Apple uses `AuthenticationServices`, requests only name/email, enables the Apple Sign In entitlement, and revalidates the stored Apple credential on launch. Keep the service boundary replaceable by a server-backed provider later.
+**Decision:** Add an app-level `AuthStore` gate. Email accounts are device-local: normalized account identifiers and PBKDF2-HMAC-SHA256 verifier records with random salts are stored in Keychain, while only the active non-secret session is stored in UserDefaults. Legacy salted SHA-256 records are upgraded after the next successful login. Sign in with Apple uses `AuthenticationServices`, requests only name/email, enables the Apple Sign In entitlement, and revalidates the stored Apple credential on launch. Keep the service boundary replaceable by a server-backed provider later.
 
 **Consequences:** Registration and sign-in work safely on one device without adding a vendor dependency. Email accounts do not sync across devices and are not suitable for server-side personalization until a backend is selected. Apple capability must also be enabled for the App ID in the Apple Developer portal before device distribution.
 

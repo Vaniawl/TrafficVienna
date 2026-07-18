@@ -15,7 +15,7 @@ The app also has a device-local authentication gate, a neobank-style dashboard, 
 - **Storage**: UserDefaults-based repositories for favourites (FavoriteRoute, FavoriteStation), RecentSearchesStore
 - **Authentication**: `AuthStore`; local email verifier records in Keychain, non-secret session in UserDefaults, and native AuthenticationServices for Apple
 - **Routines**: `CommuteRoutineStore` in the shared App Group
-- **Navigation**: `AppRouter` parses TrafficVienna destinations; distribution URL registration remains external configuration
+- **Navigation**: `AppRouter` parses TrafficVienna destinations; the `trafficvienna://` custom scheme is registered in the app Info.plist
 - **StationStore**: `@Published` + `StationStoring` protocol, loads bundled JSON (`wienerlinien-ogd-haltestellen.json`)
 - **DTOs** (DTO.swift): `MonitorResponse`, `Monitor`, `Lines`, `DepartureTime` — all `nonisolated` + `Sendable`, lenient decoding
 - **Live Activities**: via ActivityKit (LiveActivityController) + WidgetExtension with AppIntent

@@ -13,6 +13,7 @@ required_files=(
   "TrafficVienna.xcodeproj/project.pbxproj"
   "TrafficVienna.xcodeproj/xcshareddata/xcschemes/TrafficVienna.xcscheme"
   "TrafficVienna/TrafficViennaApp.swift"
+  "TrafficVienna/Info.plist"
   "TrafficViennaTests/TrafficViennaTests.swift"
   "opencode.json"
 )
@@ -26,6 +27,12 @@ done
 
 python3 -m json.tool "$ROOT/opencode.json" >/dev/null
 python3 -m json.tool "$ROOT/.opencode/opencode.json" >/dev/null
+plutil -lint "$ROOT/TrafficVienna/Info.plist" >/dev/null
+
+if ! plutil -p "$ROOT/TrafficVienna/Info.plist" | grep -q 'trafficvienna'; then
+  echo "[validate-repository] missing trafficvienna URL scheme" >&2
+  exit 1
+fi
 
 if ! grep -q "BlueprintName = \"TrafficVienna\"" "$ROOT/TrafficVienna.xcodeproj/xcshareddata/xcschemes/TrafficVienna.xcscheme"; then
   echo "[validate-repository] missing TrafficVienna scheme wiring" >&2

@@ -13,7 +13,7 @@ The branch is suitable for draft-PR and simulator QA. It is not ready for App St
 
 ## Security findings
 
-- **Medium, server-identity condition:** local email authentication uses a salted SHA-256 verifier. It is explicitly device-local and must not be promoted as a server account. Replace it with a backend using an adaptive password KDF and recovery flow before enabling cross-device identity.
+- **Low, local-only identity limitation:** local email authentication now uses PBKDF2-HMAC-SHA256 with 120,000 iterations, a random salt, timing-safe comparison, and transparent migration of legacy Keychain records. It still must not be promoted as a server account; a backend-controlled adaptive KDF and recovery flow are required for cross-device identity.
 - **Medium, backend Apple condition:** the app checks Apple credential state locally but does not send and verify the identity token on a server. Server verification is required when backend identity is introduced.
 - **Low:** favourite line and destination values are public diagnostic strings. Do not add email, precise location, tokens, or credentials to logs.
 
@@ -22,7 +22,7 @@ No Critical or High findings were observed in the reviewed local-only threat bou
 ## Required external follow-up
 
 1. Enable Sign in with Apple for `wellbe.TrafficVienna` and regenerate provisioning profiles.
-2. Register the selected custom URL scheme or universal-link association.
+2. Configure Associated Domains only if universal HTTPS links are required; the custom `trafficvienna://` scheme is registered and simulator-verified.
 3. Select a backend before password recovery or cross-device account claims.
 4. Select a licensed GTFS/routing source before implementing A→B journeys.
 5. Run protected macOS CI and device-level notification, Apple ID, widget, and offline QA.

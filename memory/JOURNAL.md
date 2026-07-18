@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-18 — Authentication hardening and working deep links
+
+- Upgraded device-local email verifiers to PBKDF2-HMAC-SHA256 with 120,000 iterations, random salts, timing-safe comparison, and transparent migration of legacy SHA-256 Keychain records after successful login.
+- Added an explicit app Info.plist and registered the `trafficvienna://` URL scheme while preserving location, Live Activity, scene, launch, and orientation metadata.
+- Verified the URL type in the built app bundle and confirmed the simulator recognizes `trafficvienna://search`; router unit tests cover destination parsing.
+- Full XCTest suite passes on iPhone 17 Simulator after the security and plist changes.
+
 ## 2026-07-18 — Routines, widget optimization, docs, and release audit
 
 - Added persisted commute routines tied to favourite stations and time; routines are managed from Account and surfaced by Smart Home.

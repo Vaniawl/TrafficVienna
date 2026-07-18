@@ -22,5 +22,5 @@ The shared scheme includes the application, widget extension, and `TrafficVienna
 
 - Email accounts are local to one device; password recovery and cross-device sync require a backend.
 - Sign in with Apple must be enabled for the production App ID in Apple Developer.
-- `AppRouter` supports app destinations, but URL scheme or universal-link association must be registered in distribution configuration.
+- The `trafficvienna://` URL scheme is registered and routed in-app; universal links still require an Associated Domains deployment configuration.
 - Full A→B route planning needs a verified GTFS/routing source and is not implemented by the departure-monitor API alone.

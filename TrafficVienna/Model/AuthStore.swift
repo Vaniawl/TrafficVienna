@@ -1,5 +1,6 @@
 import AuthenticationServices
 import Combine
+import CommonCrypto
 import CryptoKit
 import Foundation
 import Security
@@ -42,6 +43,7 @@ final class AuthStore: ObservableObject {
     private let keychain: KeychainStoring
     private let defaults: UserDefaults
     private let sessionKey = "auth.session"
+    private let passwordIterations: UInt32 = 120_000
 
     init(keychain: KeychainStoring? = nil, defaults: UserDefaults = .standard) {
         self.keychain = keychain ?? KeychainStore()
@@ -57,7 +59,13 @@ final class AuthStore: ObservableObject {
         guard keychain.data(for: accountKey) == nil else { throw AuthError.accountExists }
 
         let salt = Data((0..<16).map { _ in UInt8.random(in: .min ... .max) })
-        let record = EmailAccount(email: normalizedEmail, salt: salt, passwordHash: hash(password, salt: salt))
+        let record = EmailAccount(
+            email: normalizedEmail,
+            salt: salt,
+            passwordHash: derivePasswordKey(password, salt: salt, iterations: passwordIterations),
+            algorithm: "pbkdf2-sha256",
+            iterations: passwordIterations
+        )
         guard let encoded = try? JSONEncoder().encode(record), keychain.set(encoded, for: accountKey) else {
             throw AuthError.unavailable
         }
@@ -70,9 +78,27 @@ final class AuthStore: ObservableObject {
         guard
             let data = keychain.data(for: accountKey),
             let record = try? JSONDecoder().decode(EmailAccount.self, from: data),
-            record.email == normalizedEmail,
-            record.passwordHash == hash(password, salt: record.salt)
+            record.email == normalizedEmail
         else { throw AuthError.invalidCredentials }
+
+        let candidate: Data
+        if record.algorithm == "pbkdf2-sha256", let iterations = record.iterations {
+            candidate = derivePasswordKey(password, salt: record.salt, iterations: iterations)
+        } else {
+            candidate = legacyHash(password, salt: record.salt)
+        }
+        guard timingSafeEqual(candidate, record.passwordHash) else { throw AuthError.invalidCredentials }
+
+        if record.algorithm == nil {
+            let upgraded = EmailAccount(
+                email: normalizedEmail,
+                salt: record.salt,
+                passwordHash: derivePasswordKey(password, salt: record.salt, iterations: passwordIterations),
+                algorithm: "pbkdf2-sha256",
+                iterations: passwordIterations
+            )
+            if let data = try? JSONEncoder().encode(upgraded) { _ = keychain.set(data, for: accountKey) }
+        }
 
         setSession(AuthSession(userID: normalizedEmail, email: normalizedEmail, displayName: nil, provider: .email))
     }
@@ -121,8 +147,34 @@ final class AuthStore: ObservableObject {
         return email
     }
 
-    private func hash(_ password: String, salt: Data) -> Data {
+    private func legacyHash(_ password: String, salt: Data) -> Data {
         Data(SHA256.hash(data: salt + Data(password.utf8)))
+    }
+
+    private func derivePasswordKey(_ password: String, salt: Data, iterations: UInt32) -> Data {
+        var derived = Data(count: 32)
+        let derivedCount = derived.count
+        let status = derived.withUnsafeMutableBytes { derivedBytes in
+            salt.withUnsafeBytes { saltBytes in
+                CCKeyDerivationPBKDF(
+                    CCPBKDFAlgorithm(kCCPBKDF2),
+                    password,
+                    password.lengthOfBytes(using: .utf8),
+                    saltBytes.bindMemory(to: UInt8.self).baseAddress,
+                    salt.count,
+                    CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA256),
+                    iterations,
+                    derivedBytes.bindMemory(to: UInt8.self).baseAddress,
+                    derivedCount
+                )
+            }
+        }
+        return status == kCCSuccess ? derived : Data()
+    }
+
+    private func timingSafeEqual(_ lhs: Data, _ rhs: Data) -> Bool {
+        guard lhs.count == rhs.count else { return false }
+        return zip(lhs, rhs).reduce(UInt8(0)) { $0 | ($1.0 ^ $1.1) } == 0
     }
 
     private func emailAccountKey(for email: String) -> String {
@@ -142,6 +194,16 @@ private struct EmailAccount: Codable {
     let email: String
     let salt: Data
     let passwordHash: Data
+    let algorithm: String?
+    let iterations: UInt32?
+
+    init(email: String, salt: Data, passwordHash: Data, algorithm: String? = nil, iterations: UInt32? = nil) {
+        self.email = email
+        self.salt = salt
+        self.passwordHash = passwordHash
+        self.algorithm = algorithm
+        self.iterations = iterations
+    }
 }
 
 protocol KeychainStoring {
