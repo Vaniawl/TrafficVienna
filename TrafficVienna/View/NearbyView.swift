@@ -12,7 +12,7 @@ import CoreLocation
 import MapKit
 
 struct NearbyView: View {
-    @StateObject private var vm: NearbyViewModel
+    @State private var vm: NearbyViewModel
     @ObservedObject private var locationManager: LocationManager
     @Environment(\.openURL) private var openURL
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -21,7 +21,7 @@ struct NearbyView: View {
     private let favoriteStationsRepository = UserDefaultsFavoriteStationsRepository()
 
     init(store: StationStore, locationManager: LocationManager) {
-        _vm = StateObject(wrappedValue: NearbyViewModel(store: store, location: locationManager))
+        _vm = State(initialValue: NearbyViewModel(store: store, location: locationManager))
         _locationManager = ObservedObject(wrappedValue: locationManager)
     }
 

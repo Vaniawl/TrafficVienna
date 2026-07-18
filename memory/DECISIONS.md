@@ -1,5 +1,20 @@
 # Architectural Decisions
 
+## 2026-07-18 — Journey models depend on narrow runtime boundaries
+
+**Context:** Search, Map, Alerts, Favourites, and Station Detail accepted test
+boundaries, but Nearby retained concrete store, location, and monitor classes plus
+legacy observation, leaving its most important load behaviour untestable.
+
+**Decision:** Inject the smallest station, location, and monitor protocols into
+Nearby and own its modern `@Observable` model with SwiftUI `@State`. Keep the real
+`LocationManager` observed by the view so permission/location publications continue
+to invalidate UI exactly as before.
+
+**Consequences:** Every journey model can now run against focused mocks. Nearby's
+location-free and freshness paths have regression coverage without introducing a
+container, third-party dependency, coordinate persistence, or alternate runtime.
+
 ## 2026-07-18 — Cached transport data carries freshness provenance
 
 **Context:** `MonitorService` could correctly retain usable data during a temporary

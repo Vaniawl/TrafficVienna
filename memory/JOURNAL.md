@@ -1,5 +1,17 @@
 # Journal
 
+## 2026-07-18 — Nearby dependency injection and observation modernization
+
+- Replaced Nearby's concrete `StationStore`, `LocationManager`, and
+  `MonitorService` dependencies with narrow station, location, and monitor
+  protocols while keeping the production objects unchanged.
+- Migrated `NearbyViewModel` from legacy `ObservableObject`/`@Published` ownership
+  to `@Observable`/`@State` and added focused tests for distance order, freshness,
+  and the no-location zero-request path.
+- Full CI passed with zero warnings and 85 XCTest cases. Security reread confirmed
+  coordinates remain transient and unlogged, with no new endpoint, persistence,
+  dependency, or unresolved Blocking/Important finding.
+
 ## 2026-07-18 — Localisation and source accessibility audit
 
 - Compared compiler-produced app and widget `.stringsdata` against the committed

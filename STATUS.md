@@ -8,7 +8,7 @@
   complete; continue visual inspection, remaining resilience work, and email
   account integration.
 - Verified: app and widget build successfully on iPhone 17 simulator with zero
-  warnings; the restored test target runs 83 passing XCTest cases.
+  warnings; the restored test target runs 85 passing XCTest cases.
 - Verified CI: repository/OpenCode/reliability checks, build, tests, and diff
   validation completed with `[ci] OK`.
 - Verified visually: the new onboarding renders correctly in system light and
@@ -46,6 +46,9 @@
   distance speech is locale-aware, and saved-data status is not color-only.
   Interactive accessibility-size and VoiceOver acceptance remains open while the
   macOS host is locked.
+- Verified dependency injection: every journey model now accepts narrow test
+  boundaries; Nearby uses modern observable state and its station/location/monitor
+  behaviour passes focused mocks without persisting or logging coordinates.
 - Remaining work: select and configure an email identity provider, verify the
   physical-device provisioning capability, and complete remaining journey and
   accessibility inspection.

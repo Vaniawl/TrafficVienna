@@ -201,13 +201,20 @@
     freshness propagation, widget eligibility, deterministic 0.5-second spacing,
     and bounded 0.8/1.6-second backoff regressions; warning-free full CI passes
     with 83 XCTest cases.
-- [ ] **TV-CORE-023 - Add dependency injection testability**
+- [x] **TV-CORE-023 - Add dependency injection testability**
   - Outcome: enable unit testing of view models and services by injecting mock
     `NetworkManaging` and `MonitorService` instances.
   - Paths: view models (`NearbyViewModel.swift`, `StationDetailViewModel.swift`, etc.) and services (`MonitorService.swift`).
   - Dependencies: Phase 2 journeys.
   - Acceptance: view models accept injected dependencies via initializer; tests can supply mocks without compile errors.
   - Validation: compile with mock implementations; no runtime failures.
+  - Completed implementation: all journey models depend on the narrow station,
+    location, monitor, traffic-info, repository, storage, and activity protocols
+    they consume; `MonitorService` accepts network and scheduler boundaries.
+    Nearby migrated from `ObservableObject` to modern `@Observable` state.
+  - Evidence: new Nearby mocks prove location-free zero-request behaviour,
+    distance ordering, monitor injection, and freshness propagation; full CI passes
+    warning-free with 85 XCTest cases.
 
 ## Phase 4 - Verification and handoff
 

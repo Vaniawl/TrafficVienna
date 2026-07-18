@@ -9,11 +9,12 @@
 //
 
 import Foundation
-import Combine
 import CoreLocation
+import Observation
 
 @MainActor
-final class NearbyViewModel: ObservableObject {
+@Observable
+final class NearbyViewModel {
     struct Item: Identifiable {
         let station: Station
         let distance: Double
@@ -26,17 +27,21 @@ final class NearbyViewModel: ObservableObject {
         var walkMinutes: Int { max(1, Int((distance / walkingSpeed).rounded())) }
     }
 
-    @Published private(set) var items: [Item] = []
-    @Published private(set) var isLoading = false      // first fill, nothing to show yet
-    @Published private(set) var isRefreshing = false   // updating already-shown data
+    private(set) var items: [Item] = []
+    private(set) var isLoading = false      // first fill, nothing to show yet
+    private(set) var isRefreshing = false   // updating already-shown data
 
-    private let store: StationStore
-    private let location: LocationManager
-    private let service: MonitorService
+    private let store: StationStoring
+    private let location: LocationProviding
+    private let service: MonitorProviding
     private let radius: Double = 500
     private let maxStations = 8
 
-    init(store: StationStore, location: LocationManager, service: MonitorService = .shared) {
+    init(
+        store: StationStoring,
+        location: LocationProviding,
+        service: MonitorProviding = MonitorService.shared
+    ) {
         self.store = store
         self.location = location
         self.service = service
