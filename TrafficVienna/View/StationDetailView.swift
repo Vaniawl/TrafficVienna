@@ -162,9 +162,17 @@ struct StationDetailView: View {
             )
 
             if vm.station.diva != nil {
-                let isFav = vm.isFavorite(line: group.line, destination: group.destination)
+                let isFav = favoritesVM.isLineFavorite(
+                    diva: vm.station.diva,
+                    lineName: group.line,
+                    destination: group.destination
+                )
                 Button {
-                    vm.toggleFavorite(line: group.line, destination: group.destination)
+                    favoritesVM.toggleLineFavorite(
+                        diva: vm.station.diva,
+                        lineName: group.line,
+                        destination: group.destination
+                    )
                     lineFavoriteToggles += 1
                 } label: {
                     Image(systemName: isFav ? "heart.fill" : "heart")
@@ -199,11 +207,19 @@ struct StationDetailView: View {
             }
 
             Button {
-                vm.toggleFavorite(line: group.line, destination: group.destination)
+                favoritesVM.toggleLineFavorite(
+                    diva: vm.station.diva,
+                    lineName: group.line,
+                    destination: group.destination
+                )
                 lineFavoriteToggles += 1
             } label: {
                 Label(
-                    vm.isFavorite(line: group.line, destination: group.destination) ? "Remove favourite" : "Add to favourites",
+                    favoritesVM.isLineFavorite(
+                        diva: vm.station.diva,
+                        lineName: group.line,
+                        destination: group.destination
+                    ) ? "Remove favourite" : "Add to favourites",
                     systemImage: "heart"
                 )
             }

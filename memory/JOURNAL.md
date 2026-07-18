@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-07-18 — Ordered and shared line favourites
+
+- Replaced unordered Set-based line-favourite persistence with an insertion-ordered, duplicate-normalized array while retaining the same JSON object shape.
+- Updated the widget decoder to preserve the app’s order, making the selected top routes stable across timeline refreshes.
+- Made the root-owned `FavoritesListViewModel` the shared in-memory owner for line hearts and favourite routes, eliminating repeated JSON decoding for every Station Detail row.
+- Synchronized route changes into personalized Alerts immediately and removed the duplicate line-favourite repository from `StationDetailViewModel`.
+- Added insertion-order, rollback-compatibility, legacy-duplicate, shared-state, and repeated-read regression coverage; full app/widget/UI tests and repository validations pass.
+
 ## 2026-07-18 — Minute-accurate commute routines
 
 - Preserved the DatePicker’s selected minutes in routine persistence instead of silently rounding every schedule to the hour.

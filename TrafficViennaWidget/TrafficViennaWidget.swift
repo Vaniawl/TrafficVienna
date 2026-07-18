@@ -59,9 +59,9 @@ private func fetchMonitorData(diva: Int, includeArea: Bool) async throws -> Moni
 private func loadFavoritesFromDefaults() -> [FavoriteRoute] {
     let defaults = UserDefaults(suiteName: appGroupID)
     guard let data = defaults?.data(forKey: favoritesKey),
-          let decoded = try? JSONDecoder().decode(Set<FavoriteRoute>.self, from: data)
+          let decoded = try? JSONDecoder().decode([FavoriteRoute].self, from: data)
     else { return [] }
-    return Array(decoded)
+    return decoded
 }
 
 struct Provider: AppIntentTimelineProvider {

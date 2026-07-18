@@ -40,6 +40,7 @@ final class FavoritesListViewModel: ObservableObject {
     @Published var errorMessage: String?
 
     @Published var stations: [FavoriteStation] = []
+    @Published private(set) var favoriteRoutes: [FavoriteRoute] = []
 
     private let service: MonitorService
     private let favoritesRepo: FavoritesRepository
@@ -57,6 +58,7 @@ final class FavoritesListViewModel: ObservableObject {
         self.stationsRepo = stationsRepo
         self.widgetSync = widgetSync
         self.stations = stationsRepo.all()
+        self.favoriteRoutes = favoritesRepo.getAll()
     }
 
     convenience init(
@@ -102,7 +104,26 @@ final class FavoritesListViewModel: ObservableObject {
     }
 
     var isEmpty: Bool {
-        items.isEmpty && stations.isEmpty
+        favoriteRoutes.isEmpty && stations.isEmpty
+    }
+
+    func isLineFavorite(diva: Int?, lineName: String, destination: String) -> Bool {
+        guard let diva else { return false }
+        return favoriteRoutes.contains(
+            FavoriteRoute(diva: String(diva), lineName: lineName, destination: destination)
+        )
+    }
+
+    func toggleLineFavorite(diva: Int?, lineName: String, destination: String) {
+        guard let diva else { return }
+        let route = FavoriteRoute(diva: String(diva), lineName: lineName, destination: destination)
+        favoritesRepo.toggle(diva: route.diva, lineName: lineName, destination: destination)
+        if let index = favoriteRoutes.firstIndex(of: route) {
+            favoriteRoutes.remove(at: index)
+            items.removeAll { $0.route == route }
+        } else {
+            favoriteRoutes.append(route)
+        }
     }
 
     var staleMessage: String? {
@@ -113,7 +134,7 @@ final class FavoritesListViewModel: ObservableObject {
     }
     
     func loadFavorites() async {
-        let routes = favoritesRepo.getAll()
+        let routes = favoriteRoutes
         
         guard !routes.isEmpty else {
             items = []
@@ -159,12 +180,14 @@ final class FavoritesListViewModel: ObservableObject {
             lineName: route.lineName,
             destination: route.destination
         )
+        favoriteRoutes.removeAll { $0 == route }
         items.removeAll { $0.route == route }
         syncWidget()
     }
 
     func removeAll() {
         favoritesRepo.removeAll()
+        favoriteRoutes = []
         items = []
         syncWidget()
     }

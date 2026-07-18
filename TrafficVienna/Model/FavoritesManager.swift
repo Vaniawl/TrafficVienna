@@ -41,19 +41,19 @@ nonisolated final class UserDefaultsFavoritesRepository: FavoritesRepository {
     }
     
     func toggle(diva: String, lineName: String, destination: String) {
-        var set = load()
+        var routes = load()
         let fav = FavoriteRoute(diva: diva, lineName: lineName, destination: destination)
         
-        if set.contains(fav) {
-            set.remove(fav)
+        if let index = routes.firstIndex(of: fav) {
+            routes.remove(at: index)
         } else {
-            set.insert(fav)
+            routes.append(fav)
         }
-        save(set)
+        save(routes)
     }
     
     func getAll() -> [FavoriteRoute] {
-        Array(load())
+        load()
     }
     
     func removeAll() {
@@ -62,16 +62,17 @@ nonisolated final class UserDefaultsFavoritesRepository: FavoritesRepository {
     
     
     // Private helpers
-    private func load() -> Set<FavoriteRoute> {
+    private func load() -> [FavoriteRoute] {
         guard let data = storage.data(forKey: key),
-              let decoded = try? JSONDecoder().decode(Set<FavoriteRoute>.self, from: data)
+              let decoded = try? JSONDecoder().decode([FavoriteRoute].self, from: data)
         else {
             return []
         }
-        return decoded
+        var seen = Set<FavoriteRoute>()
+        return decoded.filter { seen.insert($0).inserted }
     }
     
-    private func save(_ routes: Set<FavoriteRoute>) {
+    private func save(_ routes: [FavoriteRoute]) {
         let data = try? JSONEncoder().encode(routes)
         storage.set(data, forKey: key)
     }
@@ -82,5 +83,4 @@ nonisolated final class UserDefaultsFavoritesRepository: FavoritesRepository {
         save([])
     }
 }
-
 

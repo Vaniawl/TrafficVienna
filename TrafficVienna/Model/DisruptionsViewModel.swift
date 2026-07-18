@@ -48,6 +48,10 @@ final class DisruptionsViewModel: ObservableObject {
         (info.relatedLines ?? []).contains(where: favouriteLines.contains)
     }
 
+    func updateFavoriteRoutes(_ routes: [FavoriteRoute]) {
+        favouriteLines = Set(routes.map(\.lineName))
+    }
+
     func load(force: Bool = false) async {
         favouriteLines = Set(favoritesRepo.getAll().map(\.lineName))
         if infos.isEmpty { isLoading = true }

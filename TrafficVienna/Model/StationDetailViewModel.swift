@@ -12,7 +12,6 @@ import Combine
 final class StationDetailViewModel: ObservableObject {
     let station: Station
     private let service: MonitorService
-    private let favoritesRepo: FavoritesRepository
 
     @Published var isLoading = false
     @Published var errorMessage: String?
@@ -100,12 +99,10 @@ final class StationDetailViewModel: ObservableObject {
 
     init(
         station: Station,
-        service: MonitorService = .shared,
-        favoritesRepo: FavoritesRepository = UserDefaultsFavoritesRepository()
+        service: MonitorService = .shared
     ) {
         self.station = station
         self.service = service
-        self.favoritesRepo = favoritesRepo
     }
 
     // Loads live monitor data for the current station's DIVA.
@@ -136,24 +133,6 @@ final class StationDetailViewModel: ObservableObject {
     var staleMessage: String? {
         guard case let .stale(_, message) = freshness else { return nil }
         return message
-    }
-    
-    func isFavorite(line: String, destination: String) -> Bool {
-        guard let divaInt = station.diva else { return false }
-        return favoritesRepo.isFavorite(
-            diva: String(divaInt),
-            lineName: line,
-            destination: destination
-        )
-    }
-
-    func toggleFavorite(line: String, destination: String) {
-        guard let divaInt = station.diva else { return }
-        favoritesRepo.toggle(
-            diva: String(divaInt),
-            lineName: line,
-            destination: destination
-        )
     }
     
     private func widgetData(from response: MonitorResponse) -> WidgetDepartureData? {

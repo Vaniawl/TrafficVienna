@@ -73,6 +73,9 @@ struct RootTabView: View {
                 }
                 router.consume()
             }
+            .onChange(of: favoritesVM.favoriteRoutes, initial: true) { _, routes in
+                disruptionsVM.updateFavoriteRoutes(routes)
+            }
             .sheet(item: $routedStation) { station in
                 NavigationStack { StationDetailView(station: station) }
             }

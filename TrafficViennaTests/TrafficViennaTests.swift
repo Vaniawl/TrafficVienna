@@ -433,6 +433,56 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(stations.allCallCount, 1)
     }
 
+    @MainActor
+    func testLineFavoriteToggleUpdatesSharedStateWithoutReloadingStorage() {
+        let routes = CountingFavoritesRepository(routes: [])
+        let viewModel = FavoritesListViewModel(
+            service: MonitorService(network: MockNetworkManager()),
+            favoritesRepo: routes,
+            stationsRepo: CountingFavoriteStationsRepository(),
+            widgetSync: NoopWidgetSync()
+        )
+
+        for _ in 0..<100 {
+            XCTAssertFalse(viewModel.isLineFavorite(diva: 60200657, lineName: "U1", destination: "Leopoldau"))
+        }
+        viewModel.toggleLineFavorite(diva: 60200657, lineName: "U1", destination: "Leopoldau")
+        XCTAssertTrue(viewModel.isLineFavorite(diva: 60200657, lineName: "U1", destination: "Leopoldau"))
+        viewModel.toggleLineFavorite(diva: 60200657, lineName: "U1", destination: "Leopoldau")
+        XCTAssertFalse(viewModel.isLineFavorite(diva: 60200657, lineName: "U1", destination: "Leopoldau"))
+        XCTAssertEqual(routes.getAllCallCount, 1)
+    }
+
+    func testLineFavoritesPersistInsertionOrderAndRemainRollbackCompatible() throws {
+        let suite = "OrderedFavoriteRouteTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let repository = UserDefaultsFavoritesRepository(storage: defaults)
+
+        repository.toggle(diva: "2", lineName: "U2", destination: "Seestadt")
+        repository.toggle(diva: "1", lineName: "U1", destination: "Leopoldau")
+
+        XCTAssertEqual(repository.getAll().map(\.lineName), ["U2", "U1"])
+        let stored = try XCTUnwrap(defaults.data(forKey: "favorite_routes"))
+        XCTAssertEqual(try JSONDecoder().decode(Set<FavoriteRoute>.self, from: stored).count, 2)
+
+        repository.toggle(diva: "2", lineName: "U2", destination: "Seestadt")
+        XCTAssertEqual(UserDefaultsFavoritesRepository(storage: defaults).getAll().map(\.lineName), ["U1"])
+    }
+
+    func testLegacyDuplicateLineFavoritesNormalizeInFirstSeenOrder() throws {
+        let suite = "DuplicateFavoriteRouteTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let u2 = FavoriteRoute(diva: "2", lineName: "U2", destination: "Seestadt")
+        let u1 = FavoriteRoute(diva: "1", lineName: "U1", destination: "Leopoldau")
+        defaults.set(try JSONEncoder().encode([u2, u2, u1]), forKey: "favorite_routes")
+
+        let routes = UserDefaultsFavoritesRepository(storage: defaults).getAll()
+
+        XCTAssertEqual(routes, [u2, u1])
+    }
+
     // MARK: - LineColors
 
     func testLineColorsU1() {

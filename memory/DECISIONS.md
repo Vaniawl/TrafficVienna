@@ -1,5 +1,13 @@
 # Architectural Decisions
 
+## 2026-07-18 — Ordered line-favourite persistence and shared UI ownership
+
+**Context:** Line favourites were persisted as a Set. Converting that Set to an array produced nondeterministic Favourites and widget ordering, while each Station Detail heart decoded the same JSON independently. Alerts also cached a separate view of the saved lines.
+
+**Decision:** Persist line favourites as a duplicate-normalized array in insertion order and make the root-owned `FavoritesListViewModel` the UI source of truth. Keep the repository as the App Group persistence boundary, decode the same ordered array in the widget, and push route changes into the Alerts view model.
+
+**Consequences:** Heart state, Favourites, personalized Alerts, and widget route priority remain consistent without per-row storage reads. Existing Set payloads decode as arrays because their JSON representation is already an array; older builds can decode the new array as a Set, so migration and rollback are non-destructive.
+
 ## 2026-07-18 — Backward-compatible minute precision for commute routines
 
 **Context:** The routine DatePicker accepts hours and minutes, but persisted routines stored only `hour`, silently changing values such as 08:45 to 08:00. Existing installations may already contain the original JSON schema in the shared App Group.
