@@ -1,5 +1,14 @@
 # Journal
 
+## 2026-07-18 — Authentication redesign
+
+- Started from clean local `main` and created `codex/auth-redesign`; remote refresh was blocked by the machine's missing GitHub SSH authorization.
+- Added a redesigned auth gate with a Vienna-inspired gradient, registration/sign-in switcher, accessible email/password fields, native Sign in with Apple, validation, and clear device-local privacy copy.
+- Switched the default app theme for new installs from Indigo to the branded Vienna preset, carrying the new red accent, grouped surfaces, and elevated cards into the main experience while preserving existing users' saved theme.
+- Added `AuthStore`: multiple local email accounts use per-account Keychain records with random salt and SHA-256 password digest; sessions persist without storing passwords in UserDefaults.
+- Added Apple credential handling, launch-time revoked credential validation, the Sign in with Apple entitlement, and an account sheet with provider details and sign-out.
+- Added focused auth regression tests to the existing test source. The app build passes with no new auth warnings (two pre-existing MapKit deprecation warnings remain); XCTest remains unavailable because the repository's scheme has no configured test bundle.
+
 ## 2026-07-15 — OpenCode model and recovery readiness audit
 
 - Started from updated `main` at `07894ac1` on fresh branch `codex/reliability-model-audit`.

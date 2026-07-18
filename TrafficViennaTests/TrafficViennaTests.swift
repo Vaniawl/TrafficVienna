@@ -3,6 +3,37 @@ import XCTest
 
 final class TrafficViennaTests: XCTestCase {
 
+    @MainActor
+    func testEmailRegistrationAndSignIn() throws {
+        let suite = "AuthStoreTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let keychain = MemoryKeychain()
+        let store = AuthStore(keychain: keychain, defaults: defaults)
+
+        try store.register(email: " Rider@Example.com ", password: "tramline26")
+        XCTAssertEqual(store.session?.email, "rider@example.com")
+        store.signOut()
+        try store.signIn(email: "rider@example.com", password: "tramline26")
+        XCTAssertEqual(store.session?.provider, .email)
+    }
+
+    @MainActor
+    func testEmailRegistrationRejectsInvalidInput() {
+        let store = AuthStore(keychain: MemoryKeychain(), defaults: UserDefaults(suiteName: UUID().uuidString)!)
+        XCTAssertThrowsError(try store.register(email: "invalid", password: "tramline26"))
+        XCTAssertThrowsError(try store.register(email: "rider@example.com", password: "short"))
+    }
+
+    @MainActor
+    func testMultipleEmailAccountsCanRegister() throws {
+        let store = AuthStore(keychain: MemoryKeychain(), defaults: UserDefaults(suiteName: UUID().uuidString)!)
+        try store.register(email: "first@example.com", password: "tramline26")
+        store.signOut()
+        try store.register(email: "second@example.com", password: "tramline27")
+        XCTAssertEqual(store.session?.email, "second@example.com")
+    }
+
     // MARK: - StationStore
 
     func testLoadStationsNotEmpty() {
@@ -175,6 +206,15 @@ final class TrafficViennaTests: XCTestCase {
         let decoded = try! JSONDecoder().decode(WidgetDepartureData.self, from: encoded)
         XCTAssertEqual(decoded.lineName, "U1")
         XCTAssertEqual(decoded.departures, [2, 5, 12])
+    }
+}
+
+private final class MemoryKeychain: KeychainStoring {
+    private var storage: [String: Data] = [:]
+    func data(for key: String) -> Data? { storage[key] }
+    func set(_ data: Data, for key: String) -> Bool {
+        storage[key] = data
+        return true
     }
 }
 

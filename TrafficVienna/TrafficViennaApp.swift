@@ -9,9 +9,22 @@ import SwiftUI
 
 @main
 struct TrafficViennaApp: App {
+    @StateObject private var auth = AuthStore()
+
     var body: some Scene {
         WindowGroup {
-            RootTabView()
+            Group {
+                if auth.session == nil {
+                    AuthenticationView()
+                        .transition(.opacity)
+                } else {
+                    RootTabView()
+                        .transition(.opacity)
+                }
+            }
+            .animation(.easeInOut, value: auth.session)
+            .environmentObject(auth)
+            .task { await auth.validateStoredAppleCredential() }
         }
     }
 }

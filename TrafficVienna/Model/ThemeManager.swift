@@ -12,7 +12,7 @@ final class ThemeManager: ObservableObject {
     }
 
     private init() {
-        let raw = UserDefaults.standard.string(forKey: "themePreset") ?? ThemePreset.indigo.rawValue
-        preset = ThemePreset(rawValue: raw) ?? .indigo
+        let raw = UserDefaults.standard.string(forKey: "themePreset") ?? ThemePreset.vienna.rawValue
+        preset = ThemePreset(rawValue: raw) ?? .vienna
     }
 }

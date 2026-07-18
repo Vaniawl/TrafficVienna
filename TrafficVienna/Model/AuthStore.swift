@@ -1,0 +1,180 @@
+import AuthenticationServices
+import Combine
+import CryptoKit
+import Foundation
+import Security
+
+enum AuthProvider: String, Codable {
+    case email
+    case apple
+}
+
+struct AuthSession: Codable, Equatable {
+    let userID: String
+    let email: String?
+    let displayName: String?
+    let provider: AuthProvider
+}
+
+enum AuthError: LocalizedError, Equatable {
+    case invalidEmail
+    case weakPassword
+    case accountExists
+    case invalidCredentials
+    case unavailable
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidEmail: return "Enter a valid email address."
+        case .weakPassword: return "Use at least 8 characters for your password."
+        case .accountExists: return "An account with this email already exists."
+        case .invalidCredentials: return "Email or password is incorrect."
+        case .unavailable: return "Sign in is unavailable right now. Please try again."
+        }
+    }
+}
+
+@MainActor
+final class AuthStore: ObservableObject {
+    @Published private(set) var session: AuthSession?
+    @Published var errorMessage: String?
+
+    private let keychain: KeychainStoring
+    private let defaults: UserDefaults
+    private let sessionKey = "auth.session"
+
+    init(keychain: KeychainStoring? = nil, defaults: UserDefaults = .standard) {
+        self.keychain = keychain ?? KeychainStore()
+        self.defaults = defaults
+        if let data = defaults.data(forKey: sessionKey) {
+            session = try? JSONDecoder().decode(AuthSession.self, from: data)
+        }
+    }
+
+    func register(email: String, password: String) throws {
+        let normalizedEmail = try validated(email: email, password: password)
+        let accountKey = emailAccountKey(for: normalizedEmail)
+        guard keychain.data(for: accountKey) == nil else { throw AuthError.accountExists }
+
+        let salt = Data((0..<16).map { _ in UInt8.random(in: .min ... .max) })
+        let record = EmailAccount(email: normalizedEmail, salt: salt, passwordHash: hash(password, salt: salt))
+        guard let encoded = try? JSONEncoder().encode(record), keychain.set(encoded, for: accountKey) else {
+            throw AuthError.unavailable
+        }
+        setSession(AuthSession(userID: normalizedEmail, email: normalizedEmail, displayName: nil, provider: .email))
+    }
+
+    func signIn(email: String, password: String) throws {
+        let normalizedEmail = try validated(email: email, password: password)
+        let accountKey = emailAccountKey(for: normalizedEmail)
+        guard
+            let data = keychain.data(for: accountKey),
+            let record = try? JSONDecoder().decode(EmailAccount.self, from: data),
+            record.email == normalizedEmail,
+            record.passwordHash == hash(password, salt: record.salt)
+        else { throw AuthError.invalidCredentials }
+
+        setSession(AuthSession(userID: normalizedEmail, email: normalizedEmail, displayName: nil, provider: .email))
+    }
+
+    func handleAppleAuthorization(_ result: Result<ASAuthorization, Error>) {
+        switch result {
+        case .success(let authorization):
+            guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else {
+                errorMessage = AuthError.unavailable.localizedDescription
+                return
+            }
+            let name = PersonNameComponentsFormatter().string(from: credential.fullName ?? .init())
+            setSession(AuthSession(
+                userID: credential.user,
+                email: credential.email,
+                displayName: name.isEmpty ? nil : name,
+                provider: .apple
+            ))
+        case .failure(let error):
+            if (error as? ASAuthorizationError)?.code != .canceled {
+                errorMessage = error.localizedDescription
+            }
+        }
+    }
+
+    func signOut() {
+        session = nil
+        defaults.removeObject(forKey: sessionKey)
+        errorMessage = nil
+    }
+
+    func validateStoredAppleCredential() async {
+        guard let session, session.provider == .apple else { return }
+        let state = (try? await ASAuthorizationAppleIDProvider().credentialState(forUserID: session.userID)) ?? .notFound
+        if state == .revoked || state == .notFound {
+            signOut()
+        }
+    }
+
+    private func validated(email: String, password: String) throws -> String {
+        let email = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard email.range(of: #"^[^\s@]+@[^\s@]+\.[^\s@]+$"#, options: .regularExpression) != nil else {
+            throw AuthError.invalidEmail
+        }
+        guard password.count >= 8 else { throw AuthError.weakPassword }
+        return email
+    }
+
+    private func hash(_ password: String, salt: Data) -> Data {
+        Data(SHA256.hash(data: salt + Data(password.utf8)))
+    }
+
+    private func emailAccountKey(for email: String) -> String {
+        "auth.email.\(SHA256.hash(data: Data(email.utf8)).map { String(format: "%02x", $0) }.joined())"
+    }
+
+    private func setSession(_ value: AuthSession) {
+        session = value
+        errorMessage = nil
+        if let data = try? JSONEncoder().encode(value) {
+            defaults.set(data, forKey: sessionKey)
+        }
+    }
+}
+
+private struct EmailAccount: Codable {
+    let email: String
+    let salt: Data
+    let passwordHash: Data
+}
+
+protocol KeychainStoring {
+    func data(for key: String) -> Data?
+    @discardableResult func set(_ data: Data, for key: String) -> Bool
+}
+
+struct KeychainStore: KeychainStoring {
+    private let service = Bundle.main.bundleIdentifier ?? "wellbe.TrafficVienna"
+
+    func data(for key: String) -> Data? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: key,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+        var result: CFTypeRef?
+        guard SecItemCopyMatching(query as CFDictionary, &result) == errSecSuccess else { return nil }
+        return result as? Data
+    }
+
+    func set(_ data: Data, for key: String) -> Bool {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: key
+        ]
+        SecItemDelete(query as CFDictionary)
+        var value = query
+        value[kSecValueData as String] = data
+        value[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+        return SecItemAdd(value as CFDictionary, nil) == errSecSuccess
+    }
+}

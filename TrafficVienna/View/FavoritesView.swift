@@ -12,6 +12,7 @@ struct FavoritesView: View {
     @ObservedObject var vm: FavoritesListViewModel
     @EnvironmentObject private var themeManager: ThemeManager
     @State private var showAbout = false
+    @State private var showAccount = false
 
     var body: some View {
         Group {
@@ -56,11 +57,16 @@ struct FavoritesView: View {
                 }
                 .accessibilityLabel("About")
             }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button { showAccount = true } label: { Image(systemName: "person.crop.circle") }
+                    .accessibilityLabel("Account")
+            }
             if !vm.stations.isEmpty {
                 ToolbarItem(placement: .topBarTrailing) { EditButton() }
             }
         }
         .sheet(isPresented: $showAbout) { AboutView() }
+        .sheet(isPresented: $showAccount) { AccountView() }
         .task {
             vm.loadStations()
             while !Task.isCancelled {
