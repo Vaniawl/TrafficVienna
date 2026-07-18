@@ -9,10 +9,12 @@ final class DisruptionsViewModel: ObservableObject {
     @Published var categoryFilter: LineCategory?
     @Published var lineFilter = ""
     @Published private(set) var freshness: DataFreshness?
+    @Published private(set) var relevantCount = 0
 
     private let service: MonitorService
     private let favoritesRepo: FavoritesRepository
     private var favouriteLines: Set<String>
+    private var relevantInfoIDs: Set<String> = []
 
     init(service: MonitorService = .shared, favoritesRepo: FavoritesRepository = UserDefaultsFavoritesRepository()) {
         self.service = service
@@ -39,17 +41,17 @@ final class DisruptionsViewModel: ObservableObject {
                 (info.relatedLines ?? []).contains { $0.localizedCaseInsensitiveContains(lineFilter) }
             }
         }
-        return result.sorted { isRelevant($0) && !isRelevant($1) }
+        let relevant = result.filter(isRelevant)
+        return relevant + result.filter { !isRelevant($0) }
     }
 
-    var relevantCount: Int { infos.filter(isRelevant).count }
-
     func isRelevant(_ info: TrafficInfo) -> Bool {
-        (info.relatedLines ?? []).contains(where: favouriteLines.contains)
+        relevantInfoIDs.contains(info.id)
     }
 
     func updateFavoriteRoutes(_ routes: [FavoriteRoute]) {
         favouriteLines = Set(routes.map(\.lineName))
+        rebuildRelevance()
     }
 
     func load(force: Bool = false) async {
@@ -61,6 +63,7 @@ final class DisruptionsViewModel: ObservableObject {
         do {
             let result = try await service.trafficInfoResult(forceRefresh: force)
             infos = result.value
+            rebuildRelevance()
             freshness = result.freshness
         } catch {
             if infos.isEmpty { errorMessage = error.monitorDisplayMessage }
@@ -70,5 +73,12 @@ final class DisruptionsViewModel: ObservableObject {
     var staleMessage: String? {
         guard case let .stale(_, message) = freshness else { return nil }
         return message
+    }
+
+    private func rebuildRelevance() {
+        relevantInfoIDs = Set(infos.lazy.filter { info in
+            (info.relatedLines ?? []).contains(where: self.favouriteLines.contains)
+        }.map(\.id))
+        relevantCount = relevantInfoIDs.count
     }
 }

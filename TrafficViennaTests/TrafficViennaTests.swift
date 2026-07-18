@@ -499,19 +499,51 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
-    func testDisruptionRelevanceDoesNotReadFavoritesForEveryItem() {
+    func testDisruptionRelevanceDoesNotReadFavoritesForEveryItem() async {
         let favorites = CountingFavoritesRepository(
             routes: [FavoriteRoute(diva: "60201435", lineName: "U1", destination: "Leopoldau")]
         )
+        let info = TrafficInfo(name: "test", title: "U1 delay", description: nil, priority: "1", relatedLines: ["U1"])
         let viewModel = DisruptionsViewModel(
-            service: MonitorService(network: MockNetworkManager()),
+            service: MonitorService(network: MockNetworkManager(trafficInfos: [info]), cacheTTL: 0),
             favoritesRepo: favorites
         )
-        let info = TrafficInfo(name: "test", title: "U1 delay", description: nil, priority: "1", relatedLines: ["U1"])
+
+        await viewModel.load()
 
         for _ in 0..<100 { XCTAssertTrue(viewModel.isRelevant(info)) }
 
-        XCTAssertEqual(favorites.getAllCallCount, 1)
+        XCTAssertEqual(favorites.getAllCallCount, 2)
+    }
+
+    @MainActor
+    func testDisruptionRelevanceCacheUpdatesAfterLoadAndFavouriteChanges() async {
+        let u1 = TrafficInfo(name: "u1", title: "U1 delay", description: nil, priority: "1", relatedLines: ["U1"])
+        let u3 = TrafficInfo(name: "u3", title: "U3 delay", description: nil, priority: "1", relatedLines: ["U3"])
+        let network = MockNetworkManager(trafficInfos: [u3, u1])
+        let favorites = CountingFavoritesRepository(
+            routes: [FavoriteRoute(diva: "1", lineName: "U1", destination: "Leopoldau")]
+        )
+        let viewModel = DisruptionsViewModel(
+            service: MonitorService(network: network, cacheTTL: 0),
+            favoritesRepo: favorites
+        )
+
+        await viewModel.load()
+
+        XCTAssertEqual(viewModel.relevantCount, 1)
+        XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["u1", "u3"])
+        XCTAssertTrue(viewModel.isRelevant(u1))
+        XCTAssertFalse(viewModel.isRelevant(u3))
+
+        viewModel.updateFavoriteRoutes([
+            FavoriteRoute(diva: "3", lineName: "U3", destination: "Ottakring")
+        ])
+
+        XCTAssertEqual(viewModel.relevantCount, 1)
+        XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["u3", "u1"])
+        XCTAssertFalse(viewModel.isRelevant(u1))
+        XCTAssertTrue(viewModel.isRelevant(u3))
     }
 
     @MainActor
@@ -797,15 +829,18 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
     var shouldFail = false
     var shouldRateLimit = false
     var responseSource: NetworkResponseSource = .network
+    var trafficInfos: [TrafficInfo]?
 
     init(
         shouldFail: Bool = false,
         shouldRateLimit: Bool = false,
-        responseSource: NetworkResponseSource = .network
+        responseSource: NetworkResponseSource = .network,
+        trafficInfos: [TrafficInfo]? = nil
     ) {
         self.shouldFail = shouldFail
         self.shouldRateLimit = shouldRateLimit
         self.responseSource = responseSource
+        self.trafficInfos = trafficInfos
     }
 
     func fetchMonitorData(for stopId: Int) async throws -> MonitorResponse {
@@ -837,7 +872,7 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
         let props = Properties(title: "Test Stop", attributes: attr)
         let stop = LocationStop(properties: props, geometry: nil)
         let monitor = Monitor(locationStop: stop, lines: [line])
-        let data = DataBlock(monitors: [monitor], trafficInfos: nil)
+        let data = DataBlock(monitors: [monitor], trafficInfos: trafficInfos)
         return MonitorResponse(data: data, source: responseSource)
     }
 }

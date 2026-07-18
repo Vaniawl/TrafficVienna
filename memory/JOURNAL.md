@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-18 — Cached Alerts relevance
+
+- Replaced repeated full-list relevance counts with a cached set of relevant traffic-info IDs rebuilt only after alert refreshes or favourite-line changes.
+- Made tab-badge reads and per-row relevance checks constant-time while keeping the complete city-wide alert list available.
+- Replaced comparator-based relevance sorting with a stable linear partition that preserves API order inside personalized and general groups.
+- Added regression coverage for initial load, favourite-line changes, badge count, stable priority ordering, and repository-read behavior.
+
 ## 2026-07-18 — Localized reusable UI component boundaries
 
 - Audited reusable SwiftUI components for runtime `String` parameters that bypass automatic string-catalog lookup.
