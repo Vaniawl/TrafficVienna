@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Non-destructive Favourites route failures
+
+- Preserved each route's last useful stop name, departures, and freshness when a later Favourites refresh fails instead of replacing the card with empty countdowns.
+- Reused the existing per-card localized warning while keeping first-load failures explicit and free of invented departure data.
+- Kept widget output useful during a failed refresh and cleared the route warning after the next successful recovery.
+- Added regressions for success-to-cache-clear-to-failure-to-recovery behavior and the first-load failure boundary.
+
 ## 2026-07-19 — Visible non-destructive Alerts refresh failures
 
 - Kept the loaded city-wide alert list and personalized relevance count intact when a later refresh fails after the service cache is unavailable.

@@ -152,12 +152,20 @@ final class FavoritesListViewModel: ObservableObject {
         defer {
             if generation == loadGeneration { isLoading = false }
         }
-        
+
+        let previousItems = Dictionary(uniqueKeysWithValues: items.map { ($0.route, $0) })
         var result = Array<FavoriteWithDeparture?>(repeating: nil, count: routes.count)
         await withTaskGroup(of: (Int, FavoriteWithDeparture).self) { group in
             for (index, route) in routes.enumerated() {
                 group.addTask { @MainActor in
-                    (index, await self.loadItem(for: route, forceRefresh: forceRefresh))
+                    (
+                        index,
+                        await self.loadItem(
+                            for: route,
+                            forceRefresh: forceRefresh,
+                            fallback: previousItems[route]
+                        )
+                    )
                 }
             }
 
@@ -178,7 +186,8 @@ final class FavoritesListViewModel: ObservableObject {
     
     func refresh(_ route: FavoriteRoute) {
         Task {
-            let updated = await loadItem(for: route, forceRefresh: true)
+            let fallback = items.first { $0.route == route }
+            let updated = await loadItem(for: route, forceRefresh: true, fallback: fallback)
             
             guard let index = items.firstIndex(where: {
                 $0.route.diva == route.diva &&
@@ -227,7 +236,11 @@ final class FavoritesListViewModel: ObservableObject {
         isLoading = false
     }
     
-    private func loadItem(for favorite: FavoriteRoute, forceRefresh: Bool = false) async -> FavoriteWithDeparture {
+    private func loadItem(
+        for favorite: FavoriteRoute,
+        forceRefresh: Bool = false,
+        fallback: FavoriteWithDeparture? = nil
+    ) async -> FavoriteWithDeparture {
         guard let divaInt = Int(favorite.diva) else {
             log.warning("Invalid DIVA: \(favorite.diva, privacy: .public)")
             return FavoriteWithDeparture(route: favorite, stopName: "", departures: [])
@@ -255,6 +268,15 @@ final class FavoritesListViewModel: ObservableObject {
 
         } catch {
             log.error("Failed to load favorite \(favorite.lineName, privacy: .public): \(error, privacy: .public)")
+            if let fallback {
+                return FavoriteWithDeparture(
+                    route: favorite,
+                    stopName: fallback.stopName,
+                    departures: fallback.departures,
+                    freshness: fallback.freshness,
+                    loadError: error.monitorDisplayMessage
+                )
+            }
             return FavoriteWithDeparture(
                 route: favorite,
                 stopName: "",

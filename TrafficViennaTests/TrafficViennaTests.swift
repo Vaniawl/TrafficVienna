@@ -788,6 +788,53 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testFavoriteRefreshFailurePreservesDeparturesAndRecovers() async {
+        let route = FavoriteRoute(diva: "1", lineName: "U1", destination: "Leopoldau")
+        let network = MockNetworkManager()
+        let service = MonitorService(network: network, cacheTTL: 0, minInterval: 0)
+        let widget = RecordingWidgetSync()
+        let viewModel = FavoritesListViewModel(
+            service: service,
+            favoritesRepo: CountingFavoritesRepository(routes: [route]),
+            stationsRepo: CountingFavoriteStationsRepository(),
+            widgetSync: widget
+        )
+        await viewModel.loadFavorites()
+        let originalDepartures = viewModel.items.first?.departures
+        await service.clearCache()
+        network.shouldFail = true
+
+        await viewModel.loadFavorites(forceRefresh: true)
+
+        XCTAssertEqual(viewModel.items.first?.departures, originalDepartures)
+        XCTAssertNotNil(viewModel.items.first?.loadError)
+        XCTAssertEqual(widget.savedData.first?.departures, originalDepartures?.prefix(3).map(\.countdown))
+        XCTAssertFalse(viewModel.isLoading)
+
+        network.shouldFail = false
+        await viewModel.loadFavorites(forceRefresh: true)
+
+        XCTAssertNil(viewModel.items.first?.loadError)
+        XCTAssertEqual(viewModel.items.first?.departures, originalDepartures)
+    }
+
+    @MainActor
+    func testFavoriteFirstLoadFailureHasNoInventedDepartures() async {
+        let route = FavoriteRoute(diva: "1", lineName: "U1", destination: "Leopoldau")
+        let viewModel = FavoritesListViewModel(
+            service: MonitorService(network: MockNetworkManager(shouldFail: true), cacheTTL: 0, minInterval: 0),
+            favoritesRepo: CountingFavoritesRepository(routes: [route]),
+            stationsRepo: CountingFavoriteStationsRepository(),
+            widgetSync: NoopWidgetSync()
+        )
+
+        await viewModel.loadFavorites()
+
+        XCTAssertTrue(viewModel.items.first?.departures.isEmpty == true)
+        XCTAssertNotNil(viewModel.items.first?.loadError)
+    }
+
+    @MainActor
     func testFavoritePollingDoesNotStartOverlappingBatch() async {
         let route = FavoriteRoute(diva: "1", lineName: "U1", destination: "Leopoldau")
         let network = MockNetworkManager(monitorDelayNanoseconds: 100_000_000)
