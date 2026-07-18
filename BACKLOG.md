@@ -145,11 +145,14 @@
     controls remain in active secondary flows.
   - Completed implementation: onboarding and About use the shared adaptive
     design tokens and Dynamic Type; onboarding scrolls at accessibility sizes;
+    its final step now offers real native Apple entry, confirms an already restored
+    profile, or continues explicitly without an account before location permission;
     the app and widget share one deterministic favourite-route model; the widget
     renders the decoded station name, uses safe relative dates, and has a complete
     embedded German catalogue.
-  - Evidence: focused route-order regression, localisation/build inspection,
-    warning-free full CI, and 75 passing XCTest cases. Security review found no
+  - Evidence: focused onboarding-order and route-order regressions,
+    localisation/build inspection, warning-free full CI, and 90 passing XCTest
+    cases. Security review found no
     unresolved Blocking or Important issue.
   - Pending acceptance: interactive onboarding/account/About/widget inspection
     after the locked macOS host is available.
@@ -161,9 +164,12 @@
   - Completed slice: native Apple entry, minimal device-only Keychain profile,
     restore, cancellation, failure, sign-out, and authorized/revoked/transferred
     credential handling with focused tests. Runtime Apple revocation notifications
-    now clear the local session immediately; anonymous use remains unchanged.
-  - Evidence: nine focused account lifecycle tests and warning-free full CI pass;
-    total XCTest count is 86. A generic Release device archive confirms the source
+    now clear the local session immediately. The same real Apple boundary is exposed
+    as the final onboarding choice, while a separate anonymous action remains.
+  - Evidence: eleven focused account lifecycle tests, two onboarding-order tests,
+    and warning-free full CI pass; total XCTest count is 90. Security review found
+    no new secret, token, storage, network, dependency, log, or unresolved Critical/
+    High/Important finding. A generic Release device archive confirms the source
     entitlement and signing team are wired, but the installed provisioning profile
     does not yet include Sign in with Apple and must be regenerated after the
     capability is enabled for `wellbe.TrafficVienna`.
@@ -210,7 +216,7 @@
   - Evidence: `xcstringstool sync` comparison reports zero missing keys/values,
     both catalogues compile, SwiftUI source scan finds no active `caption2`,
     `onTapGesture`, `UIScreen.main`, deprecated navigation, or unlabeled icon-only
-    control introduced by the redesign; full CI passes with 86 XCTest cases.
+    control introduced by the redesign; full CI passes with 90 XCTest cases.
   - Pending acceptance: interactive accessibility-size and VoiceOver inspection
     after the macOS host is unlocked.
 - [x] **TV-CORE-022 - Refresh and network lifecycle.**
@@ -253,7 +259,7 @@
 - [x] **TV-VERIFY-031 - macOS build and tests.** Run `bash scripts/ci.sh` on a
   suitable macOS/Xcode host, including the app and widget targets.
   - Evidence: full CI exited 0 on iPhone 17 simulator; app/widget build succeeded,
-    the freshness/lifecycle and dead-reference audits passed, and all 86 XCTest
+    the freshness/lifecycle and dead-reference audits passed, and all 90 XCTest
     cases pass.
 - [ ] **TV-VERIFY-032 - Product inspection.** Exercise every Phase 2 journey in
   light/dark appearance, accessibility text sizes, and relevant failure states.

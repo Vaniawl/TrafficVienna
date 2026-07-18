@@ -8,7 +8,7 @@
   complete; continue visual inspection, remaining resilience work, and email
   account integration.
 - Verified: app and widget build successfully on iPhone 17 simulator with zero
-  warnings; the restored test target runs 86 passing XCTest cases.
+  warnings; the restored test target runs 90 passing XCTest cases.
 - Verified CI: repository/OpenCode/reliability checks, build, tests, and diff
   validation completed with `[ci] OK`.
 - Verified visually: the new onboarding renders correctly in system light and
@@ -34,9 +34,15 @@
   alert navigation, favourites, and Live Activity feedback pass focused tests;
   station visits no longer overwrite the favourites widget. Visual acceptance is open.
 - Verified secondary surfaces: onboarding/About use shared adaptive tokens and
-  Dynamic Type, favourite-route ordering is shared by app and widget, the widget
-  shows decoded station names, and app/widget German catalogues are complete.
+  Dynamic Type; onboarding ends with a real optional Apple action, restored-profile
+  confirmation, or explicit anonymous continuation before location permission.
+  Favourite-route ordering is shared by app and widget, the widget shows decoded
+  station names, and app/widget German catalogues are complete.
   Interactive acceptance is open because macOS remains locked.
+- Verified onboarding account boundary: the final step reuses `AccountSession`,
+  keeps cancellation silent, shows recoverable failure, never stores auth tokens,
+  and never gates transport use. Eleven account lifecycle tests plus two onboarding
+  sequence tests pass; security review found no Critical/High/Important issue.
 - Verified network lifecycle: alert requests are coalesced, throttled, retried
   with bounded shared backoff, and fall back to in-memory stale data; cancelled
   journey tasks cannot publish late responses. Freshness snapshots preserve the

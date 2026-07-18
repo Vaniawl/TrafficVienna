@@ -3,6 +3,7 @@ import SwiftUI
 struct OnboardingView: View {
     let onGetStarted: () -> Void
 
+    @Environment(AccountSession.self) private var accountSession
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var step: OnboardingStep = .departures
 
@@ -17,6 +18,11 @@ struct OnboardingView: View {
             .tabViewStyle(.page(indexDisplayMode: .always))
 
             VStack(spacing: Spacing.sm) {
+                if step == .account {
+                    OnboardingAccountAccessView()
+                        .transition(Motion.stateTransition(reduceMotion: reduceMotion))
+                }
+
                 Button(action: advance) {
                     Text(buttonTitle)
                         .frame(maxWidth: .infinity)
@@ -24,7 +30,7 @@ struct OnboardingView: View {
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
 
-                Text("No account required. Your favourites stay on this device.")
+                Text(footerText)
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -37,7 +43,14 @@ struct OnboardingView: View {
     }
 
     private var buttonTitle: LocalizedStringKey {
-        step == .personal ? "Get started" : "Continue"
+        guard step == .account else { return "Continue" }
+        return accountSession.profile == nil ? "Continue without account" : "Start exploring"
+    }
+
+    private var footerText: LocalizedStringKey {
+        step == .account
+            ? "You can change your account choice later in Favourites."
+            : "No account required. Your favourites stay on this device."
     }
 
     private func advance() {
@@ -54,4 +67,5 @@ struct OnboardingView: View {
 
 #Preview {
     OnboardingView(onGetStarted: {})
+        .environment(AccountSession())
 }

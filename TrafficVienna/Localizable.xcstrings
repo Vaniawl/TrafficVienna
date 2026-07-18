@@ -1468,6 +1468,13 @@
     "Not enough time to walk" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Nicht genug Zeit für den Fußweg" } } } },
     "Real-time prediction" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Echtzeitprognose" } } } },
     "Service alert" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Störungsmeldung" } } } },
+    "Apple" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Apple" } } } },
+    "Continue without account" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Ohne Konto fortfahren" } } } },
+    "Continue your way" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Entscheide, wie du fortfährst" } } } },
+    "OPTIONAL ACCOUNT" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "OPTIONALES KONTO" } } } },
+    "Start exploring" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Jetzt entdecken" } } } },
+    "Use a verified Apple profile, or continue with every transport feature without an account." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Verwende ein verifiziertes Apple-Profil oder nutze alle Verkehrsfunktionen ohne Konto weiter." } } } },
+    "You can change your account choice later in Favourites." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Du kannst deine Kontoauswahl später in Favoriten ändern." } } } },
     "Walking approximately %lld minutes" : {
       "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Ungefähr %lld Minuten zu Fuß" } } }
     },

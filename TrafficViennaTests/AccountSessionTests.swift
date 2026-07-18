@@ -126,6 +126,32 @@ final class AccountSessionTests: XCTestCase {
         XCTAssertNil(store.storedProfile)
     }
 
+    func testCancelledAppleAuthorizationStaysAnonymousWithoutError() {
+        let session = AccountSession(store: InMemoryAccountProfileStore())
+        let cancellation = NSError(
+            domain: ASAuthorizationError.errorDomain,
+            code: ASAuthorizationError.canceled.rawValue
+        )
+
+        session.handleAppleAuthorization(.failure(cancellation))
+
+        XCTAssertNil(session.profile)
+        XCTAssertNil(session.errorMessage)
+        XCTAssertFalse(session.isShowingError)
+    }
+
+    func testFailedAppleAuthorizationShowsRecoverableError() {
+        let session = AccountSession(store: InMemoryAccountProfileStore())
+
+        session.handleAppleAuthorization(
+            .failure(NSError(domain: "AccountSessionTests", code: 1))
+        )
+
+        XCTAssertNil(session.profile)
+        XCTAssertNotNil(session.errorMessage)
+        XCTAssertTrue(session.isShowingError)
+    }
+
     private var appleProfile: AccountProfile {
         AccountProfile(
             id: "apple-user-id",

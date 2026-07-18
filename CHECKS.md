@@ -48,3 +48,8 @@ The host currently has two available simulators named `iPhone 17`, so the litera
 name-only AGENTS destination is ambiguous. The latest full CI used the repository's
 supported `TRAFFICVIENNA_XCODE_DESTINATION` override with the existing simulator
 UUID `6B367A70-5FF5-4C39-B479-F27457824C34`; no simulator was created or removed.
+
+The optional onboarding account step has source/build evidence plus eleven account
+lifecycle and two sequence regressions. This is partial REQ-TV-009 evidence only:
+email provider configuration, remote deletion, physical-device Apple acceptance,
+and interactive onboarding inspection remain required.

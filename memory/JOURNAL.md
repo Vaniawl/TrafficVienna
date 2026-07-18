@@ -1,5 +1,18 @@
 # Journal
 
+## 2026-07-18 — Optional Apple entry in onboarding
+
+- Added a fourth onboarding step that exposes the existing native Apple boundary,
+  confirms a restored profile, or offers a separate explicit anonymous action before
+  the app requests location permission. Email remains absent rather than simulated.
+- Added German catalogue values, stable four-step sequence coverage, and missing
+  Apple cancellation/failure regressions. Eleven account lifecycle plus two
+  onboarding tests pass; cancellation stays silent and real failure remains visible.
+- Full CI passes warning-free with all 90 XCTest cases. Security review found no
+  new secret, token, storage, endpoint, dependency, log, or Critical/High/Important
+  issue. Physical-device Apple, interactive onboarding, and real email acceptance
+  remain pending their existing external gates.
+
 ## 2026-07-18 — Adaptive and understandable departure rows
 
 - Replaced the shared departure row's fixed-column layout at accessibility Dynamic
