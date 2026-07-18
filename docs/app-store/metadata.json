@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "app": {
+    "bundleId": "wellbe.TrafficVienna",
+    "version": "1.0",
+    "build": "1",
+    "primaryCategory": "NAVIGATION",
+    "secondaryCategory": "TRAVEL",
+    "contentRights": "Uses public transport data from Wiener Linien; confirm redistribution and attribution terms before submission.",
+    "privacyPolicyUrl": null,
+    "supportUrl": null
+  },
+  "localizations": {
+    "en-US": {
+      "name": "TrafficVienna",
+      "subtitle": "Vienna departures, live",
+      "promotionalText": "Live Vienna departures, nearby stops, favourites, service alerts, reminders and a widget — in one calm, fast travel companion.",
+      "description": "Move around Vienna with live public transport information in a clean, focused app.\n\nSee nearby stops and upcoming departures, search for stations across the Wiener Linien network, and open a live departure board for the stop you need. Save favourite stations and line directions for quicker access, check service alerts, and explore stops on the map.\n\nPlan your regular travel with on-device commute routines. Set local departure reminders, follow a selected service with a Live Activity, and glance at favourite departures in the Home Screen widget. Saved responses remain available with a clear stale-data notice when the network is unavailable.\n\nTrafficVienna supports optional location access. Station search works without sharing your location. Email accounts are stored only on this device, and native Sign in with Apple is available. Favourites, routines and recent searches stay on device.\n\nRealtime departure and service information is provided by Wiener Linien. Always check official signage and announcements when travelling.",
+      "keywords": "vienna,transit,departures,stations,tram,metro,bus,alerts,widget,nearby"
+    },
+    "de-DE": {
+      "name": "TrafficVienna",
+      "subtitle": "Wiener Abfahrten live",
+      "promotionalText": "Live-Abfahrten, Haltestellen in der Nähe, Favoriten, Störungsmeldungen, Erinnerungen und Widget — übersichtlich in einer App.",
+      "description": "Mit aktuellen Informationen zum öffentlichen Verkehr entspannt durch Wien.\n\nFinde Haltestellen in deiner Nähe und sieh die nächsten Abfahrten. Suche Stationen im Wiener-Linien-Netz und öffne die Abfahrtstafel der gewünschten Haltestelle. Speichere bevorzugte Stationen und Linienrichtungen, prüfe Störungsmeldungen und entdecke Haltestellen auf der Karte.\n\nOrganisiere regelmäßige Wege mit lokal gespeicherten Routinen. Erstelle Abfahrtserinnerungen, verfolge eine ausgewählte Verbindung als Live-Aktivität und sieh bevorzugte Abfahrten im Home-Bildschirm-Widget. Gespeicherte Antworten bleiben bei einem Netzwerkausfall verfügbar und werden klar als möglicherweise veraltet gekennzeichnet.\n\nDer Standortzugriff ist optional. Die Stationssuche funktioniert ohne Standortfreigabe. E-Mail-Konten werden nur auf diesem Gerät gespeichert; außerdem ist die native Anmeldung mit Apple verfügbar. Favoriten, Routinen und letzte Suchanfragen bleiben auf dem Gerät.\n\nEchtzeit-Abfahrten und Störungsmeldungen stammen von den Wiener Linien. Beachte unterwegs immer die offiziellen Anzeigen und Durchsagen.",
+      "keywords": "wien,verkehr,abfahrt,haltestelle,ubahn,straßenbahn,bus,störung,widget"
+    },
+    "uk": {
+      "name": "TrafficVienna",
+      "subtitle": "Транспорт Відня наживо",
+      "promotionalText": "Відправлення наживо, найближчі зупинки, обране, сповіщення про рух, нагадування та віджет — в одному зручному застосунку.",
+      "description": "Пересувайтеся Віднем з актуальною інформацією про громадський транспорт у простому та зручному застосунку.\n\nПереглядайте найближчі зупинки й наступні відправлення, шукайте станції мережі Wiener Linien та відкривайте онлайн-табло потрібної зупинки. Зберігайте улюблені станції й напрямки ліній, перевіряйте зміни руху та знаходьте зупинки на мапі.\n\nОрганізуйте регулярні поїздки за допомогою локальних маршрутних звичок. Створюйте нагадування про відправлення, стежте за вибраним рейсом через Live Activity та переглядайте улюблені відправлення у віджеті головного екрана. Збережені відповіді доступні без мережі та чітко позначаються як такі, що можуть бути застарілими.\n\nДоступ до геопозиції необов’язковий. Пошук станцій працює без передачі місцезнаходження. Облікові записи email зберігаються лише на цьому пристрої; також доступний вхід через Apple. Обране, звички та останні пошуки залишаються на пристрої.\n\nДані про відправлення й зміни руху надає Wiener Linien. Під час поїздки завжди перевіряйте офіційні табло та оголошення.",
+      "keywords": "відень,транспорт,метро,трамвай,автобус"
+    }
+  }
+}

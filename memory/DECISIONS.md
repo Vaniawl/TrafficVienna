@@ -1,5 +1,13 @@
 # Architectural Decisions
 
+## 2026-07-18 — Versioned App Store metadata without aspirational claims
+
+**Context:** App Store copy must remain consistent across three localizations and must not imply route planning, ticketing, cloud identity, or recovery that the local-first app does not implement. Required URLs and legal/privacy facts cannot be invented from repository context.
+
+**Decision:** Keep localized marketing copy in a machine-validated repository JSON file and keep review, privacy, screenshot, and submission guidance beside it. Enforce Apple's current field and UTF-8 keyword limits in repository validation. Represent unverified public URLs as pending and retain external privacy, content-rights, capability, legal, and screenshot work as explicit release gates.
+
+**Consequences:** Marketing text can be reviewed and copied consistently without overstating the product. A passing repository check means the copy is structurally ready, not that external App Store conditions have been completed.
+
 ## 2026-07-18 — Per-executable privacy manifests and conservative label boundary
 
 **Context:** The app and widget both use required-reason `UserDefaults` APIs, including a shared App Group. TrafficVienna itself keeps identity, location, favourites, and search state on device, but direct Wiener Linien API requests necessarily expose network metadata to the API operator and the repository has no API-specific retention agreement.

@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-18 — App Store metadata and review pack
+
+- Added validated English, German, and Ukrainian App Store names, subtitles, promotional text, descriptions, and keyword sets based only on implemented features.
+- Added reviewer instructions for local email registration, optional location, Sign in with Apple, widget, Live Activity, notifications, provider outages, and stale-data behavior.
+- Defined a seven-frame localized screenshot story with Apple's current 6.9-inch iPhone and 13-inch iPad sizes.
+- Added byte-aware metadata validation to repository checks and explicit pending gates for public privacy/support URLs, Wiener Linien API privacy and content rights, distribution capability, legal fields, and release-candidate screenshots.
+
 ## 2026-07-18 — App Store privacy manifest readiness
 
 - Audited required-reason API usage against the app and widget source: the app uses app-only and App Group UserDefaults, while the widget uses App Group UserDefaults.

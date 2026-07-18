@@ -7,6 +7,8 @@ required_files=(
   "AGENTS.md"
   "README.md"
   "docs/CONTEXT.md"
+  "docs/app-store/metadata.json"
+  "docs/app-store/SUBMISSION.md"
   "docs/REFERENCES.md"
   "memory/DECISIONS.md"
   "memory/JOURNAL.md"
@@ -34,6 +36,7 @@ plutil -lint "$ROOT/TrafficVienna/Info.plist" >/dev/null
 plutil -lint "$ROOT/TrafficVienna/PrivacyInfo.xcprivacy" >/dev/null
 plutil -lint "$ROOT/TrafficViennaWidget/PrivacyInfo.xcprivacy" >/dev/null
 node "$ROOT/scripts/update-localizations.mjs" --check
+node "$ROOT/scripts/validate-app-store-metadata.mjs"
 
 if ! plutil -p "$ROOT/TrafficVienna/Info.plist" | grep -q 'trafficvienna'; then
   echo "[validate-repository] missing trafficvienna URL scheme" >&2
