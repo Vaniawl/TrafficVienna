@@ -1,0 +1,105 @@
+import fs from "node:fs";
+
+const path = new URL("../TrafficVienna/Localizable.xcstrings", import.meta.url);
+const catalog = JSON.parse(fs.readFileSync(path, "utf8"));
+const original = JSON.stringify(catalog);
+
+const newEnglish = [
+  "Account", "Add a favourite station first, then create a daily routine.", "Add routine",
+  "Affects your favourites", "Authentication mode", "Choose", "Create account", "Discover",
+  "Email", "Email account", "Email accounts are stored securely on this device. Apple ID uses Apple's private authentication flow.",
+  "CONNECTING", "Enable location", "Everything around you, live.", "Find your station", "Good afternoon", "Good evening", "Good morning",
+  "Live changes across Vienna", "Live city departures", "Live departures", "Live departures within 500 metres",
+  "Live station", "Locate", "Nearby now", "Network", "No matching stops", "No routines", "Open in Maps",
+  "Password", "Real-time departures and service updates", "Refresh", "Remind me before departure", "Routines",
+  "Schedule only", "Search every station across Vienna", "Sign in", "Sign out", "Start typing to see live departures anywhere in Vienna.",
+  "Station or stop", "The departures you care about", "Traffic Vienna user", "Travel routines", "Try another station name.",
+  "NO RESULTS", "OFFLINE", "SET UP", "VIENNA LIVE", "Where to next?", "Your city", "Your city, moving with you", "Your routines", "or"
+];
+
+const de = {
+  "CONNECTING":"VERBINDUNG", "NO RESULTS":"KEINE ERGEBNISSE", "OFFLINE":"OFFLINE", "SET UP":"EINRICHTEN",
+  "%lld":"%lld", "—":"—",
+  "Account":"Konto", "Add a favourite station first, then create a daily routine.":"Füge zuerst eine Lieblingsstation hinzu und erstelle dann eine tägliche Routine.",
+  "Add routine":"Routine hinzufügen", "Affects your favourites":"Betrifft deine Favoriten", "All clear":"Alles frei",
+  "Authentication mode":"Anmeldemodus", "Change theme":"Design ändern", "Choose":"Auswählen", "Couldn't load departures":"Abfahrten konnten nicht geladen werden",
+  "Create account":"Konto erstellen", "Discover":"Entdecken", "Email":"E-Mail", "Email account":"E-Mail-Konto",
+  "Email accounts are stored securely on this device. Apple ID uses Apple's private authentication flow.":"E-Mail-Konten werden sicher auf diesem Gerät gespeichert. Die Apple-ID nutzt Apples privaten Anmeldevorgang.",
+  "Enable location":"Standort aktivieren", "Error":"Fehler", "Everything around you, live.":"Alles um dich herum – live.",
+  "Filter":"Filtern", "Find your station":"Finde deine Station", "Good afternoon":"Guten Tag", "Good evening":"Guten Abend", "Good morning":"Guten Morgen",
+  "Live changes across Vienna":"Aktuelle Änderungen in ganz Wien", "Live city departures":"Live-Abfahrten in der Stadt", "Live departures":"Live-Abfahrten",
+  "Live departures, wherever you are.":"Live-Abfahrten, egal wo du bist.",
+  "Live departures within 500 metres":"Live-Abfahrten im Umkreis von 500 Metern", "Live station":"Live-Station", "Locate":"Standort",
+  "Loading...":"Wird geladen…", "Nearby now":"Jetzt in der Nähe", "Network":"Netz", "No matching stops":"Keine passenden Haltestellen",
+  "No routines":"Keine Routinen", "Offline":"Offline", "Open in Maps":"In Karten öffnen", "Password":"Passwort",
+  "Real-time departures and service updates":"Echtzeit-Abfahrten und Verkehrsmeldungen", "Refresh":"Aktualisieren", "Remind me before departure":"Vor der Abfahrt erinnern",
+  "Retry":"Erneut versuchen", "Routines":"Routinen", "Schedule only":"Nur Fahrplan", "Search every station across Vienna":"Alle Stationen in Wien durchsuchen",
+  "Sign in":"Anmelden", "Sign out":"Abmelden", "Start typing to see live departures anywhere in Vienna.":"Tippe, um Live-Abfahrten in ganz Wien zu sehen.",
+  "Station or stop":"Station oder Haltestelle", "The departures you care about":"Die Abfahrten, die dir wichtig sind", "Traffic Vienna user":"Traffic-Vienna-Nutzer",
+  "Showing Vienna centre — enable location to see stops near you.":"Wien Zentrum wird angezeigt – aktiviere den Standort für Haltestellen in deiner Nähe.",
+  "Travel routines":"Fahrtroutinen", "Try another station name.":"Versuche einen anderen Stationsnamen.", "VIENNA LIVE":"WIEN LIVE",
+  "Where to next?":"Wohin als Nächstes?", "Your city":"Deine Stadt", "Your city, moving with you":"Deine Stadt bewegt sich mit dir",
+  "Your routines":"Deine Routinen", "or":"oder"
+};
+
+const uk = {
+  "CONNECTING":"ПІДКЛЮЧЕННЯ", "NO RESULTS":"НЕМАЄ РЕЗУЛЬТАТІВ", "OFFLINE":"ОФЛАЙН", "SET UP":"НАЛАШТУВАТИ",
+  "%lld":"%lld", "—":"—", "About":"Про застосунок", "Account":"Обліковий запис", "Add station to favourites":"Додати станцію до обраного",
+  "Add to favourites":"Додати до обраного", "Add a favourite station first, then create a daily routine.":"Спочатку додайте улюблену станцію, а потім створіть щоденний сценарій.",
+  "Add routine":"Додати сценарій", "Affects your favourites":"Впливає на обрані маршрути", "Alerts":"Сповіщення", "All":"Усі", "All clear":"Усе гаразд",
+  "All lines are running normally.":"Усі лінії працюють нормально.", "Authentication mode":"Режим входу", "Change theme":"Змінити тему", "Choose":"Обрати",
+  "Clear":"Очистити", "Couldn't load departures":"Не вдалося завантажити відправлення", "Couldn’t load departures":"Не вдалося завантажити відправлення",
+  "Create account":"Створити акаунт", "Data":"Дані", "Data: Wiener Linien (Stadt Wien, CC BY).":"Дані: Wiener Linien (місто Відень, CC BY).",
+  "data.gv.at":"data.gv.at", "Departure times are provided live by Wiener Linien and may differ from actual service.":"Час відправлення надається Wiener Linien у реальному часі та може відрізнятися від фактичного руху.",
+  "Departures":"Відправлення", "Discover":"Відкрийте", "Done":"Готово", "Email":"Електронна пошта", "Email account":"Акаунт електронної пошти",
+  "Email accounts are stored securely on this device. Apple ID uses Apple's private authentication flow.":"Акаунти електронної пошти безпечно зберігаються на цьому пристрої. Apple ID використовує приватний процес автентифікації Apple.",
+  "Enable location":"Увімкнути геолокацію", "Enter a station name to see live departures.":"Введіть назву станції, щоб побачити актуальні відправлення.",
+  "Enter stop name…":"Введіть назву зупинки…", "Error":"Помилка", "Everything around you, live.":"Усе навколо вас — наживо.", "Favourites":"Обране",
+  "Filter":"Фільтр", "Find your station":"Знайдіть свою станцію", "Get started":"Почати", "Good afternoon":"Добрий день", "Good evening":"Добрий вечір",
+  "Good morning":"Доброго ранку", "Licence":"Ліцензія", "Lines":"Лінії", "Live changes across Vienna":"Актуальні зміни по всьому Відню",
+  "Live city departures":"Міські відправлення наживо", "Live departures":"Відправлення наживо", "Live departures within 500 metres":"Відправлення в межах 500 метрів",
+  "Live departures, wherever you are.":"Актуальні відправлення, де б ви не були.", "Live station":"Станція наживо",
+  "Live Wiener Linien departures, wherever you are.":"Актуальні відправлення Wiener Linien, де б ви не були.", "Loading...":"Завантаження…", "Loading…":"Завантаження…",
+  "Locate":"Знайти мене", "Locating you…":"Визначаємо ваше місцезнаходження…", "Map":"Мапа", "min":"хв", "Nearby":"Поруч", "Nearby now":"Зараз поруч",
+  "Network":"Мережа", "No departures":"Немає відправлень", "No favourites yet":"Обраного ще немає", "No matching stops":"Зупинок не знайдено",
+  "No routines":"Немає сценаріїв", "Nothing scheduled right now.":"Зараз нічого не заплановано.", "now":"зараз", "Offline":"Офлайн", "Open in Maps":"Відкрити в Картах",
+  "Password":"Пароль", "Provider":"Постачальник", "Real-time departures and service updates":"Відправлення та зміни руху в реальному часі", "Recent":"Нещодавні",
+  "Refresh":"Оновити", "Refresh alerts":"Оновити сповіщення", "Refresh departures":"Оновити відправлення", "Remind me before departure":"Нагадати перед відправленням",
+  "Remove":"Видалити", "Remove %@ from favourites":"Видалити %@ з обраного", "Remove favourite":"Видалити з обраного", "Remove station from favourites":"Видалити станцію з обраного",
+  "Retry":"Спробувати ще", "Routines":"Сценарії", "Save %@ to favourites":"Зберегти %@ в обране", "Schedule only":"Лише розклад", "Search":"Пошук",
+  "Search every station across Vienna":"Шукайте серед усіх станцій Відня", "Search for a stop":"Знайти зупинку", "Service alerts":"Зміни руху", "Show less":"Показати менше",
+  "Show more":"Показати більше", "Showing Vienna centre — enable location to see stops near you.":"Показано центр Відня — увімкніть геолокацію, щоб побачити зупинки поруч.",
+  "Sign in":"Увійти", "Sign out":"Вийти", "Source":"Джерело", "Star a station, or tap the heart on a line, to save it here.":"Позначте станцію зірочкою або натисніть серце біля лінії, щоб зберегти її тут.",
+  "Start typing to see live departures anywhere in Vienna.":"Почніть вводити назву, щоб побачити актуальні відправлення по всьому Відню.", "Station or stop":"Станція або зупинка",
+  "Stations":"Станції", "The departures you care about":"Важливі для вас відправлення", "Track on Lock Screen":"Відстежувати на екрані блокування",
+  "Traffic Vienna":"Traffic Vienna", "Traffic Vienna user":"Користувач Traffic Vienna", "Travel routines":"Сценарії поїздок", "Try another station name.":"Спробуйте іншу назву станції.",
+  "Version %@":"Версія %@", "VIENNA LIVE":"ВІДЕНЬ НАЖИВО", "Where to next?":"Куди далі?", "Your city":"Ваше місто", "Your city, moving with you":"Ваше місто рухається разом із вами",
+  "Your routines":"Ваші сценарії", "or":"або", "updated %lldh ago":"оновлено %lld год тому", "updated %lldm ago":"оновлено %lld хв тому", "updated %llds ago":"оновлено %lld с тому",
+  "updated just now":"щойно оновлено"
+};
+
+for (const key of newEnglish) catalog.strings[key] ??= {};
+for (const [language, values] of Object.entries({ de, uk })) {
+  for (const [key, value] of Object.entries(values)) {
+    catalog.strings[key] ??= {};
+    catalog.strings[key].localizations ??= {};
+    catalog.strings[key].localizations[language] = { stringUnit: { state: "translated", value } };
+  }
+}
+
+catalog.strings = Object.fromEntries(Object.entries(catalog.strings).sort(([a], [b]) => a.localeCompare(b)));
+const incomplete = Object.entries(catalog.strings).filter(([, entry]) =>
+  !entry.localizations?.de?.stringUnit?.value || !entry.localizations?.uk?.stringUnit?.value
+);
+if (incomplete.length) {
+  console.error(`Missing de/uk localization: ${incomplete.map(([key]) => key).join(", ")}`);
+  process.exit(1);
+}
+if (process.argv.includes("--check")) {
+  if (original !== JSON.stringify(catalog)) {
+    console.error("Localizable.xcstrings is stale; run node scripts/update-localizations.mjs");
+    process.exit(1);
+  }
+} else {
+  fs.writeFileSync(path, `${JSON.stringify(catalog, null, 2)}\n`);
+}

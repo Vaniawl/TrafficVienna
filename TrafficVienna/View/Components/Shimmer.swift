@@ -9,11 +9,12 @@ import SwiftUI
 
 private struct ShimmerModifier: ViewModifier {
     @State private var phase: CGFloat = -1
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     func body(content: Content) -> some View {
         content
             .overlay {
-                GeometryReader { geo in
+                if !reduceMotion { GeometryReader { geo in
                     let width = geo.size.width
                     LinearGradient(
                         colors: [.clear, Color.primary.opacity(0.08), .clear],
@@ -24,9 +25,10 @@ private struct ShimmerModifier: ViewModifier {
                     .offset(x: phase * width)
                     .mask(content)
                     .allowsHitTesting(false)
-                }
+                } }
             }
             .onAppear {
+                guard !reduceMotion else { return }
                 withAnimation(.linear(duration: 1.25).repeatForever(autoreverses: false)) {
                     phase = 1
                 }

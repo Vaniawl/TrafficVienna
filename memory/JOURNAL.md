@@ -1,5 +1,14 @@
 # Journal
 
+## 2026-07-18 — Ukrainian localization and accessibility polish
+
+- Completed German and Ukrainian translations for the current UI catalog and added a deterministic localization updater/check to repository validation.
+- Localized runtime-generated home dashboard states so badges, greetings, titles, subtitles, and actions do not fall back to mixed-language English.
+- Adapted the Nearby header and location hero for accessibility text sizes; shimmer and live-pulse animation now respect Reduce Motion.
+- Hardened departure countdown parsing for ISO 8601 timestamps with and without fractional seconds and rounded remaining minutes consistently upward.
+- Corrected stale-cache regression setup and added fractional-timestamp coverage; the full XCTest suite, repository validation, OpenCode validation, and whitespace checks pass.
+- Verified the redesigned home visually on iPhone 17 Simulator at accessibility-extra-large text, increased contrast, and Ukrainian locale.
+
 ## 2026-07-18 — Authentication hardening and working deep links
 
 - Upgraded device-local email verifiers to PBKDF2-HMAC-SHA256 with 120,000 iterations, random salts, timing-safe comparison, and transparent migration of legacy SHA-256 Keychain records after successful login.

@@ -177,6 +177,14 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(result, 2)
     }
 
+    func testLiveMinutesFromFractionalISODate() {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let future = formatter.string(from: Date().addingTimeInterval(180))
+        let result = DepartureClock.liveMinutes(realtime: future, planned: nil, fallback: 99)
+        XCTAssertEqual(result, 3)
+    }
+
     func testLiveMinutesNeverNegative() {
         let past = ISO8601DateFormatter().string(from: Date().addingTimeInterval(-60))
         let result = DepartureClock.liveMinutes(realtime: nil, planned: past, fallback: 0)
@@ -214,13 +222,13 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     func testMonitorServiceFallbackToStaleCacheOnNetworkError() async throws {
-        let mock = MockNetworkManager(shouldFail: true)
+        let mock = MockNetworkManager()
         let service = MonitorService(network: mock, cacheTTL: 30)
 
         _ = try await service.monitor(diva: 60201435)
         mock.shouldFail = true
 
-        let result = try await service.monitor(diva: 60201435)
+        let result = try await service.monitor(diva: 60201435, forceRefresh: true)
         XCTAssertFalse(result.data.monitors.isEmpty, "Should return stale cache on error")
     }
 

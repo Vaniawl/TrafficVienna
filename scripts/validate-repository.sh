@@ -28,6 +28,7 @@ done
 python3 -m json.tool "$ROOT/opencode.json" >/dev/null
 python3 -m json.tool "$ROOT/.opencode/opencode.json" >/dev/null
 plutil -lint "$ROOT/TrafficVienna/Info.plist" >/dev/null
+node "$ROOT/scripts/update-localizations.mjs" --check
 
 if ! plutil -p "$ROOT/TrafficVienna/Info.plist" | grep -q 'trafficvienna'; then
   echo "[validate-repository] missing trafficvienna URL scheme" >&2

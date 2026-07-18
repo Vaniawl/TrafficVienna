@@ -10,6 +10,7 @@ struct NearbyView: View {
     @ObservedObject private var favoritesVM: FavoritesListViewModel
     @ObservedObject private var disruptionsVM: DisruptionsViewModel
     @Environment(\.openURL) private var openURL
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     private let store: StationStore
     private let isActive: Bool
     @State private var showAccount = false
@@ -68,7 +69,24 @@ struct NearbyView: View {
     }
 
     private var topBar: some View {
-        HStack(spacing: 12) {
+        Group {
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack { accountAvatar; Spacer(); refreshButton }
+                    accountTitle
+                }
+            } else {
+                HStack(spacing: 12) {
+                    accountAvatar
+                    accountTitle
+                    Spacer()
+                    refreshButton
+                }
+            }
+        }
+    }
+
+    private var accountAvatar: some View {
             Button { showAccount = true } label: {
                 Text(initials)
                     .font(.subheadline.bold())
@@ -77,14 +95,18 @@ struct NearbyView: View {
                     .background(Color.black, in: Circle())
             }
             .accessibilityLabel("Account")
+    }
 
+    private var accountTitle: some View {
             VStack(alignment: .leading, spacing: 1) {
                 Text(greeting).font(.caption).foregroundStyle(.secondary)
                 Text(auth.session?.displayName ?? "Traffic Vienna")
                     .font(.headline)
-                    .lineLimit(1)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            Spacer()
+    }
+
+    private var refreshButton: some View {
             Button { Task { await vm.load(force: true) } } label: {
                 Image(systemName: "arrow.clockwise")
                     .font(.system(size: 16, weight: .semibold))
@@ -93,7 +115,6 @@ struct NearbyView: View {
             }
             .disabled(vm.isRefreshing)
             .accessibilityLabel("Refresh departures")
-        }
     }
 
     private func dashboard(state: DashboardState) -> some View {
@@ -147,13 +168,13 @@ struct NearbyView: View {
                     state.perform(using: locationManager, openSettings: openSettings)
                 } label: {
                     HStack {
-                        Text(actionTitle).fontWeight(.semibold)
+                                Text(actionTitle).fontWeight(.semibold).lineLimit(2)
                         Spacer()
                         Image(systemName: "arrow.right")
                     }
                     .foregroundStyle(.black)
-                    .padding(.horizontal, 18)
-                    .frame(height: 52)
+                    .padding(.horizontal, 18).padding(.vertical, 13)
+                    .frame(minHeight: 52)
                     .background(.white, in: Capsule())
                 }
                 .buttonStyle(.plain)
@@ -268,7 +289,9 @@ struct NearbyView: View {
 
     private var greeting: String {
         let hour = Calendar.current.component(.hour, from: .now)
-        return hour < 12 ? "Good morning" : (hour < 18 ? "Good afternoon" : "Good evening")
+        return hour < 12
+            ? String(localized: "Good morning")
+            : (hour < 18 ? String(localized: "Good afternoon") : String(localized: "Good evening"))
     }
 
     private func openInMaps(_ station: Station) {
@@ -288,10 +311,10 @@ private enum DashboardState {
 
     var badge: String {
         switch self {
-        case .permission: "SET UP"
-        case .locationOff: "OFFLINE"
-        case .locating: "CONNECTING"
-        case .empty: "NO RESULTS"
+        case .permission: String(localized: "SET UP")
+        case .locationOff: String(localized: "OFFLINE")
+        case .locating: String(localized: "CONNECTING")
+        case .empty: String(localized: "NO RESULTS")
         }
     }
     var icon: String {
@@ -304,24 +327,24 @@ private enum DashboardState {
     }
     var title: String {
         switch self {
-        case .permission: "Everything around you, live."
-        case .locationOff: "Location is turned off."
-        case .locating: "Finding nearby departures."
-        case .empty: "No stops within 500 m."
+        case .permission: String(localized: "Everything around you, live.")
+        case .locationOff: String(localized: "Location is turned off.")
+        case .locating: String(localized: "Finding nearby departures.")
+        case .empty: String(localized: "No stops within 500 m.")
         }
     }
     var subtitle: String {
         switch self {
-        case .permission: "Allow location once and turn every nearby stop into a live departure board."
-        case .locationOff: "Enable it in Settings to see nearby stops and real-time departures."
-        case .locating: "Connecting your position to Vienna’s transport network."
-        case .empty: "Try again from another location or open the map to explore the city."
+        case .permission: String(localized: "Allow location once and turn every nearby stop into a live departure board.")
+        case .locationOff: String(localized: "Enable it in Settings to see nearby stops and real-time departures.")
+        case .locating: String(localized: "Connecting your position to Vienna’s transport network.")
+        case .empty: String(localized: "Try again from another location or open the map to explore the city.")
         }
     }
     var actionTitle: String? {
         switch self {
-        case .permission: "Enable location"
-        case .locationOff: "Open Settings"
+        case .permission: String(localized: "Enable location")
+        case .locationOff: String(localized: "Open Settings")
         case .empty: nil
         case .locating: nil
         }
