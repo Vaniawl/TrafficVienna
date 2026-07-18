@@ -1,5 +1,13 @@
 # Architectural Decisions
 
+## 2026-07-18 — Provider-aware local account removal boundary
+
+**Context:** Device-local email registration created a persistent Keychain password verifier, but Sign out removed only the active session. Sign in with Apple stores no app-owned credential that TrafficVienna can revoke, and there is no authentication backend.
+
+**Decision:** Expose a confirmed “remove account from device” flow. For email identities, delete the exact hashed Keychain account record and clear the session only after deletion succeeds. For Apple identities, clear only the local session and explicitly state that the Apple ID is not deleted or revoked. Keep favourites and routines because they are device-level travel preferences rather than per-identity records.
+
+**Consequences:** Users can remove local email credentials without reinstalling the app, deletion failures are retryable without losing session access, and Apple behavior is not overstated. A future server-backed identity provider must replace this operation with its own authenticated account-deletion and token-revocation workflow.
+
 ## 2026-07-18 — Ordered line-favourite persistence and shared UI ownership
 
 **Context:** Line favourites were persisted as a Set. Converting that Set to an array produced nondeterministic Favourites and widget ordering, while each Station Detail heart decoded the same JSON independently. Alerts also cached a separate view of the saved lines.

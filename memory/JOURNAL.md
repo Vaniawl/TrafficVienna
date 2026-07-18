@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-07-18 — Provider-aware local account removal
+
+- Added a destructive, confirmed Account action with explicit provider-aware explanations and localized German/Ukrainian copy.
+- Email removal deletes the exact hashed-account password verifier from Keychain before clearing the local session; a Keychain failure leaves the session active for safe retry.
+- Apple removal clears only TrafficVienna’s local sign-in session and explicitly does not claim to delete or revoke the user’s Apple ID.
+- Clarified that favourites and routines are device-local travel preferences and remain after removing the sign-in identity.
+- Added email success, Keychain failure, and Apple-boundary regression tests; security review found no Critical/High issues, full shared-scheme tests and repository validations pass, and no auth secrets are logged.
+
 ## 2026-07-18 — Editable commute routines
 
 - Added a visible pencil action for every commute routine and a focused edit form for name, station, hour, and minute.

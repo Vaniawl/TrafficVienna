@@ -145,6 +145,16 @@ final class AuthStore: ObservableObject {
         errorMessage = nil
     }
 
+    func removeCurrentAccountFromDevice() throws {
+        guard let session else { return }
+        if session.provider == .email {
+            guard keychain.remove(emailAccountKey(for: session.userID)) else {
+                throw AuthError.unavailable
+            }
+        }
+        signOut()
+    }
+
     func validateStoredAppleCredential() async {
         guard let session, session.provider == .apple else { return }
         let state = (try? await ASAuthorizationAppleIDProvider().credentialState(forUserID: session.userID)) ?? .notFound
@@ -215,6 +225,11 @@ private final class UITestKeychainStore: KeychainStoring {
         storage[key] = data
         return true
     }
+
+    func remove(_ key: String) -> Bool {
+        storage.removeValue(forKey: key)
+        return true
+    }
 }
 #endif
 
@@ -237,6 +252,7 @@ private struct EmailAccount: Codable {
 protocol KeychainStoring {
     func data(for key: String) -> Data?
     @discardableResult func set(_ data: Data, for key: String) -> Bool
+    @discardableResult func remove(_ key: String) -> Bool
 }
 
 struct KeychainStore: KeychainStoring {
@@ -266,5 +282,15 @@ struct KeychainStore: KeychainStoring {
         value[kSecValueData as String] = data
         value[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
         return SecItemAdd(value as CFDictionary, nil) == errSecSuccess
+    }
+
+    func remove(_ key: String) -> Bool {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: key
+        ]
+        let status = SecItemDelete(query as CFDictionary)
+        return status == errSecSuccess || status == errSecItemNotFound
     }
 }

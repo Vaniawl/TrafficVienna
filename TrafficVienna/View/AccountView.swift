@@ -3,6 +3,8 @@ import SwiftUI
 struct AccountView: View {
     @EnvironmentObject private var auth: AuthStore
     @Environment(\.dismiss) private var dismiss
+    @State private var showingAccountRemoval = false
+    @State private var removalError: String?
 
     var body: some View {
         NavigationStack {
@@ -37,12 +39,49 @@ struct AccountView: View {
                         auth.signOut()
                         dismiss()
                     }
+                    Button("Remove account from device", role: .destructive) {
+                        showingAccountRemoval = true
+                    }
                 }
             }
             .navigationTitle("Account")
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
             }
+            .confirmationDialog(
+                "Remove account from device",
+                isPresented: $showingAccountRemoval,
+                titleVisibility: .visible
+            ) {
+                Button("Remove account", role: .destructive) { removeAccount() }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text(accountRemovalMessage)
+            }
+            .alert("Couldn’t remove account", isPresented: Binding(
+                get: { removalError != nil },
+                set: { if !$0 { removalError = nil } }
+            )) {
+                Button("OK", role: .cancel) { removalError = nil }
+            } message: {
+                Text(removalError ?? "")
+            }
+        }
+    }
+
+    private var accountRemovalMessage: String {
+        if auth.session?.provider == .apple {
+            return String(localized: "This removes the Apple sign-in session from this device. It does not delete or revoke your Apple ID. Your saved stations and routines remain.")
+        }
+        return String(localized: "This deletes the local email password verifier and signs you out. Your saved stations and routines remain on this device.")
+    }
+
+    private func removeAccount() {
+        do {
+            try auth.removeCurrentAccountFromDevice()
+            dismiss()
+        } catch {
+            removalError = error.localizedDescription
         }
     }
 }

@@ -157,6 +157,53 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(store.session?.email, "second@example.com")
     }
 
+    @MainActor
+    func testRemovingLocalEmailAccountDeletesVerifierAndSession() throws {
+        let suite = "AuthRemovalTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let keychain = MemoryKeychain()
+        let store = AuthStore(keychain: keychain, defaults: defaults)
+        try store.register(email: "rider@example.com", password: "tramline26")
+
+        try store.removeCurrentAccountFromDevice()
+
+        XCTAssertNil(store.session)
+        XCTAssertNil(defaults.data(forKey: "auth.session"))
+        XCTAssertThrowsError(try store.signIn(email: "rider@example.com", password: "tramline26"))
+    }
+
+    @MainActor
+    func testFailedEmailAccountRemovalKeepsSessionActive() throws {
+        let suite = "AuthRemovalFailureTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let keychain = MemoryKeychain()
+        let store = AuthStore(keychain: keychain, defaults: defaults)
+        try store.register(email: "rider@example.com", password: "tramline26")
+        keychain.removeSucceeds = false
+
+        XCTAssertThrowsError(try store.removeCurrentAccountFromDevice())
+        XCTAssertNotNil(store.session)
+        XCTAssertNotNil(defaults.data(forKey: "auth.session"))
+    }
+
+    @MainActor
+    func testRemovingAppleAccountOnlyClearsLocalSession() throws {
+        let suite = "AppleRemovalTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let session = AuthSession(userID: "apple-user", email: nil, displayName: "Rider", provider: .apple)
+        defaults.set(try JSONEncoder().encode(session), forKey: "auth.session")
+        let keychain = MemoryKeychain()
+        let store = AuthStore(keychain: keychain, defaults: defaults)
+
+        try store.removeCurrentAccountFromDevice()
+
+        XCTAssertNil(store.session)
+        XCTAssertEqual(keychain.removeCallCount, 0)
+    }
+
     // MARK: - StationStore
 
     func testLoadStationsNotEmpty() {
@@ -648,9 +695,17 @@ private struct NoopWidgetSync: WidgetSyncing {
 
 private final class MemoryKeychain: KeychainStoring {
     private var storage: [String: Data] = [:]
+    var removeSucceeds = true
+    private(set) var removeCallCount = 0
     func data(for key: String) -> Data? { storage[key] }
     func set(_ data: Data, for key: String) -> Bool {
         storage[key] = data
+        return true
+    }
+    func remove(_ key: String) -> Bool {
+        removeCallCount += 1
+        guard removeSucceeds else { return false }
+        storage.removeValue(forKey: key)
         return true
     }
 }

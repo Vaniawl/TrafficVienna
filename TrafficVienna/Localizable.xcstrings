@@ -417,6 +417,22 @@
         }
       }
     },
+    "Couldn’t remove account": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konto konnte nicht entfernt werden"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не вдалося видалити акаунт"
+          }
+        }
+      }
+    },
     "Create account": {
       "localizations": {
         "de": {
@@ -1650,6 +1666,38 @@
         }
       }
     },
+    "Remove account": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konto entfernen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Видалити акаунт"
+          }
+        }
+      }
+    },
+    "Remove account from device": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konto von diesem Gerät entfernen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Видалити акаунт із пристрою"
+          }
+        }
+      }
+    },
     "Remove favourite": {
       "localizations": {
         "de": {
@@ -2094,6 +2142,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Важливі для вас відправлення"
+          }
+        }
+      }
+    },
+    "This deletes the local email password verifier and signs you out. Your saved stations and routines remain on this device.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dadurch werden der lokale E-Mail-Passwortprüfwert gelöscht und du abgemeldet. Deine gespeicherten Stationen und Routinen bleiben auf diesem Gerät."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Це видалить локальний засіб перевірки пароля електронної пошти та виконає вихід. Збережені станції й сценарії залишаться на цьому пристрої."
+          }
+        }
+      }
+    },
+    "This removes the Apple sign-in session from this device. It does not delete or revoke your Apple ID. Your saved stations and routines remain.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dadurch wird die Apple-Anmeldesitzung von diesem Gerät entfernt. Deine Apple-ID wird weder gelöscht noch widerrufen. Deine gespeicherten Stationen und Routinen bleiben erhalten."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Це видалить сеанс входу Apple із цього пристрою. Ваш Apple ID не буде видалено чи відкликано. Збережені станції й сценарії залишаться."
           }
         }
       }
