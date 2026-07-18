@@ -761,6 +761,110 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testAlertManualRefreshBypassesTrafficInfoCache() async {
+        let info = TrafficInfo(name: "u1", title: "U1 delay", description: nil, priority: "1", relatedLines: ["U1"])
+        let network = MockNetworkManager(trafficInfos: [info])
+        let viewModel = DisruptionsViewModel(
+            service: MonitorService(network: network, cacheTTL: 600, minInterval: 0),
+            favoritesRepo: CountingFavoritesRepository(routes: [])
+        )
+
+        await viewModel.load()
+        await viewModel.load(force: true)
+
+        XCTAssertEqual(network.callCount, 2)
+        XCTAssertEqual(viewModel.infos.map(\.id), [info.id])
+    }
+
+    @MainActor
+    func testAlertRefreshPublishesBusyStateWithExistingContent() async {
+        let info = TrafficInfo(name: "u1", title: "U1 delay", description: nil, priority: "1", relatedLines: ["U1"])
+        let network = MockNetworkManager(trafficInfos: [info])
+        let viewModel = DisruptionsViewModel(
+            service: MonitorService(network: network, cacheTTL: 0, minInterval: 0),
+            favoritesRepo: CountingFavoritesRepository(routes: [])
+        )
+        await viewModel.load()
+        network.trafficInfoDelayNanoseconds = 100_000_000
+
+        let refresh = Task { await viewModel.load(force: true) }
+        try? await Task.sleep(nanoseconds: 10_000_000)
+
+        XCTAssertTrue(viewModel.isRefreshing)
+        XCTAssertFalse(viewModel.isLoading)
+        await refresh.value
+        XCTAssertFalse(viewModel.isRefreshing)
+    }
+
+    @MainActor
+    func testAlertPollingDoesNotStartOverlappingRequest() async {
+        let info = TrafficInfo(name: "u1", title: "U1 delay", description: nil, priority: "1", relatedLines: ["U1"])
+        let network = MockNetworkManager(trafficInfos: [info], trafficInfoDelayNanoseconds: 100_000_000)
+        let viewModel = DisruptionsViewModel(
+            service: MonitorService(network: network, cacheTTL: 0, minInterval: 0),
+            favoritesRepo: CountingFavoritesRepository(routes: [])
+        )
+
+        let first = Task { await viewModel.load() }
+        try? await Task.sleep(nanoseconds: 10_000_000)
+        await viewModel.load()
+        await first.value
+
+        XCTAssertEqual(network.callCount, 1)
+        XCTAssertEqual(viewModel.infos.map(\.id), [info.id])
+    }
+
+    @MainActor
+    func testAlertManualRefreshSupersedesActivePollingRequest() async {
+        let info = TrafficInfo(name: "u1", title: "U1 delay", description: nil, priority: "1", relatedLines: ["U1"])
+        let network = MockNetworkManager(trafficInfos: [info], trafficInfoDelayNanoseconds: 100_000_000)
+        let viewModel = DisruptionsViewModel(
+            service: MonitorService(network: network, cacheTTL: 0, minInterval: 0),
+            favoritesRepo: CountingFavoritesRepository(routes: [])
+        )
+        var manualRefreshCompleted = false
+
+        let polling = Task { await viewModel.load() }
+        try? await Task.sleep(nanoseconds: 10_000_000)
+        let manualRefresh = Task {
+            await viewModel.load(force: true)
+            manualRefreshCompleted = true
+        }
+        try? await Task.sleep(nanoseconds: 10_000_000)
+
+        XCTAssertFalse(manualRefreshCompleted)
+        await polling.value
+        await manualRefresh.value
+        XCTAssertEqual(network.callCount, 1)
+        XCTAssertEqual(viewModel.infos.map(\.id), [info.id])
+        XCTAssertFalse(viewModel.isLoading)
+    }
+
+    @MainActor
+    func testFavoriteLineChangeDuringAlertLoadControlsPublishedRelevance() async {
+        let u1 = TrafficInfo(name: "u1", title: "U1 delay", description: nil, priority: "1", relatedLines: ["U1"])
+        let u3 = TrafficInfo(name: "u3", title: "U3 delay", description: nil, priority: "1", relatedLines: ["U3"])
+        let network = MockNetworkManager(trafficInfos: [u1, u3], trafficInfoDelayNanoseconds: 100_000_000)
+        let viewModel = DisruptionsViewModel(
+            service: MonitorService(network: network, cacheTTL: 0, minInterval: 0),
+            favoritesRepo: CountingFavoritesRepository(
+                routes: [FavoriteRoute(diva: "1", lineName: "U1", destination: "Leopoldau")]
+            )
+        )
+
+        let load = Task { await viewModel.load() }
+        try? await Task.sleep(nanoseconds: 10_000_000)
+        viewModel.updateFavoriteRoutes([
+            FavoriteRoute(diva: "3", lineName: "U3", destination: "Ottakring")
+        ])
+        await load.value
+
+        XCTAssertFalse(viewModel.isRelevant(u1))
+        XCTAssertTrue(viewModel.isRelevant(u3))
+        XCTAssertEqual(viewModel.relevantCount, 1)
+    }
+
+    @MainActor
     func testStationFavoriteToggleUpdatesSharedStateWithoutReloadingStorage() {
         let station = Station(id: 1, diva: 60200657, name: "Karlsplatz", lat: 48.2, lon: 16.3)
         let stations = CountingFavoriteStationsRepository()

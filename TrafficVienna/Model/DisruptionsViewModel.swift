@@ -5,6 +5,7 @@ import Combine
 final class DisruptionsViewModel: ObservableObject {
     @Published private(set) var infos: [TrafficInfo] = []
     @Published private(set) var isLoading = false
+    @Published private(set) var isRefreshing = false
     @Published var errorMessage: String?
     @Published var categoryFilter: LineCategory?
     @Published var lineFilter = ""
@@ -15,6 +16,8 @@ final class DisruptionsViewModel: ObservableObject {
     private let favoritesRepo: FavoritesRepository
     private var favouriteLines: Set<String>
     private var relevantInfoIDs: Set<String> = []
+    private var isRequesting = false
+    private var loadGeneration = 0
 
     init(service: MonitorService = .shared, favoritesRepo: FavoritesRepository = UserDefaultsFavoritesRepository()) {
         self.service = service
@@ -55,17 +58,29 @@ final class DisruptionsViewModel: ObservableObject {
     }
 
     func load(force: Bool = false) async {
+        guard force || !isRequesting else { return }
+        loadGeneration &+= 1
+        let generation = loadGeneration
+        isRequesting = true
         favouriteLines = Set(favoritesRepo.getAll().map(\.lineName))
-        if infos.isEmpty { isLoading = true }
+        if infos.isEmpty { isLoading = true } else { isRefreshing = true }
         errorMessage = nil
-        defer { isLoading = false }
+        defer {
+            if generation == loadGeneration {
+                isRequesting = false
+                isLoading = false
+                isRefreshing = false
+            }
+        }
 
         do {
             let result = try await service.trafficInfoResult(forceRefresh: force)
+            guard !Task.isCancelled, generation == loadGeneration else { return }
             infos = result.value
             rebuildRelevance()
             freshness = result.freshness
         } catch {
+            guard !Task.isCancelled, generation == loadGeneration else { return }
             if infos.isEmpty { errorMessage = error.monitorDisplayMessage }
         }
     }

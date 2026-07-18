@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Race-safe Alerts refresh ownership
+
+- Added independent Alerts request ownership so background polling cannot overlap after content is already visible and forced refreshes alone supersede active work.
+- Allowed only the newest alert response to publish while retaining `MonitorService` traffic-info coalescing and true manual cache bypass.
+- Added a visible refreshing state that disables the toolbar refresh action without replacing already useful alert content with a loader.
+- Verified favourite-line changes made during an in-flight request control the published relevance; regressions cover cache, polling, takeover, busy state, and personalization races.
+
 ## 2026-07-19 — Race-safe Nearby refresh ownership
 
 - Versioned Nearby load batches so a manual refresh can supersede active polling and only the newest batch may update cards or loading state.
