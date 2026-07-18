@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-07-18 — Partial-failure-safe widget refresh
+
+- Added shared deterministic widget merge logic that follows selected favourite order, prefers fresh route data, and falls back to cached data only for routes whose refresh failed.
+- Prevented all-request failures from overwriting a useful widget cache with an empty array.
+- Kept removed favourites out of fallback results and explicitly clears the widget when the selected route list becomes empty.
+- Updated the global “last updated” timestamp only after a complete refresh; partial refreshes retain the conservative previous timestamp.
+- Added order, partial-failure fallback, and removed-route regression tests; full app/widget/UI tests pass without new compiler warnings and all repository validations pass.
+
 ## 2026-07-18 — Cached and deterministic map markers
 
 - Replaced Map’s render-time computed spatial query with cached marker state refreshed only when its coarse location key changes.

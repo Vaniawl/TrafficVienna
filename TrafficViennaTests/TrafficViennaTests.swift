@@ -543,6 +543,37 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(decoded.lineName, "U1")
         XCTAssertEqual(decoded.departures, [2, 5, 12])
     }
+
+    func testWidgetMergePreservesSelectedOrderAndUsesCacheForPartialFailure() {
+        let selected = [
+            WidgetRouteKey(lineName: "U1", destination: "Leopoldau"),
+            WidgetRouteKey(lineName: "O", destination: "Raxstraße")
+        ]
+        let cached = [
+            WidgetDepartureData(lineName: "U1", stopName: "Stephansplatz", destination: "Leopoldau", departures: [9]),
+            WidgetDepartureData(lineName: "O", stopName: "Praterstern", destination: "Raxstraße", departures: [8])
+        ]
+        let fresh = [
+            WidgetDepartureData(lineName: "O", stopName: "Praterstern", destination: "Raxstraße", departures: [2])
+        ]
+
+        let merged = WidgetDataMerge.ordered(selected: selected, fresh: fresh, cached: cached)
+
+        XCTAssertEqual(merged.map(\.lineName), ["U1", "O"])
+        XCTAssertEqual(merged.map(\.departures), [[9], [2]])
+    }
+
+    func testWidgetMergeDropsCachedRoutesNoLongerSelected() {
+        let selected = [WidgetRouteKey(lineName: "O", destination: "Raxstraße")]
+        let cached = [
+            WidgetDepartureData(lineName: "U1", stopName: "Stephansplatz", destination: "Leopoldau", departures: [9]),
+            WidgetDepartureData(lineName: "O", stopName: "Praterstern", destination: "Raxstraße", departures: [8])
+        ]
+
+        let merged = WidgetDataMerge.ordered(selected: selected, fresh: [], cached: cached)
+
+        XCTAssertEqual(merged.map(\.lineName), ["O"])
+    }
 }
 
 private final class CountingFavoritesRepository: FavoritesRepository, @unchecked Sendable {

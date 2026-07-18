@@ -27,6 +27,10 @@ private struct FavoriteRoute: Codable, Hashable {
     let diva: String
     let lineName: String
     let destination: String
+
+    var widgetKey: WidgetRouteKey {
+        WidgetRouteKey(lineName: lineName, destination: destination)
+    }
 }
 
 private let favoritesKey = "favorite_routes"
@@ -96,10 +100,10 @@ struct Provider: AppIntentTimelineProvider {
 
         if canFetch {
             defaults?.set(now, forKey: widgetLastFetchAttemptKey)
-            if let fresh = await fetchFavoritesData() {
-                items = fresh
-                lastUpdated = now
-                saveCached(items: items, lastUpdated: now)
+            if let refresh = await fetchFavoritesData(cached: items) {
+                items = refresh.items
+                if refresh.isComplete { lastUpdated = now }
+                saveCached(items: items, lastUpdated: lastUpdated)
             }
         }
 
@@ -123,21 +127,23 @@ struct Provider: AppIntentTimelineProvider {
         return (items, last)
     }
 
-    private func saveCached(items: [WidgetDepartureData], lastUpdated: Date) {
+    private func saveCached(items: [WidgetDepartureData], lastUpdated: Date?) {
         let defaults = UserDefaults(suiteName: appGroupID)
         let encoder = JSONEncoder()
         if let data = try? encoder.encode(items) {
             defaults?.set(data, forKey: widgetDataKey)
         }
-        defaults?.set(lastUpdated, forKey: widgetLastUpdatedKey)
+        if let lastUpdated {
+            defaults?.set(lastUpdated, forKey: widgetLastUpdatedKey)
+        }
     }
 
     // MARK: - Fetch during timeline generation
-    private func fetchFavoritesData() async -> [WidgetDepartureData]? {
+    private func fetchFavoritesData(cached: [WidgetDepartureData]) async -> (items: [WidgetDepartureData], isComplete: Bool)? {
         let routes = loadFavoritesFromDefaults()
-        guard !routes.isEmpty else { return nil }
+        guard !routes.isEmpty else { return ([], true) }
 
-        var results: [WidgetDepartureData] = []
+        var fresh: [WidgetDepartureData] = []
         let selected = Array(routes.prefix(3))
         let grouped = Dictionary(grouping: selected, by: \.diva)
         for (divaText, favourites) in grouped {
@@ -146,14 +152,20 @@ struct Provider: AppIntentTimelineProvider {
                 let response = try await fetchMonitorData(diva: diva, includeArea: true)
                 for favourite in favourites {
                     if let item = extractWidgetData(from: response, matching: favourite) {
-                        results.append(item)
+                        fresh.append(item)
                     }
                 }
             } catch {
                 continue
             }
         }
-        return results
+        guard !fresh.isEmpty else { return nil }
+        let items = WidgetDataMerge.ordered(
+            selected: selected.map(\.widgetKey),
+            fresh: fresh,
+            cached: cached
+        )
+        return (items, fresh.count == selected.count)
     }
 
     private func extractWidgetData(from response: MonitorResponse, matching fav: FavoriteRoute) -> WidgetDepartureData? {
