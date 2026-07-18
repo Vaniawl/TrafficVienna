@@ -1,5 +1,17 @@
 # Journal
 
+## 2026-07-18 — Accessibility-safe Nearby quick access
+
+- Reworked the saved-station quick-access card so decorative symbols keep a fixed
+  readable size, the action can wrap, and the maximum accessibility category uses
+  a compact text-first layout instead of clipping content below the tab bar.
+- VoiceOver now receives one localized station-and-action label, while Voice
+  Control has stable station and departure input labels. No repository, network,
+  persistence, permission, or navigation boundary changed.
+- Fresh iPhone 17 light, dark, and accessibility-extra-extra-extra-large renders
+  show complete Stephansplatz and Departures text. Full CI remains warning-free
+  with all 100 XCTest cases passing.
+
 ## 2026-07-18 — App-level service status dashboard
 
 - Moved the shared disruptions refresh loop to `RootTabView`, so the Alerts badge
