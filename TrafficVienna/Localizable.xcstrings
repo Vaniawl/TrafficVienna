@@ -369,6 +369,54 @@
         }
       }
     },
+    "Cancel all": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle löschen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скасувати всі"
+          }
+        }
+      }
+    },
+    "Cancel all reminders": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Erinnerungen löschen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скасувати всі нагадування"
+          }
+        }
+      }
+    },
+    "Cancel all reminders?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Erinnerungen löschen?"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скасувати всі нагадування?"
+          }
+        }
+      }
+    },
     "Change theme": {
       "localizations": {
         "de": {
@@ -653,6 +701,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "відправляється зараз"
+          }
+        }
+      }
+    },
+    "Departure reminders": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abfahrtserinnerungen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нагадування про відправлення"
           }
         }
       }
@@ -1169,6 +1233,22 @@
         }
       }
     },
+    "Keep reminders": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erinnerungen behalten"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Залишити нагадування"
+          }
+        }
+      }
+    },
     "Licence": {
       "localizations": {
         "de": {
@@ -1534,6 +1614,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Немає з’єднання. Показано останні збережені дані."
+          }
+        }
+      }
+    },
+    "No departure reminders": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Abfahrtserinnerungen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Немає нагадувань про відправлення"
           }
         }
       }
@@ -2210,6 +2306,22 @@
         }
       }
     },
+    "Set a reminder from any live departure to see it here.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lege bei einer Live-Abfahrt eine Erinnerung fest, um sie hier zu sehen."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Установіть нагадування для будь-якого актуального відправлення, щоб побачити його тут."
+          }
+        }
+      }
+    },
     "SET UP": {
       "localizations": {
         "de": {
@@ -2478,6 +2590,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Це відправлення вже надто близько для нагадування."
+          }
+        }
+      }
+    },
+    "This removes every pending departure reminder from this device.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dadurch werden alle ausstehenden Abfahrtserinnerungen von diesem Gerät entfernt."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Це видалить усі заплановані нагадування про відправлення з цього пристрою."
           }
         }
       }

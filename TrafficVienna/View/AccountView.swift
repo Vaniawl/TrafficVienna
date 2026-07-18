@@ -51,6 +51,13 @@ struct AccountView: View {
                     } label: {
                         Label("Travel routines", systemImage: "clock.arrow.2.circlepath")
                     }
+
+                    NavigationLink {
+                        DepartureRemindersView()
+                    } label: {
+                        Label("Departure reminders", systemImage: "bell.badge")
+                    }
+                    .accessibilityIdentifier("account.departureReminders")
                 }
 
                 Section {

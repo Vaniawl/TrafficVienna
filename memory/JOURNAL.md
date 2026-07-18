@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — User-managed departure reminders
+
+- Added an Account destination that lists pending TrafficVienna departure reminders with route, stop, and scheduled fire time.
+- Sorted reminders chronologically, ignored unrelated or malformed system notifications, and kept notification-center reads on demand instead of adding another polling store.
+- Added swipe-to-cancel for individual reminders and a confirmed cancel-all action scoped to the existing `departure.` identifier boundary.
+- Localized the complete management flow in German and Ukrainian and added request mapping/filtering plus profile-navigation UI coverage.
+
 ## 2026-07-19 — Discoverable and timing-safe departure reminders
 
 - Added a visible bell action to every Station Detail departure group so reminders no longer depend on discovering the row context menu.

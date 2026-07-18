@@ -1,5 +1,6 @@
 import XCTest
 import CoreLocation
+import UserNotifications
 @testable import TrafficVienna
 
 final class TrafficViennaTests: XCTestCase {
@@ -207,6 +208,40 @@ final class TrafficViennaTests: XCTestCase {
             XCTAssertEqual(error as? DepartureReminderError, .departureTooSoon)
         }
         XCTAssertThrowsError(try DepartureReminderScheduler.plan(minutes: 0))
+    }
+
+    func testScheduledDepartureRemindersFilterMapAndSortPendingRequests() {
+        let later = reminderRequest(
+            identifier: "departure.U1.Karlsplatz.Leopoldau",
+            line: "U1",
+            destination: "Leopoldau",
+            stop: "Karlsplatz",
+            delay: 600
+        )
+        let sooner = reminderRequest(
+            identifier: "departure.D.Schottentor.Nussdorf",
+            line: "D",
+            destination: "Nussdorf",
+            stop: "Schottentor",
+            delay: 120
+        )
+        let unrelated = UNNotificationRequest(
+            identifier: "marketing.message",
+            content: UNMutableNotificationContent(),
+            trigger: nil
+        )
+        let malformed = UNNotificationRequest(
+            identifier: "departure.missing.metadata",
+            content: UNMutableNotificationContent(),
+            trigger: nil
+        )
+
+        let reminders = DepartureReminderScheduler.reminders(from: [later, unrelated, malformed, sooner])
+
+        XCTAssertEqual(reminders.map(\.line), ["D", "U1"])
+        XCTAssertEqual(reminders.first?.destination, "Nussdorf")
+        XCTAssertEqual(reminders.first?.stop, "Schottentor")
+        XCTAssertNotNil(reminders.first?.fireDate)
     }
 
     @MainActor
@@ -1359,6 +1394,22 @@ final class TrafficViennaTests: XCTestCase {
 
         XCTAssertEqual(merged.map(\.lineName), ["O"])
     }
+}
+
+private func reminderRequest(
+    identifier: String,
+    line: String,
+    destination: String,
+    stop: String,
+    delay: TimeInterval
+) -> UNNotificationRequest {
+    let content = UNMutableNotificationContent()
+    content.userInfo = ["line": line, "destination": destination, "stop": stop]
+    return UNNotificationRequest(
+        identifier: identifier,
+        content: content,
+        trigger: UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
+    )
 }
 
 private final class CountingFavoritesRepository: FavoritesRepository, @unchecked Sendable {
