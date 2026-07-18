@@ -45,7 +45,7 @@ struct MapStationsView: View {
                 ForEach(stations) { station in
                     Marker(station.name, systemImage: "tram.fill",
                            coordinate: CLLocationCoordinate2D(latitude: station.lat, longitude: station.lon))
-                        .tint(.red)
+                        .tint(NeoDesign.accent)
                         .tag(station.id)
                 }
             }
@@ -65,6 +65,7 @@ struct MapStationsView: View {
             }
         }
         .navigationTitle("Map")
+        .tint(NeoDesign.accent)
         .navigationBarTitleDisplayMode(.inline)
         .onChange(of: selectedID) { _, newValue in
             sheetStation = stations.first { $0.id == newValue }

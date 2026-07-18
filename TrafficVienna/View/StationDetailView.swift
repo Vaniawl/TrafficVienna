@@ -11,6 +11,7 @@ import SwiftUI
 struct StationDetailView: View {
     @StateObject private var vm: StationDetailViewModel
     @State private var lineFavoriteToggles = 0
+    @State private var reminderMessage: String?
 
     init(station: Station) {
         _vm = StateObject(wrappedValue: StationDetailViewModel(station: station))
@@ -18,6 +19,7 @@ struct StationDetailView: View {
 
     var body: some View {
         content
+            .neoScreen()
             .navigationTitle(vm.station.name)
             .navigationBarTitleDisplayMode(.inline)
             .sensoryFeedback(.impact(weight: .light), trigger: vm.isStationFavorited)
@@ -50,6 +52,9 @@ struct StationDetailView: View {
                 }
             }
             .refreshable { await vm.load(forceRefresh: true) }
+            .alert("Departure reminder", isPresented: Binding(get: { reminderMessage != nil }, set: { if !$0 { reminderMessage = nil } })) {
+                Button("OK", role: .cancel) { reminderMessage = nil }
+            } message: { Text(reminderMessage ?? "") }
     }
 
     @ViewBuilder
@@ -68,9 +73,20 @@ struct StationDetailView: View {
 
     private var departuresList: some View {
         List {
+            NeoHeader(
+                eyebrow: "Live station",
+                title: vm.station.name,
+                subtitle: "Real-time departures and service updates"
+            )
+            .listRowInsets(EdgeInsets(top: 12, leading: 18, bottom: 12, trailing: 18))
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+
             if !vm.trafficInfos.isEmpty {
                 Section {
-                    ForEach(vm.trafficInfos) { DisruptionRow(info: $0) }
+                    ForEach(vm.trafficInfos) { info in
+                        DisruptionRow(info: info).neoCard()
+                    }
                 } header: {
                     Label("Service alerts", systemImage: "exclamationmark.triangle.fill")
                         .foregroundStyle(.orange)
@@ -88,12 +104,17 @@ struct StationDetailView: View {
             Section {
                 ForEach(vm.groups) { group in
                     lineRow(group)
+                        .neoCard()
+                        .listRowInsets(EdgeInsets(top: 6, leading: 18, bottom: 6, trailing: 18))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
                 }
             } header: {
                 Text("Departures")
             }
         }
         .listStyle(.insetGrouped)
+        .scrollContentBackground(.hidden)
         .safeAreaInset(edge: .bottom) { freshnessBar }
     }
 
@@ -143,6 +164,12 @@ struct StationDetailView: View {
         .padding(.vertical, 4)
         .contextMenu {
             Button {
+                scheduleReminder(for: group)
+            } label: {
+                Label("Remind me before departure", systemImage: "bell.badge")
+            }
+
+            Button {
                 LiveActivityController.track(
                     line: group.line,
                     destination: group.destination,
@@ -162,6 +189,22 @@ struct StationDetailView: View {
                     vm.isFavorite(line: group.line, destination: group.destination) ? "Remove favourite" : "Add to favourites",
                     systemImage: "heart"
                 )
+            }
+        }
+    }
+
+    private func scheduleReminder(for group: StationDetailViewModel.DepartureGroup) {
+        Task {
+            do {
+                try await DepartureReminderScheduler.schedule(
+                    line: group.line,
+                    destination: group.destination,
+                    stop: vm.station.name,
+                    minutes: group.minutes.first ?? 0
+                )
+                reminderMessage = "We’ll notify you shortly before \(group.line) departs."
+            } catch {
+                reminderMessage = error.localizedDescription
             }
         }
     }

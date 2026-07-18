@@ -10,9 +10,11 @@ final class DisruptionsViewModel: ObservableObject {
     @Published var lineFilter = ""
 
     private let service: MonitorService
+    private let favoritesRepo: FavoritesRepository
 
-    init(service: MonitorService = .shared) {
+    init(service: MonitorService = .shared, favoritesRepo: FavoritesRepository = UserDefaultsFavoritesRepository()) {
         self.service = service
+        self.favoritesRepo = favoritesRepo
     }
 
     var availableCategories: [LineCategory] {
@@ -34,7 +36,14 @@ final class DisruptionsViewModel: ObservableObject {
                 (info.relatedLines ?? []).contains { $0.localizedCaseInsensitiveContains(lineFilter) }
             }
         }
-        return result
+        return result.sorted { isRelevant($0) && !isRelevant($1) }
+    }
+
+    var relevantCount: Int { infos.filter(isRelevant).count }
+
+    func isRelevant(_ info: TrafficInfo) -> Bool {
+        let favouriteLines = Set(favoritesRepo.getAll().map(\.lineName))
+        return !(Set(info.relatedLines ?? []).intersection(favouriteLines).isEmpty)
     }
 
     func load(force: Bool = false) async {

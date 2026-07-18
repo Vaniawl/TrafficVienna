@@ -11,7 +11,6 @@ import SwiftUI
 struct FavoritesView: View {
     @ObservedObject var vm: FavoritesListViewModel
     var isActive = true
-    @EnvironmentObject private var themeManager: ThemeManager
     @State private var showAbout = false
     @State private var showAccount = false
 
@@ -33,22 +32,20 @@ struct FavoritesView: View {
                     description: Text("Star a station, or tap the heart on a line, to save it here.")
                 )
             } else {
-                if themeManager.preset.backgroundStyle == .grouped {
-                    List {
-                        if !vm.stations.isEmpty { stationsSection }
-                        if !vm.items.isEmpty { linesSection }
-                    }
-                    .listStyle(.insetGrouped)
-                } else {
-                    List {
-                        if !vm.stations.isEmpty { stationsSection }
-                        if !vm.items.isEmpty { linesSection }
-                    }
-                    .listStyle(.plain)
+                List {
+                    NeoHeader(eyebrow: "Your city", title: "Favourites", subtitle: "The departures you care about")
+                        .listRowInsets(EdgeInsets(top: 12, leading: 18, bottom: 12, trailing: 18))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                    if !vm.stations.isEmpty { stationsSection }
+                    if !vm.items.isEmpty { linesSection }
                 }
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
             }
         }
-        .navigationTitle("Favourites")
+        .neoScreen()
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button {
@@ -91,8 +88,17 @@ struct FavoritesView: View {
                                          name: station.name, lat: 0, lon: 0)
                     )
                 } label: {
-                    Label(station.name, systemImage: "tram.fill")
+                    HStack(spacing: 14) {
+                        NeoIcon(systemName: "tram.fill")
+                        Text(station.name).font(.headline)
+                        Spacer()
+                        Image(systemName: "chevron.right").font(.caption.bold()).foregroundStyle(.tertiary)
+                    }
+                    .neoCard()
                 }
+                .listRowInsets(EdgeInsets(top: 6, leading: 18, bottom: 6, trailing: 18))
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
             }
             .onMove { vm.moveStations(fromOffsets: $0, toOffset: $1) }
             .onDelete { offsets in
@@ -110,7 +116,10 @@ struct FavoritesView: View {
                     minutes: item.departures.map { $0.liveMinutes },
                     nextIsLive: item.departures.first?.isRealtime ?? false
                 )
-                .padding(.vertical, 4)
+                .neoCard()
+                .listRowInsets(EdgeInsets(top: 6, leading: 18, bottom: 6, trailing: 18))
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
                 .swipeActions(edge: .trailing) {
                     Button(role: .destructive) {
                         vm.remove(item.route)

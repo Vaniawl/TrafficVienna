@@ -36,14 +36,14 @@ enum LiveActivityController {
             a.attributes.stopName == stop
         }
         Task {
-            await matching?.update(using: state)
+            await matching?.update(.init(state: state, staleDate: departureDate.addingTimeInterval(120)))
         }
     }
 
     static func stopAll() {
         Task {
             for activity in Activity<DepartureActivityAttributes>.activities {
-                await activity.end(dismissalPolicy: .immediate)
+                await activity.end(nil, dismissalPolicy: .immediate)
             }
         }
     }

@@ -6,7 +6,8 @@ struct DisruptionsView: View {
 
     var body: some View {
         content
-            .navigationTitle("Alerts")
+            .neoScreen()
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -65,15 +66,31 @@ struct DisruptionsView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             List {
+                NeoHeader(eyebrow: "Network", title: "Service alerts", subtitle: "Live changes across Vienna")
+                    .listRowInsets(EdgeInsets(top: 12, leading: 18, bottom: 12, trailing: 18))
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
                 if vm.availableCategories.count > 1 {
                     FilterChips(categories: vm.availableCategories, selection: $vm.categoryFilter)
                         .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
                         .listRowBackground(Color.clear)
                 }
 
-                ForEach(vm.filteredInfos) { DisruptionRow(info: $0) }
+                ForEach(vm.filteredInfos) { info in
+                    VStack(alignment: .leading, spacing: 10) {
+                        if vm.isRelevant(info) {
+                            Label("Affects your favourites", systemImage: "star.fill")
+                                .font(.caption.bold()).foregroundStyle(NeoDesign.accent)
+                        }
+                        DisruptionRow(info: info)
+                    }.neoCard()
+                        .listRowInsets(EdgeInsets(top: 6, leading: 18, bottom: 6, trailing: 18))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                }
             }
                 .listStyle(.plain)
+                .scrollContentBackground(.hidden)
         }
     }
 

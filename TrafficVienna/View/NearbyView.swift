@@ -6,16 +6,26 @@ struct NearbyView: View {
     @StateObject private var vm: NearbyViewModel
     @ObservedObject private var locationManager: LocationManager
     @EnvironmentObject private var auth: AuthStore
+    @ObservedObject private var favoritesVM: FavoritesListViewModel
+    @ObservedObject private var disruptionsVM: DisruptionsViewModel
     @Environment(\.openURL) private var openURL
     private let store: StationStore
     private let isActive: Bool
     @State private var showAccount = false
 
-    init(store: StationStore, locationManager: LocationManager, isActive: Bool = true) {
+    init(
+        store: StationStore,
+        locationManager: LocationManager,
+        favoritesVM: FavoritesListViewModel? = nil,
+        disruptionsVM: DisruptionsViewModel? = nil,
+        isActive: Bool = true
+    ) {
         self.store = store
         self.isActive = isActive
         _vm = StateObject(wrappedValue: NearbyViewModel(store: store, location: locationManager))
         _locationManager = ObservedObject(wrappedValue: locationManager)
+        _favoritesVM = ObservedObject(wrappedValue: favoritesVM ?? FavoritesListViewModel())
+        _disruptionsVM = ObservedObject(wrappedValue: disruptionsVM ?? DisruptionsViewModel())
     }
 
     var body: some View {
@@ -27,6 +37,10 @@ struct NearbyView: View {
         .sheet(isPresented: $showAccount) { AccountView() }
         .task(id: isActive) {
             guard isActive else { return }
+            favoritesVM.loadStations()
+            async let favoriteLoad: Void = favoritesVM.loadFavorites()
+            async let alertLoad: Void = disruptionsVM.load()
+            _ = await (favoriteLoad, alertLoad)
             while !Task.isCancelled {
                 await vm.load(force: false)
                 try? await Task.sleep(for: .seconds(vm.items.isEmpty ? 5 : 60))
@@ -187,14 +201,24 @@ struct NearbyView: View {
                 .frame(width: 44, height: 44)
                 .background(Color(hex: 0x635BFF).opacity(0.12), in: Circle())
             VStack(alignment: .leading, spacing: 4) {
-                Text("Live departures").font(.headline)
-                Text("Automatic updates every 60 seconds").font(.subheadline).foregroundStyle(.secondary)
+                Text(smartInsightTitle).font(.headline)
+                Text(smartInsightSubtitle).font(.subheadline).foregroundStyle(.secondary)
             }
             Spacer()
             Image(systemName: "chevron.right").font(.caption.bold()).foregroundStyle(.tertiary)
         }
         .padding(18)
         .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+    }
+
+    private var smartInsightTitle: String {
+        if disruptionsVM.relevantCount > 0 { return "\(disruptionsVM.relevantCount) alert for your lines" }
+        if !favoritesVM.stations.isEmpty { return "\(favoritesVM.stations.count) favourite stations ready" }
+        return "Live departures"
+    }
+
+    private var smartInsightSubtitle: String {
+        disruptionsVM.relevantCount > 0 ? "Check service changes before you leave" : "Automatic updates every 60 seconds"
     }
 
     private var departuresDashboard: some View {

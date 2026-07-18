@@ -5,6 +5,20 @@ import CoreLocation
 final class TrafficViennaTests: XCTestCase {
 
     @MainActor
+    func testAppRouterParsesStationDeepLink() {
+        let router = AppRouter()
+        router.open(URL(string: "trafficvienna://station/123")!)
+        XCTAssertEqual(router.destination, .station(123))
+    }
+
+    @MainActor
+    func testAppRouterIgnoresUnknownScheme() {
+        let router = AppRouter()
+        router.open(URL(string: "https://example.com/station/123")!)
+        XCTAssertNil(router.destination)
+    }
+
+    @MainActor
     func testEmailRegistrationAndSignIn() throws {
         let suite = "AuthStoreTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!

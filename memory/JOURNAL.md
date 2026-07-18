@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-07-18 — Neobank system and smart travel slice
+
+- Added reusable neobank design tokens/components and migrated Search, Favourites, Alerts, Map accents, and Station Detail to shared rounded surfaces, headers, icons, and grouped backgrounds.
+- Added Smart Home insight data from favourites and relevant disruptions; service alerts affecting saved lines are now sorted first and explicitly labelled.
+- Added time-sensitive local departure reminders from Station Detail context actions and modernized deprecated Live Activity update/end calls.
+- Added explicit URLCache stale fallback across launches and an `AppRouter` foundation with tested `trafficvienna://station/<id>` parsing; URL-scheme registration remains a distribution configuration task.
+- Full XCTest suite passes cleanly on iPhone 17 Simulator.
+
 ## 2026-07-18 — Test foundation and first performance pass
 
 - Restored the missing `TrafficViennaTests` native target referenced by the shared scheme; the full XCTest suite now builds and runs on iPhone 17 Simulator.

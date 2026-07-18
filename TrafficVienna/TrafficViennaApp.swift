@@ -10,6 +10,7 @@ import SwiftUI
 @main
 struct TrafficViennaApp: App {
     @StateObject private var auth = AuthStore()
+    @StateObject private var router = AppRouter()
 
     var body: some Scene {
         WindowGroup {
@@ -24,6 +25,8 @@ struct TrafficViennaApp: App {
             }
             .animation(.easeInOut, value: auth.session)
             .environmentObject(auth)
+            .environmentObject(router)
+            .onOpenURL(perform: router.open)
             .task { await auth.validateStoredAppleCredential() }
         }
     }

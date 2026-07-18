@@ -25,6 +25,7 @@ final class NetworkMonitor: ObservableObject {
 private enum Tab: String { case nearby, search, map, alerts, favourites }
 
 struct RootTabView: View {
+    @EnvironmentObject private var router: AppRouter
     @StateObject private var store = StationStore()
     @StateObject private var locationManager = LocationManager()
     @StateObject private var favoritesVM = FavoritesListViewModel()
@@ -33,6 +34,7 @@ struct RootTabView: View {
     @StateObject private var themeManager = ThemeManager.shared
     @AppStorage("hasOnboarded") private var hasOnboarded = false
     @State private var selectedTab: Tab = .nearby
+    @State private var routedStation: Station?
 
     var body: some View {
         tabs
@@ -59,13 +61,34 @@ struct RootTabView: View {
                 guard let type = note.object as? String else { return }
                 withAnimation { selectedTab = Tab(rawValue: type) ?? .nearby }
             }
+            .onChange(of: router.destination) { _, destination in
+                guard let destination else { return }
+                switch destination {
+                case .nearby: selectedTab = .nearby
+                case .search: selectedTab = .search
+                case .map: selectedTab = .map
+                case .alerts: selectedTab = .alerts
+                case .favourites: selectedTab = .favourites
+                case .station(let id): routedStation = store.station(id: id)
+                }
+                router.consume()
+            }
+            .sheet(item: $routedStation) { station in
+                NavigationStack { StationDetailView(station: station) }
+            }
             .environmentObject(themeManager)
     }
 
     private var tabs: some View {
         TabView(selection: $selectedTab) {
             NavigationStack {
-                NearbyView(store: store, locationManager: locationManager, isActive: selectedTab == .nearby)
+                NearbyView(
+                    store: store,
+                    locationManager: locationManager,
+                    favoritesVM: favoritesVM,
+                    disruptionsVM: disruptionsVM,
+                    isActive: selectedTab == .nearby
+                )
             }
             .tabItem { Label("Nearby", systemImage: "location.fill") }
             .tag(Tab.nearby)

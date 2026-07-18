@@ -69,8 +69,16 @@ nonisolated final class NetworkManager: NetworkManaging {
     // Shared request pipeline: fetch, detect the rate-limit body, then decode.
     private func perform(_ urlString: String) async throws -> MonitorResponse {
         guard let url = URL(string: urlString) else { throw URLError(.badURL) }
-
-        let (data, response) = try await session.data(from: url)
+        let request = URLRequest(url: url, cachePolicy: .reloadRevalidatingCacheData, timeoutInterval: 12)
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await session.data(for: request)
+        } catch {
+            guard let cached = session.configuration.urlCache?.cachedResponse(for: request) else { throw error }
+            data = cached.data
+            response = cached.response
+        }
 
         // The API signals throttling with an HTTP 200 body whose message code is
         // 316, so inspect the message before trusting the status code.
@@ -82,6 +90,8 @@ nonisolated final class NetworkManager: NetworkManaging {
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw URLError(.badServerResponse)
         }
+
+        session.configuration.urlCache?.storeCachedResponse(CachedURLResponse(response: response, data: data), for: request)
 
         return try JSONDecoder().decode(MonitorResponse.self, from: data)
     }
