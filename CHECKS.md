@@ -38,6 +38,8 @@ bash scripts/validate-opencode.sh
 ## Platform evidence
 
 The active workspace is on macOS with Xcode. The current branch has direct iPhone
-17 simulator build, widget, XCTest, and full CI evidence. Physical-device Sign in
-with Apple still requires the capability and provisioning profile to be enabled
-for the app identifier in the Apple Developer account.
+17 simulator build, widget, XCTest, and full CI evidence. A generic Release device
+archive reaches signing, then fails because the installed profile for
+`wellbe.TrafficVienna` lacks `com.apple.developer.applesignin`. Physical-device
+Sign in with Apple therefore requires enabling the capability for that App ID and
+regenerating the provisioning profile before archive/device acceptance can pass.

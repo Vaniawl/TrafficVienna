@@ -1,5 +1,18 @@
 # Journal
 
+## 2026-07-18 — Apple runtime revocation and device signing evidence
+
+- Subscribed the app lifecycle to Apple's credential-revoked notification and
+  routed it through `AccountSession`, so an active Apple profile is removed from
+  memory and device-only Keychain immediately rather than waiting for next launch.
+- Added a focused revocation regression; nine account tests and all 86 XCTest cases
+  pass in full CI. Security review found no new secret, token, endpoint, permission,
+  dependency, log, or unresolved Critical/High/Important finding.
+- Generic Release archive verified the source entitlement, automatic signing team,
+  bundle ID, and local signing identity, then failed because the installed profile
+  lacks Sign in with Apple. No provisioning update or Apple Developer mutation was
+  attempted; the capability/profile change remains external approval work.
+
 ## 2026-07-18 — Shared accessible motion polish
 
 - Added one shared motion token set for quick state changes, standard full-screen

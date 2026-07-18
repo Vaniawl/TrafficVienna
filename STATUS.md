@@ -8,13 +8,14 @@
   complete; continue visual inspection, remaining resilience work, and email
   account integration.
 - Verified: app and widget build successfully on iPhone 17 simulator with zero
-  warnings; the restored test target runs 85 passing XCTest cases.
+  warnings; the restored test target runs 86 passing XCTest cases.
 - Verified CI: repository/OpenCode/reliability checks, build, tests, and diff
   validation completed with `[ci] OK`.
 - Verified visually: the new onboarding renders correctly in system light and
   dark appearances and respects Reduce Motion in source.
 - Verified security: native Apple profile data is minimised, device-only Keychain
   protected, never logged, and revoked/transferred credential states clear it.
+  Runtime Apple revocation notifications now clear the session immediately.
 - Verified Search: explicit state machine, cancellable debounce, retry, recent
   persistence, value navigation, and German strings pass focused tests and full
   CI. Interactive visual acceptance remains open because macOS is locked.
@@ -56,8 +57,8 @@
   screen-state, map-card, offline, shimmer, live-pulse, and countdown transitions;
   Reduce Motion disables movement, scale, pulse, shimmer, and numeric rolling.
   Interactive timing acceptance remains open while the macOS host is locked.
-- Remaining work: select and configure an email identity provider, verify the
-  physical-device provisioning capability, and complete remaining journey and
-  accessibility inspection.
+- Remaining work: select and configure an email identity provider; enable Sign in
+  with Apple for `wellbe.TrafficVienna` and regenerate its provisioning profile;
+  complete remaining journey and accessibility inspection.
 - Next action: run the cross-journey completion/accessibility audit while visual
   inspection waits for an unlocked host; email still needs a real provider choice.

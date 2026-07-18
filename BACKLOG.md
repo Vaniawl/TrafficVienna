@@ -160,7 +160,13 @@
   - Dependency: explicit email identity provider/backend selection.
   - Completed slice: native Apple entry, minimal device-only Keychain profile,
     restore, cancellation, failure, sign-out, and authorized/revoked/transferred
-    credential handling with focused tests. Anonymous use remains unchanged.
+    credential handling with focused tests. Runtime Apple revocation notifications
+    now clear the local session immediately; anonymous use remains unchanged.
+  - Evidence: nine focused account lifecycle tests and warning-free full CI pass;
+    total XCTest count is 86. A generic Release device archive confirms the source
+    entitlement and signing team are wired, but the installed provisioning profile
+    does not yet include Sign in with Apple and must be regenerated after the
+    capability is enabled for `wellbe.TrafficVienna`.
   - Pending slice: real email authentication, server session validation, and
     remote delete-account behaviour after provider selection.
   - Acceptance: sign-in, cancellation, failure, restore, sign-out, revocation,
@@ -238,7 +244,7 @@
 - [x] **TV-VERIFY-031 - macOS build and tests.** Run `bash scripts/ci.sh` on a
   suitable macOS/Xcode host, including the app and widget targets.
   - Evidence: full CI exited 0 on iPhone 17 simulator; app/widget build succeeded,
-    the freshness/lifecycle and dead-reference audits passed, and all 85 XCTest
+    the freshness/lifecycle and dead-reference audits passed, and all 86 XCTest
     cases pass.
 - [ ] **TV-VERIFY-032 - Product inspection.** Exercise every Phase 2 journey in
   light/dark appearance, accessibility text sizes, and relevant failure states.

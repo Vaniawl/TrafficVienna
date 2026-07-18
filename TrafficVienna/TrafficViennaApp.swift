@@ -5,6 +5,7 @@
 //  Created by Ivan Dovhosheia on 07.11.25.
 //
 
+import AuthenticationServices
 import SwiftUI
 
 @main
@@ -18,6 +19,13 @@ struct TrafficViennaApp: App {
                 .environment(accountSession)
                 .task {
                     await accountSession.validateCredential()
+                }
+                .onReceive(
+                    NotificationCenter.default.publisher(
+                        for: ASAuthorizationAppleIDProvider.credentialRevokedNotification
+                    )
+                ) { _ in
+                    accountSession.handleAppleCredentialRevoked()
                 }
         }
     }

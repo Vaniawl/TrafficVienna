@@ -116,6 +116,16 @@ final class AccountSessionTests: XCTestCase {
         XCTAssertNil(store.storedProfile)
     }
 
+    func testAppleCredentialRevocationNotificationClearsSession() {
+        let store = InMemoryAccountProfileStore(profile: appleProfile)
+        let session = AccountSession(store: store)
+
+        session.handleAppleCredentialRevoked()
+
+        XCTAssertNil(session.profile)
+        XCTAssertNil(store.storedProfile)
+    }
+
     private var appleProfile: AccountProfile {
         AccountProfile(
             id: "apple-user-id",

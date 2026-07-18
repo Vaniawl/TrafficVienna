@@ -70,6 +70,11 @@ final class AccountSession {
         }
     }
 
+    func handleAppleCredentialRevoked() {
+        guard profile?.provider == .apple else { return }
+        signOut()
+    }
+
     func signOut() {
         profile = nil
 
