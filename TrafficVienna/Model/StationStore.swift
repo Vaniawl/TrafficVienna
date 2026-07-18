@@ -48,7 +48,8 @@ final class StationStore: ObservableObject ,StationStoring {
     // All stations from the Wiener Linien JSON
     @Published private(set) var stations: [Station] = []
     private var stationsByID: [Int: Station] = [:]
-    private var searchIndex: [(station: Station, normalizedName: String)] = []
+    private var searchIndex: [(station: Station, normalizedName: String, words: [String])] = []
+    private var divaByNormalizedName: [String: Int] = [:]
     private var spatialIndex: [SpatialCell: [Station]] = [:]
 
     private struct SpatialCell: Hashable {
@@ -76,7 +77,18 @@ final class StationStore: ObservableObject ,StationStoring {
             let decoded = try JSONDecoder().decode([Station].self, from: data)
             stations = decoded
             stationsByID = Dictionary(uniqueKeysWithValues: decoded.map { ($0.id, $0) })
-            searchIndex = decoded.map { ($0, normalize($0.name)) }
+            searchIndex = decoded
+                .map { station in
+                    let name = normalize(station.name)
+                    return (station, name, name.split(separator: " ").map(String.init))
+                }
+                .sorted {
+                    ($0.normalizedName, $0.station.id) < ($1.normalizedName, $1.station.id)
+                }
+            divaByNormalizedName = decoded.reduce(into: [:]) { index, station in
+                guard let diva = station.diva else { return }
+                index[normalize(station.name), default: diva] = diva
+            }
             spatialIndex = Dictionary(grouping: decoded, by: spatialCell(for:))
             log.debug("Loaded \(decoded.count) stations")
         } catch {
@@ -87,12 +99,7 @@ final class StationStore: ObservableObject ,StationStoring {
     // Returns the DIVA number for a station whose normalized name
     // matches the provided name exactly
     func diva(forExact name: String) -> Int? {
-        let q = normalize(name)
-        if let exact = stations.first(where: { normalize($0.name) == q }),
-           let diva = exact.diva {
-            return diva
-        }
-        return nil
+        divaByNormalizedName[normalize(name)]
     }
     
     // Normalizes a string for station name matching
@@ -109,9 +116,20 @@ final class StationStore: ObservableObject ,StationStoring {
         
         guard !q.isEmpty else { return [] }
         
-        return searchIndex.compactMap { entry in
-            entry.normalizedName.contains(q) ? entry.station : nil
+        var ranked = Array(repeating: [Station](), count: 4)
+        for entry in searchIndex {
+            guard entry.normalizedName.contains(q) else { continue }
+            if entry.normalizedName == q {
+                ranked[0].append(entry.station)
+            } else if entry.normalizedName.hasPrefix(q) {
+                ranked[1].append(entry.station)
+            } else if entry.words.contains(where: { $0.hasPrefix(q) }) {
+                ranked[2].append(entry.station)
+            } else {
+                ranked[3].append(entry.station)
+            }
         }
+        return ranked.flatMap { $0 }
     }
 
     func station(id: Int) -> Station? { stationsByID[id] }

@@ -97,6 +97,32 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(store.station(id: station.id)?.name, station.name)
     }
 
+    func testStationSearchRanksExactMatchBeforePartialMatches() {
+        let store = StationStore()
+        let results = store.stationsSuggestion(matching: "Karlsplatz")
+
+        XCTAssertEqual(results.first?.name, "Karlsplatz")
+        XCTAssertTrue(results.dropFirst().contains { $0.name.contains("Karlsplatz") })
+    }
+
+    func testStationSearchRanksPrefixBeforeEmbeddedMatch() {
+        let store = StationStore()
+        let names = store.stationsSuggestion(matching: "Hauptbahnhof").map(\.name)
+
+        XCTAssertEqual(names.first, "Hauptbahnhof")
+        XCTAssertLessThan(
+            names.firstIndex(of: "Hauptbahnhof Ost")!,
+            names.firstIndex(of: "St. Pölten Hauptbahnhof")!
+        )
+    }
+
+    func testExactDivaLookupUsesNormalizedName() {
+        let store = StationStore()
+
+        XCTAssertEqual(store.diva(forExact: "  KÁRLSPLATZ  "), store.diva(forExact: "Karlsplatz"))
+        XCTAssertNotNil(store.diva(forExact: "Karlsplatz"))
+    }
+
     func testStationSearchPerformance() {
         let store = StationStore()
         measure {

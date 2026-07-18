@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-07-18 — Ranked station search and lookup optimization
+
+- Ranked station matches by exact name, name prefix, word prefix, then embedded match so the most likely Vienna stop appears first.
+- Sorted and tokenized the search index once at station-load time, avoiding per-keystroke result sorting and repeated word splitting.
+- Added a normalized-name DIVA index so exact monitor lookups no longer rescan and renormalize the full station dataset.
+- Added a visible in-card progress state during the search debounce instead of briefly showing a false “No matching stops” result.
+- Added regression coverage for exact and prefix ranking plus diacritic-insensitive DIVA lookup; full shared-scheme tests and repository validations pass.
+
 ## 2026-07-18 — Stable authentication UI smoke tests
 
 - Moved the DEBUG UI-test session reset into `AuthStore` initialization so persisted authentication is cleared before it can be loaded.

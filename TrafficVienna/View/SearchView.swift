@@ -5,6 +5,7 @@ struct SearchView: View {
     @StateObject private var recents = RecentSearchesStore()
     @State private var query = ""
     @State private var results: [Station] = []
+    @State private var isSearching = false
 
     private var recentStations: [Station] { recents.ids.compactMap(store.station(id:)) }
 
@@ -23,10 +24,17 @@ struct SearchView: View {
         .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always), prompt: "Station or stop")
         .scrollDismissesKeyboard(.immediately)
         .task(id: query) {
-            guard !query.isEmpty else { results = []; return }
+            guard !query.isEmpty else {
+                results = []
+                isSearching = false
+                return
+            }
+            isSearching = true
+            results = []
             try? await Task.sleep(for: .milliseconds(250))
             guard !Task.isCancelled else { return }
             results = Array(store.stationsSuggestion(matching: query).prefix(50))
+            isSearching = false
         }
     }
 
@@ -40,7 +48,12 @@ struct SearchView: View {
     }
 
     @ViewBuilder private var resultContent: some View {
-        if results.isEmpty {
+        if isSearching {
+            ProgressView()
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 34)
+                .neoCard()
+        } else if results.isEmpty {
             emptyCard(icon: "tram.fill", title: "No matching stops", text: "Try another station name.")
         } else {
             HStack { Text("Stations").font(.title3.bold()); Spacer(); Text("\(results.count)").foregroundStyle(.secondary) }
