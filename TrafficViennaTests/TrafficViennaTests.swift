@@ -488,6 +488,51 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(mock.callCount, 1)
     }
 
+    func testConcurrentTrafficInfoRefreshesShareOneRequest() async throws {
+        let mock = MockNetworkManager(trafficInfoDelayNanoseconds: 50_000_000)
+        let service = MonitorService(network: mock, cacheTTL: 0, minInterval: 0)
+
+        async let first = service.trafficInfoList(forceRefresh: true)
+        async let second = service.trafficInfoList(forceRefresh: true)
+        _ = try await (first, second)
+
+        XCTAssertEqual(mock.callCount, 1)
+    }
+
+    func testFailedTrafficInfoRequestDoesNotRemainInFlight() async throws {
+        let mock = MockNetworkManager(shouldFail: true)
+        let service = MonitorService(network: mock, cacheTTL: 0, minInterval: 0)
+
+        do {
+            _ = try await service.trafficInfoList(forceRefresh: true)
+            XCTFail("Expected the first traffic-info request to fail")
+        } catch {}
+
+        mock.shouldFail = false
+        _ = try await service.trafficInfoList(forceRefresh: true)
+
+        XCTAssertEqual(mock.callCount, 2)
+    }
+
+    func testClearCacheCancelsTrafficInfoRequestAndAllowsRetry() async throws {
+        let mock = MockNetworkManager(trafficInfoDelayNanoseconds: 200_000_000)
+        let service = MonitorService(network: mock, cacheTTL: 0, minInterval: 0)
+        let request = Task { try await service.trafficInfoList(forceRefresh: true) }
+        try await Task.sleep(nanoseconds: 20_000_000)
+
+        await service.clearCache()
+
+        do {
+            _ = try await request.value
+            XCTFail("Expected clearCache to cancel the in-flight request")
+        } catch is CancellationError {}
+
+        mock.trafficInfoDelayNanoseconds = 0
+        _ = try await service.trafficInfoList(forceRefresh: true)
+
+        XCTAssertEqual(mock.callCount, 2)
+    }
+
     // MARK: - Rendering and energy regressions
 
     func testFavoriteItemsUseStableIdentity() {
@@ -830,17 +875,20 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
     var shouldRateLimit = false
     var responseSource: NetworkResponseSource = .network
     var trafficInfos: [TrafficInfo]?
+    var trafficInfoDelayNanoseconds: UInt64
 
     init(
         shouldFail: Bool = false,
         shouldRateLimit: Bool = false,
         responseSource: NetworkResponseSource = .network,
-        trafficInfos: [TrafficInfo]? = nil
+        trafficInfos: [TrafficInfo]? = nil,
+        trafficInfoDelayNanoseconds: UInt64 = 0
     ) {
         self.shouldFail = shouldFail
         self.shouldRateLimit = shouldRateLimit
         self.responseSource = responseSource
         self.trafficInfos = trafficInfos
+        self.trafficInfoDelayNanoseconds = trafficInfoDelayNanoseconds
     }
 
     func fetchMonitorData(for stopId: Int) async throws -> MonitorResponse {
@@ -859,6 +907,9 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
 
     func fetchTrafficInfoList() async throws -> MonitorResponse {
         callCount += 1
+        if trafficInfoDelayNanoseconds > 0 {
+            try await Task.sleep(nanoseconds: trafficInfoDelayNanoseconds)
+        }
         if shouldRateLimit { throw MonitorApiError.rateLimited }
         if shouldFail { throw URLError(.notConnectedToInternet) }
         return mockResponse()

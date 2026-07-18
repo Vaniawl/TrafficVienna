@@ -70,6 +70,7 @@ actor MonitorService {
     private var cache: [Int: CacheEntry] = [:]
     private var trafficInfoCache: (items: [TrafficInfo], timestamp: Date)?
     private var inFlight: [Int: Task<MonitorResponse, Error>] = [:]
+    private var trafficInfoInFlight: Task<MonitorResponse, Error>?
     // Next moment a network call is allowed to start (for spacing).
     private var nextSlot = Date.distantPast
 
@@ -134,7 +135,7 @@ actor MonitorService {
             return ServiceResult(value: trafficInfoCache.items, freshness: .cache(trafficInfoCache.timestamp))
         }
         do {
-            let response = try await network.fetchTrafficInfoList()
+            let response = try await fetchTrafficInfoCoalesced()
             let items = response.data.trafficInfos ?? []
             if case let .urlCache(storedAt) = response.source {
                 trafficInfoCache = (items, storedAt)
@@ -162,7 +163,9 @@ actor MonitorService {
 
     func clearCache() {
         inFlight.values.forEach { $0.cancel() }
+        trafficInfoInFlight?.cancel()
         inFlight = [:]
+        trafficInfoInFlight = nil
         cache = [:]
         trafficInfoCache = nil
         nextSlot = .distantPast
@@ -180,6 +183,20 @@ actor MonitorService {
         }
         inFlight[diva] = task
         defer { inFlight[diva] = nil }
+        return try await task.value
+    }
+
+    // Shares the city-wide traffic-info request across dashboard and Alerts refreshes.
+    private func fetchTrafficInfoCoalesced() async throws -> MonitorResponse {
+        if let trafficInfoInFlight {
+            return try await trafficInfoInFlight.value
+        }
+        let task = Task<MonitorResponse, Error> { [self] in
+            try await throttle()
+            return try await network.fetchTrafficInfoList()
+        }
+        trafficInfoInFlight = task
+        defer { trafficInfoInFlight = nil }
         return try await task.value
     }
 

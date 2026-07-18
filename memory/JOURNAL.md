@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-18 — Coalesced city-wide alert requests
+
+- Extended `MonitorService` request coalescing from station monitors to the city-wide traffic-info endpoint used by Nearby and Alerts.
+- Routed traffic-info network work through the shared throttle so alert refreshes no longer bypass the Wiener Linien request-spacing boundary.
+- Cancelled and cleared traffic-info in-flight work together with the rest of the monitor cache during travel-data reset.
+- Added concurrency, failure cleanup, cancellation, retry, and cache regression tests; concurrent forced refreshes now produce one network call.
+
 ## 2026-07-18 — Cached Alerts relevance
 
 - Replaced repeated full-list relevance counts with a cached set of relevant traffic-info IDs rebuilt only after alert refreshes or favourite-line changes.
