@@ -197,6 +197,29 @@ final class TrafficViennaTests: XCTestCase {
         }
     }
 
+    func testMapStationSelectionIsDistanceSortedAndLimited() {
+        let store = StationStore()
+        let center = CLLocation(latitude: 48.2082, longitude: 16.3738)
+
+        let stations = MapStationSelection.nearest(in: store, to: center, radius: 1_500, limit: 25)
+        let distances = stations.map {
+            CLLocation(latitude: $0.lat, longitude: $0.lon).distance(from: center)
+        }
+
+        XCTAssertEqual(stations.count, 25)
+        XCTAssertEqual(distances, distances.sorted())
+        XCTAssertLessThanOrEqual(distances.last ?? .infinity, 1_500)
+    }
+
+    func testMapCenterKeyIgnoresSmallLocationJitter() {
+        let first = MapCenterKey(location: CLLocation(latitude: 48.20820, longitude: 16.37380))
+        let jittered = MapCenterKey(location: CLLocation(latitude: 48.20824, longitude: 16.37384))
+        let moved = MapCenterKey(location: CLLocation(latitude: 48.20940, longitude: 16.37500))
+
+        XCTAssertEqual(first, jittered)
+        XCTAssertNotEqual(first, moved)
+    }
+
     // MARK: - RouteMatching
 
     func testNormalizeTrimsWhitespace() {

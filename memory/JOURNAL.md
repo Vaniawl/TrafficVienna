@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-07-18 — Cached and deterministic map markers
+
+- Replaced Map’s render-time computed spatial query with cached marker state refreshed only when its coarse location key changes.
+- Quantized the location key to roughly 100-metre buckets so normal GPS jitter does not rebuild and reorder all map annotations.
+- Calculated each candidate distance once, added station-ID tie-breaking for deterministic order, and retained the 1.5-km/60-marker product limits.
+- Kept station selection and detail-sheet navigation on the cached result, avoiding a second spatial query when a marker is tapped.
+- Added distance-order, radius/limit, and jitter-key regression tests; full shared-scheme tests and repository validations pass.
+
 ## 2026-07-18 — Ordered and shared line favourites
 
 - Replaced unordered Set-based line-favourite persistence with an insertion-ordered, duplicate-normalized array while retaining the same JSON object shape.
