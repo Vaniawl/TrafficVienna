@@ -77,7 +77,7 @@ struct SearchView: View {
         .simultaneousGesture(TapGesture().onEnded { recents.record(station.id) })
     }
 
-    private func emptyCard(icon: String, title: String, text: String) -> some View {
+    private func emptyCard(icon: String, title: LocalizedStringKey, text: LocalizedStringKey) -> some View {
         VStack(spacing: 14) {
             NeoIcon(systemName: icon)
             Text(title).font(.title3.bold())

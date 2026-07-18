@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-18 — Localized reusable UI component boundaries
+
+- Audited reusable SwiftUI components for runtime `String` parameters that bypass automatic string-catalog lookup.
+- Changed shared neobank headers, Search empty states, onboarding feature rows, and station failure labels to accept `LocalizedStringKey`.
+- Kept runtime station names explicit at the single dynamic `NeoHeader` call site instead of weakening localization for all static headings.
+- Verified every string-catalog entry has both German and Ukrainian values and the complete app target builds successfully.
+
 ## 2026-07-18 — Fully localized Nearby actions and insights
 
 - Reproduced the redesigned Nearby dashboard in the Night theme with the Ukrainian app language on an iPhone 17 simulator.

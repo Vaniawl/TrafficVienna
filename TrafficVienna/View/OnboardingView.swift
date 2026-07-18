@@ -63,7 +63,7 @@ struct OnboardingView: View {
         .padding(32)
     }
 
-    private func feature(_ icon: String, _ title: String, _ subtitle: String) -> some View {
+    private func feature(_ icon: String, _ title: LocalizedStringKey, _ subtitle: LocalizedStringKey) -> some View {
         HStack(spacing: 12) {
                 Image(systemName: icon)
                     .font(.title3)

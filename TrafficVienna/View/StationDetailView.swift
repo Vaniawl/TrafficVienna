@@ -83,7 +83,7 @@ struct StationDetailView: View {
         List {
             NeoHeader(
                 eyebrow: "Live station",
-                title: vm.station.name,
+                title: LocalizedStringKey(vm.station.name),
                 subtitle: "Real-time departures and service updates"
             )
             .listRowInsets(EdgeInsets(top: 12, leading: 18, bottom: 12, trailing: 18))

@@ -117,7 +117,7 @@ struct StationCardView: View {
         .shimmer()
     }
 
-    private func label(_ text: String, color: Color = .secondary) -> some View {
+    private func label(_ text: LocalizedStringKey, color: Color = .secondary) -> some View {
         Text(text)
             .font(.subheadline)
             .foregroundStyle(color)

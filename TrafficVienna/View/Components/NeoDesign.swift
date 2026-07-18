@@ -9,15 +9,16 @@ enum NeoDesign {
 }
 
 struct NeoHeader: View {
-    let eyebrow: String
-    let title: String
-    var subtitle: String?
+    let eyebrow: LocalizedStringKey
+    let title: LocalizedStringKey
+    var subtitle: LocalizedStringKey?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
-            Text(eyebrow.uppercased())
+            Text(eyebrow)
                 .font(.caption2.bold())
                 .tracking(1.4)
+                .textCase(.uppercase)
                 .foregroundStyle(NeoDesign.accent)
             Text(title)
                 .font(.system(size: 34, weight: .bold, design: .rounded))
