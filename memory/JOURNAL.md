@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-18 — Accessible Nearby dashboard scaling
+
+- Reproduced the Nearby dashboard at the largest iOS Dynamic Type size on an iPhone 17 simulator.
+- Fixed clipped avatar initials, an oversized account heading, a hero card extending behind the tab bar, and an unreachable location CTA.
+- Capped scaling only for the dense dashboard header, hero, quick actions, and insight card at `xxxLarge`; the surrounding scroll view and system accessibility setting remain intact.
+- Confirmed the complete hero and CTA remain visible at the maximum accessibility size in a freshly installed simulator build.
+
 ## 2026-07-18 — Personalized Alerts tab badge
 
 - Completed an iPhone 17 visual QA pass of the redesigned Nearby dashboard after the recent feature slices.

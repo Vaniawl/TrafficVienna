@@ -87,6 +87,7 @@ struct NearbyView: View {
                 }
             }
         }
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
 
     private var accountAvatar: some View {
@@ -192,6 +193,7 @@ struct NearbyView: View {
             in: RoundedRectangle(cornerRadius: 30, style: .continuous)
         )
         .shadow(color: Color(hex: 0x4338CA).opacity(0.24), radius: 24, y: 14)
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
 
     private var quickActions: some View {
@@ -202,6 +204,7 @@ struct NearbyView: View {
             actionButton("Refresh", icon: "arrow.clockwise") { Task { await vm.load(force: true) } }
         }
         .buttonStyle(.plain)
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
 
     private func actionButton(_ title: String, icon: String, action: @escaping () -> Void) -> some View {
@@ -245,6 +248,7 @@ struct NearbyView: View {
         }
         .padding(18)
         .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
 
     private var insightDestination: AppRouter.Destination {
