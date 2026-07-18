@@ -76,9 +76,23 @@ final class FavoritesListViewModel: ObservableObject {
         stations = stationsRepo.all()
     }
 
+    func isStationFavorite(id: Int) -> Bool {
+        stations.contains { $0.id == id }
+    }
+
+    func toggleStation(_ station: Station) {
+        let favorite = FavoriteStation(station)
+        stationsRepo.toggle(favorite)
+        if let index = stations.firstIndex(where: { $0.id == station.id }) {
+            stations.remove(at: index)
+        } else {
+            stations.append(favorite)
+        }
+    }
+
     func removeStation(id: Int) {
         stationsRepo.remove(id: id)
-        loadStations()
+        stations.removeAll { $0.id == id }
     }
 
     func moveStations(fromOffsets: IndexSet, toOffset: Int) {

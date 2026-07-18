@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-07-18 — Immediate favourite-station state updates
+
+- Routed Nearby context-menu station favourites through the existing shared `FavoritesListViewModel` instead of constructing and decoding a new UserDefaults repository for every menu.
+- Updated the published station list immediately after toggle and removal, keeping the dashboard count and Favourites tab consistent without a follow-up storage read.
+- Preserved ordered persistence and existing widget/line-favourite boundaries; no new global state was introduced.
+- Added a regression proving add, remove, and toggle operations stay synchronized while storage is loaded only once.
+- Full shared-scheme tests, repository validation, OpenCode validation, and whitespace checks pass.
+
 ## 2026-07-18 — Ranked station search and lookup optimization
 
 - Ranked station matches by exact name, name prefix, word prefix, then embedded match so the most likely Vienna stop appears first.

@@ -275,9 +275,8 @@ struct NearbyView: View {
                     .buttonStyle(.plain)
                     .contextMenu {
                         let station = item.station
-                        let repository = UserDefaultsFavoriteStationsRepository()
-                        let isFavorite = repository.contains(id: station.id)
-                        Button { repository.toggle(FavoriteStation(station)) } label: {
+                        let isFavorite = favoritesVM.isStationFavorite(id: station.id)
+                        Button { favoritesVM.toggleStation(station) } label: {
                             Label(isFavorite ? "Remove station from favourites" : "Add station to favourites", systemImage: isFavorite ? "star.slash" : "star")
                         }
                         ShareLink(item: "\(station.name) — live departures on Traffic Vienna")

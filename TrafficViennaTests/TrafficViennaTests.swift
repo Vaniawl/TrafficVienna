@@ -353,6 +353,32 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(favorites.getAllCallCount, 1)
     }
 
+    @MainActor
+    func testStationFavoriteToggleUpdatesSharedStateWithoutReloadingStorage() {
+        let station = Station(id: 1, diva: 60200657, name: "Karlsplatz", lat: 48.2, lon: 16.3)
+        let stations = CountingFavoriteStationsRepository()
+        let viewModel = FavoritesListViewModel(
+            service: MonitorService(network: MockNetworkManager()),
+            favoritesRepo: CountingFavoritesRepository(routes: []),
+            stationsRepo: stations,
+            widgetSync: NoopWidgetSync()
+        )
+        viewModel.loadStations()
+
+        viewModel.toggleStation(station)
+        XCTAssertTrue(viewModel.isStationFavorite(id: station.id))
+        XCTAssertEqual(stations.allCallCount, 1)
+
+        viewModel.removeStation(id: station.id)
+        XCTAssertFalse(viewModel.isStationFavorite(id: station.id))
+        XCTAssertEqual(stations.allCallCount, 1)
+
+        viewModel.toggleStation(station)
+        viewModel.toggleStation(station)
+        XCTAssertFalse(viewModel.isStationFavorite(id: station.id))
+        XCTAssertEqual(stations.allCallCount, 1)
+    }
+
     // MARK: - LineColors
 
     func testLineColorsU1() {
@@ -410,6 +436,33 @@ private final class CountingFavoritesRepository: FavoritesRepository, @unchecked
     }
 
     func removeAll() { routes = [] }
+}
+
+private final class CountingFavoriteStationsRepository: FavoriteStationsStoring, @unchecked Sendable {
+    private(set) var allCallCount = 0
+    private var stations: [FavoriteStation] = []
+
+    func all() -> [FavoriteStation] {
+        allCallCount += 1
+        return stations
+    }
+
+    func contains(id: Int) -> Bool { stations.contains { $0.id == id } }
+
+    func toggle(_ station: FavoriteStation) {
+        if let index = stations.firstIndex(where: { $0.id == station.id }) {
+            stations.remove(at: index)
+        } else {
+            stations.append(station)
+        }
+    }
+
+    func remove(id: Int) { stations.removeAll { $0.id == id } }
+    func setOrder(_ stations: [FavoriteStation]) { self.stations = stations }
+}
+
+private struct NoopWidgetSync: WidgetSyncing {
+    func save(_ data: [WidgetDepartureData]) {}
 }
 
 private final class MemoryKeychain: KeychainStoring {
