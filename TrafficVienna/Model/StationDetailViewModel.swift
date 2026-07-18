@@ -13,13 +13,11 @@ final class StationDetailViewModel: ObservableObject {
     let station: Station
     private let service: MonitorService
     private let favoritesRepo: FavoritesRepository
-    private let stationsRepo: FavoriteStationsStoring
 
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var monitor: MonitorResponse?
     @Published var lastUpdated: Date?
-    @Published var isStationFavorited = false
     @Published var categoryFilter: LineCategory? = nil
     @Published private(set) var freshness: DataFreshness?
 
@@ -103,19 +101,11 @@ final class StationDetailViewModel: ObservableObject {
     init(
         station: Station,
         service: MonitorService = .shared,
-        favoritesRepo: FavoritesRepository = UserDefaultsFavoritesRepository(),
-        stationsRepo: FavoriteStationsStoring = UserDefaultsFavoriteStationsRepository()
+        favoritesRepo: FavoritesRepository = UserDefaultsFavoritesRepository()
     ) {
         self.station = station
         self.service = service
         self.favoritesRepo = favoritesRepo
-        self.stationsRepo = stationsRepo
-        self.isStationFavorited = stationsRepo.contains(id: station.id)
-    }
-
-    func toggleStationFavorite() {
-        stationsRepo.toggle(FavoriteStation(station))
-        isStationFavorited = stationsRepo.contains(id: station.id)
     }
 
     // Loads live monitor data for the current station's DIVA.

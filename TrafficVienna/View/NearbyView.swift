@@ -40,7 +40,6 @@ struct NearbyView: View {
         .sheet(isPresented: $showAccount) { AccountView() }
         .task(id: shouldPoll) {
             guard shouldPoll else { return }
-            favoritesVM.loadStations()
             async let favoriteLoad: Void = favoritesVM.loadFavorites()
             async let alertLoad: Void = disruptionsVM.load()
             _ = await (favoriteLoad, alertLoad)

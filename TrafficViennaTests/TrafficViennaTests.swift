@@ -363,7 +363,6 @@ final class TrafficViennaTests: XCTestCase {
             stationsRepo: stations,
             widgetSync: NoopWidgetSync()
         )
-        viewModel.loadStations()
 
         viewModel.toggleStation(station)
         XCTAssertTrue(viewModel.isStationFavorite(id: station.id))

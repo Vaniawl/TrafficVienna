@@ -74,7 +74,6 @@ struct FavoritesView: View {
         .sheet(isPresented: $showAccount) { AccountView() }
         .task(id: shouldPoll) {
             guard shouldPoll else { return }
-            vm.loadStations()
             while !Task.isCancelled {
                 await vm.loadFavorites()
                 try? await Task.sleep(for: .seconds(60))

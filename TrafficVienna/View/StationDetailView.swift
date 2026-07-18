@@ -10,6 +10,7 @@ import SwiftUI
 
 struct StationDetailView: View {
     @Environment(\.scenePhase) private var scenePhase
+    @EnvironmentObject private var favoritesVM: FavoritesListViewModel
     @StateObject private var vm: StationDetailViewModel
     @State private var lineFavoriteToggles = 0
     @State private var reminderMessage: String?
@@ -23,17 +24,17 @@ struct StationDetailView: View {
             .neoScreen()
             .navigationTitle(vm.station.name)
             .navigationBarTitleDisplayMode(.inline)
-            .sensoryFeedback(.impact(weight: .light), trigger: vm.isStationFavorited)
+            .sensoryFeedback(.impact(weight: .light), trigger: isStationFavorited)
             .sensoryFeedback(.selection, trigger: lineFavoriteToggles)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        vm.toggleStationFavorite()
+                        favoritesVM.toggleStation(vm.station)
                     } label: {
-                        Image(systemName: vm.isStationFavorited ? "star.fill" : "star")
-                            .foregroundStyle(vm.isStationFavorited ? .yellow : .secondary)
+                        Image(systemName: isStationFavorited ? "star.fill" : "star")
+                            .foregroundStyle(isStationFavorited ? .yellow : .secondary)
                     }
-                    .accessibilityLabel(vm.isStationFavorited ? "Remove station from favourites" : "Add station to favourites")
+                    .accessibilityLabel(isStationFavorited ? "Remove station from favourites" : "Add station to favourites")
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -58,6 +59,10 @@ struct StationDetailView: View {
             .alert("Departure reminder", isPresented: Binding(get: { reminderMessage != nil }, set: { if !$0 { reminderMessage = nil } })) {
                 Button("OK", role: .cancel) { reminderMessage = nil }
             } message: { Text(reminderMessage ?? "") }
+    }
+
+    private var isStationFavorited: Bool {
+        favoritesVM.isStationFavorite(id: vm.station.id)
     }
 
     @ViewBuilder
@@ -229,4 +234,5 @@ struct StationDetailView: View {
                              lat: 48.218, lon: 16.392)
         )
     }
+    .environmentObject(FavoritesListViewModel())
 }

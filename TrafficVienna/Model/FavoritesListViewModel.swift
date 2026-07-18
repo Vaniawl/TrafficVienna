@@ -56,6 +56,7 @@ final class FavoritesListViewModel: ObservableObject {
         self.favoritesRepo = favoritesRepo
         self.stationsRepo = stationsRepo
         self.widgetSync = widgetSync
+        self.stations = stationsRepo.all()
     }
 
     convenience init(

@@ -77,6 +77,7 @@ struct RootTabView: View {
                 NavigationStack { StationDetailView(station: station) }
             }
             .environmentObject(themeManager)
+            .environmentObject(favoritesVM)
     }
 
     private var tabs: some View {

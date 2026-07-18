@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-07-18 — Unified favourite-station UI state
+
+- Made the root-owned `FavoritesListViewModel` the single UI owner for favourite-station state across Nearby, Search, Map, Favourites, Station Detail, and deep-linked station sheets.
+- Removed the duplicate station repository and published favourite flag from `StationDetailViewModel`; its star now updates the same shared state rendered by the dashboard and Favourites tab.
+- Loaded persisted stations once when the shared view model is created and removed redundant initial reads from Nearby and Favourites polling tasks; pull-to-refresh still supports an explicit reload.
+- Preserved the existing repository format, ordering, widget boundary, and line-favourite behavior, so no data migration or ADR was required.
+- Full shared-scheme tests, repository validation, OpenCode validation, and whitespace checks pass.
+
 ## 2026-07-18 — Immediate favourite-station state updates
 
 - Routed Nearby context-menu station favourites through the existing shared `FavoritesListViewModel` instead of constructing and decoding a new UserDefaults repository for every menu.
