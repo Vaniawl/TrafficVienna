@@ -1,5 +1,14 @@
 # Journal
 
+## 2026-07-18 — Polling and rendering energy optimization
+
+- Bound Nearby, Favourites, Alerts, and Station Detail polling to the active app scene; background/inactive transitions now cancel their polling tasks.
+- Added cancellation checkpoints inside sequential Nearby and Favourites request queues so a tab or scene transition stops remaining work promptly.
+- Replaced refresh-generated UUID identities with route/time-derived stable IDs, avoiding full SwiftUI list churn on every Favourites update.
+- Cached favourite line names in the Alerts view model and replaced per-comparison UserDefaults reads plus temporary Set allocations with direct membership checks.
+- Added regression tests proving favourite item identity remains stable and repeated alert relevance checks do not repeatedly read persistent storage.
+- Full XCTest suite passes on iPhone 17 Simulator after the performance and energy changes.
+
 ## 2026-07-18 — Dark mode and VoiceOver pass
 
 - Added concise VoiceOver labels and hints for password visibility, Apple sign-in, station refresh, and favourite-line controls.

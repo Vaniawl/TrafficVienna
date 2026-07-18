@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DisruptionsView: View {
     @ObservedObject var vm: DisruptionsViewModel
+    @Environment(\.scenePhase) private var scenePhase
     var isActive = true
 
     var body: some View {
@@ -21,14 +22,16 @@ struct DisruptionsView: View {
             }
             .refreshable { await vm.load(force: true) }
             .searchable(text: $vm.lineFilter, placement: .navigationBarDrawer(displayMode: .always), prompt: "Filter")
-            .task(id: isActive) {
-                guard isActive else { return }
+            .task(id: shouldPoll) {
+                guard shouldPoll else { return }
                 while !Task.isCancelled {
                     await vm.load()
                     try? await Task.sleep(for: .seconds(120))
                 }
             }
     }
+
+    private var shouldPoll: Bool { isActive && scenePhase == .active }
 
     @ViewBuilder
     private var content: some View {

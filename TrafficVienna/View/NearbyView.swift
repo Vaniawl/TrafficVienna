@@ -11,6 +11,7 @@ struct NearbyView: View {
     @ObservedObject private var disruptionsVM: DisruptionsViewModel
     @Environment(\.openURL) private var openURL
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.scenePhase) private var scenePhase
     private let store: StationStore
     private let isActive: Bool
     @State private var showAccount = false
@@ -37,8 +38,8 @@ struct NearbyView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: $showAccount) { AccountView() }
-        .task(id: isActive) {
-            guard isActive else { return }
+        .task(id: shouldPoll) {
+            guard shouldPoll else { return }
             favoritesVM.loadStations()
             async let favoriteLoad: Void = favoritesVM.loadFavorites()
             async let alertLoad: Void = disruptionsVM.load()
@@ -49,6 +50,8 @@ struct NearbyView: View {
             }
         }
     }
+
+    private var shouldPoll: Bool { isActive && scenePhase == .active }
 
     @ViewBuilder
     private var content: some View {

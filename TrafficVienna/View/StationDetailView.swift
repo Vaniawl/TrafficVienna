@@ -9,6 +9,7 @@
 import SwiftUI
 
 struct StationDetailView: View {
+    @Environment(\.scenePhase) private var scenePhase
     @StateObject private var vm: StationDetailViewModel
     @State private var lineFavoriteToggles = 0
     @State private var reminderMessage: String?
@@ -44,7 +45,8 @@ struct StationDetailView: View {
                     .accessibilityLabel("Refresh departures")
                 }
             }
-            .task {
+            .task(id: scenePhase) {
+                guard scenePhase == .active else { return }
                 // Keep departures current while the screen is visible. Cancelled
                 // automatically on disappear. Cached responses keep this cheap.
                 while !Task.isCancelled {

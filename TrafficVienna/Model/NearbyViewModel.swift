@@ -74,6 +74,7 @@ final class NearbyViewModel: ObservableObject {
 
         // Sequential: each await naturally spaces requests for the API.
         for item in items {
+            guard !Task.isCancelled else { return }
             guard let diva = item.station.diva else { continue }
             do {
                 let response = try await service.monitor(diva: diva, forceRefresh: force)

@@ -14,18 +14,20 @@ private let log = Logger(subsystem: "at.wellbe.TrafficVienna", category: "favori
 
 
 struct DepartureInfo: Identifiable, Hashable {
-    let id = UUID()
     let countdown: Int
     let planned: String
     let real: String?
     let isRealtime: Bool
+
+    var id: String { "\(planned)|\(real ?? "")|\(countdown)" }
 }
 
 struct FavoriteWithDeparture: Identifiable {
-    let id = UUID()
     let route: FavoriteRoute
     let stopName: String
     let departures: [DepartureInfo]
+
+    var id: FavoriteRoute { route }
 }
 
 @MainActor
@@ -97,15 +99,16 @@ final class FavoritesListViewModel: ObservableObject {
         
         isLoading = true
         errorMessage = nil
+        defer { isLoading = false }
         
         var result: [FavoriteWithDeparture] = []
         for route in routes {
+            guard !Task.isCancelled else { return }
             let item = await loadItem(for: route)
             result.append(item)
         }
         
         items = result
-        isLoading = false
         syncWidget()
     }
     

@@ -11,10 +11,12 @@ final class DisruptionsViewModel: ObservableObject {
 
     private let service: MonitorService
     private let favoritesRepo: FavoritesRepository
+    private var favouriteLines: Set<String>
 
     init(service: MonitorService = .shared, favoritesRepo: FavoritesRepository = UserDefaultsFavoritesRepository()) {
         self.service = service
         self.favoritesRepo = favoritesRepo
+        self.favouriteLines = Set(favoritesRepo.getAll().map(\.lineName))
     }
 
     var availableCategories: [LineCategory] {
@@ -42,11 +44,11 @@ final class DisruptionsViewModel: ObservableObject {
     var relevantCount: Int { infos.filter(isRelevant).count }
 
     func isRelevant(_ info: TrafficInfo) -> Bool {
-        let favouriteLines = Set(favoritesRepo.getAll().map(\.lineName))
-        return !(Set(info.relatedLines ?? []).intersection(favouriteLines).isEmpty)
+        (info.relatedLines ?? []).contains(where: favouriteLines.contains)
     }
 
     func load(force: Bool = false) async {
+        favouriteLines = Set(favoritesRepo.getAll().map(\.lineName))
         if infos.isEmpty { isLoading = true }
         errorMessage = nil
         defer { isLoading = false }

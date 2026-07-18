@@ -240,6 +240,32 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(mock.callCount, 1)
     }
 
+    // MARK: - Rendering and energy regressions
+
+    func testFavoriteItemsUseStableIdentity() {
+        let route = FavoriteRoute(diva: "60201435", lineName: "U1", destination: "Leopoldau")
+        let first = FavoriteWithDeparture(route: route, stopName: "Stephansplatz", departures: [])
+        let refreshed = FavoriteWithDeparture(route: route, stopName: "Stephansplatz", departures: [])
+
+        XCTAssertEqual(first.id, refreshed.id)
+    }
+
+    @MainActor
+    func testDisruptionRelevanceDoesNotReadFavoritesForEveryItem() {
+        let favorites = CountingFavoritesRepository(
+            routes: [FavoriteRoute(diva: "60201435", lineName: "U1", destination: "Leopoldau")]
+        )
+        let viewModel = DisruptionsViewModel(
+            service: MonitorService(network: MockNetworkManager()),
+            favoritesRepo: favorites
+        )
+        let info = TrafficInfo(name: "test", title: "U1 delay", description: nil, priority: "1", relatedLines: ["U1"])
+
+        for _ in 0..<100 { XCTAssertTrue(viewModel.isRelevant(info)) }
+
+        XCTAssertEqual(favorites.getAllCallCount, 1)
+    }
+
     // MARK: - LineColors
 
     func testLineColorsU1() {
@@ -277,6 +303,26 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(decoded.lineName, "U1")
         XCTAssertEqual(decoded.departures, [2, 5, 12])
     }
+}
+
+private final class CountingFavoritesRepository: FavoritesRepository, @unchecked Sendable {
+    private(set) var getAllCallCount = 0
+    private var routes: [FavoriteRoute]
+
+    init(routes: [FavoriteRoute]) { self.routes = routes }
+
+    func isFavorite(diva: String, lineName: String, destination: String) -> Bool {
+        routes.contains(FavoriteRoute(diva: diva, lineName: lineName, destination: destination))
+    }
+
+    func toggle(diva: String, lineName: String, destination: String) {}
+
+    func getAll() -> [FavoriteRoute] {
+        getAllCallCount += 1
+        return routes
+    }
+
+    func removeAll() { routes = [] }
 }
 
 private final class MemoryKeychain: KeychainStoring {
