@@ -27,16 +27,10 @@ private nonisolated let rateLimitMessageCode = 316
 
 
 protocol NetworkManaging: Sendable {
-    func fetchMonitorData(for stopId: Int) async throws -> MonitorResponse
     func fetchMonitorData(diva: Int, includeArea: Bool) async throws -> MonitorResponse
     func fetchTrafficInfoList() async throws -> MonitorResponse
 }
 nonisolated final class NetworkManager: NetworkManaging {
-
-    // Uses stopId to get monitor data for a single stop/direction.
-    func fetchMonitorData(for stopId: Int) async throws -> MonitorResponse {
-        try await perform("https://www.wienerlinien.at/ogd_realtime/monitor?stopId=\(stopId)")
-    }
 
     /// Uses DIVA to get monitor data for all directions at a station, including
     /// any active service disruptions / info notices for its lines.

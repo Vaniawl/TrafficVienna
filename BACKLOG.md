@@ -168,6 +168,13 @@
   - Dependencies: affected Phase 2 slice.
   - Acceptance: each refactor has a behavioural reason and focused regression test.
   - Validation: focused tests and full `bash scripts/test.sh`.
+  - Completed slice: removed the unused stop-ID monitor request from the network
+    protocol, production client, and test doubles after a repository-wide reference
+    audit found no app, widget, intent, or test caller. The active DIVA and
+    traffic-info request paths remain unchanged.
+  - Evidence: source search reports zero remaining stop-ID request declarations or
+    calls; protocol conformance, app/widget build, and all 85 XCTest cases pass in
+    full CI.
 - [ ] **TV-CORE-021 - Localisation and accessibility audit.**
   - Outcome: user-facing text is localisable; Dynamic Type, VoiceOver, contrast,
     and reduced motion are supported across completed journeys.
@@ -225,7 +232,8 @@
 - [x] **TV-VERIFY-031 - macOS build and tests.** Run `bash scripts/ci.sh` on a
   suitable macOS/Xcode host, including the app and widget targets.
   - Evidence: full CI exited 0 on iPhone 17 simulator; app/widget build succeeded,
-    the freshness/lifecycle focused runs passed, and all 83 XCTest cases pass.
+    the freshness/lifecycle and dead-reference audits passed, and all 85 XCTest
+    cases pass.
 - [ ] **TV-VERIFY-032 - Product inspection.** Exercise every Phase 2 journey in
   light/dark appearance, accessibility text sizes, and relevant failure states.
 - [ ] **TV-VERIFY-033 - Independent reviews.** Resolve every Blocking/Important

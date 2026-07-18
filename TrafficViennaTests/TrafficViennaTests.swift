@@ -313,13 +313,6 @@ private actor MockNetworkManager: NetworkManaging {
         self.shouldFail = shouldFail
     }
 
-    func fetchMonitorData(for stopId: Int) async throws -> MonitorResponse {
-        callCount += 1
-        try await waitIfNeeded()
-        if shouldFail { throw URLError(.notConnectedToInternet) }
-        return mockResponse()
-    }
-
     func fetchMonitorData(diva: Int, includeArea: Bool) async throws -> MonitorResponse {
         callCount += 1
         try await waitIfNeeded()
@@ -376,10 +369,6 @@ private actor RateLimitedNetworkManager: NetworkManaging {
 
     init(failuresBeforeSuccess: Int) {
         failuresRemaining = failuresBeforeSuccess
-    }
-
-    func fetchMonitorData(for stopId: Int) async throws -> MonitorResponse {
-        try response()
     }
 
     func fetchMonitorData(diva: Int, includeArea: Bool) async throws -> MonitorResponse {

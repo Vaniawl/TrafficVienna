@@ -49,6 +49,9 @@
 - Verified dependency injection: every journey model now accepts narrow test
   boundaries; Nearby uses modern observable state and its station/location/monitor
   behaviour passes focused mocks without persisting or logging coordinates.
+- Verified refactoring audit: repository-wide references proved the legacy stop-ID
+  monitor request unreachable, so it was removed from production and test protocol
+  conformers; active DIVA/traffic-info behaviour still passes full CI.
 - Remaining work: select and configure an email identity provider, verify the
   physical-device provisioning capability, and complete remaining journey and
   accessibility inspection.

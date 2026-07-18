@@ -1,5 +1,15 @@
 # Journal
 
+## 2026-07-18 — Evidence-backed network boundary cleanup
+
+- Audited production, widget, intent, and test references before changing the
+  network boundary; the legacy stop-ID monitor request had declarations and mock
+  implementations but no caller.
+- Removed only that unused protocol requirement, production method, and two test
+  double methods. Active DIVA and traffic-info request paths are unchanged.
+- Repository/OpenCode validation, app/widget build, and all 85 XCTest cases passed
+  in full CI. TV-CORE-020 remains open for any further journey-proven cleanup.
+
 ## 2026-07-18 — Nearby dependency injection and observation modernization
 
 - Replaced Nearby's concrete `StationStore`, `LocationManager`, and
