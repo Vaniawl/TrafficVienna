@@ -262,7 +262,7 @@ struct NearbyView: View {
 
     private var smartInsightSubtitle: String {
         if disruptionsVM.relevantCount > 0 { return "Check service changes before you leave" }
-        if let routine = routines.current { return "Scheduled around \(routine.hour.formatted(.number.precision(.integerLength(2)))):00" }
+        if let routine = routines.current { return "Scheduled around \(routine.timeText)" }
         return "Automatic updates every 60 seconds"
     }
 

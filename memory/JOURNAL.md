@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-07-18 — Minute-accurate commute routines
+
+- Preserved the DatePicker’s selected minutes in routine persistence instead of silently rounding every schedule to the hour.
+- Added backward-compatible decoding that assigns `minute = 0` to existing records while retaining the legacy `hour` field for rollback compatibility.
+- Switched routine selection to circular minute-of-day distance so the correct schedule is chosen around midnight.
+- Replaced hard-coded `HH:00` labels with locale-aware short time formatting in Routines and Smart Home.
+- Added legacy migration, minute round-trip, and midnight-boundary regression tests; full shared-scheme tests and repository validations pass.
+
 ## 2026-07-18 — Contextual Smart Insight navigation
 
 - Turned the Smart Home insight card from a decorative chevron into a real contextual action.

@@ -35,11 +35,56 @@ final class TrafficViennaTests: XCTestCase {
         defer { defaults.removePersistentDomain(forName: suite) }
         let station = FavoriteStation(id: 1, diva: 123, name: "Karlsplatz")
         let store = CommuteRoutineStore(defaults: defaults)
-        store.add(name: "Work", station: station, hour: 8)
+        store.add(name: "Work", station: station, hour: 8, minute: 45)
 
         let restored = CommuteRoutineStore(defaults: defaults)
         XCTAssertEqual(restored.routines.first?.station.name, "Karlsplatz")
         XCTAssertEqual(restored.routines.first?.hour, 8)
+        XCTAssertEqual(restored.routines.first?.minute, 45)
+    }
+
+    @MainActor
+    func testLegacyCommuteRoutineDefaultsToWholeHour() throws {
+        struct LegacyRoutine: Codable {
+            let id: UUID
+            let name: String
+            let station: FavoriteStation
+            let hour: Int
+            let isEnabled: Bool
+        }
+
+        let suite = "LegacyRoutineTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let legacy = LegacyRoutine(
+            id: UUID(),
+            name: "Work",
+            station: FavoriteStation(id: 1, diva: 123, name: "Karlsplatz"),
+            hour: 8,
+            isEnabled: true
+        )
+        defaults.set(try JSONEncoder().encode([legacy]), forKey: "commute_routines")
+
+        let restored = CommuteRoutineStore(defaults: defaults)
+
+        XCTAssertEqual(restored.routines.first?.hour, 8)
+        XCTAssertEqual(restored.routines.first?.minute, 0)
+    }
+
+    @MainActor
+    func testCurrentRoutineUsesCircularMinuteDistanceAcrossMidnight() {
+        let suite = "RoutineMidnightTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let station = FavoriteStation(id: 1, diva: 123, name: "Karlsplatz")
+        let store = CommuteRoutineStore(defaults: defaults)
+        store.add(name: "Before midnight", station: station, hour: 23, minute: 50)
+        store.add(name: "After midnight", station: station, hour: 0, minute: 10)
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let now = calendar.date(from: DateComponents(year: 2026, month: 7, day: 18, hour: 0, minute: 2))!
+
+        XCTAssertEqual(store.current(at: now, calendar: calendar)?.name, "After midnight")
     }
 
     @MainActor

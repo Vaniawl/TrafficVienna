@@ -24,7 +24,7 @@ struct RoutinesView: View {
                             NeoIcon(systemName: "clock.fill")
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(routine.name).font(.headline)
-                                Text("\(routine.station.name) · \(routine.hour.formatted(.number.precision(.integerLength(2)))):00")
+                                Text("\(routine.station.name) · \(routine.timeText)")
                                     .font(.caption).foregroundStyle(.secondary)
                             }
                             Spacer()
@@ -55,7 +55,13 @@ struct RoutinesView: View {
 
     private func addRoutine() {
         guard let station = stations.first(where: { $0.id == selectedStationID }) else { return }
-        routines.add(name: name.trimmingCharacters(in: .whitespaces), station: station, hour: Calendar.current.component(.hour, from: time))
+        let components = Calendar.current.dateComponents([.hour, .minute], from: time)
+        routines.add(
+            name: name.trimmingCharacters(in: .whitespaces),
+            station: station,
+            hour: components.hour ?? 0,
+            minute: components.minute ?? 0
+        )
         name = ""
     }
 }

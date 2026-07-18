@@ -1,5 +1,13 @@
 # Architectural Decisions
 
+## 2026-07-18 — Backward-compatible minute precision for commute routines
+
+**Context:** The routine DatePicker accepts hours and minutes, but persisted routines stored only `hour`, silently changing values such as 08:45 to 08:00. Existing installations may already contain the original JSON schema in the shared App Group.
+
+**Decision:** Add a `minute` field while retaining `hour`. Decode a missing minute as zero, continue encoding the legacy hour key, and select the nearest enabled routine using circular minute-of-day distance.
+
+**Consequences:** Existing routines load without a destructive migration, new schedules preserve the user’s exact selection, and midnight comparisons are correct. Older app builds can still decode newly written records because Codable ignores the additional minute key, providing a safe rollback path.
+
 ## 2026-07-18 — Versioned App Store metadata without aspirational claims
 
 **Context:** App Store copy must remain consistent across three localizations and must not imply route planning, ticketing, cloud identity, or recovery that the local-first app does not implement. Required URLs and legal/privacy facts cannot be invented from repository context.
