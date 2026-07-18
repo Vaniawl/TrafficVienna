@@ -95,6 +95,8 @@ struct RootTabView: View {
             .tabItem { Label("Favourites", systemImage: "star.fill") }
             .tag(Tab.favourites)
         }
+        .toolbarBackground(.ultraThinMaterial, for: .tabBar)
+        .toolbarBackground(.visible, for: .tabBar)
     }
 }
 

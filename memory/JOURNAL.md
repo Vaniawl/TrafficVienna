@@ -2,6 +2,7 @@
 
 ## 2026-07-18 — Authentication redesign
 
+- Replaced the legacy Nearby screen with a full Vienna-branded home experience: custom traffic identity header, time-aware greeting, editorial hero typography, material live-location card, status metrics, integrated account/theme controls, refreshed departure-list header, and material tab bar.
 - Started from clean local `main` and created `codex/auth-redesign`; remote refresh was blocked by the machine's missing GitHub SSH authorization.
 - Added a redesigned auth gate with a Vienna-inspired gradient, registration/sign-in switcher, accessible email/password fields, native Sign in with Apple, validation, and clear device-local privacy copy.
 - Switched the default app theme for new installs from Indigo to the branded Vienna preset, carrying the new red accent, grouped surfaces, and elevated cards into the main experience while preserving existing users' saved theme.
