@@ -2727,6 +2727,37 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testFavoriteStationIDCacheTracksEveryMutationPath() {
+        let first = FavoriteStation(id: 1, diva: 1, name: "First")
+        let second = FavoriteStation(id: 2, diva: 2, name: "Second")
+        let repository = CountingFavoriteStationsRepository(stations: [first])
+        let viewModel = FavoritesListViewModel(
+            service: MonitorService(network: MockNetworkManager()),
+            favoritesRepo: CountingFavoritesRepository(routes: []),
+            stationsRepo: repository,
+            widgetSync: NoopWidgetSync()
+        )
+
+        XCTAssertEqual(viewModel.favoriteStationIDs, [1])
+        XCTAssertTrue(viewModel.isStationFavorite(id: 1))
+
+        viewModel.toggleStation(Station(id: 2, diva: 2, name: "Second", lat: 48.2, lon: 16.3))
+        XCTAssertEqual(viewModel.favoriteStationIDs, [1, 2])
+
+        viewModel.removeStations(at: IndexSet(integer: 0))
+        XCTAssertEqual(viewModel.favoriteStationIDs, [2])
+
+        viewModel.replaceTravelFavorites(stations: [first, second], routes: [])
+        XCTAssertEqual(viewModel.favoriteStationIDs, [1, 2])
+
+        viewModel.clearTravelFavorites()
+        XCTAssertTrue(viewModel.favoriteStationIDs.isEmpty)
+
+        viewModel.stations = [second]
+        XCTAssertEqual(viewModel.favoriteStationIDs, [2])
+    }
+
+    @MainActor
     func testLineFavoriteToggleUpdatesSharedStateAndForcesWidgetRefresh() {
         let routes = CountingFavoritesRepository(routes: [])
         let widget = RecordingWidgetSync()

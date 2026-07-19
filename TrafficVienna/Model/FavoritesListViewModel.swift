@@ -170,8 +170,11 @@ final class FavoritesListViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
 
-    @Published var stations: [FavoriteStation] = []
+    @Published var stations: [FavoriteStation] = [] {
+        didSet { favoriteStationIDs = Set(stations.map(\.id)) }
+    }
     @Published private(set) var favoriteRoutes: [FavoriteRoute] = []
+    private(set) var favoriteStationIDs: Set<Int> = []
 
     private let favoritesRepo: FavoritesRepository
     private let stationsRepo: FavoriteStationsStoring
@@ -191,6 +194,7 @@ final class FavoritesListViewModel: ObservableObject {
         self.widgetSync = widgetSync
         self.routeLoader = routeLoader ?? FavoriteRouteLoader(service: service)
         self.stations = stationsRepo.all()
+        self.favoriteStationIDs = Set(self.stations.map(\.id))
         self.favoriteRoutes = favoritesRepo.getAll()
     }
 
@@ -213,7 +217,7 @@ final class FavoritesListViewModel: ObservableObject {
     }
 
     func isStationFavorite(id: Int) -> Bool {
-        stations.contains { $0.id == id }
+        favoriteStationIDs.contains(id)
     }
 
     func toggleStation(_ station: Station) {

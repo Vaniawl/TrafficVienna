@@ -138,19 +138,18 @@ struct MapStationsView: View {
 
     private var markerCenterKey: MapCenterKey { MapCenterKey(location: markerCenter) }
     private var userLocationKey: MapCenterKey? { locationManager.userLocation.map(MapCenterKey.init) }
-    private var favoriteStationIDs: Set<Int> { Set(favoritesVM.stations.map(\.id)) }
-    private var visibleStations: [Station] {
-        MapStationFilter.visible(
-            stations,
-            favoriteIDs: favoriteStationIDs,
-            favoritesOnly: favoritesOnly
-        )
-    }
     private var filterTitle: LocalizedStringKey {
         favoritesOnly ? "Show all stops" : "Favourites only"
     }
 
     var body: some View {
+        let favoriteStationIDs = favoritesVM.favoriteStationIDs
+        let visibleStations = MapStationFilter.visible(
+            stations,
+            favoriteIDs: favoriteStationIDs,
+            favoritesOnly: favoritesOnly
+        )
+
         Map(position: $position, selection: $selectedID) {
             UserAnnotation()
             ForEach(visibleStations) { station in

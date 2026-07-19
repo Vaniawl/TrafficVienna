@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Constant-time favourite station lookup
+
+- Added a synchronized favourite-station ID set to the root-owned favourites view model, replacing repeated linear scans across Search, Map, Nearby, and Station Detail rows with constant-time membership checks.
+- Kept the cache synchronized through the published station array's single mutation boundary, including initialization, toggles, batch removal, restore, reset, reload, reordering, and direct preview/test assignment.
+- Built Map's favourite IDs and favourites-only visible station list once per SwiftUI body evaluation instead of recreating them for the marker loop, counter, selection, and sheet.
+- Verified a warning-free build, repository/OpenCode validators, and the full iPhone 17 suite: 179 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Cached favourite departure timestamps
 
 - Parsed each favourite departure's preferred realtime/planned ISO timestamp once when its immutable UI model is created instead of reparsing it during every SwiftUI row evaluation.
