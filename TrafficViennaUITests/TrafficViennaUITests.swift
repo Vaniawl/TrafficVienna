@@ -215,6 +215,9 @@ final class TrafficViennaUITests: XCTestCase {
         privacyData.tap()
         XCTAssertTrue(app.navigationBars["Privacy & data"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.staticTexts["Identity"].exists)
+        let exportData = app.descendants(matching: .any)["privacyData.export"]
+        scrollToMakeHittable(exportData)
+        XCTAssertTrue(exportData.exists)
         app.buttons["BackButton"].tap()
 
         let about = app.descendants(matching: .any)["account.about"]

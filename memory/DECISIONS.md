@@ -1,5 +1,13 @@
 # Architectural Decisions
 
+## 2026-07-19 — Allowlisted local travel-data export
+
+**Context:** A privacy-focused app should let users inspect and retain their local profile and travel preferences, but a raw dump of app storage could expose password verifiers, provider identifiers, runtime caches, or implementation-only keys.
+
+**Decision:** Export a versioned, explicit Codable snapshot containing only provider name, optional email/display name, safe appearance/Home/App Lock preferences, ordered favourite stations and routes, commute routines, and recent station identifiers. Exclude the authentication `userID`, Keychain material, tokens, live API/cache state, widget internals, and location history. Generate pretty-printed JSON in memory and hand it to SwiftUI's system file exporter so the user chooses the destination.
+
+**Consequences:** The format is deterministic, testable, readable without TrafficVienna, and can evolve through `schemaVersion`. Exported files contain personal data and become the user's responsibility after the system save/share action. Adding a new field requires an explicit privacy review, test update, and schema compatibility decision; rollback removes the feature without changing stored app data.
+
 ## 2026-07-19 — Device-owner authentication for optional app lock
 
 **Context:** A neobank-style app lock should conceal the signed-in UI when TrafficVienna leaves the foreground, but a biometrics-only policy can strand users after lockout or enrollment changes. The app must not receive or persist biometric material.

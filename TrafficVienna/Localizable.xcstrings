@@ -929,6 +929,22 @@
         }
       }
     },
+    "Couldn’t export data": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daten konnten nicht exportiert werden"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не вдалося експортувати дані"
+          }
+        }
+      }
+    },
     "Couldn't load departures": {
       "localizations": {
         "de": {
@@ -1677,6 +1693,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Розгорнуто"
+          }
+        }
+      }
+    },
+    "Export my data": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meine Daten exportieren"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Експортувати мої дані"
           }
         }
       }
@@ -4110,6 +4142,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Важливі для вас відправлення"
+          }
+        }
+      }
+    },
+    "The export includes your profile details and saved travel preferences. It never includes passwords, authentication tokens, live-data caches, or your location history.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Export enthält deine Profildaten und gespeicherten Reiseeinstellungen. Er enthält niemals Passwörter, Authentifizierungstoken, Live-Daten-Caches oder deinen Standortverlauf."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Експорт містить дані профілю та збережені налаштування поїздок. Він ніколи не містить паролів, токенів автентифікації, кешу актуальних даних або історії геолокації."
           }
         }
       }

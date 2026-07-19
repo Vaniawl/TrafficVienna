@@ -537,6 +537,58 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testTravelDataExportIsVersionedAndContainsNoCredentialMaterial() throws {
+        let station = FavoriteStation(id: 42, diva: 123, name: "Karlsplatz", lat: 48.2, lon: 16.3)
+        let route = FavoriteRoute(diva: "123", lineName: "U4", destination: "Heiligenstadt")
+        let routine = CommuteRoutine(
+            id: UUID(uuidString: "00000000-0000-0000-0000-000000000001")!,
+            name: "Work",
+            station: station,
+            hour: 8,
+            minute: 15,
+            activeWeekdays: [2, 3, 4, 5, 6]
+        )
+        let export = TravelDataExport(
+            exportedAt: Date(timeIntervalSince1970: 0),
+            session: AuthSession(
+                userID: "private-provider-identifier",
+                email: "rider@example.com",
+                displayName: "Rider",
+                provider: .apple
+            ),
+            preferences: TravelDataExport.Preferences(
+                appearance: "vienna",
+                visibleHomeModules: ["savedStations", "smartInsight"],
+                homeModuleOrder: ["smartInsight", "savedStations", "savedRoutes"],
+                appLockEnabled: true,
+                appLockTimeoutSeconds: 60
+            ),
+            favoriteStations: [station],
+            favoriteRoutes: [route],
+            routines: [routine],
+            recentStationIDs: [42, 7]
+        )
+
+        let data = try export.encoded()
+        XCTAssertEqual(data, try export.encoded())
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let decoded = try decoder.decode(TravelDataExport.self, from: data)
+        XCTAssertEqual(decoded, export)
+        XCTAssertEqual(decoded.schemaVersion, 1)
+        XCTAssertEqual(decoded.account?.provider, "apple")
+        XCTAssertEqual(decoded.preferences.appearance, "vienna")
+        XCTAssertEqual(decoded.preferences.appLockTimeoutSeconds, 60)
+        XCTAssertEqual(decoded.recentStationIDs, [42, 7])
+
+        let json = String(decoding: data, as: UTF8.self)
+        XCTAssertFalse(json.contains("private-provider-identifier"))
+        XCTAssertFalse(json.localizedCaseInsensitiveContains("password"))
+        XCTAssertFalse(json.localizedCaseInsensitiveContains("token"))
+        XCTAssertFalse(json.localizedCaseInsensitiveContains("keychain"))
+    }
+
+    @MainActor
     func testUnavailableOrFailedBiometricsNeverEnableAppLock() async {
         let suite = "UnavailableAppLockTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!

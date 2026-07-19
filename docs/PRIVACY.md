@@ -8,6 +8,7 @@ TrafficVienna does not include advertising, analytics, tracking SDKs, or a devel
 - Email credentials created in the app stay on the device. Password verifiers are stored in Keychain; session metadata is stored in UserDefaults.
 - Favourites, recent searches, commute routines, theme, and widget state are stored locally in the app or its App Group container.
 - Sign in with Apple is handled by Apple's authentication service. TrafficVienna does not operate a server that receives or stores the Apple identity token.
+- A user can explicitly export a JSON snapshot containing profile details, appearance/Home/App Lock preferences, favourite stations and routes, commute routines, and recent station identifiers. The export does not include password verifiers, authentication tokens, the Sign in with Apple user identifier, live-data caches, or location history; iOS asks the user where to save or share the resulting file.
 
 ## Network access
 

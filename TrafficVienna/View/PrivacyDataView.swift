@@ -1,6 +1,18 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct PrivacyDataView: View {
+    @EnvironmentObject private var auth: AuthStore
+    @EnvironmentObject private var favorites: FavoritesListViewModel
+    @EnvironmentObject private var routines: CommuteRoutineStore
+    @EnvironmentObject private var recentSearches: RecentSearchesStore
+    @EnvironmentObject private var theme: ThemeManager
+    @EnvironmentObject private var homePreferences: HomePreferences
+    @EnvironmentObject private var appLock: AppLockStore
+    @State private var exportDocument: TravelDataExportDocument?
+    @State private var isExporting = false
+    @State private var exportError: String?
+
     var body: some View {
         List {
             Section {
@@ -28,12 +40,21 @@ struct PrivacyDataView: View {
                 )
             }
 
-            Section("On this device") {
+            Section {
                 privacyRow(
                     icon: "iphone",
                     title: "Travel preferences",
                     description: "Favourites, recent searches, routines, appearance, and widget state are stored locally in the app or its shared widget container."
                 )
+
+                Button(action: prepareExport) {
+                    Label("Export my data", systemImage: "square.and.arrow.up")
+                }
+                .accessibilityIdentifier("privacyData.export")
+            } header: {
+                Text("On this device")
+            } footer: {
+                Text("The export includes your profile details and saved travel preferences. It never includes passwords, authentication tokens, live-data caches, or your location history.")
             }
 
             Section("Network requests") {
@@ -55,6 +76,25 @@ struct PrivacyDataView: View {
         .navigationTitle("Privacy & data")
         .navigationBarTitleDisplayMode(.inline)
         .accessibilityIdentifier("privacyData.screen")
+        .fileExporter(
+            isPresented: $isExporting,
+            document: exportDocument,
+            contentType: .json,
+            defaultFilename: "TrafficVienna-data"
+        ) { result in
+            if case .failure(let error) = result {
+                exportError = error.localizedDescription
+            }
+            exportDocument = nil
+        }
+        .alert("Couldn’t export data", isPresented: Binding(
+            get: { exportError != nil },
+            set: { if !$0 { exportError = nil } }
+        )) {
+            Button("OK", role: .cancel) { exportError = nil }
+        } message: {
+            Text(exportError ?? "")
+        }
     }
 
     private func privacyRow(
@@ -80,10 +120,42 @@ struct PrivacyDataView: View {
         }
         .padding(.vertical, 4)
     }
+
+    private func prepareExport() {
+        let export = TravelDataExport(
+            session: auth.session,
+            preferences: TravelDataExport.Preferences(
+                appearance: theme.preset.rawValue,
+                visibleHomeModules: homePreferences.moduleOrder
+                    .filter(homePreferences.isVisible)
+                    .map(\.rawValue),
+                homeModuleOrder: homePreferences.moduleOrder.map(\.rawValue),
+                appLockEnabled: appLock.isEnabled,
+                appLockTimeoutSeconds: appLock.timeout.rawValue
+            ),
+            favoriteStations: favorites.stations,
+            favoriteRoutes: favorites.favoriteRoutes,
+            routines: routines.routines,
+            recentStationIDs: recentSearches.ids
+        )
+        do {
+            exportDocument = try TravelDataExportDocument(export: export)
+            isExporting = true
+        } catch {
+            exportError = error.localizedDescription
+        }
+    }
 }
 
 #Preview {
     NavigationStack {
         PrivacyDataView()
     }
+    .environmentObject(AuthStore())
+    .environmentObject(FavoritesListViewModel())
+    .environmentObject(CommuteRoutineStore())
+    .environmentObject(RecentSearchesStore())
+    .environmentObject(ThemeManager())
+    .environmentObject(HomePreferences())
+    .environmentObject(AppLockStore())
 }

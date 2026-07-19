@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — User-controlled local data export
+
+- Added a system JSON file export from Privacy & data for the current profile, safe appearance/Home/App Lock preferences, ordered favourite stations/routes, commute routines, and recent station identifiers.
+- Defined a versioned explicit allowlist rather than dumping UserDefaults, excluding password verifiers, authentication tokens, the Apple provider identifier, runtime caches, widget internals, and location history.
+- Kept generation fully on device and in memory until the user chooses a destination through the system exporter, with clear localized disclosure and failure feedback.
+- Added deterministic ISO-8601/field-order encoding coverage, forbidden-secret assertions, and end-to-end Account discoverability coverage in English, German, and Ukrainian.
+
 ## 2026-07-19 — Grace-period app lock
 
 - Added user-selectable immediate, one-minute, and five-minute identity-verification delays for the optional app lock.
