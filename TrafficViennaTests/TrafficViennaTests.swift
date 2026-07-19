@@ -1803,6 +1803,24 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(filtered.first?.distance, items.first { $0.id == 2 }?.distance)
     }
 
+    func testMapStationItemSearchExactlyMatchesStationSearchForAllQueryShapes() {
+        let stations = [
+            Station(id: 1, diva: 1, name: "Schönbrunn", lat: 48.1, lon: 16.1),
+            Station(id: 2, diva: 2, name: "Westbahnhof", lat: 48.2, lon: 16.2),
+            Station(id: 3, diva: 3, name: "Schönbrunner Straße", lat: 48.3, lon: 16.3)
+        ]
+        let items = MapStationListOrder.items(stations, from: nil)
+
+        XCTAssertEqual(items.map(\.normalizedName), ["schonbrunn", "westbahnhof", "schonbrunner strasse"])
+        for query in ["", "   ", "SCHÖN", "schon str", "west", "missing"] {
+            XCTAssertEqual(
+                MapStationListSearch.matching(items, query: query).map(\.id),
+                MapStationListSearch.matching(stations, query: query).map(\.id),
+                "Query: \(query)"
+            )
+        }
+    }
+
     func testMapStationListInputKeyInvalidatesOnlyForOrderingInputs() {
         let stations = [
             Station(id: 1, diva: 1, name: "One", lat: 48.20, lon: 16.37),

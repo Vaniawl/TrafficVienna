@@ -59,11 +59,15 @@ enum MapStationListSearch {
     }
 
     static func matching(_ items: [MapStationListItem], query: String) -> [MapStationListItem] {
-        let matchingIDs = Set(matching(items.map(\.station), query: query).map(\.id))
-        return items.filter { matchingIDs.contains($0.id) }
+        let tokens = normalized(query).split(separator: " ")
+        guard !tokens.isEmpty else { return items }
+
+        return items.filter { item in
+            tokens.allSatisfy(item.normalizedName.contains)
+        }
     }
 
-    private static func normalized(_ text: String) -> String {
+    static func normalized(_ text: String) -> String {
         text.folding(
             options: [.caseInsensitive, .diacriticInsensitive],
             locale: Locale(identifier: "de_AT")
@@ -74,6 +78,13 @@ enum MapStationListSearch {
 struct MapStationListItem: Identifiable {
     let station: Station
     let distance: CLLocationDistance?
+    let normalizedName: String
+
+    init(station: Station, distance: CLLocationDistance?) {
+        self.station = station
+        self.distance = distance
+        self.normalizedName = MapStationListSearch.normalized(station.name)
+    }
 
     var id: Int { station.id }
     var walkingEstimate: WalkingEstimate? { distance.map(WalkingEstimate.init(distanceMeters:)) }

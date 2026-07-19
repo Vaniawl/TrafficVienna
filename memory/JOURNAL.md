@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Single-pass visible-stop search
+
+- Cached each Map list item's locale-aware, case/diacritic-folded station name when the reusable distance item is created.
+- Replaced the item search's station-array projection, filtered station allocation, matching-ID set, and second filter with one direct pass over the prepared items.
+- Proved exact result/order parity with the station search for blank, whitespace, accented, multi-token, ordinary, and missing queries while retaining reusable distances.
+- Verified a warning-free build, repository/OpenCode validators, and the full iPhone 17 suite: 181 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Constant-time favourite route lookup
 
 - Added a synchronized favourite-route set beside the ordered route array, replacing repeated linear line/destination membership scans in Station Detail with constant-time checks.
