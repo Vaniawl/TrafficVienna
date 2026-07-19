@@ -12,12 +12,45 @@ import Foundation
 import Combine
 import CoreLocation
 
+nonisolated struct StationCardContent: Equatable, Sendable {
+    struct Row: Equatable, Sendable {
+        let lineName: String
+        let destination: String
+        let minutes: [Int]
+        let nextIsLive: Bool
+    }
+
+    static let empty = StationCardContent(badgeLineNames: [], rows: [])
+    private static let maximumRows = 4
+
+    let badgeLineNames: [String]
+    let rows: [Row]
+
+    init(lines: [Lines]) {
+        badgeLineNames = Set(lines.map(\.name)).sorted()
+        rows = lines.prefix(Self.maximumRows).map { line in
+            Row(
+                lineName: line.name,
+                destination: line.towards,
+                minutes: line.departures.departure.map { $0.departureTime.liveMinutes },
+                nextIsLive: line.departures.departure.first?.departureTime.timeReal != nil
+            )
+        }
+    }
+
+    private init(badgeLineNames: [String], rows: [Row]) {
+        self.badgeLineNames = badgeLineNames
+        self.rows = rows
+    }
+}
+
 @MainActor
 final class NearbyViewModel: ObservableObject {
     struct Item: Identifiable {
         let station: Station
         let distance: Double
         var lines: [Lines] = []
+        var cardContent: StationCardContent = .empty
         var failed: Bool = false
         var updatedAt: Date? = nil
         var freshness: DataFreshness? = nil
@@ -62,6 +95,7 @@ final class NearbyViewModel: ObservableObject {
                 Item(station: pair.station,
                      distance: pair.meters,
                      lines: previous[pair.station.id]?.lines ?? [],
+                     cardContent: previous[pair.station.id]?.cardContent ?? .empty,
                      failed: false)
             }
     }
@@ -109,8 +143,11 @@ final class NearbyViewModel: ObservableObject {
                     update(id: id) { $0.failed = true }
                     continue
                 }
+                let lines = result.value.data.monitors.flatMap { $0.lines }
+                let cardContent = StationCardContent(lines: lines)
                 update(id: id) {
-                    $0.lines = result.value.data.monitors.flatMap { $0.lines }
+                    $0.lines = lines
+                    $0.cardContent = cardContent
                     $0.failed = false
                     $0.updatedAt = result.freshness.updatedAt
                     $0.freshness = result.freshness

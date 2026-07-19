@@ -1376,6 +1376,26 @@ final class TrafficViennaTests: XCTestCase {
         }
     }
 
+    func testStationCardContentDeduplicatesBadgesAndBoundsPreparedRows() {
+        let departures = Departures(departure: [
+            Departure(departureTime: DepartureTime(countdown: 2, timePlanned: nil, timeReal: "live")),
+            Departure(departureTime: DepartureTime(countdown: 7, timePlanned: nil, timeReal: nil))
+        ])
+        let content = StationCardContent(lines: [
+            Lines(name: "U2", towards: "Seestadt", departures: departures),
+            Lines(name: "U1", towards: "Leopoldau", departures: departures),
+            Lines(name: "U2", towards: "Karlsplatz", departures: departures),
+            Lines(name: "D", towards: "Nußdorf", departures: departures),
+            Lines(name: "13A", towards: "Hauptbahnhof", departures: departures)
+        ])
+
+        XCTAssertEqual(content.badgeLineNames, ["13A", "D", "U1", "U2"])
+        XCTAssertEqual(content.rows.count, 4)
+        XCTAssertEqual(content.rows.first?.minutes, [2, 7])
+        XCTAssertEqual(content.rows.first?.nextIsLive, true)
+        XCTAssertEqual(content.rows.last?.lineName, "D")
+    }
+
     func testSpatialQueryReturnsReusableExactDistanceInsideRadius() {
         let store = StationStore()
         let center = CLLocation(latitude: 48.2082, longitude: 16.3738)
@@ -1439,6 +1459,7 @@ final class TrafficViennaTests: XCTestCase {
 
         XCTAssertGreaterThan(viewModel.items.count, 1)
         XCTAssertTrue(viewModel.items.allSatisfy { !$0.lines.isEmpty })
+        XCTAssertTrue(viewModel.items.allSatisfy { !$0.cardContent.rows.isEmpty })
         XCTAssertGreaterThan(network.maxConcurrentMonitorCalls, 1)
     }
 

@@ -467,7 +467,7 @@ struct NearbyView: View {
                         StationCardView(
                             station: item.station,
                             distance: item.distance,
-                            lines: item.lines,
+                            presentation: item.cardContent,
                             failed: item.failed,
                             updatedAt: item.updatedAt,
                             isStale: item.freshness?.isStale == true

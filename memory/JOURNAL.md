@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Cached Nearby card presentation
+
+- Added an immutable Nearby card snapshot containing sorted unique line badges and at most four prepared departure rows with their minutes and live state.
+- Built the snapshot once when each monitor response is accepted, preserved it with raw fallback lines while location rebuilds or refresh failures occur, and rendered StationCard directly from it instead of deduplicating and mapping on every SwiftUI body pass.
+- Preserved the prior behavior where badges cover every returned line even though detailed rows are capped at four; focused testing caught and codified that distinction.
+- Verified a warning-free build, repository/OpenCode validators, and the full iPhone 17 suite: 175 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Cached station-detail derived content
 
 - Moved station-detail platform merging, departure sorting, category discovery, and disrupted-line indexing from SwiftUI-read computed properties into one derived snapshot rebuilt only when a new monitor response is accepted.

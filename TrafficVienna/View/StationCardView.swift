@@ -12,12 +12,10 @@ struct StationCardView: View {
     @EnvironmentObject private var themeManager: ThemeManager
     let station: Station
     var distance: Double?
-    var lines: [Lines] = []
+    var presentation: StationCardContent = .empty
     var failed: Bool = false
     var updatedAt: Date? = nil
     var isStale = false
-
-    private let maxLines = 4
 
     private var walkMinutes: Int? {
         guard let distance else { return nil }
@@ -47,10 +45,9 @@ struct StationCardView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(station.name)
                     .font(.headline)
-                if !lines.isEmpty {
-                    let unique = Set(lines.map(\.name)).sorted()
+                if !presentation.badgeLineNames.isEmpty {
                     HStack(spacing: 3) {
-                        ForEach(unique, id: \.self) { name in
+                        ForEach(presentation.badgeLineNames, id: \.self) { name in
                             LineBadge(line: name, size: .small)
                         }
                     }
@@ -81,16 +78,16 @@ struct StationCardView: View {
     private var content: some View {
         if station.diva == nil {
             label("No live data for this stop")
-        } else if !lines.isEmpty {
-            let visible = Array(lines.prefix(maxLines).enumerated())
+        } else if !presentation.rows.isEmpty {
+            let visible = Array(presentation.rows.enumerated())
             VStack(spacing: 0) {
-                ForEach(visible, id: \.offset) { index, line in
+                ForEach(visible, id: \.offset) { index, row in
                     DepartureLineRow(
-                        lineName: line.name,
-                        destination: line.towards,
-                        minutes: line.departures.departure.map { $0.departureTime.liveMinutes },
+                        lineName: row.lineName,
+                        destination: row.destination,
+                        minutes: row.minutes,
                         walkMinutes: walkMinutes,
-                        nextIsLive: line.departures.departure.first?.departureTime.timeReal != nil,
+                        nextIsLive: row.nextIsLive,
                         showFollowUp: false
                     )
                     .padding(.vertical, 8)
@@ -138,7 +135,7 @@ struct StationCardView: View {
         station: Station(id: 1, diva: 60201435, name: "Karlsplatz",
                          lat: 48.200832, lon: 16.369505),
         distance: 280,
-        lines: []
+        presentation: .empty
     )
     .padding()
     .background(Color(.systemGroupedBackground))
