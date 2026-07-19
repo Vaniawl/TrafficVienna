@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Grace-period app lock
+
+- Added user-selectable immediate, one-minute, and five-minute identity-verification delays for the optional app lock.
+- Continued replacing the signed-in hierarchy with a privacy shield as soon as the app becomes inactive, so the app-switcher snapshot never exposes departures or saved travel data during a grace period.
+- Measured elapsed background time with monotonic system uptime rather than wall-clock dates, preventing manual clock changes from extending the grace period.
+- Persisted only the selected timeout, retained cold-launch locking, localized the complete setting in English, German, and Ukrainian, and added exact 59/60-second boundary coverage.
+
 ## 2026-07-19 — State-preserving app lock
 
 - Moved heavy dashboard owners into a signed-in-session `RootTabState` so prepared station indexes, cached view models, preferences, and selected-tab state survive lock/unlock.

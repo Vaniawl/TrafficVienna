@@ -49,8 +49,14 @@ struct TrafficViennaApp: App {
                 await appLock.unlock()
             }
             .onChange(of: scenePhase) { _, phase in
-                if phase != .active {
-                    appLock.lockIfNeeded(hasSession: auth.session != nil)
+                if phase == .active {
+                    Task {
+                        if appLock.resumeAfterInactivity() {
+                            await appLock.unlock()
+                        }
+                    }
+                } else {
+                    appLock.protectForInactivity(hasSession: auth.session != nil)
                 }
             }
         }
@@ -62,7 +68,7 @@ private struct SignedInSessionView: View {
     @StateObject private var rootState = RootTabState()
 
     var body: some View {
-        if appLock.isLocked {
+        if appLock.isLocked || appLock.isPrivacyShieldVisible {
             AppLockView()
         } else {
             RootTabView(state: rootState)

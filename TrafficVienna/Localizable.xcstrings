@@ -257,6 +257,38 @@
         }
       }
     },
+    "After 1 minute": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nach 1 Minute"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Через 1 хвилину"
+          }
+        }
+      }
+    },
+    "After 5 minutes": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nach 5 Minuten"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Через 5 хвилин"
+          }
+        }
+      }
+    },
     "Alerts": {
       "localizations": {
         "de": {
@@ -1937,6 +1969,22 @@
         }
       }
     },
+    "Immediately": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sofort"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Негайно"
+          }
+        }
+      }
+    },
     "Indigo": {
       "localizations": {
         "de": {
@@ -3026,6 +3074,22 @@
         }
       }
     },
+    "Private information is always hidden while the app is inactive. Choose when identity verification is required after returning.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Private Informationen werden immer ausgeblendet, wenn die App inaktiv ist. Wähle, wann nach der Rückkehr eine Identitätsprüfung erforderlich ist."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Приватна інформація завжди приховується, коли застосунок неактивний. Виберіть, коли після повернення потрібно підтвердити особу."
+          }
+        }
+      }
+    },
     "Provider": {
       "localizations": {
         "de": {
@@ -3310,6 +3374,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Вимагати біометричну автентифікацію після повернення до застосунку."
+          }
+        }
+      }
+    },
+    "Require unlock": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entsperrung verlangen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вимагати розблокування"
           }
         }
       }

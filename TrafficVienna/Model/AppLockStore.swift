@@ -26,6 +26,23 @@ enum BiometricKind: Equatable {
     }
 }
 
+enum AppLockTimeout: Int, CaseIterable, Identifiable {
+    case immediately = 0
+    case oneMinute = 60
+    case fiveMinutes = 300
+
+    var id: Int { rawValue }
+    var interval: TimeInterval { TimeInterval(rawValue) }
+
+    var title: String {
+        switch self {
+        case .immediately: String(localized: "Immediately")
+        case .oneMinute: String(localized: "After 1 minute")
+        case .fiveMinutes: String(localized: "After 5 minutes")
+        }
+    }
+}
+
 @MainActor
 protocol BiometricAuthenticating {
     var kind: BiometricKind { get }
@@ -80,6 +97,8 @@ enum AppLockError: LocalizedError, Equatable {
 final class AppLockStore: ObservableObject {
     @Published private(set) var isEnabled: Bool
     @Published private(set) var isLocked: Bool
+    @Published private(set) var isPrivacyShieldVisible = false
+    @Published private(set) var timeout: AppLockTimeout
     @Published private(set) var isAuthenticating = false
     @Published var errorMessage: String?
 
@@ -88,6 +107,8 @@ final class AppLockStore: ObservableObject {
     private let defaults: UserDefaults
     private let authenticator: BiometricAuthenticating
     private let enabledKey = "appLock.biometricEnabled"
+    private let timeoutKey = "appLock.timeout"
+    private var inactiveSince: TimeInterval?
 
     init(
         defaults: UserDefaults = .standard,
@@ -100,8 +121,10 @@ final class AppLockStore: ObservableObject {
         biometricKind = authenticator.kind
         if resetLock {
             defaults.removeObject(forKey: enabledKey)
+            defaults.removeObject(forKey: timeoutKey)
         }
         let enabled = !resetLock && defaults.bool(forKey: enabledKey) && authenticator.canAuthenticate
+        timeout = AppLockTimeout(rawValue: defaults.integer(forKey: timeoutKey)) ?? .immediately
         isEnabled = enabled
         isLocked = enabled
     }
@@ -120,17 +143,46 @@ final class AppLockStore: ObservableObject {
     func disable() {
         isEnabled = false
         isLocked = false
+        isPrivacyShieldVisible = false
+        inactiveSince = nil
         errorMessage = nil
         defaults.removeObject(forKey: enabledKey)
     }
 
-    func lockIfNeeded(hasSession: Bool) {
+    func setTimeout(_ timeout: AppLockTimeout) {
+        self.timeout = timeout
+        defaults.set(timeout.rawValue, forKey: timeoutKey)
+    }
+
+    func protectForInactivity(
+        hasSession: Bool,
+        at uptime: TimeInterval = ProcessInfo.processInfo.systemUptime
+    ) {
         guard isEnabled, hasSession, !isAuthenticating else { return }
-        isLocked = true
+        inactiveSince = inactiveSince ?? uptime
+        isPrivacyShieldVisible = true
+        if timeout == .immediately {
+            isLocked = true
+        }
+    }
+
+    @discardableResult
+    func resumeAfterInactivity(
+        at uptime: TimeInterval = ProcessInfo.processInfo.systemUptime
+    ) -> Bool {
+        isPrivacyShieldVisible = false
+        guard isEnabled, let inactiveSince else { return isLocked }
+        if max(0, uptime - inactiveSince) >= timeout.interval {
+            isLocked = true
+        }
+        self.inactiveSince = nil
+        return isLocked
     }
 
     func clearLockForSignedOutSession() {
         isLocked = false
+        isPrivacyShieldVisible = false
+        inactiveSince = nil
         errorMessage = nil
     }
 

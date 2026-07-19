@@ -196,6 +196,13 @@ struct AccountView: View {
         )
     }
 
+    private var appLockTimeoutBinding: Binding<AppLockTimeout> {
+        Binding(
+            get: { appLock.timeout },
+            set: { appLock.setTimeout($0) }
+        )
+    }
+
     private var securitySection: some View {
         Section {
             Toggle(isOn: biometricUnlockBinding) {
@@ -206,6 +213,15 @@ struct AccountView: View {
                     || appLock.isAuthenticating
             )
             .accessibilityIdentifier("account.biometricUnlock")
+
+            if appLock.isEnabled {
+                Picker("Require unlock", selection: appLockTimeoutBinding) {
+                    ForEach(AppLockTimeout.allCases) { timeout in
+                        Text(timeout.title).tag(timeout)
+                    }
+                }
+                .accessibilityIdentifier("account.appLockTimeout")
+            }
         } header: {
             Text("Security")
         } footer: {
@@ -220,7 +236,7 @@ struct AccountView: View {
         if appLock.biometricKind == .unavailable {
             return String(localized: "Biometric authentication is not available on this device.")
         }
-        return String(localized: "Require biometric authentication when returning to the app.")
+        return String(localized: "Private information is always hidden while the app is inactive. Choose when identity verification is required after returning.")
     }
 
     private func removeAccount() {

@@ -495,8 +495,11 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertFalse(store.isLocked)
         XCTAssertEqual(authenticator.reasons, ["Confirm to enable biometric unlock."])
 
-        store.lockIfNeeded(hasSession: true)
+        store.protectForInactivity(hasSession: true)
         XCTAssertTrue(store.isLocked)
+        XCTAssertTrue(store.isPrivacyShieldVisible)
+        XCTAssertTrue(store.resumeAfterInactivity())
+        XCTAssertFalse(store.isPrivacyShieldVisible)
         await store.unlock()
         XCTAssertFalse(store.isLocked)
         XCTAssertEqual(authenticator.reasons.last, "Unlock Traffic Vienna.")
@@ -505,6 +508,32 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertTrue(restored.isEnabled)
         XCTAssertTrue(restored.isLocked)
         XCTAssertEqual(SystemBiometricAuthenticator.policy, .deviceOwnerAuthentication)
+    }
+
+    @MainActor
+    func testAppLockTimeoutKeepsPrivacyShieldAndPersistsSelection() async {
+        let suite = "AppLockTimeoutTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let authenticator = MockBiometricAuthenticator(kind: .faceID)
+        let store = AppLockStore(defaults: defaults, authenticator: authenticator)
+        await store.enable()
+        store.setTimeout(.oneMinute)
+
+        let start: TimeInterval = 1_000
+        store.protectForInactivity(hasSession: true, at: start)
+        XCTAssertTrue(store.isPrivacyShieldVisible)
+        XCTAssertFalse(store.isLocked)
+        XCTAssertFalse(store.resumeAfterInactivity(at: start + 59))
+        XCTAssertFalse(store.isPrivacyShieldVisible)
+
+        store.protectForInactivity(hasSession: true, at: start)
+        store.protectForInactivity(hasSession: true, at: start + 59)
+        XCTAssertTrue(store.resumeAfterInactivity(at: start + 60))
+        XCTAssertTrue(store.isLocked)
+
+        let restored = AppLockStore(defaults: defaults, authenticator: authenticator)
+        XCTAssertEqual(restored.timeout, .oneMinute)
     }
 
     @MainActor
