@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Low Power Mode-aware runtime
+
+- Added one root-owned observer for the system power-state notification instead of making every polling screen monitor `ProcessInfo` independently.
+- Reused the constrained cadence for Nearby, Home dashboard, Station Detail, Alerts, and Favourites whenever either Low Data Mode or Low Power Mode is active.
+- Removed pulsing live dots and shimmer sweeps from the view tree while Low Power Mode is active, restoring them automatically afterward while continuing to respect Reduce Motion.
+- Preserved immediate first loads and manual force refresh, added exact policy/notification coverage, and introduced no persistence, migration, or dependency.
+
 ## 2026-07-19 — Low Data Mode-aware polling
 
 - Extended the root network monitor to surface iOS constrained-path state and injected it once through the SwiftUI environment.

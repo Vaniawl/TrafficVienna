@@ -26,14 +26,14 @@ enum PollingFeed: CaseIterable {
         }
     }
 
-    func seconds(isLowDataMode: Bool) -> Int {
-        isLowDataMode ? constrainedSeconds : normalSeconds
+    func seconds(usesConstrainedCadence: Bool) -> Int {
+        usesConstrainedCadence ? constrainedSeconds : normalSeconds
     }
 }
 
 struct PollingContext: Hashable {
     let isActive: Bool
-    let isLowDataMode: Bool
+    let usesConstrainedCadence: Bool
 }
 
 private struct LowDataModeKey: EnvironmentKey {

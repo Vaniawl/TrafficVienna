@@ -8,31 +8,41 @@
 import SwiftUI
 
 private struct ShimmerModifier: ViewModifier {
-    @State private var phase: CGFloat = -1
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.allowsContinuousAnimation) private var allowsContinuousAnimation
 
     func body(content: Content) -> some View {
         content
             .overlay {
-                if !reduceMotion { GeometryReader { geo in
-                    let width = geo.size.width
-                    LinearGradient(
-                        colors: [.clear, Color.primary.opacity(0.08), .clear],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                    .frame(width: width)
-                    .offset(x: phase * width)
-                    .mask(content)
-                    .allowsHitTesting(false)
-                } }
-            }
-            .onAppear {
-                guard !reduceMotion else { return }
-                withAnimation(.linear(duration: 1.25).repeatForever(autoreverses: false)) {
-                    phase = 1
+                if !reduceMotion && allowsContinuousAnimation {
+                    AnimatedShimmer(mask: content)
                 }
             }
+    }
+}
+
+private struct AnimatedShimmer<Mask: View>: View {
+    let mask: Mask
+    @State private var phase: CGFloat = -1
+
+    var body: some View {
+        GeometryReader { geo in
+            let width = geo.size.width
+            LinearGradient(
+                colors: [.clear, Color.primary.opacity(0.08), .clear],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+            .frame(width: width)
+            .offset(x: phase * width)
+            .mask(mask)
+            .allowsHitTesting(false)
+        }
+        .onAppear {
+            withAnimation(.linear(duration: 1.25).repeatForever(autoreverses: false)) {
+                phase = 1
+            }
+        }
     }
 }
 

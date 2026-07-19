@@ -10,22 +10,36 @@ import SwiftUI
 
 struct LivePulse: View {
     var color: Color = .green
-    @State private var animate = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.allowsContinuousAnimation) private var allowsContinuousAnimation
+
+    var body: some View {
+        Group {
+            if reduceMotion || !allowsContinuousAnimation {
+                Circle().fill(color)
+            } else {
+                AnimatedLivePulse(color: color)
+            }
+        }
+            .frame(width: 7, height: 7)
+            .accessibilityHidden(true)
+    }
+}
+
+private struct AnimatedLivePulse: View {
+    let color: Color
+    @State private var animate = false
 
     var body: some View {
         Circle()
             .fill(color)
-            .frame(width: 7, height: 7)
-            .scaleEffect(reduceMotion ? 1 : (animate ? 1.3 : 0.9))
-            .opacity(reduceMotion ? 1 : (animate ? 0.4 : 1))
+            .scaleEffect(animate ? 1.3 : 0.9)
+            .opacity(animate ? 0.4 : 1)
             .onAppear {
-                guard !reduceMotion else { return }
                 withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) {
                     animate = true
                 }
             }
-            .accessibilityHidden(true)
     }
 }
 

@@ -12,6 +12,7 @@ import MapKit
 struct StationDetailView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.isLowDataMode) private var isLowDataMode
+    @Environment(\.isLowPowerMode) private var isLowPowerMode
     @EnvironmentObject private var favoritesVM: FavoritesListViewModel
     @StateObject private var vm: StationDetailViewModel
     @State private var lineFavoriteToggles = 0
@@ -66,7 +67,7 @@ struct StationDetailView: View {
                 while !Task.isCancelled {
                     await vm.load()
                     try? await Task.sleep(for: .seconds(
-                        PollingFeed.stationDetail.seconds(isLowDataMode: isLowDataMode)
+                        PollingFeed.stationDetail.seconds(usesConstrainedCadence: usesConstrainedCadence)
                     ))
                 }
             }
@@ -82,7 +83,12 @@ struct StationDetailView: View {
     }
 
     private var pollingContext: PollingContext {
-        PollingContext(isActive: scenePhase == .active, isLowDataMode: isLowDataMode)
+        PollingContext(isActive: scenePhase == .active, usesConstrainedCadence: usesConstrainedCadence)
+    }
+
+    private var usesConstrainedCadence: Bool {
+        EnergyPolicy(isLowDataMode: isLowDataMode, isLowPowerMode: isLowPowerMode)
+            .usesConstrainedPolling
     }
 
     private var isStationFavorited: Bool {

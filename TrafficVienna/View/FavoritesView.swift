@@ -13,6 +13,7 @@ struct FavoritesView: View {
     @ObservedObject var store: StationStore
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.isLowDataMode) private var isLowDataMode
+    @Environment(\.isLowPowerMode) private var isLowPowerMode
     var isActive = true
     @State private var showAbout = false
     @State private var showAccount = false
@@ -100,7 +101,7 @@ struct FavoritesView: View {
             while !Task.isCancelled {
                 await vm.loadFavorites()
                 try? await Task.sleep(for: .seconds(
-                    PollingFeed.favoriteRoutes.seconds(isLowDataMode: isLowDataMode)
+                    PollingFeed.favoriteRoutes.seconds(usesConstrainedCadence: usesConstrainedCadence)
                 ))
             }
         }
@@ -113,7 +114,12 @@ struct FavoritesView: View {
     private var shouldPoll: Bool { isActive && scenePhase == .active }
 
     private var pollingContext: PollingContext {
-        PollingContext(isActive: shouldPoll, isLowDataMode: isLowDataMode)
+        PollingContext(isActive: shouldPoll, usesConstrainedCadence: usesConstrainedCadence)
+    }
+
+    private var usesConstrainedCadence: Bool {
+        EnergyPolicy(isLowDataMode: isLowDataMode, isLowPowerMode: isLowPowerMode)
+            .usesConstrainedPolling
     }
 
     private var stationsSection: some View {

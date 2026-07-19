@@ -15,6 +15,7 @@ struct NearbyView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.isLowDataMode) private var isLowDataMode
+    @Environment(\.isLowPowerMode) private var isLowPowerMode
     private let store: StationStore
     private let isActive: Bool
     @State private var showAccount = false
@@ -73,7 +74,10 @@ struct NearbyView: View {
             hasLocation: vm.hasLocation,
             showsSavedRoutes: homePreferences.showsSavedRoutes,
             hasSavedRoutes: !favoritesVM.favoriteRoutes.isEmpty,
-            isLowDataMode: isLowDataMode
+            usesConstrainedCadence: EnergyPolicy(
+                isLowDataMode: isLowDataMode,
+                isLowPowerMode: isLowPowerMode
+            ).usesConstrainedPolling
         )
     }
 

@@ -36,6 +36,7 @@ final class RootTabState: ObservableObject {
     let recentSearches = RecentSearchesStore()
     let disruptionsVM = DisruptionsViewModel()
     let networkMonitor = NetworkMonitor()
+    let energyMonitor = EnergyMonitor()
     let themeManager = ThemeManager.shared
     let homePreferences = HomePreferences()
     @Published fileprivate var selectedTab: AppTab = .nearby
@@ -51,6 +52,7 @@ struct RootTabView: View {
     @ObservedObject private var recentSearches: RecentSearchesStore
     @ObservedObject private var disruptionsVM: DisruptionsViewModel
     @ObservedObject private var networkMonitor: NetworkMonitor
+    @ObservedObject private var energyMonitor: EnergyMonitor
     @ObservedObject private var themeManager: ThemeManager
     @ObservedObject private var homePreferences: HomePreferences
     @AppStorage("hasOnboarded") private var hasOnboarded = false
@@ -63,6 +65,7 @@ struct RootTabView: View {
         _recentSearches = ObservedObject(wrappedValue: state.recentSearches)
         _disruptionsVM = ObservedObject(wrappedValue: state.disruptionsVM)
         _networkMonitor = ObservedObject(wrappedValue: state.networkMonitor)
+        _energyMonitor = ObservedObject(wrappedValue: state.energyMonitor)
         _themeManager = ObservedObject(wrappedValue: state.themeManager)
         _homePreferences = ObservedObject(wrappedValue: state.homePreferences)
     }
@@ -128,6 +131,14 @@ struct RootTabView: View {
             .environmentObject(favoritesVM)
             .environmentObject(recentSearches)
             .environment(\.isLowDataMode, networkMonitor.isConstrained)
+            .environment(\.isLowPowerMode, energyMonitor.isLowPowerModeEnabled)
+            .environment(
+                \.allowsContinuousAnimation,
+                EnergyPolicy(
+                    isLowDataMode: networkMonitor.isConstrained,
+                    isLowPowerMode: energyMonitor.isLowPowerModeEnabled
+                ).allowsContinuousAnimation
+            )
     }
 
     private var tabs: some View {

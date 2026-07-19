@@ -14,31 +14,31 @@ struct HomePollingPlan: Hashable {
     let loadsNearbyDepartures: Bool
     let loadsFavoriteRoutes: Bool
     let loadsAlerts: Bool
-    let isLowDataMode: Bool
+    let usesConstrainedCadence: Bool
 
     nonisolated static func make(
         isActive: Bool,
         hasLocation: Bool,
         showsSavedRoutes: Bool,
         hasSavedRoutes: Bool,
-        isLowDataMode: Bool = false
+        usesConstrainedCadence: Bool = false
     ) -> HomePollingPlan {
         HomePollingPlan(
             isActive: isActive,
             loadsNearbyDepartures: isActive && hasLocation,
             loadsFavoriteRoutes: isActive && showsSavedRoutes && hasSavedRoutes,
             loadsAlerts: isActive,
-            isLowDataMode: isLowDataMode
+            usesConstrainedCadence: usesConstrainedCadence
         )
     }
 
     func nearbySeconds(hasResults: Bool) -> Int {
         (hasResults ? PollingFeed.nearbyDepartures : .nearbyWithoutResults)
-            .seconds(isLowDataMode: isLowDataMode)
+            .seconds(usesConstrainedCadence: usesConstrainedCadence)
     }
 
     var dashboardSeconds: Int {
-        PollingFeed.homeDashboard.seconds(isLowDataMode: isLowDataMode)
+        PollingFeed.homeDashboard.seconds(usesConstrainedCadence: usesConstrainedCadence)
     }
 }
 

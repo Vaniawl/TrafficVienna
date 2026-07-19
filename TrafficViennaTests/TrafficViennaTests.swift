@@ -191,7 +191,7 @@ final class TrafficViennaTests: XCTestCase {
                 loadsNearbyDepartures: false,
                 loadsFavoriteRoutes: false,
                 loadsAlerts: false,
-                isLowDataMode: false
+                usesConstrainedCadence: false
             )
         )
 
@@ -248,12 +248,47 @@ final class TrafficViennaTests: XCTestCase {
             hasLocation: true,
             showsSavedRoutes: true,
             hasSavedRoutes: true,
-            isLowDataMode: true
+            usesConstrainedCadence: true
         )
         XCTAssertEqual(plan.nearbySeconds(hasResults: false), 15)
         XCTAssertEqual(plan.nearbySeconds(hasResults: true), 180)
         XCTAssertEqual(plan.dashboardSeconds, 180)
         XCTAssertTrue(PollingFeed.allCases.allSatisfy { $0.constrainedSeconds > $0.normalSeconds })
+    }
+
+    func testEnergyPolicyConservesPollingForEitherSystemConstraint() {
+        let normal = EnergyPolicy(isLowDataMode: false, isLowPowerMode: false)
+        XCTAssertFalse(normal.usesConstrainedPolling)
+        XCTAssertTrue(normal.allowsContinuousAnimation)
+
+        let lowData = EnergyPolicy(isLowDataMode: true, isLowPowerMode: false)
+        XCTAssertTrue(lowData.usesConstrainedPolling)
+        XCTAssertTrue(lowData.allowsContinuousAnimation)
+
+        let lowPower = EnergyPolicy(isLowDataMode: false, isLowPowerMode: true)
+        XCTAssertTrue(lowPower.usesConstrainedPolling)
+        XCTAssertFalse(lowPower.allowsContinuousAnimation)
+
+        let both = EnergyPolicy(isLowDataMode: true, isLowPowerMode: true)
+        XCTAssertTrue(both.usesConstrainedPolling)
+        XCTAssertFalse(both.allowsContinuousAnimation)
+    }
+
+    @MainActor
+    func testEnergyMonitorTracksPowerStateNotifications() async {
+        let notificationCenter = NotificationCenter()
+        var currentValue = false
+        let monitor = EnergyMonitor(
+            notificationCenter: notificationCenter,
+            currentValue: { currentValue }
+        )
+        XCTAssertFalse(monitor.isLowPowerModeEnabled)
+
+        currentValue = true
+        notificationCenter.post(name: .NSProcessInfoPowerStateDidChange, object: nil)
+        await Task.yield()
+
+        XCTAssertTrue(monitor.isLowPowerModeEnabled)
     }
 
     @MainActor
