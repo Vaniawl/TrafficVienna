@@ -101,6 +101,49 @@ struct EmailSignInLimiter {
     }
 }
 
+struct PasswordDeriver: Sendable {
+    private let operation: @Sendable (String, Data, UInt32) async -> Data
+
+    init(
+        operation: @escaping @Sendable (String, Data, UInt32) async -> Data = { password, salt, iterations in
+            await Task.detached(priority: .userInitiated) {
+                Self.deriveSynchronously(password: password, salt: salt, iterations: iterations)
+            }.value
+        }
+    ) {
+        self.operation = operation
+    }
+
+    func derive(password: String, salt: Data, iterations: UInt32) async -> Data {
+        await operation(password, salt, iterations)
+    }
+
+    private nonisolated static func deriveSynchronously(
+        password: String,
+        salt: Data,
+        iterations: UInt32
+    ) -> Data {
+        var derived = Data(count: 32)
+        let derivedCount = derived.count
+        let status = derived.withUnsafeMutableBytes { derivedBytes in
+            salt.withUnsafeBytes { saltBytes in
+                CCKeyDerivationPBKDF(
+                    CCPBKDFAlgorithm(kCCPBKDF2),
+                    password,
+                    password.lengthOfBytes(using: .utf8),
+                    saltBytes.bindMemory(to: UInt8.self).baseAddress,
+                    salt.count,
+                    CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA256),
+                    iterations,
+                    derivedBytes.bindMemory(to: UInt8.self).baseAddress,
+                    derivedCount
+                )
+            }
+        }
+        return status == kCCSuccess ? derived : Data()
+    }
+}
+
 @MainActor
 final class AuthStore: ObservableObject {
     @Published private(set) var session: AuthSession?
@@ -110,17 +153,21 @@ final class AuthStore: ObservableObject {
     private let defaults: UserDefaults
     private let sessionKey = "auth.session"
     private let passwordIterations: UInt32 = 120_000
+    private let passwordDeriver: PasswordDeriver
     private var signInLimiter: EmailSignInLimiter
+    private var isCredentialOperationInProgress = false
 
     init(
         keychain: KeychainStoring? = nil,
         defaults: UserDefaults = .standard,
         resetSession: Bool = ProcessInfo.processInfo.arguments.contains("-ui-testing-reset"),
-        signInLimiter: EmailSignInLimiter = EmailSignInLimiter()
+        signInLimiter: EmailSignInLimiter = EmailSignInLimiter(),
+        passwordDeriver: PasswordDeriver = PasswordDeriver()
     ) {
         self.keychain = keychain ?? Self.defaultKeychain()
         self.defaults = defaults
         self.signInLimiter = signInLimiter
+        self.passwordDeriver = passwordDeriver
         if resetSession {
             defaults.removeObject(forKey: sessionKey)
         } else if let data = defaults.data(forKey: sessionKey) {
@@ -137,8 +184,10 @@ final class AuthStore: ObservableObject {
         return KeychainStore()
     }
 
-    func register(email: String, password: String) throws {
+    func register(email: String, password: String) async throws {
         let normalizedEmail = try validated(email: email, password: password)
+        try beginCredentialOperation()
+        defer { isCredentialOperationInProgress = false }
         let accountKey = emailAccountKey(for: normalizedEmail)
         guard keychain.data(for: accountKey) == nil else { throw AuthError.accountExists }
 
@@ -146,10 +195,11 @@ final class AuthStore: ObservableObject {
         let record = EmailAccount(
             email: normalizedEmail,
             salt: salt,
-            passwordHash: derivePasswordKey(password, salt: salt, iterations: passwordIterations),
+            passwordHash: try await derivePasswordKey(password, salt: salt, iterations: passwordIterations),
             algorithm: "pbkdf2-sha256",
             iterations: passwordIterations
         )
+        guard keychain.data(for: accountKey) == nil else { throw AuthError.accountExists }
         guard let encoded = try? JSONEncoder().encode(record), keychain.set(encoded, for: accountKey) else {
             throw AuthError.unavailable
         }
@@ -157,9 +207,11 @@ final class AuthStore: ObservableObject {
         setSession(AuthSession(userID: normalizedEmail, email: normalizedEmail, displayName: nil, provider: .email))
     }
 
-    func signIn(email: String, password: String) throws {
+    func signIn(email: String, password: String) async throws {
         let normalizedEmail = try validated(email: email, password: password)
         try signInLimiter.checkAllowed(for: normalizedEmail)
+        try beginCredentialOperation()
+        defer { isCredentialOperationInProgress = false }
         let accountKey = emailAccountKey(for: normalizedEmail)
         guard
             let data = keychain.data(for: accountKey),
@@ -171,7 +223,7 @@ final class AuthStore: ObservableObject {
 
         let candidate: Data
         if record.algorithm == "pbkdf2-sha256", let iterations = record.iterations {
-            candidate = derivePasswordKey(password, salt: record.salt, iterations: iterations)
+            candidate = try await derivePasswordKey(password, salt: record.salt, iterations: iterations)
         } else {
             candidate = legacyHash(password, salt: record.salt)
         }
@@ -180,14 +232,20 @@ final class AuthStore: ObservableObject {
         }
 
         if record.algorithm == nil {
-            let upgraded = EmailAccount(
-                email: normalizedEmail,
+            if let passwordHash = try? await derivePasswordKey(
+                password,
                 salt: record.salt,
-                passwordHash: derivePasswordKey(password, salt: record.salt, iterations: passwordIterations),
-                algorithm: "pbkdf2-sha256",
                 iterations: passwordIterations
-            )
-            if let data = try? JSONEncoder().encode(upgraded) { _ = keychain.set(data, for: accountKey) }
+            ) {
+                let upgraded = EmailAccount(
+                    email: normalizedEmail,
+                    salt: record.salt,
+                    passwordHash: passwordHash,
+                    algorithm: "pbkdf2-sha256",
+                    iterations: passwordIterations
+                )
+                if let data = try? JSONEncoder().encode(upgraded) { _ = keychain.set(data, for: accountKey) }
+            }
         }
 
         signInLimiter.reset(for: normalizedEmail)
@@ -195,6 +253,10 @@ final class AuthStore: ObservableObject {
     }
 
     func handleAppleAuthorization(_ result: Result<ASAuthorization, Error>) {
+        guard !isCredentialOperationInProgress else {
+            errorMessage = AuthError.unavailable.localizedDescription
+            return
+        }
         switch result {
         case .success(let authorization):
             guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else {
@@ -235,22 +297,28 @@ final class AuthStore: ObservableObject {
         ))
     }
 
-    func changePassword(currentPassword: String, newPassword: String) throws {
+    func changePassword(currentPassword: String, newPassword: String) async throws {
         guard let session, session.provider == .email else { throw AuthError.unavailable }
         guard Self.isValidPassword(newPassword) else { throw AuthError.weakPassword }
+        try beginCredentialOperation()
+        defer { isCredentialOperationInProgress = false }
 
         let accountKey = emailAccountKey(for: session.userID)
         guard
             let data = keychain.data(for: accountKey),
             let record = try? JSONDecoder().decode(EmailAccount.self, from: data),
-            password(currentPassword, matches: record)
+            try await password(currentPassword, matches: record)
         else { throw AuthError.incorrectCurrentPassword }
 
         let salt = Data((0..<16).map { _ in UInt8.random(in: .min ... .max) })
         let updated = EmailAccount(
             email: record.email,
             salt: salt,
-            passwordHash: derivePasswordKey(newPassword, salt: salt, iterations: passwordIterations),
+            passwordHash: try await derivePasswordKey(
+                newPassword,
+                salt: salt,
+                iterations: passwordIterations
+            ),
             algorithm: "pbkdf2-sha256",
             iterations: passwordIterations
         )
@@ -308,36 +376,23 @@ final class AuthStore: ObservableObject {
         Data(SHA256.hash(data: salt + Data(password.utf8)))
     }
 
-    private func derivePasswordKey(_ password: String, salt: Data, iterations: UInt32) -> Data {
-        var derived = Data(count: 32)
-        let derivedCount = derived.count
-        let status = derived.withUnsafeMutableBytes { derivedBytes in
-            salt.withUnsafeBytes { saltBytes in
-                CCKeyDerivationPBKDF(
-                    CCPBKDFAlgorithm(kCCPBKDF2),
-                    password,
-                    password.lengthOfBytes(using: .utf8),
-                    saltBytes.bindMemory(to: UInt8.self).baseAddress,
-                    salt.count,
-                    CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA256),
-                    iterations,
-                    derivedBytes.bindMemory(to: UInt8.self).baseAddress,
-                    derivedCount
-                )
-            }
-        }
-        return status == kCCSuccess ? derived : Data()
-    }
-
     private func timingSafeEqual(_ lhs: Data, _ rhs: Data) -> Bool {
         guard lhs.count == rhs.count else { return false }
         return zip(lhs, rhs).reduce(UInt8(0)) { $0 | ($1.0 ^ $1.1) } == 0
     }
 
-    private func password(_ password: String, matches record: EmailAccount) -> Bool {
+    private func derivePasswordKey(_ password: String, salt: Data, iterations: UInt32) async throws -> Data {
+        try Task.checkCancellation()
+        let derived = await passwordDeriver.derive(password: password, salt: salt, iterations: iterations)
+        try Task.checkCancellation()
+        guard derived.count == 32 else { throw AuthError.unavailable }
+        return derived
+    }
+
+    private func password(_ password: String, matches record: EmailAccount) async throws -> Bool {
         let candidate: Data
         if record.algorithm == "pbkdf2-sha256", let iterations = record.iterations {
-            candidate = derivePasswordKey(password, salt: record.salt, iterations: iterations)
+            candidate = try await derivePasswordKey(password, salt: record.salt, iterations: iterations)
         } else {
             candidate = legacyHash(password, salt: record.salt)
         }
@@ -350,6 +405,11 @@ final class AuthStore: ObservableObject {
 
     private func failedSignIn(for email: String) -> AuthError {
         signInLimiter.recordFailure(for: email) ? .tooManyAttempts : .invalidCredentials
+    }
+
+    private func beginCredentialOperation() throws {
+        guard !isCredentialOperationInProgress else { throw AuthError.unavailable }
+        isCredentialOperationInProgress = true
     }
 
     private func setSession(_ value: AuthSession) {

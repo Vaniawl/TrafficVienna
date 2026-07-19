@@ -6,7 +6,7 @@ SwiftUI iOS app for live Vienna public transport departures.
 
 - Neobank-style smart dashboard with nearby live departures.
 - Station search, map, favourites, personalised service alerts, and commute routines.
-- Device-local email authentication with repeated-attempt cooldown and native Sign in with Apple.
+- Responsive device-local email authentication with repeated-attempt cooldown and native Sign in with Apple.
 - Optional device-owner app lock with an immediate privacy shield and configurable unlock timeout.
 - User-controlled JSON backup and confirmed restore of local profile preferences and travel data.
 - Departure reminders, Live Activities, Dynamic Island, and a home-screen widget with deduplicated app-driven timeline updates.

@@ -1,10 +1,25 @@
 import XCTest
 import CoreLocation
+import CryptoKit
 import MapKit
 import UserNotifications
 @testable import TrafficVienna
 
 final class TrafficViennaTests: XCTestCase {
+
+    private func assertThrowsErrorAsync<T>(
+        _ expression: @autoclosure () async throws -> T,
+        file: StaticString = #filePath,
+        line: UInt = #line,
+        verify: (Error) -> Void = { _ in }
+    ) async {
+        do {
+            _ = try await expression()
+            XCTFail("Expected an error to be thrown", file: file, line: line)
+        } catch {
+            verify(error)
+        }
+    }
 
     @MainActor
     func testStationDirectionsPreserveNameCoordinatesAndWalkingMode() {
@@ -508,22 +523,127 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
-    func testEmailRegistrationAndSignIn() throws {
+    func testEmailRegistrationAndSignIn() async throws {
         let suite = "AuthStoreTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
         defer { defaults.removePersistentDomain(forName: suite) }
         let keychain = MemoryKeychain()
         let store = AuthStore(keychain: keychain, defaults: defaults)
 
-        try store.register(email: " Rider@Example.com ", password: "tramline26")
+        try await store.register(email: " Rider@Example.com ", password: "tramline26")
         XCTAssertEqual(store.session?.email, "rider@example.com")
         store.signOut()
-        try store.signIn(email: "rider@example.com", password: "tramline26")
+        try await store.signIn(email: "rider@example.com", password: "tramline26")
         XCTAssertEqual(store.session?.provider, .email)
     }
 
     @MainActor
-    func testEmailSignInCooldownStartsAtFifthFailureAndExpires() throws {
+    func testPasswordDerivationYieldsMainActorAndRejectsOverlappingCredentialWork() async throws {
+        let suite = "AuthAsyncDerivationTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let suspension = SuspendedPasswordDerivation()
+        let store = AuthStore(
+            keychain: MemoryKeychain(),
+            defaults: defaults,
+            passwordDeriver: PasswordDeriver { _, _, _ in
+                await suspension.derive()
+            }
+        )
+        let registration = Task {
+            try await store.register(email: "rider@example.com", password: "tramline26")
+        }
+        await suspension.waitUntilStarted()
+
+        var mainActorAdvanced = false
+        Task { @MainActor in mainActorAdvanced = true }
+        await Task.yield()
+        XCTAssertTrue(mainActorAdvanced, "Password derivation must not monopolize the UI actor")
+
+        await assertThrowsErrorAsync(
+            try await store.register(email: "second@example.com", password: "tramline27")
+        ) {
+            XCTAssertEqual($0 as? AuthError, .unavailable)
+        }
+
+        await suspension.finish(with: Data(repeating: 7, count: 32))
+        try await registration.value
+        XCTAssertEqual(store.session?.email, "rider@example.com")
+    }
+
+    @MainActor
+    func testLegacyEmailVerifierUpgradesAfterAsyncSignIn() async throws {
+        let suite = "LegacyAuthUpgradeTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let keychain = MemoryKeychain()
+        let salt = Data((0..<16).map(UInt8.init))
+        let password = "tramline26"
+        let fixture = LegacyEmailAccountFixture(
+            email: "rider@example.com",
+            salt: salt,
+            passwordHash: Data(SHA256.hash(data: salt + Data(password.utf8)))
+        )
+        keychain.set(try JSONEncoder().encode(fixture), for: "legacy-account")
+        let store = AuthStore(keychain: keychain, defaults: defaults)
+
+        await assertThrowsErrorAsync(try await store.signIn(email: "rider@example.com", password: password))
+        let actualKey = try XCTUnwrap(keychain.lastReadKey)
+        keychain.set(try JSONEncoder().encode(fixture), for: actualKey)
+
+        try await store.signIn(email: "rider@example.com", password: password)
+
+        let upgradedData = try XCTUnwrap(keychain.data(for: actualKey))
+        let upgraded = try JSONDecoder().decode(UpgradedEmailAccountFixture.self, from: upgradedData)
+        XCTAssertEqual(upgraded.algorithm, "pbkdf2-sha256")
+        XCTAssertEqual(upgraded.iterations, 120_000)
+        XCTAssertEqual(upgraded.passwordHash.count, 32)
+    }
+
+    @MainActor
+    func testFailedPasswordDerivationDoesNotPersistAccount() async {
+        let keychain = MemoryKeychain()
+        let store = AuthStore(
+            keychain: keychain,
+            defaults: UserDefaults(suiteName: UUID().uuidString)!,
+            passwordDeriver: PasswordDeriver { _, _, _ in Data() }
+        )
+
+        await assertThrowsErrorAsync(
+            try await store.register(email: "rider@example.com", password: "tramline26")
+        ) {
+            XCTAssertEqual($0 as? AuthError, .unavailable)
+        }
+        XCTAssertTrue(keychain.isEmpty)
+        XCTAssertNil(store.session)
+    }
+
+    @MainActor
+    func testCancelledPasswordDerivationDoesNotPersistAccount() async throws {
+        let keychain = MemoryKeychain()
+        let suspension = SuspendedPasswordDerivation()
+        let store = AuthStore(
+            keychain: keychain,
+            defaults: UserDefaults(suiteName: UUID().uuidString)!,
+            passwordDeriver: PasswordDeriver { _, _, _ in await suspension.derive() }
+        )
+        let registration = Task {
+            try await store.register(email: "rider@example.com", password: "tramline26")
+        }
+        await suspension.waitUntilStarted()
+
+        registration.cancel()
+        await suspension.finish(with: Data(repeating: 7, count: 32))
+
+        await assertThrowsErrorAsync(try await registration.value) {
+            XCTAssertTrue($0 is CancellationError)
+        }
+        XCTAssertTrue(keychain.isEmpty)
+        XCTAssertNil(store.session)
+    }
+
+    @MainActor
+    func testEmailSignInCooldownStartsAtFifthFailureAndExpires() async throws {
         let suite = "AuthCooldownTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
         defer { defaults.removePersistentDomain(forName: suite) }
@@ -534,47 +654,47 @@ final class TrafficViennaTests: XCTestCase {
             defaults: defaults,
             signInLimiter: EmailSignInLimiter(now: { currentDate })
         )
-        try store.register(email: "rider@example.com", password: "tramline26")
+        try await store.register(email: "rider@example.com", password: "tramline26")
         store.signOut()
 
         for _ in 0..<4 {
-            XCTAssertThrowsError(try store.signIn(email: "rider@example.com", password: "wrongpass")) {
+            await assertThrowsErrorAsync(try await store.signIn(email: "rider@example.com", password: "wrongpass")) {
                 XCTAssertEqual($0 as? AuthError, .invalidCredentials)
             }
         }
-        XCTAssertThrowsError(try store.signIn(email: "rider@example.com", password: "wrongpass")) {
+        await assertThrowsErrorAsync(try await store.signIn(email: "rider@example.com", password: "wrongpass")) {
             XCTAssertEqual($0 as? AuthError, .tooManyAttempts)
         }
 
         let readsBeforeBlockedAttempt = keychain.dataCallCount
-        XCTAssertThrowsError(try store.signIn(email: "rider@example.com", password: "tramline26")) {
+        await assertThrowsErrorAsync(try await store.signIn(email: "rider@example.com", password: "tramline26")) {
             XCTAssertEqual($0 as? AuthError, .tooManyAttempts)
         }
         XCTAssertEqual(keychain.dataCallCount, readsBeforeBlockedAttempt)
 
         currentDate.addTimeInterval(30)
-        try store.signIn(email: "rider@example.com", password: "tramline26")
+        try await store.signIn(email: "rider@example.com", password: "tramline26")
         XCTAssertEqual(store.session?.email, "rider@example.com")
     }
 
     @MainActor
-    func testSuccessfulEmailSignInResetsFailureCount() throws {
+    func testSuccessfulEmailSignInResetsFailureCount() async throws {
         let suite = "AuthCooldownResetTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
         defer { defaults.removePersistentDomain(forName: suite) }
         let keychain = MemoryKeychain()
         let store = AuthStore(keychain: keychain, defaults: defaults)
-        try store.register(email: "rider@example.com", password: "tramline26")
+        try await store.register(email: "rider@example.com", password: "tramline26")
         store.signOut()
 
         for _ in 0..<4 {
-            XCTAssertThrowsError(try store.signIn(email: "rider@example.com", password: "wrongpass"))
+            await assertThrowsErrorAsync(try await store.signIn(email: "rider@example.com", password: "wrongpass"))
         }
-        try store.signIn(email: "rider@example.com", password: "tramline26")
+        try await store.signIn(email: "rider@example.com", password: "tramline26")
         store.signOut()
 
         for _ in 0..<4 {
-            XCTAssertThrowsError(try store.signIn(email: "rider@example.com", password: "wrongpass")) {
+            await assertThrowsErrorAsync(try await store.signIn(email: "rider@example.com", password: "wrongpass")) {
                 XCTAssertEqual($0 as? AuthError, .invalidCredentials)
             }
         }
@@ -601,14 +721,14 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
-    func testUITestResetClearsPersistedAuthSessionBeforeLoading() throws {
+    func testUITestResetClearsPersistedAuthSessionBeforeLoading() async throws {
         let suite = "AuthStoreResetTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
         defer { defaults.removePersistentDomain(forName: suite) }
         let keychain = MemoryKeychain()
 
         let signedInStore = AuthStore(keychain: keychain, defaults: defaults, resetSession: false)
-        try signedInStore.register(email: "rider@example.com", password: "tramline26")
+        try await signedInStore.register(email: "rider@example.com", password: "tramline26")
         XCTAssertNotNil(defaults.data(forKey: "auth.session"))
 
         let resetStore = AuthStore(keychain: keychain, defaults: defaults, resetSession: true)
@@ -617,10 +737,10 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
-    func testEmailRegistrationRejectsInvalidInput() {
+    func testEmailRegistrationRejectsInvalidInput() async {
         let store = AuthStore(keychain: MemoryKeychain(), defaults: UserDefaults(suiteName: UUID().uuidString)!)
-        XCTAssertThrowsError(try store.register(email: "invalid", password: "tramline26"))
-        XCTAssertThrowsError(try store.register(email: "rider@example.com", password: "short"))
+        await assertThrowsErrorAsync(try await store.register(email: "invalid", password: "tramline26"))
+        await assertThrowsErrorAsync(try await store.register(email: "rider@example.com", password: "short"))
     }
 
     func testAuthInputValidationMatchesRegistrationRules() {
@@ -908,60 +1028,60 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
-    func testMultipleEmailAccountsCanRegister() throws {
+    func testMultipleEmailAccountsCanRegister() async throws {
         let store = AuthStore(keychain: MemoryKeychain(), defaults: UserDefaults(suiteName: UUID().uuidString)!)
-        try store.register(email: "first@example.com", password: "tramline26")
+        try await store.register(email: "first@example.com", password: "tramline26")
         store.signOut()
-        try store.register(email: "second@example.com", password: "tramline27")
+        try await store.register(email: "second@example.com", password: "tramline27")
         XCTAssertEqual(store.session?.email, "second@example.com")
     }
 
     @MainActor
-    func testEmailPasswordCanBeChangedOnlyWithCurrentPassword() throws {
+    func testEmailPasswordCanBeChangedOnlyWithCurrentPassword() async throws {
         let suite = "PasswordChangeTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
         defer { defaults.removePersistentDomain(forName: suite) }
         let keychain = MemoryKeychain()
         let store = AuthStore(keychain: keychain, defaults: defaults)
-        try store.register(email: "rider@example.com", password: "tramline26")
+        try await store.register(email: "rider@example.com", password: "tramline26")
 
-        XCTAssertThrowsError(try store.changePassword(currentPassword: "wrongpass", newPassword: "nightbus42")) { error in
+        await assertThrowsErrorAsync(try await store.changePassword(currentPassword: "wrongpass", newPassword: "nightbus42")) { error in
             XCTAssertEqual(error as? AuthError, .incorrectCurrentPassword)
         }
-        try store.changePassword(currentPassword: "tramline26", newPassword: "nightbus42")
+        try await store.changePassword(currentPassword: "tramline26", newPassword: "nightbus42")
         XCTAssertNotNil(store.session)
 
         store.signOut()
-        XCTAssertThrowsError(try store.signIn(email: "rider@example.com", password: "tramline26"))
-        try store.signIn(email: "rider@example.com", password: "nightbus42")
+        await assertThrowsErrorAsync(try await store.signIn(email: "rider@example.com", password: "tramline26"))
+        try await store.signIn(email: "rider@example.com", password: "nightbus42")
         XCTAssertEqual(store.session?.email, "rider@example.com")
     }
 
     @MainActor
-    func testFailedPasswordUpdatePreservesExistingPassword() throws {
+    func testFailedPasswordUpdatePreservesExistingPassword() async throws {
         let suite = "PasswordChangeFailureTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
         defer { defaults.removePersistentDomain(forName: suite) }
         let keychain = MemoryKeychain()
         let store = AuthStore(keychain: keychain, defaults: defaults)
-        try store.register(email: "rider@example.com", password: "tramline26")
+        try await store.register(email: "rider@example.com", password: "tramline26")
         keychain.setSucceeds = false
 
-        XCTAssertThrowsError(try store.changePassword(currentPassword: "tramline26", newPassword: "nightbus42"))
+        await assertThrowsErrorAsync(try await store.changePassword(currentPassword: "tramline26", newPassword: "nightbus42"))
         store.signOut()
         keychain.setSucceeds = true
-        try store.signIn(email: "rider@example.com", password: "tramline26")
+        try await store.signIn(email: "rider@example.com", password: "tramline26")
         XCTAssertEqual(store.session?.email, "rider@example.com")
     }
 
     @MainActor
-    func testDisplayNameNormalizesAndPersistsWithoutChangingIdentity() throws {
+    func testDisplayNameNormalizesAndPersistsWithoutChangingIdentity() async throws {
         let suite = "DisplayNameTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
         defer { defaults.removePersistentDomain(forName: suite) }
         let keychain = MemoryKeychain()
         let store = AuthStore(keychain: keychain, defaults: defaults)
-        try store.register(email: "rider@example.com", password: "tramline26")
+        try await store.register(email: "rider@example.com", password: "tramline26")
 
         store.updateDisplayName("  Ivan   Dovhosheia  ")
 
@@ -1034,29 +1154,29 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
-    func testRemovingLocalEmailAccountDeletesVerifierAndSession() throws {
+    func testRemovingLocalEmailAccountDeletesVerifierAndSession() async throws {
         let suite = "AuthRemovalTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
         defer { defaults.removePersistentDomain(forName: suite) }
         let keychain = MemoryKeychain()
         let store = AuthStore(keychain: keychain, defaults: defaults)
-        try store.register(email: "rider@example.com", password: "tramline26")
+        try await store.register(email: "rider@example.com", password: "tramline26")
 
         try store.removeCurrentAccountFromDevice()
 
         XCTAssertNil(store.session)
         XCTAssertNil(defaults.data(forKey: "auth.session"))
-        XCTAssertThrowsError(try store.signIn(email: "rider@example.com", password: "tramline26"))
+        await assertThrowsErrorAsync(try await store.signIn(email: "rider@example.com", password: "tramline26"))
     }
 
     @MainActor
-    func testFailedEmailAccountRemovalKeepsSessionActive() throws {
+    func testFailedEmailAccountRemovalKeepsSessionActive() async throws {
         let suite = "AuthRemovalFailureTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
         defer { defaults.removePersistentDomain(forName: suite) }
         let keychain = MemoryKeychain()
         let store = AuthStore(keychain: keychain, defaults: defaults)
-        try store.register(email: "rider@example.com", password: "tramline26")
+        try await store.register(email: "rider@example.com", password: "tramline26")
         keychain.removeSucceeds = false
 
         XCTAssertThrowsError(try store.removeCurrentAccountFromDevice())
@@ -2562,8 +2682,11 @@ private final class MemoryKeychain: KeychainStoring {
     var setSucceeds = true
     private(set) var removeCallCount = 0
     private(set) var dataCallCount = 0
+    private(set) var lastReadKey: String?
+    var isEmpty: Bool { storage.isEmpty }
     func data(for key: String) -> Data? {
         dataCallCount += 1
+        lastReadKey = key
         return storage[key]
     }
     func set(_ data: Data, for key: String) -> Bool {
@@ -2576,6 +2699,43 @@ private final class MemoryKeychain: KeychainStoring {
         guard removeSucceeds else { return false }
         storage.removeValue(forKey: key)
         return true
+    }
+}
+
+private struct LegacyEmailAccountFixture: Codable {
+    let email: String
+    let salt: Data
+    let passwordHash: Data
+}
+
+private struct UpgradedEmailAccountFixture: Decodable {
+    let passwordHash: Data
+    let algorithm: String
+    let iterations: UInt32
+}
+
+private actor SuspendedPasswordDerivation {
+    private var resultContinuation: CheckedContinuation<Data, Never>?
+    private var startWaiters: [CheckedContinuation<Void, Never>] = []
+
+    func derive() async -> Data {
+        await withCheckedContinuation { continuation in
+            resultContinuation = continuation
+            startWaiters.forEach { $0.resume() }
+            startWaiters = []
+        }
+    }
+
+    func waitUntilStarted() async {
+        guard resultContinuation == nil else { return }
+        await withCheckedContinuation { continuation in
+            startWaiters.append(continuation)
+        }
+    }
+
+    func finish(with data: Data) {
+        resultContinuation?.resume(returning: data)
+        resultContinuation = nil
     }
 }
 

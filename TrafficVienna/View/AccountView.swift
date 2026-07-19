@@ -268,6 +268,7 @@ private struct ChangePasswordView: View {
     @State private var confirmation = ""
     @State private var errorMessage: String?
     @State private var didUpdate = false
+    @State private var isSubmitting = false
 
     var body: some View {
         Form {
@@ -300,7 +301,13 @@ private struct ChangePasswordView: View {
             }
 
             Section {
-                Button("Update password", action: updatePassword)
+                Button(action: updatePassword) {
+                    if isSubmitting {
+                        ProgressView()
+                    } else {
+                        Text("Update password")
+                    }
+                }
                     .frame(maxWidth: .infinity)
                     .disabled(!canSubmit)
                     .accessibilityIdentifier("account.updatePassword")
@@ -326,19 +333,29 @@ private struct ChangePasswordView: View {
     }
 
     private var canSubmit: Bool {
-        !currentPassword.isEmpty && isNewPasswordValid && passwordsMatch
+        !isSubmitting && !currentPassword.isEmpty && isNewPasswordValid && passwordsMatch
     }
 
     private func updatePassword() {
-        do {
-            try auth.changePassword(currentPassword: currentPassword, newPassword: newPassword)
-            currentPassword = ""
-            newPassword = ""
-            confirmation = ""
-            errorMessage = nil
-            didUpdate = true
-        } catch {
-            errorMessage = error.localizedDescription
+        guard canSubmit else { return }
+        let submittedCurrentPassword = currentPassword
+        let submittedNewPassword = newPassword
+        isSubmitting = true
+        Task {
+            defer { isSubmitting = false }
+            do {
+                try await auth.changePassword(
+                    currentPassword: submittedCurrentPassword,
+                    newPassword: submittedNewPassword
+                )
+                currentPassword = ""
+                newPassword = ""
+                confirmation = ""
+                errorMessage = nil
+                didUpdate = true
+            } catch {
+                errorMessage = error.localizedDescription
+            }
         }
     }
 }

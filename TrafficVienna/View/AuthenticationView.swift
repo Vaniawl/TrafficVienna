@@ -24,6 +24,7 @@ struct AuthenticationView: View {
     @State private var email = ""
     @State private var password = ""
     @State private var passwordConfirmation = ""
+    @State private var isSubmitting = false
     @State private var isPasswordVisible = false
     @FocusState private var focusedField: Field?
 
@@ -196,10 +197,17 @@ struct AuthenticationView: View {
             }
 
             Button(action: submitEmail) {
-                Text(mode.title)
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
+                Group {
+                    if isSubmitting {
+                        ProgressView()
+                            .tint(.white)
+                    } else {
+                        Text(mode.title)
+                            .font(.headline)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
             }
             .buttonStyle(.borderedProminent)
             .tint(Color(hex: 0xE20917))
@@ -216,6 +224,7 @@ struct AuthenticationView: View {
             .signInWithAppleButtonStyle(.black)
             .frame(height: 50)
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .disabled(isSubmitting)
             .accessibilityHint("Uses your Apple ID to create or open your account")
 
             Text("Email accounts are stored securely on this device. Apple ID uses Apple's private authentication flow.")
@@ -254,7 +263,7 @@ struct AuthenticationView: View {
     }
 
     private var canSubmitEmail: Bool {
-        AuthFormValidation.canSubmit(
+        !isSubmitting && AuthFormValidation.canSubmit(
             email: email,
             password: password,
             confirmation: passwordConfirmation,
@@ -281,14 +290,21 @@ struct AuthenticationView: View {
     private func submitEmail() {
         guard canSubmitEmail else { return }
         focusedField = nil
-        do {
-            if mode == .register {
-                try auth.register(email: email, password: password)
-            } else {
-                try auth.signIn(email: email, password: password)
+        let submittedEmail = email
+        let submittedPassword = password
+        let submittedMode = mode
+        isSubmitting = true
+        Task {
+            defer { isSubmitting = false }
+            do {
+                if submittedMode == .register {
+                    try await auth.register(email: submittedEmail, password: submittedPassword)
+                } else {
+                    try await auth.signIn(email: submittedEmail, password: submittedPassword)
+                }
+            } catch {
+                auth.errorMessage = error.localizedDescription
             }
-        } catch {
-            auth.errorMessage = error.localizedDescription
         }
     }
 

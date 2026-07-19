@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Off-main password derivation
+
+- Moved 120,000-round PBKDF2 derivation for email registration, sign-in, legacy upgrade, and password changes off the MainActor while keeping Keychain and session mutation serialized on it.
+- Added progress states and duplicate-submit protection to both the authentication card and Change password form so keyboard and button actions remain responsive during cryptographic work.
+- Preserved the existing Keychain record format, salts, algorithm, iteration count, legacy compatibility, cooldown semantics, and Sign in with Apple flow.
+- Added a controllable async-deriver regression proving the MainActor advances during derivation and overlapping credential operations are rejected before they can race.
+
 ## 2026-07-19 — Email sign-in attempt cooldown
 
 - Added an in-memory, normalized-email limiter that starts a 30-second cooldown on the fifth consecutive failed local sign-in attempt and retains at most 32 recent addresses.
