@@ -45,6 +45,31 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testHomePreferencesPersistIndependentlyAndRestoreDefaults() {
+        let suite = "HomePreferencesTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let preferences = HomePreferences(defaults: defaults)
+
+        XCTAssertTrue(preferences.isDefault)
+        preferences.showsSavedStations = false
+        preferences.showsSmartInsight = false
+
+        let restored = HomePreferences(defaults: defaults)
+        XCTAssertFalse(restored.showsSavedStations)
+        XCTAssertTrue(restored.showsSavedRoutes)
+        XCTAssertFalse(restored.showsSmartInsight)
+        XCTAssertFalse(restored.isDefault)
+
+        restored.restoreDefaults()
+        let reset = HomePreferences(defaults: defaults)
+        XCTAssertTrue(reset.showsSavedStations)
+        XCTAssertTrue(reset.showsSavedRoutes)
+        XCTAssertTrue(reset.showsSmartInsight)
+        XCTAssertTrue(reset.isDefault)
+    }
+
+    @MainActor
     func testLiveActivityPlanStartsOrUpdatesOneMatchingDeparture() {
         let target = LiveActivityDescriptor(line: "U1", destination: "Leopoldau", stop: "Karlsplatz")
         let other = LiveActivityDescriptor(line: "D", destination: "Nussdorf", stop: "Schottentor")

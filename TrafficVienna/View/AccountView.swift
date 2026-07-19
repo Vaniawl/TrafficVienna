@@ -54,6 +54,13 @@ struct AccountView: View {
                     .accessibilityIdentifier("account.appearance")
 
                     NavigationLink {
+                        HomeSettingsView()
+                    } label: {
+                        Label("Home screen", systemImage: "rectangle.grid.1x2")
+                    }
+                    .accessibilityIdentifier("account.homeSettings")
+
+                    NavigationLink {
                         RoutinesView()
                     } label: {
                         Label("Travel routines", systemImage: "clock.arrow.2.circlepath")

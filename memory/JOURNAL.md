@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — User-configurable Home modules
+
+- Added a localized Account destination for independently showing or hiding saved stations, saved routes, and the contextual Smart insight on Home.
+- Persisted layout preferences locally with default-on migration behavior and a one-tap default-layout restore that never deletes the underlying travel data.
+- Applied preferences consistently to permission, empty, and live Nearby dashboards while retaining the existing root-owned data and network stores.
+- Added isolated persistence/reset coverage and an end-to-end toggle → hidden Home module → restored module regression.
+
 ## 2026-07-19 — Discoverable visual appearance presets
 
 - Added an Account destination with a visual two-column chooser for all existing color/card/color-scheme presets and an immediate selected-state preview.

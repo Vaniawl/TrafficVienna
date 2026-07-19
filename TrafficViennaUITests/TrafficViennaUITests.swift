@@ -168,9 +168,52 @@ final class TrafficViennaUITests: XCTestCase {
         XCTAssertEqual(XCTWaiter.wait(for: [viennaSelected], timeout: 3), .completed)
         app.buttons["BackButton"].tap()
 
+        let homeSettings = app.descendants(matching: .any)["account.homeSettings"]
+        XCTAssertTrue(homeSettings.waitForExistence(timeout: 3))
+        homeSettings.tap()
+        XCTAssertTrue(app.navigationBars["Home screen"].waitForExistence(timeout: 3))
+        let smartInsightToggle = app.switches["homeSettings.smartInsight"]
+        XCTAssertTrue(smartInsightToggle.waitForExistence(timeout: 3))
+        if smartInsightToggle.value as? String == "0" {
+            smartInsightToggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+            let normalizedOn = XCTNSPredicateExpectation(
+                predicate: NSPredicate(format: "value == %@", "1"),
+                object: smartInsightToggle
+            )
+            XCTAssertEqual(XCTWaiter.wait(for: [normalizedOn], timeout: 3), .completed)
+        }
+        XCTAssertEqual(smartInsightToggle.value as? String, "1")
+        smartInsightToggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        let smartInsightOff = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "value == %@", "0"),
+            object: smartInsightToggle
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [smartInsightOff], timeout: 3), .completed)
+        app.buttons["BackButton"].tap()
+
         app.buttons["Done"].tap()
         app.tabBars.buttons["Nearby"].tap()
         XCTAssertTrue(app.staticTexts["Codex Rider"].waitForExistence(timeout: 3))
+        XCTAssertFalse(app.descendants(matching: .any)["nearby.smartInsight"].exists)
+
+        let nearbyAccount = app.buttons["nearby.account"]
+        XCTAssertTrue(nearbyAccount.waitForExistence(timeout: 3))
+        nearbyAccount.tap()
+        let homeSettingsAgain = app.descendants(matching: .any)["account.homeSettings"]
+        XCTAssertTrue(homeSettingsAgain.waitForExistence(timeout: 3))
+        homeSettingsAgain.tap()
+        let smartInsightToggleAgain = app.switches["homeSettings.smartInsight"]
+        XCTAssertTrue(smartInsightToggleAgain.waitForExistence(timeout: 3))
+        XCTAssertEqual(smartInsightToggleAgain.value as? String, "0")
+        smartInsightToggleAgain.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        let smartInsightOn = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "value == %@", "1"),
+            object: smartInsightToggleAgain
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [smartInsightOn], timeout: 3), .completed)
+        app.buttons["BackButton"].tap()
+        app.buttons["Done"].tap()
+        XCTAssertTrue(app.descendants(matching: .any)["nearby.smartInsight"].waitForExistence(timeout: 3))
     }
 
     func testSearchCanSaveStationWithoutOpeningDetails() {

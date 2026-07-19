@@ -33,6 +33,7 @@ struct RootTabView: View {
     @StateObject private var disruptionsVM = DisruptionsViewModel()
     @StateObject private var networkMonitor = NetworkMonitor()
     @StateObject private var themeManager = ThemeManager.shared
+    @StateObject private var homePreferences = HomePreferences()
     @AppStorage("hasOnboarded") private var hasOnboarded = false
     @State private var selectedTab: AppTab = .nearby
     @State private var routedStation: Station?
@@ -94,6 +95,7 @@ struct RootTabView: View {
                 NavigationStack { StationDetailView(station: station) }
             }
             .environmentObject(themeManager)
+            .environmentObject(homePreferences)
             .environmentObject(favoritesVM)
             .environmentObject(recentSearches)
     }

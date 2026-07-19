@@ -1457,6 +1457,22 @@
         }
       }
     },
+    "Hidden modules keep their data and can be shown again at any time.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausgeblendete Module behalten ihre Daten und können jederzeit wieder angezeigt werden."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Приховані модулі зберігають свої дані, і їх можна будь-коли показати знову."
+          }
+        }
+      }
+    },
     "Hide password": {
       "localizations": {
         "de": {
@@ -1469,6 +1485,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Приховати пароль"
+          }
+        }
+      }
+    },
+    "Home modules": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Startseitenmodule"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Модулі головного екрана"
+          }
+        }
+      }
+    },
+    "Home screen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Startseite"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Головний екран"
           }
         }
       }
@@ -1661,6 +1709,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Відправлення наживо"
+          }
+        }
+      }
+    },
+    "Live departures for your favourite lines": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live-Abfahrten deiner Lieblingslinien"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Актуальні відправлення обраних ліній"
           }
         }
       }
@@ -2322,6 +2386,22 @@
         }
       }
     },
+    "Quick access to your favourite stops": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schnellzugriff auf deine Lieblingshaltestellen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Швидкий доступ до улюблених зупинок"
+          }
+        }
+      }
+    },
     "Real-time departures and service updates": {
       "localizations": {
         "de": {
@@ -2398,6 +2478,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Оновити відправлення"
+          }
+        }
+      }
+    },
+    "Relevant alerts, routines, and updates": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Relevante Meldungen, Routinen und Aktualisierungen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Актуальні зміни руху, сценарії та оновлення"
           }
         }
       }
@@ -2526,6 +2622,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Видалити станцію з обраного"
+          }
+        }
+      }
+    },
+    "Restore default layout": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standardlayout wiederherstellen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відновити типовий вигляд"
           }
         }
       }
@@ -3006,6 +3118,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Вийти"
+          }
+        }
+      }
+    },
+    "Smart insight": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smarte Übersicht"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Розумна підказка"
           }
         }
       }

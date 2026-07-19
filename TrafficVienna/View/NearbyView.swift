@@ -8,6 +8,7 @@ struct NearbyView: View {
     @EnvironmentObject private var auth: AuthStore
     @EnvironmentObject private var router: AppRouter
     @EnvironmentObject private var routines: CommuteRoutineStore
+    @EnvironmentObject private var homePreferences: HomePreferences
     @ObservedObject private var favoritesVM: FavoritesListViewModel
     @ObservedObject private var disruptionsVM: DisruptionsViewModel
     @Environment(\.openURL) private var openURL
@@ -134,9 +135,9 @@ struct NearbyView: View {
                 topBar
                 heroCard(state)
                 quickActions
-                favoriteStationsStrip
-                favoriteRoutesSection
-                insightCard
+                if homePreferences.showsSavedStations { favoriteStationsStrip }
+                if homePreferences.showsSavedRoutes { favoriteRoutesSection }
+                if homePreferences.showsSmartInsight { insightCard }
             }
             .padding(.horizontal, 18)
             .padding(.top, 12)
@@ -366,6 +367,7 @@ struct NearbyView: View {
         .padding(18)
         .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
         .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+        .accessibilityIdentifier("nearby.smartInsight")
     }
 
     private var insightDestination: AppRouter.Destination {
@@ -410,12 +412,16 @@ struct NearbyView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 18).padding(.vertical, 12)
                 quickActions.padding(.horizontal, 8).padding(.bottom, 8)
-                favoriteStationsStrip
-                    .padding(.horizontal, 18)
-                    .padding(.bottom, 8)
-                favoriteRoutesSection
-                    .padding(.horizontal, 18)
-                    .padding(.bottom, 8)
+                if homePreferences.showsSavedStations {
+                    favoriteStationsStrip
+                        .padding(.horizontal, 18)
+                        .padding(.bottom, 8)
+                }
+                if homePreferences.showsSavedRoutes {
+                    favoriteRoutesSection
+                        .padding(.horizontal, 18)
+                        .padding(.bottom, 8)
+                }
 
                 ForEach(vm.items) { item in
                     NavigationLink { StationDetailView(station: item.station) } label: {
@@ -530,4 +536,5 @@ private enum DashboardState {
     NavigationStack { NearbyView(store: StationStore(), locationManager: LocationManager()) }
         .environmentObject(AuthStore())
         .environmentObject(CommuteRoutineStore())
+        .environmentObject(HomePreferences())
 }
