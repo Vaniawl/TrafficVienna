@@ -1691,6 +1691,27 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(filtered.first?.distance, items.first { $0.id == 2 }?.distance)
     }
 
+    func testMapStationListInputKeyInvalidatesOnlyForOrderingInputs() {
+        let stations = [
+            Station(id: 1, diva: 1, name: "One", lat: 48.20, lon: 16.37),
+            Station(id: 2, diva: 2, name: "Two", lat: 48.21, lon: 16.38)
+        ]
+        let origin = CLLocation(latitude: 48.2000, longitude: 16.3700)
+
+        let key = MapStationListInputKey(stations: stations, origin: origin)
+
+        XCTAssertEqual(key, MapStationListInputKey(stations: stations, origin: origin))
+        XCTAssertNotEqual(key, MapStationListInputKey(stations: Array(stations.reversed()), origin: origin))
+        XCTAssertNotEqual(key, MapStationListInputKey(stations: stations, origin: nil))
+        XCTAssertNotEqual(
+            key,
+            MapStationListInputKey(
+                stations: stations,
+                origin: CLLocation(latitude: 48.2001, longitude: 16.3700)
+            )
+        )
+    }
+
     func testWalkingEstimateUsesSharedMinutesAndDistanceFormatting() {
         XCTAssertEqual(WalkingEstimate(distanceMeters: 280).minutes, 4)
         XCTAssertEqual(WalkingEstimate(distanceMeters: 280).text, "4 min · 280 m")

@@ -77,6 +77,18 @@ struct MapStationListItem: Identifiable {
     var walkingEstimate: WalkingEstimate? { distance.map(WalkingEstimate.init(distanceMeters:)) }
 }
 
+struct MapStationListInputKey: Equatable {
+    let stationIDs: [Int]
+    let latitude: Double?
+    let longitude: Double?
+
+    init(stations: [Station], origin: CLLocation?) {
+        stationIDs = stations.map(\.id)
+        latitude = origin?.coordinate.latitude
+        longitude = origin?.coordinate.longitude
+    }
+}
+
 enum MapStationListOrder {
     static func items(_ stations: [Station], from origin: CLLocation?) -> [MapStationListItem] {
         guard let origin else {
@@ -252,9 +264,26 @@ private struct MapStationListView: View {
     let walkingOrigin: CLLocation?
     @Environment(\.dismiss) private var dismiss
     @State private var query = ""
+    @State private var orderedItems: [MapStationListItem]
+
+    init(
+        stations: [Station],
+        favoritesVM: FavoritesListViewModel,
+        favoritesOnly: Binding<Bool>,
+        walkingOrigin: CLLocation?
+    ) {
+        self.stations = stations
+        _favoritesVM = ObservedObject(wrappedValue: favoritesVM)
+        _favoritesOnly = favoritesOnly
+        self.walkingOrigin = walkingOrigin
+        _orderedItems = State(initialValue: MapStationListOrder.items(stations, from: walkingOrigin))
+    }
+
+    private var inputKey: MapStationListInputKey {
+        MapStationListInputKey(stations: stations, origin: walkingOrigin)
+    }
 
     private var displayedItems: [MapStationListItem] {
-        let orderedItems = MapStationListOrder.items(stations, from: walkingOrigin)
         return MapStationListSearch.matching(orderedItems, query: query)
     }
 
@@ -349,6 +378,9 @@ private struct MapStationListView: View {
             }
         }
         .tint(NeoDesign.accent)
+        .onChange(of: inputKey) { _, _ in
+            orderedItems = MapStationListOrder.items(stations, from: walkingOrigin)
+        }
     }
 
 }

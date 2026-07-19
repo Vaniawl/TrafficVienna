@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Cached map-list ordering
+
+- Cached visible-stop row ordering and user distances in view state instead of rebuilding them on every SwiftUI body evaluation while typing search text or toggling favourites.
+- Added an explicit input key that invalidates the cache only when ordered station IDs or the user's exact coordinates change, keeping the sheet synchronized with map filters and location updates.
+- Left query filtering lightweight and independent from Core Location work, while preserving initial content, stable ordering, walking estimates, and no-location behavior.
+- Passed repository/OpenCode validators and the full iPhone 17 suite: 171 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Reused map-list walking distances
 
 - Introduced a stable visible-stop row value carrying each station and its optional user distance, computed once when the map sheet orders its current stations.
