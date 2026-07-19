@@ -1458,7 +1458,6 @@ final class TrafficViennaTests: XCTestCase {
         await viewModel.load()
 
         XCTAssertGreaterThan(viewModel.items.count, 1)
-        XCTAssertTrue(viewModel.items.allSatisfy { !$0.lines.isEmpty })
         XCTAssertTrue(viewModel.items.allSatisfy { !$0.cardContent.rows.isEmpty })
         XCTAssertGreaterThan(network.maxConcurrentMonitorCalls, 1)
     }
@@ -1495,7 +1494,7 @@ final class TrafficViennaTests: XCTestCase {
         await first.value
 
         XCTAssertEqual(network.callCount, viewModel.items.count)
-        XCTAssertTrue(viewModel.items.allSatisfy { !$0.lines.isEmpty })
+        XCTAssertTrue(viewModel.items.allSatisfy { !$0.cardContent.rows.isEmpty })
     }
 
     @MainActor
@@ -1520,7 +1519,7 @@ final class TrafficViennaTests: XCTestCase {
         await polling.value
         await manualRefresh.value
         XCTAssertEqual(network.callCount, viewModel.items.count)
-        XCTAssertTrue(viewModel.items.allSatisfy { !$0.lines.isEmpty })
+        XCTAssertTrue(viewModel.items.allSatisfy { !$0.cardContent.rows.isEmpty })
         XCTAssertFalse(viewModel.isLoading)
         XCTAssertFalse(viewModel.isRefreshing)
     }

@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Compact off-main Nearby updates
+
+- Removed full raw `[Lines]` payloads from each Nearby UI item after introducing the immutable card snapshot, eliminating duplicate retained response content for up to eight visible stations.
+- Moved monitor flattening and card presentation construction into task-group children and returned only a Sendable snapshot plus freshness to the MainActor for state publication.
+- Preserved first-fill detection, cached presentation during location rebuilds and failed refreshes, overlapping-request guards, manual refresh supersession, exact updated timestamps, and stale indicators.
+- Verified a warning-free build, repository/OpenCode validators, and the full iPhone 17 suite: 175 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Cached Nearby card presentation
 
 - Added an immutable Nearby card snapshot containing sorted unique line badges and at most four prepared departure rows with their minutes and live state.

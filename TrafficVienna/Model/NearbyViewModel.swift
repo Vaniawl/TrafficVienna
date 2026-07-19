@@ -44,12 +44,16 @@ nonisolated struct StationCardContent: Equatable, Sendable {
     }
 }
 
+nonisolated private struct NearbyStationUpdate: Sendable {
+    let cardContent: StationCardContent
+    let freshness: DataFreshness
+}
+
 @MainActor
 final class NearbyViewModel: ObservableObject {
     struct Item: Identifiable {
         let station: Station
         let distance: Double
-        var lines: [Lines] = []
         var cardContent: StationCardContent = .empty
         var failed: Bool = false
         var updatedAt: Date? = nil
@@ -94,7 +98,6 @@ final class NearbyViewModel: ObservableObject {
             .map { pair in
                 Item(station: pair.station,
                      distance: pair.meters,
-                     lines: previous[pair.station.id]?.lines ?? [],
                      cardContent: previous[pair.station.id]?.cardContent ?? .empty,
                      failed: false)
             }
@@ -111,7 +114,7 @@ final class NearbyViewModel: ObservableObject {
             return
         }
 
-        let firstFill = items.allSatisfy { $0.lines.isEmpty }
+        let firstFill = items.allSatisfy { $0.cardContent.rows.isEmpty }
         isLoading = false
         isRefreshing = false
         if firstFill { isLoading = true } else { isRefreshing = true }
@@ -124,33 +127,40 @@ final class NearbyViewModel: ObservableObject {
 
         // MonitorService owns request spacing; overlapping waits avoid adding
         // response latency on top of the required API cadence.
-        await withTaskGroup(of: (Int, ServiceResult<MonitorResponse>?).self) { group in
+        await withTaskGroup(of: (Int, NearbyStationUpdate?).self) { group in
             for item in items {
                 guard let diva = item.station.diva else { continue }
                 let id = item.id
                 group.addTask { [service] in
-                    let result = try? await service.monitorResult(diva: diva, forceRefresh: force)
-                    return (id, result)
+                    guard let result = try? await service.monitorResult(
+                        diva: diva,
+                        forceRefresh: force
+                    ) else { return (id, nil) }
+                    let lines = result.value.data.monitors.flatMap { $0.lines }
+                    return (
+                        id,
+                        NearbyStationUpdate(
+                            cardContent: StationCardContent(lines: lines),
+                            freshness: result.freshness
+                        )
+                    )
                 }
             }
 
-            for await (id, result) in group {
+            for await (id, stationUpdate) in group {
                 guard !Task.isCancelled, generation == loadGeneration else {
                     group.cancelAll()
                     return
                 }
-                guard let result else {
+                guard let stationUpdate else {
                     update(id: id) { $0.failed = true }
                     continue
                 }
-                let lines = result.value.data.monitors.flatMap { $0.lines }
-                let cardContent = StationCardContent(lines: lines)
                 update(id: id) {
-                    $0.lines = lines
-                    $0.cardContent = cardContent
+                    $0.cardContent = stationUpdate.cardContent
                     $0.failed = false
-                    $0.updatedAt = result.freshness.updatedAt
-                    $0.freshness = result.freshness
+                    $0.updatedAt = stationUpdate.freshness.updatedAt
+                    $0.freshness = stationUpdate.freshness
                 }
             }
         }
