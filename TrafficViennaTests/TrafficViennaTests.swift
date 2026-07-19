@@ -536,6 +536,31 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testCurrentRoutineSkipsUnavailableEntriesAndKeepsFirstEqualMatch() {
+        let suite = "RoutineSelectionTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let station = FavoriteStation(id: 1, diva: 123, name: "Karlsplatz")
+        let store = CommuteRoutineStore(defaults: defaults)
+        store.replaceAll(with: [
+            CommuteRoutine(name: "Disabled exact", station: station, hour: 8, isEnabled: false),
+            CommuteRoutine(name: "Wrong weekday", station: station, hour: 8, activeWeekdays: [3]),
+            CommuteRoutine(name: "First equal", station: station, hour: 7, minute: 30),
+            CommuteRoutine(name: "Second equal", station: station, hour: 8, minute: 30)
+        ])
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let monday = calendar.date(from: DateComponents(
+            year: 2026,
+            month: 7,
+            day: 20,
+            hour: 8
+        ))!
+
+        XCTAssertEqual(store.current(at: monday, calendar: calendar)?.name, "First equal")
+    }
+
+    @MainActor
     func testCommuteRoutineEditPreservesIdentityAndPersists() throws {
         let suite = "RoutineEditTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!

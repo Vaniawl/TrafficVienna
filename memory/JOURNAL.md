@@ -1,5 +1,11 @@
 # Journal
 
+## 2026-07-19 — Single-pass commute routine selection
+
+- Replaced Home's current-routine `filter` plus comparator-based `min` with one stable scan, eliminating the candidate array and repeated circular-distance calculations during dashboard recomputation.
+- Preserved enabled/weekday filtering, the two-hour relevance window, midnight wraparound, saved order, and first-match behavior for equal distances with focused regression coverage.
+- Verified a warning-free build, repository/OpenCode validators, and the full iPhone 17 suite: 186 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Capacity-reserved widget batch assembly
 
 - Replaced the widget batch loader's `compactMap` plus `flatMap` chain with direct ordered appends, eliminating the intermediate array of successful batches.

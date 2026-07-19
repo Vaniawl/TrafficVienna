@@ -105,12 +105,18 @@ final class CommuteRoutineStore: ObservableObject {
     func current(at date: Date, calendar: Calendar = .current) -> CommuteRoutine? {
         let components = calendar.dateComponents([.hour, .minute], from: date)
         let currentMinutes = (components.hour ?? 0) * 60 + (components.minute ?? 0)
-        let nearest = routines.filter { $0.isEnabled && $0.isActive(on: date, calendar: calendar) }.min {
-            circularDistance(from: $0.minutesSinceMidnight, to: currentMinutes)
-                < circularDistance(from: $1.minutesSinceMidnight, to: currentMinutes)
+        var nearest: CommuteRoutine?
+        var nearestDistance = Int.max
+
+        for routine in routines where routine.isEnabled && routine.isActive(on: date, calendar: calendar) {
+            let distance = circularDistance(from: routine.minutesSinceMidnight, to: currentMinutes)
+            if distance < nearestDistance {
+                nearest = routine
+                nearestDistance = distance
+            }
         }
-        guard let nearest,
-              circularDistance(from: nearest.minutesSinceMidnight, to: currentMinutes) <= Self.relevanceWindowMinutes else {
+
+        guard nearestDistance <= Self.relevanceWindowMinutes else {
             return nil
         }
         return nearest
