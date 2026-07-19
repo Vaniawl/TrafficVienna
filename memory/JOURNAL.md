@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Navigable saved-route cards
+
+- Turned each resolvable saved route in Favourites into a direct Station Detail link while retaining native swipe deletion, Edit-mode deletion, and reordering.
+- Added the resolved stop name beneath live departure times so route cards communicate both destination and boarding stop.
+- Required canonical StationStore resolution for navigation, leaving malformed or obsolete DIVA records visible and removable without inventing coordinates or station identities.
+- Added resolver regressions and extended the end-to-end flow to save a live line, open its Favourites route card, and return to the correct station.
+
 ## 2026-07-19 — In-place favourites management
 
 - Completed Favourites Edit mode for both saved stations and saved routes with native reorder and delete controls in the same list.

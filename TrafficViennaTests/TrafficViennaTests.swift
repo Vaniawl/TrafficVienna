@@ -623,6 +623,22 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(store.station(diva: diva)?.id, expected.id)
     }
 
+    @MainActor
+    func testFavoriteRouteResolvesOnlyCanonicalStationData() throws {
+        let store = StationStore()
+        let canonical = try XCTUnwrap(store.stations.first { $0.diva != nil })
+        let diva = try XCTUnwrap(canonical.diva)
+        let route = FavoriteRoute(diva: String(diva), lineName: "U1", destination: "Leopoldau")
+
+        XCTAssertEqual(route.station(in: store)?.id, store.station(diva: diva)?.id)
+        XCTAssertNil(FavoriteRoute(
+            diva: "invalid", lineName: "U1", destination: "Leopoldau"
+        ).station(in: store))
+        XCTAssertNil(FavoriteRoute(
+            diva: "-1", lineName: "U1", destination: "Leopoldau"
+        ).station(in: store))
+    }
+
     func testStationSearchRanksExactMatchBeforePartialMatches() {
         let store = StationStore()
         let results = store.stationsSuggestion(matching: "Karlsplatz")

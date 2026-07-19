@@ -136,20 +136,7 @@ struct FavoritesView: View {
     private var linesSection: some View {
         Section("Lines") {
             ForEach(vm.items) { item in
-                VStack(alignment: .leading, spacing: 8) {
-                    DepartureLineRow(
-                        lineName: item.route.lineName,
-                        destination: item.route.destination,
-                        minutes: item.departures.map { $0.liveMinutes },
-                        nextIsLive: item.departures.first?.isRealtime ?? false
-                    )
-                    if let loadError = item.loadError {
-                        Label(loadError, systemImage: "wifi.exclamationmark")
-                            .font(.caption)
-                            .foregroundStyle(.orange)
-                    }
-                }
-                .neoCard()
+                routeRow(item)
                 .listRowInsets(EdgeInsets(top: 6, leading: 18, bottom: 6, trailing: 18))
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
@@ -164,6 +151,43 @@ struct FavoritesView: View {
             .onMove { vm.moveFavoriteRoutes(fromOffsets: $0, toOffset: $1) }
             .onDelete(perform: vm.removeFavoriteRoutes)
         }
+    }
+
+    @ViewBuilder
+    private func routeRow(_ item: FavoriteWithDeparture) -> some View {
+        if let station = item.route.station(in: store) {
+            NavigationLink {
+                StationDetailView(station: station)
+            } label: {
+                routeCard(item)
+            }
+            .accessibilityIdentifier(
+                "favourites.route.\(item.route.diva).\(item.route.lineName).\(item.route.destination)"
+            )
+        } else {
+            routeCard(item)
+        }
+    }
+
+    private func routeCard(_ item: FavoriteWithDeparture) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            DepartureLineRow(
+                lineName: item.route.lineName,
+                destination: item.route.destination,
+                minutes: item.departures.map { $0.liveMinutes },
+                nextIsLive: item.departures.first?.isRealtime ?? false
+            )
+            if let loadError = item.loadError {
+                Label(loadError, systemImage: "wifi.exclamationmark")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+            } else if !item.stopName.isEmpty {
+                Label(item.stopName, systemImage: "tram.fill")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .neoCard()
     }
 
     private var clearAllSection: some View {

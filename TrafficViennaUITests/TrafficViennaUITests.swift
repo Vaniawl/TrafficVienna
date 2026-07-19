@@ -308,6 +308,22 @@ final class TrafficViennaUITests: XCTestCase {
         savedStation.tap()
         XCTAssertTrue(app.navigationBars["Karlsplatz"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.buttons["station.walkingDirections.toolbar"].waitForExistence(timeout: 3))
+        let saveRoute = app.buttons.matching(NSPredicate(
+            format: "label BEGINSWITH %@ AND label ENDSWITH %@",
+            "Save ",
+            " to favourites"
+        )).firstMatch
+        XCTAssertTrue(saveRoute.waitForExistence(timeout: 8))
+        saveRoute.tap()
+        app.buttons["BackButton"].tap()
+
+        let savedRoute = app.descendants(matching: .any).matching(NSPredicate(
+            format: "identifier BEGINSWITH %@",
+            "favourites.route."
+        )).firstMatch
+        XCTAssertTrue(savedRoute.waitForExistence(timeout: 8))
+        savedRoute.tap()
+        XCTAssertTrue(app.navigationBars["Karlsplatz"].waitForExistence(timeout: 3))
         app.buttons["BackButton"].tap()
 
         let nearbyTab = tabBar.buttons["Nearby"]

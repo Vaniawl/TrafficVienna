@@ -12,6 +12,12 @@ nonisolated struct FavoriteRoute: Codable, Hashable {
     let diva: String
     let lineName: String
     let destination: String
+
+    @MainActor
+    func station(in store: StationStoring) -> Station? {
+        guard let diva = Int(diva) else { return nil }
+        return store.station(diva: diva)
+    }
 }
 
 protocol FavoritesRepository: Sendable {
