@@ -1559,6 +1559,50 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(mock.callCount, 4, "The least recently used station should be refetched")
     }
 
+    @MainActor
+    func testMemoryWarningReleasesDecodedCachesWithoutDeletingPersistentCache() async throws {
+        let notificationCenter = NotificationCenter()
+        let mock = MockNetworkManager()
+        let service = MonitorService(network: mock, cacheTTL: 600, minInterval: 0)
+        let coordinator = MemoryPressureCoordinator(
+            notificationCenter: notificationCenter,
+            service: service
+        )
+
+        _ = try await service.monitor(diva: 1)
+        _ = try await service.trafficInfoList()
+        XCTAssertEqual(mock.callCount, 2)
+
+        notificationCenter.post(name: UIApplication.didReceiveMemoryWarningNotification, object: nil)
+        await Task.yield()
+
+        _ = try await service.monitor(diva: 1)
+        _ = try await service.trafficInfoList()
+        XCTAssertEqual(mock.callCount, 4, "Both decoded response caches should be released")
+        XCTAssertEqual(mock.cachedResponseRemovalCount, 0, "The persistent URL cache must remain available")
+        _ = coordinator
+    }
+
+    @MainActor
+    func testMemoryWarningDoesNotCancelActiveMonitorRequest() async throws {
+        let notificationCenter = NotificationCenter()
+        let mock = MockNetworkManager(monitorDelayNanoseconds: 100_000_000)
+        let service = MonitorService(network: mock, cacheTTL: 600, minInterval: 0)
+        let coordinator = MemoryPressureCoordinator(
+            notificationCenter: notificationCenter,
+            service: service
+        )
+        let request = Task { try await service.monitor(diva: 1) }
+        try await Task.sleep(nanoseconds: 10_000_000)
+
+        notificationCenter.post(name: UIApplication.didReceiveMemoryWarningNotification, object: nil)
+        _ = try await request.value
+        _ = try await service.monitor(diva: 1)
+
+        XCTAssertEqual(mock.callCount, 1, "An active response should complete and remain reusable")
+        _ = coordinator
+    }
+
     func testMonitorServiceClearCacheForcesNextNetworkRequest() async throws {
         let mock = MockNetworkManager()
         let service = MonitorService(network: mock, cacheTTL: 30, minInterval: 0)
@@ -1567,6 +1611,7 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(mock.callCount, 1)
 
         await service.clearCache()
+        XCTAssertEqual(mock.cachedResponseRemovalCount, 1)
         _ = try await service.monitor(diva: 60201435)
 
         XCTAssertEqual(mock.callCount, 2)
@@ -2478,6 +2523,7 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
     private var recordedCallCount = 0
     private var activeMonitorCalls = 0
     private var recordedMaxConcurrentMonitorCalls = 0
+    private var recordedCachedResponseRemovalCount = 0
     var shouldFail = false
     var shouldRateLimit = false
     var responseSource: NetworkResponseSource = .network
@@ -2487,6 +2533,7 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
 
     var callCount: Int { lock.withLock { recordedCallCount } }
     var maxConcurrentMonitorCalls: Int { lock.withLock { recordedMaxConcurrentMonitorCalls } }
+    var cachedResponseRemovalCount: Int { lock.withLock { recordedCachedResponseRemovalCount } }
 
     init(
         shouldFail: Bool = false,
@@ -2534,6 +2581,10 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
         if shouldRateLimit { throw MonitorApiError.rateLimited }
         if shouldFail { throw URLError(.notConnectedToInternet) }
         return mockResponse()
+    }
+
+    nonisolated func removeCachedResponses() {
+        lock.withLock { recordedCachedResponseRemovalCount += 1 }
     }
 
     private func beginMonitorCall() {

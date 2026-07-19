@@ -175,11 +175,17 @@ actor MonitorService {
         trafficInfoInFlight?.cancel()
         inFlight = [:]
         trafficInfoInFlight = nil
+        releaseCachedResponses()
+        nextSlot = .distantPast
+        network.removeCachedResponses()
+    }
+
+    /// Releases decoded responses under system memory pressure without
+    /// cancelling useful work or deleting the persistent URL cache.
+    func releaseCachedResponses() {
         cache = [:]
         cacheRecency = []
         trafficInfoCache = nil
-        nextSlot = .distantPast
-        network.removeCachedResponses()
     }
 
     // Shares one in-flight request per DIVA across concurrent callers.

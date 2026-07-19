@@ -1,6 +1,7 @@
 import SwiftUI
 import Combine
 import Network
+import UIKit
 
 @MainActor
 final class NetworkMonitor: ObservableObject {
@@ -26,10 +27,37 @@ final class NetworkMonitor: ObservableObject {
     deinit { monitor.cancel() }
 }
 
+@MainActor
+final class MemoryPressureCoordinator {
+    private let notificationCenter: NotificationCenter
+    private var observer: NSObjectProtocol?
+
+    init(
+        notificationCenter: NotificationCenter = .default,
+        service: MonitorService = .shared
+    ) {
+        self.notificationCenter = notificationCenter
+        observer = notificationCenter.addObserver(
+            forName: UIApplication.didReceiveMemoryWarningNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            Task { await service.releaseCachedResponses() }
+        }
+    }
+
+    deinit {
+        if let observer {
+            notificationCenter.removeObserver(observer)
+        }
+    }
+}
+
 private enum AppTab: String { case nearby, search, map, alerts, favourites }
 
 @MainActor
 final class RootTabState: ObservableObject {
+    private let memoryPressureCoordinator = MemoryPressureCoordinator()
     let store = StationStore(loadSynchronously: false)
     let locationManager = LocationManager()
     let favoritesVM = FavoritesListViewModel()

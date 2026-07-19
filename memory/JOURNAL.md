@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Memory-pressure-aware response caches
+
+- Added one signed-in-session observer for the iOS memory-warning notification rather than duplicating lifecycle handling across live screens.
+- Released decoded station and traffic-alert responses under memory pressure while retaining the bounded-cache policy and allowing active requests to finish.
+- Kept the persistent `URLCache` intact so system pressure does not silently erase the app's offline fallback; the explicit travel-data reset still performs a full cache clear.
+- Added notification-driven regressions proving both decoded caches are released, disk-cache removal is not requested, and an active monitor request is not cancelled.
+
 ## 2026-07-19 — Bounded live-station cache
 
 - Capped the in-memory `MonitorService` station cache at 64 entries so long map/search sessions cannot retain an unbounded number of full API responses.
