@@ -14,6 +14,8 @@
 //                     apart, so a burst of nearby cards can't flood the API.
 //   4. Backoff      — a 316 (rate limited) response is retried with growing
 //                     delays before giving up.
+//   5. Bounded LRU  — only the most recently used station responses stay in
+//                     memory, preventing unbounded growth during long sessions.
 //
 
 import Foundation
@@ -61,6 +63,7 @@ actor MonitorService {
     private let cacheTTL: TimeInterval
     private let minInterval: TimeInterval
     private let maxRetries: Int
+    private let cacheCapacity: Int
 
     private struct CacheEntry {
         let response: MonitorResponse
@@ -68,6 +71,7 @@ actor MonitorService {
     }
 
     private var cache: [Int: CacheEntry] = [:]
+    private var cacheRecency: [Int] = []
     private var trafficInfoCache: (items: [TrafficInfo], timestamp: Date)?
     private var inFlight: [Int: Task<MonitorResponse, Error>] = [:]
     private var trafficInfoInFlight: Task<MonitorResponse, Error>?
@@ -78,12 +82,15 @@ actor MonitorService {
         network: NetworkManaging = NetworkManager(),
         cacheTTL: TimeInterval = 30,
         minInterval: TimeInterval = 0.5,
-        maxRetries: Int = 2
+        maxRetries: Int = 2,
+        cacheCapacity: Int = 64
     ) {
+        precondition(cacheCapacity > 0, "Monitor cache capacity must be positive")
         self.network = network
         self.cacheTTL = cacheTTL
         self.minInterval = minInterval
         self.maxRetries = maxRetries
+        self.cacheCapacity = cacheCapacity
     }
 
     /// Returns monitor data for a station DIVA, served from cache when fresh.
@@ -96,13 +103,14 @@ actor MonitorService {
 
     func monitorResult(diva: Int, forceRefresh: Bool = false) async throws -> ServiceResult<MonitorResponse> {
         if !forceRefresh, let entry = cache[diva], isFresh(entry) {
+            markCacheEntryUsed(diva)
             return ServiceResult(value: entry.response, freshness: .cache(entry.timestamp))
         }
 
         do {
             let response = try await fetchCoalesced(diva: diva)
             if case let .urlCache(storedAt) = response.source {
-                cache[diva] = CacheEntry(response: response, timestamp: storedAt)
+                storeInCache(response, diva: diva, timestamp: storedAt)
                 return ServiceResult(
                     value: response,
                     freshness: .stale(
@@ -112,10 +120,11 @@ actor MonitorService {
                 )
             }
             let timestamp = Date()
-            cache[diva] = CacheEntry(response: response, timestamp: timestamp)
+            storeInCache(response, diva: diva, timestamp: timestamp)
             return ServiceResult(value: response, freshness: .network(timestamp))
         } catch {
             if let stale = cache[diva] {
+                markCacheEntryUsed(diva)
                 return ServiceResult(
                     value: stale.response,
                     freshness: .stale(stale.timestamp, message: error.monitorDisplayMessage)
@@ -167,6 +176,7 @@ actor MonitorService {
         inFlight = [:]
         trafficInfoInFlight = nil
         cache = [:]
+        cacheRecency = []
         trafficInfoCache = nil
         nextSlot = .distantPast
         network.removeCachedResponses()
@@ -204,6 +214,21 @@ actor MonitorService {
 
     private func isFresh(_ entry: CacheEntry) -> Bool {
         Date().timeIntervalSince(entry.timestamp) < cacheTTL
+    }
+
+    private func storeInCache(_ response: MonitorResponse, diva: Int, timestamp: Date) {
+        cache[diva] = CacheEntry(response: response, timestamp: timestamp)
+        markCacheEntryUsed(diva)
+
+        while cache.count > cacheCapacity, let leastRecentlyUsed = cacheRecency.first {
+            cacheRecency.removeFirst()
+            cache[leastRecentlyUsed] = nil
+        }
+    }
+
+    private func markCacheEntryUsed(_ diva: Int) {
+        cacheRecency.removeAll { $0 == diva }
+        cacheRecency.append(diva)
     }
 
     // Claims the next time slot and sleeps until it's due. Reading and advancing

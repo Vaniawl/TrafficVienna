@@ -1536,6 +1536,29 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(mock.callCount, 1, "Second call should hit cache, not network")
     }
 
+    func testMonitorServiceEvictsLeastRecentlyUsedStationAtCapacity() async throws {
+        let mock = MockNetworkManager()
+        let service = MonitorService(
+            network: mock,
+            cacheTTL: 600,
+            minInterval: 0,
+            cacheCapacity: 2
+        )
+
+        _ = try await service.monitor(diva: 1)
+        _ = try await service.monitor(diva: 2)
+        _ = try await service.monitor(diva: 1)
+        _ = try await service.monitor(diva: 3)
+
+        XCTAssertEqual(mock.callCount, 3, "Refreshing recency must not start another request")
+
+        _ = try await service.monitor(diva: 1)
+        XCTAssertEqual(mock.callCount, 3, "The recently used station should remain cached")
+
+        _ = try await service.monitor(diva: 2)
+        XCTAssertEqual(mock.callCount, 4, "The least recently used station should be refetched")
+    }
+
     func testMonitorServiceClearCacheForcesNextNetworkRequest() async throws {
         let mock = MockNetworkManager()
         let service = MonitorService(network: mock, cacheTTL: 30, minInterval: 0)

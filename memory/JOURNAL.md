@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Bounded live-station cache
+
+- Capped the in-memory `MonitorService` station cache at 64 entries so long map/search sessions cannot retain an unbounded number of full API responses.
+- Used least-recently-used eviction, refreshing recency on both fresh hits and stale fallbacks so the working set remains useful online and offline.
+- Kept request coalescing, force refresh, rate-limit backoff, persistent URL-cache handling, and the separate traffic-alert cache unchanged.
+- Added deterministic capacity-two coverage proving that a reused station survives while the least recently used station is refetched.
+
 ## 2026-07-19 — Thermal-pressure-aware runtime
 
 - Extended the root-owned `EnergyMonitor` to react to system thermal-state changes without adding per-screen observers.
