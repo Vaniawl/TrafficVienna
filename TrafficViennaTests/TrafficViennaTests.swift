@@ -2360,6 +2360,39 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(first.id, refreshed.id)
     }
 
+    func testFavoriteLineMatchingPreservesMonitorAndLineOrder() {
+        let favorite = FavoriteRoute(diva: "1", lineName: "U1", destination: "Leopoldau")
+        let emptyStop = LocationStop(
+            properties: Properties(title: "Test", attributes: Attributes(rbl: nil)),
+            geometry: nil
+        )
+        let unmatched = Lines(name: "U2", towards: "Seestadt", departures: Departures(departure: []))
+        let firstMatch = Lines(
+            name: "U1",
+            towards: "Leopoldau",
+            departures: Departures(departure: [
+                Departure(departureTime: DepartureTime(countdown: 2, timePlanned: nil, timeReal: nil))
+            ])
+        )
+        let laterMatch = Lines(
+            name: "U1",
+            towards: "Leopoldau",
+            departures: Departures(departure: [
+                Departure(departureTime: DepartureTime(countdown: 9, timePlanned: nil, timeReal: nil))
+            ])
+        )
+        let monitors = [
+            Monitor(locationStop: emptyStop, lines: [unmatched]),
+            Monitor(locationStop: emptyStop, lines: [firstMatch, laterMatch])
+        ]
+
+        let result = FavoriteRouteLoader.findMatchingLine(in: monitors, for: favorite)
+
+        XCTAssertEqual(result?.name, firstMatch.name)
+        XCTAssertEqual(result?.towards, firstMatch.towards)
+        XCTAssertEqual(result?.departures.departure.first?.departureTime.countdown, 2)
+    }
+
     @MainActor
     func testFavoritesLoadConcurrentlyWhilePreservingSavedOrder() async {
         let routes = [

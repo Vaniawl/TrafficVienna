@@ -132,20 +132,22 @@ nonisolated struct FavoriteRouteLoader: Sendable {
         }
     }
 
-    private static func findMatchingLine(
+    static func findMatchingLine(
         in monitors: [Monitor],
         for favorite: FavoriteRoute
     ) -> Lines? {
-        monitors
-            .flatMap { $0.lines }
-            .first { line in
-                RouteMatching.matches(
-                    lineName: line.name,
-                    towards: line.towards,
-                    favoriteLine: favorite.lineName,
-                    favoriteDestination: favorite.destination
-                )
+        for monitor in monitors {
+            for line in monitor.lines where RouteMatching.matches(
+                lineName: line.name,
+                towards: line.towards,
+                favoriteLine: favorite.lineName,
+                favoriteDestination: favorite.destination
+            ) {
+                return line
             }
+        }
+
+        return nil
     }
 
     private static func mapDepartures(from line: Lines) -> [DepartureInfo] {

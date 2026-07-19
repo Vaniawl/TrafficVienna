@@ -1,5 +1,11 @@
 # Journal
 
+## 2026-07-19 — Allocation-free favourite line matching
+
+- Replaced the favourite loader's flattened monitor-line array with an early-return nested scan, avoiding a temporary allocation for every saved route refresh.
+- Preserved monitor and line response order, route-matching semantics, departure selection, and the first matching line with focused regression coverage.
+- Verified a warning-free build, repository/OpenCode validators, and the full iPhone 17 suite: 184 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Single recent-station snapshot
 
 - Resolved ordered recent-search IDs through the StationStore index once per Search body evaluation and only while the recent mode is visible.
