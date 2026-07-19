@@ -173,8 +173,11 @@ final class FavoritesListViewModel: ObservableObject {
     @Published var stations: [FavoriteStation] = [] {
         didSet { favoriteStationIDs = Set(stations.map(\.id)) }
     }
-    @Published private(set) var favoriteRoutes: [FavoriteRoute] = []
+    @Published private(set) var favoriteRoutes: [FavoriteRoute] = [] {
+        didSet { favoriteRouteSet = Set(favoriteRoutes) }
+    }
     private(set) var favoriteStationIDs: Set<Int> = []
+    private(set) var favoriteRouteSet: Set<FavoriteRoute> = []
 
     private let favoritesRepo: FavoritesRepository
     private let stationsRepo: FavoriteStationsStoring
@@ -196,6 +199,7 @@ final class FavoritesListViewModel: ObservableObject {
         self.stations = stationsRepo.all()
         self.favoriteStationIDs = Set(self.stations.map(\.id))
         self.favoriteRoutes = favoritesRepo.getAll()
+        self.favoriteRouteSet = Set(self.favoriteRoutes)
     }
 
     convenience init(
@@ -263,7 +267,7 @@ final class FavoritesListViewModel: ObservableObject {
 
     func isLineFavorite(diva: Int?, lineName: String, destination: String) -> Bool {
         guard let diva else { return false }
-        return favoriteRoutes.contains(
+        return favoriteRouteSet.contains(
             FavoriteRoute(diva: String(diva), lineName: lineName, destination: destination)
         )
     }

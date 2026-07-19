@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Constant-time favourite route lookup
+
+- Added a synchronized favourite-route set beside the ordered route array, replacing repeated linear line/destination membership scans in Station Detail with constant-time checks.
+- Preserved the ordered array as the Favourites and widget priority source while synchronizing the set through its single published mutation boundary.
+- Covered initialization, add/remove toggles, reordering, batch removal, travel-data restore, and clear behavior without extra repository reads.
+- Verified a warning-free build, repository/OpenCode validators, and the full iPhone 17 suite: 180 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Constant-time favourite station lookup
 
 - Added a synchronized favourite-station ID set to the root-owned favourites view model, replacing repeated linear scans across Search, Map, Nearby, and Station Detail rows with constant-time membership checks.

@@ -2785,6 +2785,40 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testFavoriteRouteSetTracksEveryMutationPathWithoutChangingOrder() {
+        let first = FavoriteRoute(diva: "1", lineName: "U1", destination: "Leopoldau")
+        let second = FavoriteRoute(diva: "2", lineName: "U2", destination: "Seestadt")
+        let third = FavoriteRoute(diva: "3", lineName: "U3", destination: "Ottakring")
+        let viewModel = FavoritesListViewModel(
+            service: MonitorService(network: MockNetworkManager()),
+            favoritesRepo: CountingFavoritesRepository(routes: [first, second]),
+            stationsRepo: CountingFavoriteStationsRepository(),
+            widgetSync: NoopWidgetSync()
+        )
+
+        XCTAssertEqual(viewModel.favoriteRoutes, [first, second])
+        XCTAssertEqual(viewModel.favoriteRouteSet, [first, second])
+        XCTAssertTrue(viewModel.isLineFavorite(diva: 1, lineName: "U1", destination: "Leopoldau"))
+
+        viewModel.toggleLineFavorite(diva: 3, lineName: "U3", destination: "Ottakring")
+        XCTAssertEqual(viewModel.favoriteRouteSet, [first, second, third])
+
+        viewModel.moveFavoriteRoutes(fromOffsets: IndexSet(integer: 2), toOffset: 0)
+        XCTAssertEqual(viewModel.favoriteRoutes, [third, first, second])
+        XCTAssertEqual(viewModel.favoriteRouteSet, [first, second, third])
+
+        viewModel.removeFavoriteRoutes(at: IndexSet(integer: 1))
+        XCTAssertEqual(viewModel.favoriteRoutes, [third, second])
+        XCTAssertEqual(viewModel.favoriteRouteSet, [second, third])
+
+        viewModel.replaceTravelFavorites(stations: [], routes: [first])
+        XCTAssertEqual(viewModel.favoriteRouteSet, [first])
+
+        viewModel.removeAll()
+        XCTAssertTrue(viewModel.favoriteRouteSet.isEmpty)
+    }
+
+    @MainActor
     func testClearTravelFavoritesUpdatesStateAndRepositories() {
         let route = FavoriteRoute(diva: "60200657", lineName: "U1", destination: "Leopoldau")
         let routes = CountingFavoritesRepository(routes: [route])
