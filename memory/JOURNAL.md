@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Inline map-list favourites
+
+- Added a dedicated 44-point star control to every visible-stop row so a station can be saved or removed without leaving the map list.
+- Reused the root-owned favourites view model, keeping map markers, the favourites-only filter, Home, Search, and the Favourites tab synchronized through the existing persistence boundary.
+- Made removal update the favourites-only list immediately, including its actionable empty state when the last visible favourite is removed.
+- Reused the localized add/remove accessibility labels and verified shared-state toggling together with map-filter ordering.
+
 ## 2026-07-19 — Browseable visible-stop map list
 
 - Added a compact List control to Map that presents every currently rendered stop in the same nearest-first order as its markers.

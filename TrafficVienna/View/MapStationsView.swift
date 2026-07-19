@@ -183,7 +183,7 @@ struct MapStationsView: View {
         .sheet(isPresented: $showsStationList) {
             MapStationListView(
                 stations: visibleStations,
-                favoriteStationIDs: favoriteStationIDs,
+                favoritesVM: favoritesVM,
                 favoritesOnly: $favoritesOnly
             )
             .presentationDetents([.medium, .large])
@@ -194,7 +194,7 @@ struct MapStationsView: View {
 
 private struct MapStationListView: View {
     let stations: [Station]
-    let favoriteStationIDs: Set<Int>
+    @ObservedObject var favoritesVM: FavoritesListViewModel
     @Binding var favoritesOnly: Bool
     @Environment(\.dismiss) private var dismiss
 
@@ -217,25 +217,45 @@ private struct MapStationListView: View {
                     }
                 } else {
                     List(stations) { station in
-                        let isFavorite = favoriteStationIDs.contains(station.id)
-                        NavigationLink {
-                            StationDetailView(station: station)
-                        } label: {
-                            HStack(spacing: 14) {
-                                NeoIcon(
-                                    systemName: isFavorite ? "star.fill" : "tram.fill",
-                                    tint: isFavorite ? .yellow : NeoDesign.accent
-                                )
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(station.name)
-                                        .font(.headline)
-                                    Text(station.diva == nil ? "Schedule only" : "Live departures")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
+                        let isFavorite = favoritesVM.isStationFavorite(id: station.id)
+                        HStack(spacing: 8) {
+                            NavigationLink {
+                                StationDetailView(station: station)
+                            } label: {
+                                HStack(spacing: 14) {
+                                    NeoIcon(
+                                        systemName: isFavorite ? "star.fill" : "tram.fill",
+                                        tint: isFavorite ? .yellow : NeoDesign.accent
+                                    )
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text(station.name)
+                                            .font(.headline)
+                                        Text(station.diva == nil ? "Schedule only" : "Live departures")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
                                 }
+                                .contentShape(Rectangle())
                             }
-                            .padding(.vertical, 4)
+                            .buttonStyle(.plain)
+
+                            Button {
+                                withAnimation { favoritesVM.toggleStation(station) }
+                            } label: {
+                                Image(systemName: isFavorite ? "star.fill" : "star")
+                                    .foregroundStyle(isFavorite ? .yellow : .secondary)
+                                    .frame(width: 44, height: 44)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(
+                                isFavorite
+                                    ? "Remove station from favourites"
+                                    : "Add station to favourites"
+                            )
+                            .accessibilityHint(Text(verbatim: station.name))
+                            .accessibilityIdentifier("map.favorite.\(station.id)")
                         }
+                        .padding(.vertical, 4)
                         .accessibilityIdentifier("map.station.\(station.id)")
                     }
                     .listStyle(.plain)
