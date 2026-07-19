@@ -1,5 +1,11 @@
 import SwiftUI
 
+enum RecentStationSelection {
+    static func stations(for ids: [Int], in store: StationStore) -> [Station] {
+        ids.compactMap(store.station(id:))
+    }
+}
+
 struct SearchView: View {
     @ObservedObject var store: StationStore
     @EnvironmentObject private var recents: RecentSearchesStore
@@ -9,15 +15,17 @@ struct SearchView: View {
     @State private var isSearching = false
     @State private var showingClearRecentsConfirmation = false
 
-    private var recentStations: [Station] { recents.ids.compactMap(store.station(id:)) }
-
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 14) {
                 NeoHeader(eyebrow: "Discover", title: "Where to next?", subtitle: "Search every station across Vienna")
                     .padding(.bottom, 8)
 
-                if query.isEmpty { recentContent } else { resultContent }
+                if query.isEmpty {
+                    recentContent(RecentStationSelection.stations(for: recents.ids, in: store))
+                } else {
+                    resultContent
+                }
             }
             .padding(.horizontal, 18).padding(.top, 12).padding(.bottom, 28)
         }
@@ -50,7 +58,7 @@ struct SearchView: View {
         }
     }
 
-    @ViewBuilder private var recentContent: some View {
+    @ViewBuilder private func recentContent(_ recentStations: [Station]) -> some View {
         if recentStations.isEmpty {
             emptyCard(icon: "magnifyingglass", title: "Find your station", text: "Start typing to see live departures anywhere in Vienna.")
         } else {

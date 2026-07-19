@@ -1267,6 +1267,19 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(store.station(id: station.id)?.name, station.name)
     }
 
+    func testRecentStationSelectionPreservesIDOrderAndDropsUnknownStations() throws {
+        let store = StationStore()
+        let first = try XCTUnwrap(store.stations.first)
+        let second = try XCTUnwrap(store.stations.dropFirst().first)
+
+        let stations = RecentStationSelection.stations(
+            for: [second.id, Int.min, first.id],
+            in: store
+        )
+
+        XCTAssertEqual(stations.map(\.id), [second.id, first.id])
+    }
+
     func testStationLookupByDivaUsesDeterministicIndex() throws {
         let store = StationStore()
         let station = try XCTUnwrap(store.stations.filter { $0.diva != nil }.min { $0.id < $1.id })

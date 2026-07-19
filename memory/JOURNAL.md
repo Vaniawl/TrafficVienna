@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Single recent-station snapshot
+
+- Resolved ordered recent-search IDs through the StationStore index once per Search body evaluation and only while the recent mode is visible.
+- Passed that one immutable station snapshot to both the empty-state decision and recent-card list instead of rebuilding it for each SwiftUI access.
+- Preserved stored order and continued dropping unknown/stale station IDs with focused regression coverage.
+- Verified a warning-free build, repository/OpenCode validators, and the full iPhone 17 suite: 183 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Prepared visible-stop presentation
 
 - Stored each visible-stop item's walking estimate alongside its exact distance and normalized name instead of recreating the derived value during every row evaluation.
