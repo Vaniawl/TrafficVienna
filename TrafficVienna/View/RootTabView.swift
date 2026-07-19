@@ -122,7 +122,11 @@ struct RootTabView: View {
 
             Tab("Map", systemImage: "map.fill", value: .map) {
                 NavigationStack {
-                    MapStationsView(store: store, locationManager: locationManager)
+                    MapStationsView(
+                        store: store,
+                        locationManager: locationManager,
+                        favoritesVM: favoritesVM
+                    )
                 }
             }
 

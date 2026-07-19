@@ -227,7 +227,15 @@ struct NearbyView: View {
         HStack(alignment: .top, spacing: 0) {
             actionButton("Locate", icon: "location.fill") { locationManager.requestLocationIfNeeded() }
             NavigationLink { SearchView(store: store) } label: { actionLabel("Search", icon: "magnifyingglass") }
-            NavigationLink { MapStationsView(store: store, locationManager: locationManager) } label: { actionLabel("Map", icon: "map.fill") }
+            NavigationLink {
+                MapStationsView(
+                    store: store,
+                    locationManager: locationManager,
+                    favoritesVM: favoritesVM
+                )
+            } label: {
+                actionLabel("Map", icon: "map.fill")
+            }
             actionButton("Refresh", icon: "arrow.clockwise") { Task { await vm.load(force: true) } }
         }
         .buttonStyle(.plain)

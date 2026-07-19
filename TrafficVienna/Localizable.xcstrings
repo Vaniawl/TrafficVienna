@@ -1473,6 +1473,22 @@
         }
       }
     },
+    "Favourites only": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur Favoriten"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Лише обране"
+          }
+        }
+      }
+    },
     "Favourites, recent searches, routines, appearance, and widget state are stored locally in the app or its shared widget container.": {
       "localizations": {
         "de": {
@@ -3310,6 +3326,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Поділитися відправленням"
+          }
+        }
+      }
+    },
+    "Show all stops": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Haltestellen anzeigen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Показати всі зупинки"
           }
         }
       }

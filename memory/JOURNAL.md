@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Personalized favourite-station map
+
+- Highlighted saved stations with yellow star markers while retaining the standard tram treatment for other visible stops.
+- Added a compact map control to switch between every nearby stop and favourites only, with the visible-stop count following the active filter.
+- Shared the root favourites state across both Map entry paths so updates stay synchronized without duplicate persistence or loading.
+- Preserved the viewport's distance ordering and marker cap, localized the controls in German and Ukrainian, and added deterministic filter coverage.
+
 ## 2026-07-19 — Viewport-aware station map
 
 - Updated map markers around the visible camera centre after each completed pan instead of leaving the original location's stations on screen.

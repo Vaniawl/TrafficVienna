@@ -40,9 +40,21 @@ enum MapStationSelection {
     }
 }
 
+enum MapStationFilter {
+    static func visible(
+        _ stations: [Station],
+        favoriteIDs: Set<Int>,
+        favoritesOnly: Bool
+    ) -> [Station] {
+        guard favoritesOnly else { return stations }
+        return stations.filter { favoriteIDs.contains($0.id) }
+    }
+}
+
 struct MapStationsView: View {
     @ObservedObject var store: StationStore
     @ObservedObject var locationManager: LocationManager
+    @ObservedObject var favoritesVM: FavoritesListViewModel
 
     @State private var position: MapCameraPosition = .automatic
     @State private var selectedID: Int?
@@ -50,6 +62,7 @@ struct MapStationsView: View {
     @State private var stations: [Station] = []
     @State private var markerCenter = CLLocation(latitude: 48.2082, longitude: 16.3738)
     @State private var didCenterOnUser = false
+    @State private var favoritesOnly = false
 
     // Vienna city centre, used until a real location is available.
     private static let viennaCenter = CLLocationCoordinate2D(latitude: 48.2082, longitude: 16.3738)
@@ -58,29 +71,40 @@ struct MapStationsView: View {
 
     private var markerCenterKey: MapCenterKey { MapCenterKey(location: markerCenter) }
     private var userLocationKey: MapCenterKey? { locationManager.userLocation.map(MapCenterKey.init) }
+    private var favoriteStationIDs: Set<Int> { Set(favoritesVM.stations.map(\.id)) }
+    private var visibleStations: [Station] {
+        MapStationFilter.visible(
+            stations,
+            favoriteIDs: favoriteStationIDs,
+            favoritesOnly: favoritesOnly
+        )
+    }
+    private var filterTitle: LocalizedStringKey {
+        favoritesOnly ? "Show all stops" : "Favourites only"
+    }
 
     var body: some View {
-        ZStack(alignment: .top) {
-            Map(position: $position, selection: $selectedID) {
-                UserAnnotation()
-                ForEach(stations) { station in
-                    Marker(station.name, systemImage: "tram.fill",
-                           coordinate: CLLocationCoordinate2D(latitude: station.lat, longitude: station.lon))
-                        .tint(NeoDesign.accent)
-                        .tag(station.id)
-                }
+        Map(position: $position, selection: $selectedID) {
+            UserAnnotation()
+            ForEach(visibleStations) { station in
+                let isFavorite = favoriteStationIDs.contains(station.id)
+                Marker(station.name, systemImage: isFavorite ? "star.fill" : "tram.fill",
+                       coordinate: CLLocationCoordinate2D(latitude: station.lat, longitude: station.lon))
+                    .tint(isFavorite ? .yellow : NeoDesign.accent)
+                    .tag(station.id)
             }
-            .mapControls {
-                MapUserLocationButton()
-                MapCompass()
-            }
-            .onMapCameraChange(frequency: .onEnd) { context in
-                markerCenter = CLLocation(
-                    latitude: context.region.center.latitude,
-                    longitude: context.region.center.longitude
-                )
-            }
-
+        }
+        .mapControls {
+            MapUserLocationButton()
+            MapCompass()
+        }
+        .onMapCameraChange(frequency: .onEnd) { context in
+            markerCenter = CLLocation(
+                latitude: context.region.center.latitude,
+                longitude: context.region.center.longitude
+            )
+        }
+        .safeAreaInset(edge: .top, spacing: 0) {
             VStack(spacing: 8) {
                 if locationManager.userLocation == nil {
                     Text("Showing Vienna centre — enable location to see stops near you.")
@@ -90,7 +114,7 @@ struct MapStationsView: View {
                         .padding(.vertical, 6)
                         .background(.regularMaterial, in: Capsule())
                 }
-                Label("Stops in view: \(stations.count)", systemImage: "tram.fill")
+                Label("Stops in view: \(visibleStations.count)", systemImage: "tram.fill")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 12)
@@ -98,8 +122,28 @@ struct MapStationsView: View {
                     .background(.regularMaterial, in: Capsule())
                     .accessibilityElement(children: .combine)
                     .accessibilityIdentifier("map.visibleStops")
+                Button {
+                    favoritesOnly.toggle()
+                    selectedID = nil
+                    sheetStation = nil
+                } label: {
+                    Label(
+                        filterTitle,
+                        systemImage: favoritesOnly ? "map" : "star.fill"
+                    )
+                    .font(.caption.bold())
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(
+                        favoritesOnly ? NeoDesign.accent : Color(.systemBackground),
+                        in: Capsule()
+                    )
+                    .foregroundStyle(favoritesOnly ? .white : .primary)
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("map.favouritesFilter")
             }
-            .padding(.top, 8)
+            .padding(.vertical, 8)
         }
         .navigationTitle("Map")
         .tint(NeoDesign.accent)
@@ -123,7 +167,7 @@ struct MapStationsView: View {
             ))
         }
         .onChange(of: selectedID) { _, newValue in
-            sheetStation = stations.first { $0.id == newValue }
+            sheetStation = visibleStations.first { $0.id == newValue }
         }
         .sheet(item: $sheetStation, onDismiss: { selectedID = nil }) { station in
             NavigationStack {
@@ -138,6 +182,10 @@ struct MapStationsView: View {
     let lm = LocationManager()
     lm.userLocation = CLLocation(latitude: 48.2008, longitude: 16.3695)
     return NavigationStack {
-        MapStationsView(store: StationStore(), locationManager: lm)
+        MapStationsView(
+            store: StationStore(),
+            locationManager: lm,
+            favoritesVM: FavoritesListViewModel()
+        )
     }
 }
