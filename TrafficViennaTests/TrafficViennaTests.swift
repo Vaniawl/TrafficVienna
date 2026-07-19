@@ -2605,6 +2605,48 @@ final class TrafficViennaTests: XCTestCase {
 
         XCTAssertEqual(merged.map(\.lineName), ["O"])
     }
+
+    func testWidgetBatchLoaderOverlapsWorkAndPreservesInputOrder() async {
+        let probe = BatchExecutionProbe()
+
+        let values = await WidgetBatchLoader.load(
+            [1, 2, 3],
+            spacingNanoseconds: 0
+        ) { value in
+            await probe.begin(value)
+            let delay = UInt64(4 - value) * 20_000_000
+            try? await Task.sleep(nanoseconds: delay)
+            await probe.finish()
+            return [value * 10]
+        }
+
+        let maximumConcurrency = await probe.maximumConcurrency
+        XCTAssertGreaterThan(maximumConcurrency, 1)
+        XCTAssertEqual(values, [10, 20, 30])
+    }
+
+    func testWidgetBatchLoaderCancelsDelayedGroupsBeforeTheyStart() async {
+        let probe = BatchExecutionProbe()
+        let load = Task {
+            await WidgetBatchLoader.load(
+                [1, 2, 3],
+                spacingNanoseconds: 1_000_000_000
+            ) { value in
+                await probe.begin(value)
+                try? await Task.sleep(nanoseconds: 200_000_000)
+                await probe.finish()
+                return [value]
+            }
+        }
+        await probe.waitForStartedCount(1)
+
+        load.cancel()
+        let values = await load.value
+
+        let startedValues = await probe.startedValues
+        XCTAssertEqual(startedValues, [1])
+        XCTAssertEqual(values, [1])
+    }
 }
 
 private func reminderRequest(
@@ -2769,6 +2811,33 @@ private actor ExecutionThreadProbe {
 
     func record(_ value: Bool) {
         values.append(value)
+    }
+}
+
+private actor BatchExecutionProbe {
+    private var activeCount = 0
+    private(set) var maximumConcurrency = 0
+    private(set) var startedValues: [Int] = []
+    private var startWaiters: [(count: Int, continuation: CheckedContinuation<Void, Never>)] = []
+
+    func begin(_ value: Int) {
+        activeCount += 1
+        maximumConcurrency = max(maximumConcurrency, activeCount)
+        startedValues.append(value)
+        let ready = startWaiters.filter { startedValues.count >= $0.count }
+        startWaiters.removeAll { startedValues.count >= $0.count }
+        ready.forEach { $0.continuation.resume() }
+    }
+
+    func finish() {
+        activeCount -= 1
+    }
+
+    func waitForStartedCount(_ count: Int) async {
+        guard startedValues.count < count else { return }
+        await withCheckedContinuation { continuation in
+            startWaiters.append((count, continuation))
+        }
     }
 }
 

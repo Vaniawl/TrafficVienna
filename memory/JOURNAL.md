@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Staggered concurrent widget refresh
+
+- Replaced sequential per-station widget fetches with a deterministic task group, reducing timeline latency when up to three saved routes belong to different stations.
+- Kept request starts 500 milliseconds apart to avoid a burst against Wiener Linien while allowing network waits to overlap within the widget extension's execution window.
+- Grouped multiple saved routes at the same DIVA into one request, preserved selected-route output order, and retained cached rows when only part of a refresh succeeds.
+- Added shared batch-loader regressions for concurrency, deterministic ordering, and cancellation before delayed work starts; the App Group schema and timeline cadence remain unchanged.
+
 ## 2026-07-19 — Off-main dashboard batch processing
 
 - Removed explicit MainActor inheritance from Nearby and Favourites task-group children so batched live-response work no longer queues behind UI updates.

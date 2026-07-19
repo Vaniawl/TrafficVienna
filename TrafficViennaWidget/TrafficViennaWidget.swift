@@ -23,7 +23,7 @@ private let widgetLastUpdatedKey = "widget_last_updated"
 private let widgetLastFetchAttemptKey = "widget_last_fetch_attempt"
 
 // Local copy of favorites model stored in App Group
-private struct FavoriteRoute: Codable, Hashable {
+private struct FavoriteRoute: Codable, Hashable, Sendable {
     let diva: String
     let lineName: String
     let destination: String
@@ -31,6 +31,11 @@ private struct FavoriteRoute: Codable, Hashable {
     var widgetKey: WidgetRouteKey {
         WidgetRouteKey(lineName: lineName, destination: destination)
     }
+}
+
+private struct FavoriteStationGroup: Sendable {
+    let diva: Int
+    var favourites: [FavoriteRoute]
 }
 
 private let favoritesKey = "favorite_routes"
@@ -143,22 +148,33 @@ struct Provider: AppIntentTimelineProvider {
         let routes = loadFavoritesFromDefaults()
         guard !routes.isEmpty else { return ([], true) }
 
-        var fresh: [WidgetDepartureData] = []
         let selected = Array(routes.prefix(3))
-        let grouped = Dictionary(grouping: selected, by: \.diva)
-        for (divaText, favourites) in grouped {
-            guard let diva = Int(divaText) else { continue }
-            do {
-                let response = try await fetchMonitorData(diva: diva, includeArea: true)
-                for favourite in favourites {
-                    if let item = extractWidgetData(from: response, matching: favourite) {
-                        fresh.append(item)
-                    }
-                }
-            } catch {
-                continue
+        var groups: [FavoriteStationGroup] = []
+        var groupIndexByDiva: [Int: Int] = [:]
+        for favourite in selected {
+            guard let diva = Int(favourite.diva) else { continue }
+            if let index = groupIndexByDiva[diva] {
+                groups[index].favourites.append(favourite)
+            } else {
+                groupIndexByDiva[diva] = groups.count
+                groups.append(FavoriteStationGroup(diva: diva, favourites: [favourite]))
             }
         }
+
+        let fresh = await WidgetBatchLoader.load(
+            groups,
+            spacingNanoseconds: 500_000_000
+        ) { group in
+            do {
+                let response = try await fetchMonitorData(diva: group.diva, includeArea: true)
+                return group.favourites.compactMap {
+                    extractWidgetData(from: response, matching: $0)
+                }
+            } catch {
+                return []
+            }
+        }
+
         guard !fresh.isEmpty else { return nil }
         let items = WidgetDataMerge.ordered(
             selected: selected.map(\.widgetKey),
