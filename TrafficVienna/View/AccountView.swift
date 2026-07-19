@@ -10,6 +10,7 @@ struct AccountView: View {
     @State private var removalError: String?
     @State private var showingTravelDataClear = false
     @State private var showingDisplayNameEditor = false
+    @State private var showingAbout = false
     @State private var displayNameDraft = ""
 
     var body: some View {
@@ -82,6 +83,22 @@ struct AccountView: View {
                 }
 
                 Section {
+                    NavigationLink {
+                        PrivacyDataView()
+                    } label: {
+                        Label("Privacy & data", systemImage: "hand.raised")
+                    }
+                    .accessibilityIdentifier("account.privacyData")
+
+                    Button {
+                        showingAbout = true
+                    } label: {
+                        Label("About", systemImage: "info.circle")
+                    }
+                    .accessibilityIdentifier("account.about")
+                }
+
+                Section {
                     Button("Sign out", role: .destructive) {
                         auth.signOut()
                         dismiss()
@@ -97,6 +114,9 @@ struct AccountView: View {
             .navigationTitle("Account")
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
+            }
+            .sheet(isPresented: $showingAbout) {
+                AboutView()
             }
             .alert("Edit display name", isPresented: $showingDisplayNameEditor) {
                 TextField("Display name", text: $displayNameDraft)

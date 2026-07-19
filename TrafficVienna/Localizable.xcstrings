@@ -1057,6 +1057,22 @@
         }
       }
     },
+    "Email accounts and preferences do not sync between devices.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E-Mail-Konten und Einstellungen werden nicht zwischen Geräten synchronisiert."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Акаунти електронної пошти й налаштування не синхронізуються між пристроями."
+          }
+        }
+      }
+    },
     "Email accounts are stored securely on this device. Apple ID uses Apple's private authentication flow.": {
       "localizations": {
         "de": {
@@ -1085,6 +1101,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Неправильна електронна адреса або пароль."
+          }
+        }
+      }
+    },
+    "Email password verifiers stay in Keychain on this device. Sign in with Apple uses Apple’s system authentication service. Traffic Vienna has no account server.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E-Mail-Passwortprüfwerte bleiben im Schlüsselbund auf diesem Gerät. Mit Apple anmelden nutzt Apples Systemdienst zur Authentifizierung. Traffic Vienna betreibt keinen Kontoserver."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Засіб перевірки пароля електронної пошти зберігається у Keychain на цьому пристрої. Вхід з Apple використовує системну службу автентифікації Apple. Traffic Vienna не має сервера акаунтів."
           }
         }
       }
@@ -1345,6 +1377,22 @@
         }
       }
     },
+    "Favourites, recent searches, routines, appearance, and widget state are stored locally in the app or its shared widget container.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favoriten, letzte Suchanfragen, Routinen, Erscheinungsbild und Widget-Status werden lokal in der App oder ihrem gemeinsamen Widget-Container gespeichert."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обране, недавні пошуки, сценарії, вигляд і стан віджета зберігаються локально в застосунку або спільному контейнері віджета."
+          }
+        }
+      }
+    },
     "Filter": {
       "localizations": {
         "de": {
@@ -1517,6 +1565,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Головний екран"
+          }
+        }
+      }
+    },
+    "Identity": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Identität"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ідентифікація"
           }
         }
       }
@@ -1858,6 +1922,38 @@
         }
       }
     },
+    "Location": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standort"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Геолокація"
+          }
+        }
+      }
+    },
+    "Location access is optional and helps find nearby stops. Traffic Vienna does not save your coordinates or send them with transit requests.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Standortzugriff ist optional und hilft, Haltestellen in der Nähe zu finden. Traffic Vienna speichert deine Koordinaten nicht und sendet sie nicht mit Verkehrsanfragen."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Доступ до геолокації необов’язковий і допомагає знаходити зупинки поруч. Traffic Vienna не зберігає ваші координати й не надсилає їх у запитах до транспортного сервісу."
+          }
+        }
+      }
+    },
     "Location is turned off.": {
       "localizations": {
         "de": {
@@ -1986,6 +2082,22 @@
         }
       }
     },
+    "Network requests": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Netzwerkanfragen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Мережеві запити"
+          }
+        }
+      }
+    },
     "next departure in %lld minutes": {
       "localizations": {
         "de": {
@@ -2014,6 +2126,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Нічна"
+          }
+        }
+      }
+    },
+    "No advertising or tracking": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Werbung oder Nachverfolgung"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Без реклами та відстеження"
           }
         }
       }
@@ -2306,6 +2434,22 @@
         }
       }
     },
+    "On this device": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf diesem Gerät"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На цьому пристрої"
+          }
+        }
+      }
+    },
     "Open in Maps": {
       "localizations": {
         "de": {
@@ -2366,6 +2510,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Готуємо Відень…"
+          }
+        }
+      }
+    },
+    "Privacy & data": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datenschutz & Daten"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Приватність і дані"
           }
         }
       }
@@ -3426,6 +3586,38 @@
         }
       }
     },
+    "Traffic Vienna contains no ads, analytics, or tracking SDKs.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traffic Vienna enthält keine Werbung, Analysen oder Tracking-SDKs."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traffic Vienna не містить реклами, аналітики чи SDK для відстеження."
+          }
+        }
+      }
+    },
+    "Traffic Vienna requests departures and service alerts over HTTPS using public stop identifiers. Wiener Linien can observe the request’s source IP address.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traffic Vienna ruft Abfahrten und Verkehrsmeldungen per HTTPS mit öffentlichen Haltestellenkennungen ab. Die Wiener Linien können die Quell-IP-Adresse der Anfrage sehen."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traffic Vienna запитує відправлення та зміни руху через HTTPS, використовуючи публічні ідентифікатори зупинок. Wiener Linien може бачити IP-адресу джерела запиту."
+          }
+        }
+      }
+    },
     "Traffic Vienna user": {
       "localizations": {
         "de": {
@@ -3438,6 +3630,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Користувач Traffic Vienna"
+          }
+        }
+      }
+    },
+    "Travel preferences": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reiseeinstellungen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Налаштування поїздок"
           }
         }
       }
@@ -3618,6 +3826,22 @@
         }
       }
     },
+    "Used only when needed": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur bei Bedarf verwendet"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Використовується лише за потреби"
+          }
+        }
+      }
+    },
     "Uses your Apple ID to create or open your account": {
       "localizations": {
         "de": {
@@ -3758,6 +3982,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Куди далі?"
+          }
+        }
+      }
+    },
+    "Wiener Linien live data": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live-Daten der Wiener Linien"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Актуальні дані Wiener Linien"
+          }
+        }
+      }
+    },
+    "Your account": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Konto"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ваш акаунт"
           }
         }
       }

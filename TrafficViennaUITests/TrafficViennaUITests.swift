@@ -192,6 +192,21 @@ final class TrafficViennaUITests: XCTestCase {
         XCTAssertEqual(XCTWaiter.wait(for: [smartInsightOff], timeout: 3), .completed)
         app.buttons["BackButton"].tap()
 
+        let privacyData = app.descendants(matching: .any)["account.privacyData"]
+        scrollToMakeHittable(privacyData)
+        privacyData.tap()
+        XCTAssertTrue(app.navigationBars["Privacy & data"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["Identity"].exists)
+        app.buttons["BackButton"].tap()
+
+        let about = app.descendants(matching: .any)["account.about"]
+        scrollToMakeHittable(about)
+        about.tap()
+        XCTAssertTrue(app.navigationBars["About"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.descendants(matching: .any)["about.version"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["about.source"].exists)
+        app.buttons["about.done"].tap()
+
         app.buttons["Done"].tap()
         app.tabBars.buttons["Nearby"].tap()
         XCTAssertTrue(app.staticTexts["Codex Rider"].waitForExistence(timeout: 3))
@@ -383,6 +398,14 @@ final class TrafficViennaUITests: XCTestCase {
     private func tapCenter(of element: XCUIElement) {
         XCTAssertTrue(element.waitForExistence(timeout: 3))
         element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+    }
+
+    private func scrollToMakeHittable(_ element: XCUIElement) {
+        XCTAssertTrue(element.waitForExistence(timeout: 3))
+        for _ in 0..<5 where !element.isHittable {
+            app.tables.firstMatch.swipeUp()
+        }
+        XCTAssertTrue(element.isHittable)
     }
 
 }

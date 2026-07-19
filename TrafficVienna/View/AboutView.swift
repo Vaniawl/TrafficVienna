@@ -34,6 +34,7 @@ struct AboutView: View {
                         Text("Version \(version)")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
+                            .accessibilityIdentifier("about.version")
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
@@ -42,6 +43,7 @@ struct AboutView: View {
 
                 Section("Data") {
                     LabeledContent("Source", value: "Wiener Linien")
+                        .accessibilityIdentifier("about.source")
                     LabeledContent("Provider", value: "Stadt Wien")
                     LabeledContent("Licence", value: "CC BY 4.0")
                     Link(destination: URL(string: "https://www.data.gv.at")!) {
@@ -60,6 +62,7 @@ struct AboutView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
+                        .accessibilityIdentifier("about.done")
                 }
             }
         }

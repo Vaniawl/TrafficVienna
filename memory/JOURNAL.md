@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Discoverable privacy and app information
+
+- Added a localized Privacy & data destination in Account covering on-device identity, optional transient location, local travel preferences, Wiener Linien HTTPS requests, and the absence of ads, analytics, and tracking SDKs.
+- Kept every user-facing privacy statement aligned with the repository privacy notes and avoided implying that the still-pending public privacy-policy URL is complete.
+- Made About discoverable from Account while retaining the existing source, provider, licence, version, and live-data caveat presentation.
+- Added stable accessibility identifiers and end-to-end Account navigation coverage for both Privacy & data and About.
+
 ## 2026-07-19 — Preference-aware Home polling
 
 - Replaced unconditional Home refresh loops with a deterministic polling plan derived from tab activity, location availability, saved-route visibility, and saved-route existence.
