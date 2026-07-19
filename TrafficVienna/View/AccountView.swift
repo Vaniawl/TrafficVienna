@@ -47,6 +47,13 @@ struct AccountView: View {
                     .accessibilityIdentifier("account.editDisplayName")
 
                     NavigationLink {
+                        AppearanceView()
+                    } label: {
+                        Label("Appearance", systemImage: "paintpalette")
+                    }
+                    .accessibilityIdentifier("account.appearance")
+
+                    NavigationLink {
                         RoutinesView()
                     } label: {
                         Label("Travel routines", systemImage: "clock.arrow.2.circlepath")

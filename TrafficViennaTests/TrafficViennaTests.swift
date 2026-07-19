@@ -30,6 +30,21 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testThemeSelectionPersistsWithInvalidValueFallback() {
+        let suite = "ThemeTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let manager = ThemeManager(defaults: defaults)
+
+        XCTAssertEqual(manager.preset, .vienna)
+        manager.preset = .night
+        XCTAssertEqual(ThemeManager(defaults: defaults).preset, .night)
+
+        defaults.set("unsupported-theme", forKey: "themePreset")
+        XCTAssertEqual(ThemeManager(defaults: defaults).preset, .vienna)
+    }
+
+    @MainActor
     func testLiveActivityPlanStartsOrUpdatesOneMatchingDeparture() {
         let target = LiveActivityDescriptor(line: "U1", destination: "Leopoldau", stop: "Karlsplatz")
         let other = LiveActivityDescriptor(line: "D", destination: "Nussdorf", stop: "Schottentor")

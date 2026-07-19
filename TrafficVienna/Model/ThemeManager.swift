@@ -4,15 +4,17 @@ import Combine
 @MainActor
 final class ThemeManager: ObservableObject {
     static let shared = ThemeManager()
+    private let defaults: UserDefaults
 
     @Published var preset: ThemePreset {
         didSet {
-            UserDefaults.standard.set(preset.rawValue, forKey: "themePreset")
+            defaults.set(preset.rawValue, forKey: "themePreset")
         }
     }
 
-    private init() {
-        let raw = UserDefaults.standard.string(forKey: "themePreset") ?? ThemePreset.vienna.rawValue
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+        let raw = defaults.string(forKey: "themePreset") ?? ThemePreset.vienna.rawValue
         preset = ThemePreset(rawValue: raw) ?? .vienna
     }
 }

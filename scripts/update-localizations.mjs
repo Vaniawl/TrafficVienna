@@ -5,7 +5,7 @@ const catalog = JSON.parse(fs.readFileSync(path, "utf8"));
 const original = JSON.stringify(catalog);
 
 const newEnglish = [
-  "%@ leaves soon", "%@ → %@ in about %lld min.", "Account", "Active days", "Add a favourite station first, then create a daily routine.", "Add a favourite station first, then create a routine.", "Add routine", "Cancel", "Cancel all", "Cancel all reminders", "Cancel all reminders?", "Couldn’t start Lock Screen tracking. Please try again.", "Departure reminder", "Departure reminders", "Display name", "Edit", "Edit display name", "Edit routine", "End", "End all", "End all activities", "End all Live Activities?", "Every day", "Keep activities", "Keep reminders", "Live Activities", "Live Activities are turned off. Enable them in Settings to track departures on your Lock Screen.", "Lock Screen tracking", "No departure reminders", "No Live Activities", "Not selected", "Save", "Select at least one day", "Selected", "Set a reminder from any live departure to see it here.", "This removes every Traffic Vienna departure from your Lock Screen.", "Track a live departure to see it on your Lock Screen.", "Tracking %@ on your Lock Screen.", "Updated %@ on your Lock Screen.", "Weekdays", "Weekends",
+  "%@ leaves soon", "%@ → %@ in about %lld min.", "Account", "Active days", "Add a favourite station first, then create a daily routine.", "Add a favourite station first, then create a routine.", "Add routine", "Amber", "Appearance", "Cancel", "Cancel all", "Cancel all reminders", "Cancel all reminders?", "Choose how Traffic Vienna looks on this device.", "Couldn’t start Lock Screen tracking. Please try again.", "Dark", "Dashboard", "Departure reminder", "Departure reminders", "Display name", "Edit", "Edit display name", "Edit routine", "End", "End all", "End all activities", "End all Live Activities?", "Every day", "Forest", "Indigo", "Keep activities", "Keep reminders", "Light", "Live Activities", "Live Activities are turned off. Enable them in Settings to track departures on your Lock Screen.", "Lock Screen tracking", "Monochrome", "Night", "No departure reminders", "No Live Activities", "Not selected", "Ocean", "Rose", "Save", "Select at least one day", "Selected", "Set a reminder from any live departure to see it here.", "System", "This removes every Traffic Vienna departure from your Lock Screen.", "Track a live departure to see it on your Lock Screen.", "Tracking %@ on your Lock Screen.", "Twilight", "Updated %@ on your Lock Screen.", "Vienna", "Weekdays", "Weekends",
   "Remove account", "Remove account from device", "Couldn’t remove account",
   "Clear data", "Clear travel data",
   "This removes favourites, routines, recent searches, departure reminders, Live Activities, widget data, and cached departures. Your sign-in stays active.",
@@ -31,6 +31,7 @@ const newEnglish = [
 
 const de = {
   "CONNECTING":"VERBINDUNG", "NO RESULTS":"KEINE ERGEBNISSE", "OFFLINE":"OFFLINE", "SET UP":"EINRICHTEN",
+  "Amber":"Bernstein", "Appearance":"Erscheinungsbild", "Choose how Traffic Vienna looks on this device.":"Wähle, wie Traffic Vienna auf diesem Gerät aussieht.", "Dark":"Dunkel", "Dashboard":"Dashboard", "Forest":"Wald", "Indigo":"Indigo", "Light":"Hell", "Monochrome":"Monochrom", "Night":"Nacht", "Ocean":"Ozean", "Rose":"Rosa", "System":"System", "Twilight":"Dämmerung", "Vienna":"Wien",
   "Changes whether the password is visible on screen":"Legt fest, ob das Passwort auf dem Bildschirm sichtbar ist", "Collapsed":"Eingeklappt",
   "Allow location once and turn every nearby stop into a live departure board.":"Erlaube einmalig den Standortzugriff und verwandle jede Haltestelle in der Nähe in eine Live-Abfahrtstafel.",
   "Connecting your position to Vienna’s transport network.":"Dein Standort wird mit dem Wiener Verkehrsnetz verbunden.",
@@ -85,6 +86,7 @@ const de = {
 
 const uk = {
   "CONNECTING":"ПІДКЛЮЧЕННЯ", "NO RESULTS":"НЕМАЄ РЕЗУЛЬТАТІВ", "OFFLINE":"ОФЛАЙН", "SET UP":"НАЛАШТУВАТИ",
+  "Amber":"Бурштинова", "Appearance":"Вигляд", "Choose how Traffic Vienna looks on this device.":"Виберіть вигляд Traffic Vienna на цьому пристрої.", "Dark":"Темна", "Dashboard":"Панель", "Forest":"Ліс", "Indigo":"Індиго", "Light":"Світла", "Monochrome":"Монохромна", "Night":"Нічна", "Ocean":"Океан", "Rose":"Рожева", "System":"Системна", "Twilight":"Сутінки", "Vienna":"Відень",
   "Changes whether the password is visible on screen":"Змінює видимість пароля на екрані", "Collapsed":"Згорнуто",
   "Allow location once and turn every nearby stop into a live departure board.":"Надайте доступ до геолокації один раз і перетворіть кожну зупинку поруч на табло актуальних відправлень.",
   "Connecting your position to Vienna’s transport network.":"Підключаємо ваше місцезнаходження до транспортної мережі Відня.",

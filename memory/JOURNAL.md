@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Discoverable visual appearance presets
+
+- Added an Account destination with a visual two-column chooser for all existing color/card/color-scheme presets and an immediate selected-state preview.
+- Adapted the chooser to a single column at accessibility text sizes, preserved 44-point card controls, and exposed localized selected state to VoiceOver.
+- Made ThemeManager persistence injectable so selection and invalid-value fallback are covered without touching the user's real defaults.
+- Localized the complete appearance flow and preset names in German and Ukrainian and added end-to-end Night-to-Vienna selection coverage.
+
 ## 2026-07-19 — Live saved routes on Home
 
 - Added a Revolut-style Saved routes module to every Nearby dashboard state with the first three user-prioritized line/destination favourites, realtime countdowns, stop context, retained errors, and direct Station Detail navigation.

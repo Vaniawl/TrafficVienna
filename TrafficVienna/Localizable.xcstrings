@@ -321,6 +321,22 @@
         }
       }
     },
+    "Amber": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bernstein"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Бурштинова"
+          }
+        }
+      }
+    },
     "An account with this email already exists.": {
       "localizations": {
         "de": {
@@ -333,6 +349,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Акаунт із цією електронною адресою вже існує."
+          }
+        }
+      }
+    },
+    "Appearance": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erscheinungsbild"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вигляд"
           }
         }
       }
@@ -513,6 +545,22 @@
         }
       }
     },
+    "Choose how Traffic Vienna looks on this device.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle, wie Traffic Vienna auf diesem Gerät aussieht."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Виберіть вигляд Traffic Vienna на цьому пристрої."
+          }
+        }
+      }
+    },
     "Clear": {
       "localizations": {
         "de": {
@@ -685,6 +733,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Створити акаунт"
+          }
+        }
+      }
+    },
+    "Dark": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dunkel"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Темна"
+          }
+        }
+      }
+    },
+    "Dashboard": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dashboard"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Панель"
           }
         }
       }
@@ -1297,6 +1377,22 @@
         }
       }
     },
+    "Forest": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wald"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ліс"
+          }
+        }
+      }
+    },
     "Get started": {
       "localizations": {
         "de": {
@@ -1377,6 +1473,22 @@
         }
       }
     },
+    "Indigo": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indigo"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Індиго"
+          }
+        }
+      }
+    },
     "Keep activities": {
       "localizations": {
         "de": {
@@ -1421,6 +1533,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ліцензія"
+          }
+        }
+      }
+    },
+    "Light": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hell"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Світла"
           }
         }
       }
@@ -1730,6 +1858,22 @@
         }
       }
     },
+    "Monochrome": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monochrom"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Монохромна"
+          }
+        }
+      }
+    },
     "Nearby": {
       "localizations": {
         "de": {
@@ -1790,6 +1934,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "наступне відправлення через %lld хв"
+          }
+        }
+      }
+    },
+    "Night": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nacht"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нічна"
           }
         }
       }
@@ -2030,6 +2190,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "зараз"
+          }
+        }
+      }
+    },
+    "Ocean": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ozean"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Океан"
           }
         }
       }
@@ -2366,6 +2542,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Спробувати ще"
+          }
+        }
+      }
+    },
+    "Rose": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rosa"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Рожева"
           }
         }
       }
@@ -2898,6 +3090,22 @@
         }
       }
     },
+    "System": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Системна"
+          }
+        }
+      }
+    },
     "The departures you care about": {
       "localizations": {
         "de": {
@@ -3154,6 +3362,22 @@
         }
       }
     },
+    "Twilight": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dämmerung"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сутінки"
+          }
+        }
+      }
+    },
     "Updated %@ on your Lock Screen.": {
       "localizations": {
         "de": {
@@ -3310,6 +3534,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Версія %@"
+          }
+        }
+      }
+    },
+    "Vienna": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wien"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відень"
           }
         }
       }
