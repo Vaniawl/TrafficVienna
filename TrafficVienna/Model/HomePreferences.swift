@@ -106,6 +106,13 @@ final class HomePreferences: ObservableObject {
         moduleOrder = remaining
     }
 
+    func apply(order: [HomeModule], visible: Set<HomeModule>) {
+        moduleOrder = Self.normalizedOrder(order.map(\.rawValue))
+        showsSavedStations = visible.contains(.savedStations)
+        showsSavedRoutes = visible.contains(.savedRoutes)
+        showsSmartInsight = visible.contains(.smartInsight)
+    }
+
     private nonisolated static func normalizedOrder(_ rawValues: [String]) -> [HomeModule] {
         var seen = Set<HomeModule>()
         let stored = rawValues.compactMap(HomeModule.init(rawValue:)).filter { seen.insert($0).inserted }

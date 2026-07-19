@@ -45,4 +45,13 @@ final class RecentSearchesStore: ObservableObject {
         ids = []
         defaults.removeObject(forKey: key)
     }
+
+    func replaceAll(with ids: [Int]) {
+        self.ids = Array(ids.prefix(maxCount))
+        if self.ids.isEmpty {
+            defaults.removeObject(forKey: key)
+        } else {
+            defaults.set(self.ids, forKey: key)
+        }
+    }
 }

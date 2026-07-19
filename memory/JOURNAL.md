@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Validated local backup restore
+
+- Added a system JSON importer with a preview summary and explicit destructive confirmation before replacing local appearance, Home layout, favourites, routines, and recent searches.
+- Limited input to 1 MB and schema version 1, validated counts, identifiers, coordinates, times, enum values, and string lengths, and normalized duplicates while preserving order.
+- Structurally excluded account and App Lock mutation, captured the current allowlisted state before apply, verified every root-owned store afterward, and reapplied the snapshot on verification failure.
+- Localized success, failure, validation, and confirmation copy in English, German, and Ukrainian and added decoder, future-version, oversized-file, persistence, and UI discoverability coverage.
+
 ## 2026-07-19 — User-controlled local data export
 
 - Added a system JSON file export from Privacy & data for the current profile, safe appearance/Home/App Lock preferences, ordered favourite stations/routes, commute routines, and recent station identifiers.

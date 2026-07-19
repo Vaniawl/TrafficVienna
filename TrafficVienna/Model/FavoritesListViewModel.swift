@@ -261,6 +261,17 @@ final class FavoritesListViewModel: ObservableObject {
         widgetSync.clear()
     }
 
+    func replaceTravelFavorites(stations: [FavoriteStation], routes: [FavoriteRoute]) {
+        invalidateLoads()
+        stationsRepo.setOrder(stations)
+        favoritesRepo.setOrder(routes)
+        self.stations = stations
+        favoriteRoutes = routes
+        items = []
+        errorMessage = nil
+        widgetSync.clear()
+    }
+
     private func invalidateLoads() {
         loadGeneration &+= 1
         isLoading = false

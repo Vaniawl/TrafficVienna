@@ -218,6 +218,9 @@ final class TrafficViennaUITests: XCTestCase {
         let exportData = app.descendants(matching: .any)["privacyData.export"]
         scrollToMakeHittable(exportData)
         XCTAssertTrue(exportData.exists)
+        let restoreData = app.descendants(matching: .any)["privacyData.restore"]
+        scrollToMakeHittable(restoreData)
+        XCTAssertTrue(restoreData.exists)
         app.buttons["BackButton"].tap()
 
         let about = app.descendants(matching: .any)["account.about"]

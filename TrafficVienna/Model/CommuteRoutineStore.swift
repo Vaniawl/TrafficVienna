@@ -168,6 +168,11 @@ final class CommuteRoutineStore: ObservableObject {
         defaults.removeObject(forKey: key)
     }
 
+    func replaceAll(with routines: [CommuteRoutine]) {
+        self.routines = routines
+        save()
+    }
+
     private func save() {
         defaults.set(try? JSONEncoder().encode(routines), forKey: key)
     }

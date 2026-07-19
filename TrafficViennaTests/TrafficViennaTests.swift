@@ -589,6 +589,121 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testTravelDataRestorePlanValidatesVersionAndNormalizesDuplicates() throws {
+        let station = FavoriteStation(id: 42, diva: 123, name: "Karlsplatz", lat: 48.2, lon: 16.3)
+        let route = FavoriteRoute(diva: "123", lineName: "U4", destination: "Heiligenstadt")
+        let routine = CommuteRoutine(name: "Work", station: station, hour: 8, minute: 15)
+        let export = TravelDataExport(
+            exportedAt: Date(timeIntervalSince1970: 0),
+            session: nil,
+            preferences: TravelDataExport.Preferences(
+                appearance: "night",
+                visibleHomeModules: ["savedStations"],
+                homeModuleOrder: ["savedRoutes", "smartInsight", "savedStations"],
+                appLockEnabled: true,
+                appLockTimeoutSeconds: 300
+            ),
+            favoriteStations: [station, station],
+            favoriteRoutes: [route, route],
+            routines: [routine, routine],
+            recentStationIDs: [42, 42, 7]
+        )
+
+        let plan = try TravelDataRestorePlan.decode(export.encoded())
+        XCTAssertEqual(plan.appearance, .night)
+        XCTAssertEqual(plan.favoriteStations, [station])
+        XCTAssertEqual(plan.favoriteRoutes, [route])
+        XCTAssertEqual(plan.routines, [routine])
+        XCTAssertEqual(plan.recentStationIDs, [42, 7])
+        XCTAssertEqual(plan.visibleHomeModules, [.savedStations])
+
+        var json = try JSONSerialization.jsonObject(with: export.encoded()) as! [String: Any]
+        json["schemaVersion"] = 2
+        let futureData = try JSONSerialization.data(withJSONObject: json)
+        XCTAssertThrowsError(try TravelDataRestorePlan.decode(futureData)) {
+            XCTAssertEqual($0 as? TravelDataRestoreError, .unsupportedVersion)
+        }
+        XCTAssertThrowsError(
+            try TravelDataRestorePlan.decode(Data(repeating: 0, count: TravelDataRestorePlan.maximumFileSize + 1))
+        ) {
+            XCTAssertEqual($0 as? TravelDataRestoreError, .fileTooLarge)
+        }
+
+        var invalidJSON = try JSONSerialization.jsonObject(with: export.encoded()) as! [String: Any]
+        var invalidRoutes = invalidJSON["favoriteRoutes"] as! [[String: Any]]
+        invalidRoutes[0]["diva"] = "-1"
+        invalidJSON["favoriteRoutes"] = invalidRoutes
+        XCTAssertThrowsError(try TravelDataRestorePlan.decode(
+            JSONSerialization.data(withJSONObject: invalidJSON)
+        )) {
+            XCTAssertEqual($0 as? TravelDataRestoreError, .invalidBackup)
+        }
+    }
+
+    @MainActor
+    func testTravelDataRestorePlanReplacesAndPersistsAllowlistedState() {
+        let suite = "TravelRestoreTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let routesRepository = CountingFavoritesRepository(routes: [])
+        let stationsRepository = CountingFavoriteStationsRepository()
+        let widget = RecordingWidgetSync()
+        let favorites = FavoritesListViewModel(
+            service: .shared,
+            favoritesRepo: routesRepository,
+            stationsRepo: stationsRepository,
+            widgetSync: widget
+        )
+        let routineStore = CommuteRoutineStore(defaults: defaults)
+        let recents = RecentSearchesStore(defaults: defaults)
+        let theme = ThemeManager(defaults: defaults)
+        let home = HomePreferences(defaults: defaults)
+        let station = FavoriteStation(id: 42, diva: 123, name: "Karlsplatz", lat: 48.2, lon: 16.3)
+        let route = FavoriteRoute(diva: "123", lineName: "U4", destination: "Heiligenstadt")
+        let routine = CommuteRoutine(name: "Work", station: station, hour: 8, minute: 15)
+        let plan = TravelDataRestorePlan(
+            appearance: .night,
+            homeModuleOrder: [.smartInsight, .savedStations, .savedRoutes],
+            visibleHomeModules: [.smartInsight, .savedStations],
+            favoriteStations: [station],
+            favoriteRoutes: [route],
+            routines: [routine],
+            recentStationIDs: [42, 7]
+        )
+
+        XCTAssertTrue(plan.apply(
+            favorites: favorites,
+            routines: routineStore,
+            recentSearches: recents,
+            theme: theme,
+            homePreferences: home
+        ))
+        XCTAssertEqual(favorites.stations, [station])
+        XCTAssertEqual(favorites.favoriteRoutes, [route])
+        XCTAssertEqual(routineStore.routines, [routine])
+        XCTAssertEqual(recents.ids, [42, 7])
+        XCTAssertEqual(theme.preset, .night)
+        XCTAssertEqual(home.moduleOrder, [.smartInsight, .savedStations, .savedRoutes])
+        XCTAssertTrue(home.showsSmartInsight)
+        XCTAssertFalse(home.showsSavedRoutes)
+        XCTAssertEqual(widget.clearCallCount, 1)
+
+        XCTAssertTrue(plan.apply(
+            favorites: favorites,
+            routines: routineStore,
+            recentSearches: recents,
+            theme: theme,
+            homePreferences: home
+        ))
+        XCTAssertEqual(widget.clearCallCount, 2)
+
+        XCTAssertEqual(CommuteRoutineStore(defaults: defaults).routines, [routine])
+        XCTAssertEqual(RecentSearchesStore(defaults: defaults).ids, [42, 7])
+        XCTAssertEqual(ThemeManager(defaults: defaults).preset, .night)
+        XCTAssertEqual(HomePreferences(defaults: defaults).moduleOrder, home.moduleOrder)
+    }
+
+    @MainActor
     func testUnavailableOrFailedBiometricsNeverEnableAppLock() async {
         let suite = "UnavailableAppLockTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!

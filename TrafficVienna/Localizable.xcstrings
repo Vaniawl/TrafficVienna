@@ -481,6 +481,38 @@
         }
       }
     },
+    "Backup contains %lld stations, %lld routes, %lld routines, and %lld recent searches. Existing travel data, appearance, and Home layout will be replaced. Your account and App Lock stay unchanged.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Backup enthält %lld Stationen, %lld Verbindungen, %lld Routinen und %lld letzte Suchanfragen. Vorhandene Reisedaten, Erscheinungsbild und Startseitenlayout werden ersetzt. Dein Konto und die App-Sperre bleiben unverändert."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Резервна копія містить %lld станцій, %lld маршрутів, %lld сценаріїв і %lld недавніх пошуків. Наявні дані поїздок, вигляд і компонування головного екрана буде замінено. Ваш акаунт і блокування застосунку залишаться без змін."
+          }
+        }
+      }
+    },
+    "Backup restored": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backup wiederhergestellt"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Резервну копію відновлено"
+          }
+        }
+      }
+    },
     "Biometric app lock": {
       "localizations": {
         "de": {
@@ -925,6 +957,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Підключаємо ваше місцезнаходження до транспортної мережі Відня."
+          }
+        }
+      }
+    },
+    "Couldn’t complete the data operation": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datenvorgang konnte nicht abgeschlossen werden"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не вдалося завершити операцію з даними"
           }
         }
       }
@@ -3394,6 +3442,22 @@
         }
       }
     },
+    "Replace local data": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lokale Daten ersetzen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Замінити локальні дані"
+          }
+        }
+      }
+    },
     "Require biometric authentication when returning to the app.": {
       "localizations": {
         "de": {
@@ -3438,6 +3502,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Відновити типовий вигляд"
+          }
+        }
+      }
+    },
+    "Restore from backup": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus Backup wiederherstellen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відновити з резервної копії"
+          }
+        }
+      }
+    },
+    "Restore this backup?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses Backup wiederherstellen?"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відновити цю резервну копію?"
           }
         }
       }
@@ -4130,6 +4226,54 @@
         }
       }
     },
+    "The backup couldn’t be restored completely. Review your local data before trying again.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Backup konnte nicht vollständig wiederhergestellt werden. Prüfe deine lokalen Daten, bevor du es erneut versuchst."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не вдалося повністю відновити резервну копію. Перевірте локальні дані перед повторною спробою."
+          }
+        }
+      }
+    },
+    "The backup couldn’t be restored. Your previous data was kept.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Backup konnte nicht wiederhergestellt werden. Deine bisherigen Daten wurden beibehalten."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не вдалося відновити резервну копію. Попередні дані збережено."
+          }
+        }
+      }
+    },
+    "The backup file is too large.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Backup-Datei ist zu groß."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Файл резервної копії завеликий."
+          }
+        }
+      }
+    },
     "The departures you care about": {
       "localizations": {
         "de": {
@@ -4162,6 +4306,22 @@
         }
       }
     },
+    "This backup version isn’t supported.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Backup-Version wird nicht unterstützt."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ця версія резервної копії не підтримується."
+          }
+        }
+      }
+    },
     "This deletes the local email password verifier and signs you out. Your saved stations and routines remain on this device.": {
       "localizations": {
         "de": {
@@ -4190,6 +4350,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Це відправлення вже надто близько для нагадування."
+          }
+        }
+      }
+    },
+    "This isn’t a valid Traffic Vienna backup.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dies ist kein gültiges Traffic-Vienna-Backup."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Це не є дійсною резервною копією Traffic Vienna."
           }
         }
       }
@@ -4974,6 +5150,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ваш акаунт"
+          }
+        }
+      }
+    },
+    "Your account and App Lock were not changed.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Konto und die App-Sperre wurden nicht geändert."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ваш акаунт і блокування застосунку не змінено."
           }
         }
       }

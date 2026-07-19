@@ -11,7 +11,11 @@ struct PrivacyDataView: View {
     @EnvironmentObject private var appLock: AppLockStore
     @State private var exportDocument: TravelDataExportDocument?
     @State private var isExporting = false
-    @State private var exportError: String?
+    @State private var dataError: String?
+    @State private var isImporting = false
+    @State private var pendingRestore: TravelDataRestorePlan?
+    @State private var showingRestoreConfirmation = false
+    @State private var didRestore = false
 
     var body: some View {
         List {
@@ -51,6 +55,13 @@ struct PrivacyDataView: View {
                     Label("Export my data", systemImage: "square.and.arrow.up")
                 }
                 .accessibilityIdentifier("privacyData.export")
+
+                Button {
+                    isImporting = true
+                } label: {
+                    Label("Restore from backup", systemImage: "arrow.clockwise.icloud")
+                }
+                .accessibilityIdentifier("privacyData.restore")
             } header: {
                 Text("On this device")
             } footer: {
@@ -83,18 +94,52 @@ struct PrivacyDataView: View {
             defaultFilename: "TrafficVienna-data"
         ) { result in
             if case .failure(let error) = result {
-                exportError = error.localizedDescription
+                dataError = error.localizedDescription
             }
             exportDocument = nil
         }
-        .alert("Couldn’t export data", isPresented: Binding(
-            get: { exportError != nil },
-            set: { if !$0 { exportError = nil } }
-        )) {
-            Button("OK", role: .cancel) { exportError = nil }
+        .fileImporter(
+            isPresented: $isImporting,
+            allowedContentTypes: [.json],
+            allowsMultipleSelection: false,
+            onCompletion: handleImport
+        )
+        .confirmationDialog(
+            "Restore this backup?",
+            isPresented: $showingRestoreConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Replace local data", role: .destructive, action: restorePendingBackup)
+            Button("Cancel", role: .cancel) { pendingRestore = nil }
         } message: {
-            Text(exportError ?? "")
+            Text(restoreSummary)
         }
+        .alert("Backup restored", isPresented: $didRestore) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Your account and App Lock were not changed.")
+        }
+        .alert("Couldn’t complete the data operation", isPresented: Binding(
+            get: { dataError != nil },
+            set: { if !$0 { dataError = nil } }
+        )) {
+            Button("OK", role: .cancel) { dataError = nil }
+        } message: {
+            Text(dataError ?? "")
+        }
+    }
+
+    private var restoreSummary: String {
+        guard let plan = pendingRestore else { return "" }
+        let format = String(localized: "Backup contains %lld stations, %lld routes, %lld routines, and %lld recent searches. Existing travel data, appearance, and Home layout will be replaced. Your account and App Lock stay unchanged.")
+        return String(
+            format: format,
+            locale: .current,
+            plan.favoriteStations.count,
+            plan.favoriteRoutes.count,
+            plan.routines.count,
+            plan.recentStationIDs.count
+        )
     }
 
     private func privacyRow(
@@ -142,8 +187,57 @@ struct PrivacyDataView: View {
             exportDocument = try TravelDataExportDocument(export: export)
             isExporting = true
         } catch {
-            exportError = error.localizedDescription
+            dataError = error.localizedDescription
         }
+    }
+
+    private func handleImport(_ result: Result<[URL], Error>) {
+        do {
+            guard let url = try result.get().first else { return }
+            let hasAccess = url.startAccessingSecurityScopedResource()
+            defer { if hasAccess { url.stopAccessingSecurityScopedResource() } }
+            if let fileSize = try url.resourceValues(forKeys: [.fileSizeKey]).fileSize,
+               fileSize > TravelDataRestorePlan.maximumFileSize {
+                throw TravelDataRestoreError.fileTooLarge
+            }
+            let data = try Data(contentsOf: url, options: .mappedIfSafe)
+            pendingRestore = try TravelDataRestorePlan.decode(data)
+            showingRestoreConfirmation = true
+        } catch let error as TravelDataRestoreError {
+            dataError = error.localizedDescription
+        } catch {
+            dataError = TravelDataRestoreError.invalidBackup.localizedDescription
+        }
+    }
+
+    private func restorePendingBackup() {
+        guard let plan = pendingRestore else { return }
+        let previous = TravelDataRestorePlan.current(
+            favorites: favorites,
+            routines: routines,
+            recentSearches: recentSearches,
+            theme: theme,
+            homePreferences: homePreferences
+        )
+        pendingRestore = nil
+        guard plan.apply(
+            favorites: favorites,
+            routines: routines,
+            recentSearches: recentSearches,
+            theme: theme,
+            homePreferences: homePreferences
+        ) else {
+            let didRollback = previous.apply(
+                favorites: favorites,
+                routines: routines,
+                recentSearches: recentSearches,
+                theme: theme,
+                homePreferences: homePreferences
+            )
+            dataError = (didRollback ? TravelDataRestoreError.applyFailed : .rollbackFailed).localizedDescription
+            return
+        }
+        didRestore = true
     }
 }
 

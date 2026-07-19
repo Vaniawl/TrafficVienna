@@ -9,6 +9,7 @@ TrafficVienna does not include advertising, analytics, tracking SDKs, or a devel
 - Favourites, recent searches, commute routines, theme, and widget state are stored locally in the app or its App Group container.
 - Sign in with Apple is handled by Apple's authentication service. TrafficVienna does not operate a server that receives or stores the Apple identity token.
 - A user can explicitly export a JSON snapshot containing profile details, appearance/Home/App Lock preferences, favourite stations and routes, commute routines, and recent station identifiers. The export does not include password verifiers, authentication tokens, the Sign in with Apple user identifier, live-data caches, or location history; iOS asks the user where to save or share the resulting file.
+- A user can restore a compatible TrafficVienna JSON backup after file-size, schema, value, and count validation plus explicit replacement confirmation. Restore applies appearance, Home layout, favourites, routines, and recents; it ignores exported identity fields and never changes the current account or App Lock. A pre-restore snapshot is reapplied if post-write verification fails.
 
 ## Network access
 
