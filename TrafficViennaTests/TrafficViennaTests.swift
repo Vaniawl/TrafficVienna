@@ -1381,9 +1381,14 @@ final class TrafficViennaTests: XCTestCase {
         let center = CLLocation(latitude: 48.2082, longitude: 16.3738)
 
         let results = store.stationsWithDistance(near: center, radiusInMeters: 1_500)
+        let expectedIDs = Set(store.stations.compactMap { station -> Int? in
+            let stationLocation = CLLocation(latitude: station.lat, longitude: station.lon)
+            return stationLocation.distance(from: center) <= 1_500 ? station.id : nil
+        })
 
         XCTAssertFalse(results.isEmpty)
         XCTAssertTrue(results.allSatisfy { $0.meters <= 1_500 })
+        XCTAssertEqual(Set(results.map(\.station.id)), expectedIDs)
         for result in results.prefix(20) {
             let expected = CLLocation(
                 latitude: result.station.lat,

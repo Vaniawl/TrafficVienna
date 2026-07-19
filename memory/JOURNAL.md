@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Single-buffer spatial queries
+
+- Replaced the spatial index query's nested `flatMap` candidate materialization followed by `compactMap` filtering with one ordered bucket traversal that appends only stations inside the requested radius.
+- Removed the full intermediate candidate array from the shared Nearby/Map hot path while preserving bucket order, exact Core Location distances, radius semantics, and the public station-only wrapper.
+- Strengthened spatial regression coverage by comparing indexed results with a naive full-dataset radius scan, alongside the existing exact-distance and performance checks.
+- Passed repository/OpenCode validators and the full iPhone 17 suite: 172 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Warning-free concurrency boundaries
 
 - Marked the pure email limiter, password derivation wrapper, walking estimate, walking-speed constant, and travel-backup validation helpers as explicitly nonisolated instead of inheriting the project's default MainActor isolation.

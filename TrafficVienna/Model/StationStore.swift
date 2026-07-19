@@ -269,20 +269,26 @@ final class StationStore: ObservableObject, StationStoring {
     ) -> [StationDistance] {
         let center = Self.spatialCell(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
         let cellRadius = max(1, Int(ceil(radius / 700)))
-        let candidates = (-cellRadius...cellRadius).flatMap { latitudeOffset in
-            (-cellRadius...cellRadius).flatMap { longitudeOffset in
-                spatialIndex[SpatialCell(latitude: center.latitude + latitudeOffset, longitude: center.longitude + longitudeOffset)] ?? []
+        var results: [StationDistance] = []
+        for latitudeOffset in -cellRadius...cellRadius {
+            for longitudeOffset in -cellRadius...cellRadius {
+                let cell = SpatialCell(
+                    latitude: center.latitude + latitudeOffset,
+                    longitude: center.longitude + longitudeOffset
+                )
+                guard let candidates = spatialIndex[cell] else { continue }
+                for station in candidates {
+                    let stationLocation = CLLocation(
+                        latitude: station.lat,
+                        longitude: station.lon
+                    )
+                    let distance = stationLocation.distance(from: location)
+                    guard distance <= radius else { continue }
+                    results.append(StationDistance(station: station, meters: distance))
+                }
             }
         }
-        return candidates.compactMap { station in
-            let stationLocation = CLLocation(
-                latitude: station.lat,
-                longitude: station.lon
-            )
-            let distance = stationLocation.distance(from: location)
-            guard distance <= radius else { return nil }
-            return StationDistance(station: station, meters: distance)
-        }
+        return results
     }
 
     nonisolated private static func spatialCell(for station: Station) -> SpatialCell {
