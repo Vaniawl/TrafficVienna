@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Validated monitor cache writes
+
+- Moved monitor payload decoding ahead of manual persistent URL-cache storage, so only a structurally valid successful API response can become the next offline fallback.
+- Prevented Wiener Linien HTTP-200 rate-limit code `316` and malformed JSON envelopes from replacing the last usable cached departures or service alerts.
+- Kept HTTP validation, single-pass decoding, network/cache provenance, stale fallback timestamps, and successful response caching unchanged.
+- Passed repository/OpenCode validators and the full iPhone 17 suite: 161 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Single-pass monitor response decoding
 
 - Replaced the successful Wiener Linien response path's speculative error-envelope decode followed by a full second decode with one shared top-level envelope pass.

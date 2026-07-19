@@ -110,6 +110,11 @@ nonisolated final class NetworkManager: NetworkManaging {
             throw URLError(.badServerResponse)
         }
 
+        // Validate the complete payload before making it an offline fallback.
+        // In particular, the API's HTTP-200 rate-limit body must never replace
+        // the last usable monitor response in URLCache.
+        let decoded = try MonitorResponseDecoder.decode(data, source: source)
+
         if case .network = source {
             let cached = CachedURLResponse(
                 response: response,
@@ -120,7 +125,7 @@ nonisolated final class NetworkManager: NetworkManaging {
             session.configuration.urlCache?.storeCachedResponse(cached, for: request)
         }
 
-        return try MonitorResponseDecoder.decode(data, source: source)
+        return decoded
     }
 }
 
