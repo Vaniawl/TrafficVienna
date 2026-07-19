@@ -2466,6 +2466,22 @@
         }
       }
     },
+    "Saved routes": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespeicherte Verbindungen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Збережені маршрути"
+          }
+        }
+      }
+    },
     "Saved stations": {
       "localizations": {
         "de": {

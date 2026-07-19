@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-07-19 — Live saved routes on Home
+
+- Added a Revolut-style Saved routes module to every Nearby dashboard state with the first three user-prioritized line/destination favourites, realtime countdowns, stop context, retained errors, and direct Station Detail navigation.
+- Reused the root-owned Favourites view model and its cached/coalesced monitor pipeline instead of introducing another persistence or network owner.
+- Added a deterministic O(1) station-by-DIVA index so saved route cards resolve their station without scanning the bundled dataset.
+- Split nearby-location polling from 60-second favourites/alerts dashboard refreshes, keeping contextual Home cards current without the five-second empty-location cadence.
+- Localized the section in German and Ukrainian and added DIVA-index regression coverage.
+
 ## 2026-07-19 — User-managed Live Activities
 
 - Added an Account destination that lists TrafficVienna Live Activities chronologically with line, destination, stop, scheduled departure time, and realtime status.

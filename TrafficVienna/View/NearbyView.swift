@@ -41,12 +41,18 @@ struct NearbyView: View {
         .sheet(isPresented: $showAccount) { AccountView() }
         .task(id: shouldPoll) {
             guard shouldPoll else { return }
-            async let favoriteLoad: Void = favoritesVM.loadFavorites()
-            async let alertLoad: Void = disruptionsVM.load()
-            _ = await (favoriteLoad, alertLoad)
             while !Task.isCancelled {
                 await vm.load(force: false)
                 try? await Task.sleep(for: .seconds(vm.items.isEmpty ? 5 : 60))
+            }
+        }
+        .task(id: shouldPoll) {
+            guard shouldPoll else { return }
+            while !Task.isCancelled {
+                async let favoriteLoad: Void = favoritesVM.loadFavorites()
+                async let alertLoad: Void = disruptionsVM.load()
+                _ = await (favoriteLoad, alertLoad)
+                try? await Task.sleep(for: .seconds(60))
             }
         }
     }
@@ -129,6 +135,7 @@ struct NearbyView: View {
                 heroCard(state)
                 quickActions
                 favoriteStationsStrip
+                favoriteRoutesSection
                 insightCard
             }
             .padding(.horizontal, 18)
@@ -268,6 +275,65 @@ struct NearbyView: View {
     }
 
     @ViewBuilder
+    private var favoriteRoutesSection: some View {
+        let items = Array(favoritesVM.items.prefix(3))
+        if !items.isEmpty {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text("Saved routes")
+                        .font(.title3.bold())
+                    Spacer()
+                    Button("See all") { router.navigate(to: .favourites) }
+                        .font(.subheadline.bold())
+                }
+
+                ForEach(items) { item in
+                    if let diva = Int(item.route.diva), let station = store.station(diva: diva) {
+                        NavigationLink { StationDetailView(station: station) } label: {
+                            favoriteRouteCard(item)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier(
+                            "nearby.favoriteRoute.\(item.route.diva).\(item.route.lineName).\(item.route.destination)"
+                        )
+                    } else {
+                        Button { router.navigate(to: .favourites) } label: {
+                            favoriteRouteCard(item)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+        }
+    }
+
+    private func favoriteRouteCard(_ item: FavoriteWithDeparture) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            DepartureLineRow(
+                lineName: item.route.lineName,
+                destination: item.route.destination,
+                minutes: item.departures.prefix(3).map(\.liveMinutes),
+                nextIsLive: item.departures.first?.isRealtime ?? false
+            )
+            if let loadError = item.loadError {
+                Label(loadError, systemImage: "wifi.exclamationmark")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+            } else {
+                Text(item.stopName)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(16)
+        .background(
+            Color(.secondarySystemGroupedBackground),
+            in: RoundedRectangle(cornerRadius: 22, style: .continuous)
+        )
+    }
+
+    @ViewBuilder
     private var insightCard: some View {
         let activeRoutine = disruptionsVM.relevantCount == 0 ? routines.current : nil
         if let activeRoutine {
@@ -345,6 +411,9 @@ struct NearbyView: View {
                 .padding(.horizontal, 18).padding(.vertical, 12)
                 quickActions.padding(.horizontal, 8).padding(.bottom, 8)
                 favoriteStationsStrip
+                    .padding(.horizontal, 18)
+                    .padding(.bottom, 8)
+                favoriteRoutesSection
                     .padding(.horizontal, 18)
                     .padding(.bottom, 8)
 

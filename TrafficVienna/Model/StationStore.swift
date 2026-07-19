@@ -34,6 +34,7 @@ protocol StationStoring {
     func diva(forExact name: String) -> Int?
     func stationsSuggestion(matching query: String) -> [Station]
     func station(id: Int) -> Station?
+    func station(diva: Int) -> Station?
     func stations(
         near location: CLLocation,
         radiusInMeters radius: Double
@@ -46,6 +47,7 @@ final class StationStore: ObservableObject, StationStoring {
     @Published private(set) var stations: [Station] = []
     @Published private(set) var isReady = false
     private var stationsByID: [Int: Station] = [:]
+    private var stationsByDiva: [Int: Station] = [:]
     private var searchIndex: [SearchEntry] = []
     private var searchBigramIndex: [String: [Int]] = [:]
     private var divaByNormalizedName: [String: Int] = [:]
@@ -66,6 +68,7 @@ final class StationStore: ObservableObject, StationStoring {
     nonisolated private struct Snapshot: Sendable {
         let stations: [Station]
         let stationsByID: [Int: Station]
+        let stationsByDiva: [Int: Station]
         let searchIndex: [SearchEntry]
         let searchBigramIndex: [String: [Int]]
         let divaByNormalizedName: [String: Int]
@@ -122,9 +125,15 @@ final class StationStore: ObservableObject, StationStoring {
                     searchBigramIndex[bigram, default: []].append(index)
                 }
             }
+            let stationsByDiva = decoded.reduce(into: [Int: Station]()) { index, station in
+                guard let diva = station.diva else { return }
+                if let existing = index[diva], existing.id <= station.id { return }
+                index[diva] = station
+            }
             return Snapshot(
                 stations: decoded,
                 stationsByID: Dictionary(uniqueKeysWithValues: decoded.map { ($0.id, $0) }),
+                stationsByDiva: stationsByDiva,
                 searchIndex: searchIndex,
                 searchBigramIndex: searchBigramIndex,
                 divaByNormalizedName: divaByNormalizedName,
@@ -139,6 +148,7 @@ final class StationStore: ObservableObject, StationStoring {
     private func apply(_ snapshot: Snapshot?) {
         if let snapshot {
             stationsByID = snapshot.stationsByID
+            stationsByDiva = snapshot.stationsByDiva
             searchIndex = snapshot.searchIndex
             searchBigramIndex = snapshot.searchBigramIndex
             divaByNormalizedName = snapshot.divaByNormalizedName
@@ -202,6 +212,8 @@ final class StationStore: ObservableObject, StationStoring {
     }
 
     func station(id: Int) -> Station? { stationsByID[id] }
+
+    func station(diva: Int) -> Station? { stationsByDiva[diva] }
 
     // for nearby stations
     func stations(

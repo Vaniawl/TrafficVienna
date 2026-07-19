@@ -415,6 +415,15 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(store.station(id: station.id)?.name, station.name)
     }
 
+    func testStationLookupByDivaUsesDeterministicIndex() throws {
+        let store = StationStore()
+        let station = try XCTUnwrap(store.stations.filter { $0.diva != nil }.min { $0.id < $1.id })
+        let diva = try XCTUnwrap(station.diva)
+        let expected = try XCTUnwrap(store.stations.filter { $0.diva == diva }.min { $0.id < $1.id })
+
+        XCTAssertEqual(store.station(diva: diva)?.id, expected.id)
+    }
+
     func testStationSearchRanksExactMatchBeforePartialMatches() {
         let store = StationStore()
         let results = store.stationsSuggestion(matching: "Karlsplatz")
