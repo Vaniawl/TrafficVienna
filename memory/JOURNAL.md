@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Bounded Nearby departure snapshots
+
+- Built each Nearby card snapshot in one pass, retaining badges for every returned line while preparing only the first four visible rows.
+- Bounded each prepared row to the three departure minutes consumed by `DepartureLineRow` and its accessibility value instead of retaining the provider's full departure list.
+- Preserved sorted badge deduplication, source row order, first-departure realtime state, and exact visible/accessibility countdowns with a five-departure regression payload.
+- Verified warning-free focused and Release builds, repository/OpenCode validators, and the full iPhone 17 suite: 187 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Unified station-detail presentation snapshot
 
 - Derived merged departure groups, ordered line categories, and disrupted-line membership in one off-main snapshot instead of rebuilding categories and flattening related lines after publication on the MainActor.

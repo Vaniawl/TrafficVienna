@@ -22,20 +22,36 @@ nonisolated struct StationCardContent: Equatable, Sendable {
 
     static let empty = StationCardContent(badgeLineNames: [], rows: [])
     private static let maximumRows = 4
+    private static let maximumDepartureMinutes = 3
 
     let badgeLineNames: [String]
     let rows: [Row]
 
     init(lines: [Lines]) {
-        badgeLineNames = Set(lines.map(\.name)).sorted()
-        rows = lines.prefix(Self.maximumRows).map { line in
-            Row(
+        var badges = Set<String>()
+        badges.reserveCapacity(lines.count)
+        var preparedRows: [Row] = []
+        preparedRows.reserveCapacity(min(Self.maximumRows, lines.count))
+
+        for line in lines {
+            badges.insert(line.name)
+            guard preparedRows.count < Self.maximumRows else { continue }
+
+            var minutes: [Int] = []
+            minutes.reserveCapacity(min(Self.maximumDepartureMinutes, line.departures.departure.count))
+            for departure in line.departures.departure.prefix(Self.maximumDepartureMinutes) {
+                minutes.append(departure.departureTime.liveMinutes)
+            }
+            preparedRows.append(Row(
                 lineName: line.name,
                 destination: line.towards,
-                minutes: line.departures.departure.map { $0.departureTime.liveMinutes },
+                minutes: minutes,
                 nextIsLive: line.departures.departure.first?.departureTime.timeReal != nil
-            )
+            ))
         }
+
+        badgeLineNames = badges.sorted()
+        rows = preparedRows
     }
 
     private init(badgeLineNames: [String], rows: [Row]) {
