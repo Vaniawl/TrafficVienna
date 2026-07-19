@@ -22,6 +22,7 @@ enum AuthError: LocalizedError, Equatable {
     case weakPassword
     case accountExists
     case invalidCredentials
+    case incorrectCurrentPassword
     case unavailable
 
     var errorDescription: String? {
@@ -30,6 +31,7 @@ enum AuthError: LocalizedError, Equatable {
         case .weakPassword: return String(localized: "Use at least 8 characters for your password.")
         case .accountExists: return String(localized: "An account with this email already exists.")
         case .invalidCredentials: return String(localized: "Email or password is incorrect.")
+        case .incorrectCurrentPassword: return String(localized: "Current password is incorrect.")
         case .unavailable: return String(localized: "Sign in is unavailable right now. Please try again.")
         }
     }
@@ -159,6 +161,31 @@ final class AuthStore: ObservableObject {
         ))
     }
 
+    func changePassword(currentPassword: String, newPassword: String) throws {
+        guard let session, session.provider == .email else { throw AuthError.unavailable }
+        guard Self.isValidPassword(newPassword) else { throw AuthError.weakPassword }
+
+        let accountKey = emailAccountKey(for: session.userID)
+        guard
+            let data = keychain.data(for: accountKey),
+            let record = try? JSONDecoder().decode(EmailAccount.self, from: data),
+            password(currentPassword, matches: record)
+        else { throw AuthError.incorrectCurrentPassword }
+
+        let salt = Data((0..<16).map { _ in UInt8.random(in: .min ... .max) })
+        let updated = EmailAccount(
+            email: record.email,
+            salt: salt,
+            passwordHash: derivePasswordKey(newPassword, salt: salt, iterations: passwordIterations),
+            algorithm: "pbkdf2-sha256",
+            iterations: passwordIterations
+        )
+        guard let encoded = try? JSONEncoder().encode(updated), keychain.set(encoded, for: accountKey) else {
+            throw AuthError.unavailable
+        }
+        errorMessage = nil
+    }
+
     func removeCurrentAccountFromDevice() throws {
         guard let session else { return }
         if session.provider == .email {
@@ -231,6 +258,16 @@ final class AuthStore: ObservableObject {
     private func timingSafeEqual(_ lhs: Data, _ rhs: Data) -> Bool {
         guard lhs.count == rhs.count else { return false }
         return zip(lhs, rhs).reduce(UInt8(0)) { $0 | ($1.0 ^ $1.1) } == 0
+    }
+
+    private func password(_ password: String, matches record: EmailAccount) -> Bool {
+        let candidate: Data
+        if record.algorithm == "pbkdf2-sha256", let iterations = record.iterations {
+            candidate = derivePasswordKey(password, salt: record.salt, iterations: iterations)
+        } else {
+            candidate = legacyHash(password, salt: record.salt)
+        }
+        return timingSafeEqual(candidate, record.passwordHash)
     }
 
     private func emailAccountKey(for email: String) -> String {

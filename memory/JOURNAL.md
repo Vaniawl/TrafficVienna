@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Local email password changes
+
+- Added a Change password destination for signed-in email accounts while keeping the option hidden for Apple ID sessions.
+- Required the current password, an eight-character replacement, and matching confirmation before updating the device-local verifier.
+- Replaced the Keychain record only after current-password verification, retained the active session, and preserved the old credential when storage fails.
+- Localized the complete flow in English, German, and Ukrainian and added credential-rotation, failure-path, and Account discoverability coverage.
+
 ## 2026-07-19 — Typo-safe email registration
 
 - Added a required password-confirmation field for new email accounts while keeping existing-account sign-in to one password field.

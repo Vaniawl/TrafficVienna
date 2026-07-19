@@ -47,6 +47,15 @@ struct AccountView: View {
                     }
                     .accessibilityIdentifier("account.editDisplayName")
 
+                    if auth.session?.provider == .email {
+                        NavigationLink {
+                            ChangePasswordView()
+                        } label: {
+                            Label("Change password", systemImage: "key")
+                        }
+                        .accessibilityIdentifier("account.changePassword")
+                    }
+
                     NavigationLink {
                         AppearanceView()
                     } label: {
@@ -181,6 +190,88 @@ struct AccountView: View {
             await DepartureReminderScheduler.removeAllScheduled()
             await LiveActivityController.stopAll()
             await MonitorService.shared.clearCache()
+        }
+    }
+}
+
+private struct ChangePasswordView: View {
+    @EnvironmentObject private var auth: AuthStore
+    @State private var currentPassword = ""
+    @State private var newPassword = ""
+    @State private var confirmation = ""
+    @State private var errorMessage: String?
+    @State private var didUpdate = false
+
+    var body: some View {
+        Form {
+            Section("Verify your account") {
+                SecureField("Current password", text: $currentPassword)
+                    .textContentType(.password)
+                    .accessibilityIdentifier("account.currentPassword")
+            }
+
+            Section("New password") {
+                SecureField("New password", text: $newPassword)
+                    .textContentType(.newPassword)
+                    .accessibilityIdentifier("account.newPassword")
+                SecureField("Confirm new password", text: $confirmation)
+                    .textContentType(.newPassword)
+                    .accessibilityIdentifier("account.confirmNewPassword")
+
+                Label("At least 8 characters", systemImage: isNewPasswordValid ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(isNewPasswordValid ? .green : .secondary)
+                Label("Passwords match", systemImage: passwordsMatch ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(passwordsMatch ? .green : .secondary)
+            }
+
+            if let errorMessage {
+                Section {
+                    Text(errorMessage)
+                        .foregroundStyle(.red)
+                        .accessibilityIdentifier("account.changePasswordError")
+                }
+            }
+
+            Section {
+                Button("Update password", action: updatePassword)
+                    .frame(maxWidth: .infinity)
+                    .disabled(!canSubmit)
+                    .accessibilityIdentifier("account.updatePassword")
+            } footer: {
+                Text("Your password verifier stays in Keychain on this device.")
+            }
+        }
+        .navigationTitle("Change password")
+        .navigationBarTitleDisplayMode(.inline)
+        .alert("Password updated", isPresented: $didUpdate) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Use your new password the next time you sign in.")
+        }
+    }
+
+    private var isNewPasswordValid: Bool {
+        AuthStore.isValidPassword(newPassword)
+    }
+
+    private var passwordsMatch: Bool {
+        AuthFormValidation.passwordsMatch(newPassword, confirmation: confirmation)
+    }
+
+    private var canSubmit: Bool {
+        !currentPassword.isEmpty && isNewPasswordValid && passwordsMatch
+    }
+
+    private func updatePassword() {
+        do {
+            try auth.changePassword(currentPassword: currentPassword, newPassword: newPassword)
+            currentPassword = ""
+            newPassword = ""
+            confirmation = ""
+            errorMessage = nil
+            didUpdate = true
+        } catch {
+            errorMessage = error.localizedDescription
         }
     }
 }

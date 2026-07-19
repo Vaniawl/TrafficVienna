@@ -491,6 +491,44 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testEmailPasswordCanBeChangedOnlyWithCurrentPassword() throws {
+        let suite = "PasswordChangeTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let keychain = MemoryKeychain()
+        let store = AuthStore(keychain: keychain, defaults: defaults)
+        try store.register(email: "rider@example.com", password: "tramline26")
+
+        XCTAssertThrowsError(try store.changePassword(currentPassword: "wrongpass", newPassword: "nightbus42")) { error in
+            XCTAssertEqual(error as? AuthError, .incorrectCurrentPassword)
+        }
+        try store.changePassword(currentPassword: "tramline26", newPassword: "nightbus42")
+        XCTAssertNotNil(store.session)
+
+        store.signOut()
+        XCTAssertThrowsError(try store.signIn(email: "rider@example.com", password: "tramline26"))
+        try store.signIn(email: "rider@example.com", password: "nightbus42")
+        XCTAssertEqual(store.session?.email, "rider@example.com")
+    }
+
+    @MainActor
+    func testFailedPasswordUpdatePreservesExistingPassword() throws {
+        let suite = "PasswordChangeFailureTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let keychain = MemoryKeychain()
+        let store = AuthStore(keychain: keychain, defaults: defaults)
+        try store.register(email: "rider@example.com", password: "tramline26")
+        keychain.setSucceeds = false
+
+        XCTAssertThrowsError(try store.changePassword(currentPassword: "tramline26", newPassword: "nightbus42"))
+        store.signOut()
+        keychain.setSucceeds = true
+        try store.signIn(email: "rider@example.com", password: "tramline26")
+        XCTAssertEqual(store.session?.email, "rider@example.com")
+    }
+
+    @MainActor
     func testDisplayNameNormalizesAndPersistsWithoutChangingIdentity() throws {
         let suite = "DisplayNameTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
@@ -1971,9 +2009,11 @@ private final class RecordingWidgetSync: WidgetSyncing, @unchecked Sendable {
 private final class MemoryKeychain: KeychainStoring {
     private var storage: [String: Data] = [:]
     var removeSucceeds = true
+    var setSucceeds = true
     private(set) var removeCallCount = 0
     func data(for key: String) -> Data? { storage[key] }
     func set(_ data: Data, for key: String) -> Bool {
+        guard setSucceeds else { return false }
         storage[key] = data
         return true
     }

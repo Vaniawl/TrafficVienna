@@ -513,6 +513,22 @@
         }
       }
     },
+    "Change password": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passwort ändern"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Змінити пароль"
+          }
+        }
+      }
+    },
     "Change theme": {
       "localizations": {
         "de": {
@@ -737,6 +753,22 @@
         }
       }
     },
+    "Confirm new password": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neues Passwort bestätigen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Підтвердьте новий пароль"
+          }
+        }
+      }
+    },
     "Confirm password": {
       "localizations": {
         "de": {
@@ -861,6 +893,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Створити акаунт"
+          }
+        }
+      }
+    },
+    "Current password": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktuelles Passwort"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поточний пароль"
+          }
+        }
+      }
+    },
+    "Current password is incorrect.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das aktuelle Passwort ist falsch."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поточний пароль неправильний."
           }
         }
       }
@@ -2274,6 +2338,22 @@
         }
       }
     },
+    "New password": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neues Passwort"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Новий пароль"
+          }
+        }
+      }
+    },
     "next departure in %lld minutes": {
       "localizations": {
         "de": {
@@ -2718,6 +2798,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Пароль"
+          }
+        }
+      }
+    },
+    "Password updated": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passwort aktualisiert"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пароль оновлено"
           }
         }
       }
@@ -4082,6 +4178,22 @@
         }
       }
     },
+    "Update password": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passwort aktualisieren"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оновити пароль"
+          }
+        }
+      }
+    },
     "Updated %@ on your Lock Screen.": {
       "localizations": {
         "de": {
@@ -4194,6 +4306,22 @@
         }
       }
     },
+    "Use your new password the next time you sign in.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verwende dein neues Passwort bei der nächsten Anmeldung."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Використовуйте новий пароль під час наступного входу."
+          }
+        }
+      }
+    },
     "Used only when needed": {
       "localizations": {
         "de": {
@@ -4238,6 +4366,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Дійсна електронна адреса"
+          }
+        }
+      }
+    },
+    "Verify your account": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konto bestätigen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Підтвердьте акаунт"
           }
         }
       }
@@ -4446,6 +4590,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ваше місто рухається разом із вами"
+          }
+        }
+      }
+    },
+    "Your password verifier stays in Keychain on this device.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Passwortprüfung bleibt im Schlüsselbund auf diesem Gerät."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Засіб перевірки пароля залишається в Keychain на цьому пристрої."
           }
         }
       }

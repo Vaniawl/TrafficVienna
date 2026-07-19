@@ -130,6 +130,14 @@ final class TrafficViennaUITests: XCTestCase {
         app.buttons["Save"].tap()
 
         XCTAssertTrue(app.staticTexts["Codex Rider"].waitForExistence(timeout: 3))
+        let changePassword = app.descendants(matching: .any)["account.changePassword"]
+        XCTAssertTrue(changePassword.waitForExistence(timeout: 3))
+        changePassword.tap()
+        XCTAssertTrue(app.secureTextFields["account.currentPassword"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.secureTextFields["account.newPassword"].exists)
+        XCTAssertTrue(app.secureTextFields["account.confirmNewPassword"].exists)
+        app.buttons["BackButton"].tap()
+
         let reminders = app.descendants(matching: .any)["account.departureReminders"]
         XCTAssertTrue(reminders.waitForExistence(timeout: 3))
         for _ in 0..<3 where !app.buttons["BackButton"].exists {

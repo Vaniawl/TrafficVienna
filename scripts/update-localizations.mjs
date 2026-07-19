@@ -6,6 +6,7 @@ const original = JSON.stringify(catalog);
 
 const newEnglish = [
   "Confirm password", "Passwords match",
+  "Change password", "Verify your account", "Current password", "New password", "Confirm new password", "Update password", "Your password verifier stays in Keychain on this device.", "Password updated", "Use your new password the next time you sign in.", "Current password is incorrect.",
   "Favourites only", "Show all stops", "Stops list", "Visible stops", "Search visible stops", "Closest first", "No favourite stops in view", "No stops in view", "Move the map or show all stops.",
   "Stops in view: %lld",
   "Clear all favourites", "Clear all favourites?", "This removes all saved stations and routes from this device.",
@@ -40,6 +41,7 @@ const newEnglish = [
 
 const de = {
   "Confirm password":"Passwort bestätigen", "Passwords match":"Passwörter stimmen überein",
+  "Change password":"Passwort ändern", "Verify your account":"Konto bestätigen", "Current password":"Aktuelles Passwort", "New password":"Neues Passwort", "Confirm new password":"Neues Passwort bestätigen", "Update password":"Passwort aktualisieren", "Your password verifier stays in Keychain on this device.":"Deine Passwortprüfung bleibt im Schlüsselbund auf diesem Gerät.", "Password updated":"Passwort aktualisiert", "Use your new password the next time you sign in.":"Verwende dein neues Passwort bei der nächsten Anmeldung.", "Current password is incorrect.":"Das aktuelle Passwort ist falsch.",
   "Favourites only":"Nur Favoriten", "Show all stops":"Alle Haltestellen anzeigen", "Stops list":"Haltestellenliste", "Visible stops":"Sichtbare Haltestellen", "Search visible stops":"Sichtbare Haltestellen suchen", "Closest first":"Nächste zuerst", "No favourite stops in view":"Keine Favoriten im Ausschnitt", "No stops in view":"Keine Haltestellen im Ausschnitt", "Move the map or show all stops.":"Verschiebe die Karte oder zeige alle Haltestellen an.",
   "Stops in view: %lld":"Haltestellen im Ausschnitt: %lld",
   "Clear all favourites":"Alle Favoriten löschen", "Clear all favourites?":"Alle Favoriten löschen?", "This removes all saved stations and routes from this device.":"Dadurch werden alle gespeicherten Stationen und Verbindungen von diesem Gerät entfernt.",
@@ -105,6 +107,7 @@ const de = {
 
 const uk = {
   "Confirm password":"Підтвердьте пароль", "Passwords match":"Паролі збігаються",
+  "Change password":"Змінити пароль", "Verify your account":"Підтвердьте акаунт", "Current password":"Поточний пароль", "New password":"Новий пароль", "Confirm new password":"Підтвердьте новий пароль", "Update password":"Оновити пароль", "Your password verifier stays in Keychain on this device.":"Засіб перевірки пароля залишається в Keychain на цьому пристрої.", "Password updated":"Пароль оновлено", "Use your new password the next time you sign in.":"Використовуйте новий пароль під час наступного входу.", "Current password is incorrect.":"Поточний пароль неправильний.",
   "Favourites only":"Лише обране", "Show all stops":"Показати всі зупинки", "Stops list":"Список зупинок", "Visible stops":"Видимі зупинки", "Search visible stops":"Пошук серед видимих зупинок", "Closest first":"Найближчі спочатку", "No favourite stops in view":"На мапі немає обраних зупинок", "No stops in view":"На мапі немає зупинок", "Move the map or show all stops.":"Перемістіть мапу або покажіть усі зупинки.",
   "Stops in view: %lld":"Зупинок на мапі: %lld",
   "Clear all favourites":"Очистити все обране", "Clear all favourites?":"Очистити все обране?", "This removes all saved stations and routes from this device.":"Це видалить усі збережені станції та маршрути з цього пристрою.",
