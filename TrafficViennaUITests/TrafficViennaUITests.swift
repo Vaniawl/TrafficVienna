@@ -209,6 +209,21 @@ final class TrafficViennaUITests: XCTestCase {
             object: savedStation
         )
         XCTAssertEqual(XCTWaiter.wait(for: [stationIsHittable], timeout: 3), .completed)
+
+        let nearbyTab = tabBar.buttons["Nearby"]
+        for _ in 0..<3 where !nearbyTab.isSelected {
+            nearbyTab.tap()
+            let selected = XCTNSPredicateExpectation(
+                predicate: NSPredicate(format: "selected == true"),
+                object: nearbyTab
+            )
+            _ = XCTWaiter.wait(for: [selected], timeout: 1)
+        }
+        XCTAssertTrue(nearbyTab.isSelected)
+        let quickStation = app.descendants(matching: .any)["nearby.favoriteStation.1085618000"]
+        XCTAssertTrue(quickStation.waitForExistence(timeout: 3))
+        quickStation.tap()
+        XCTAssertTrue(app.navigationBars["Karlsplatz"].waitForExistence(timeout: 3))
     }
 
     func testUkrainianAuthenticationModesAreLocalized() {

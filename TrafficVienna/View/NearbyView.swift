@@ -128,6 +128,7 @@ struct NearbyView: View {
                 topBar
                 heroCard(state)
                 quickActions
+                favoriteStationsStrip
                 insightCard
             }
             .padding(.horizontal, 18)
@@ -224,6 +225,49 @@ struct NearbyView: View {
     }
 
     @ViewBuilder
+    private var favoriteStationsStrip: some View {
+        let stations = favoritesVM.stations.prefix(4).compactMap { store.station(id: $0.id) }
+        if !stations.isEmpty {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text("Saved stations")
+                        .font(.title3.bold())
+                    Spacer()
+                    Button("See all") { router.navigate(to: .favourites) }
+                        .font(.subheadline.bold())
+                }
+
+                ScrollView(.horizontal) {
+                    HStack(spacing: 10) {
+                        ForEach(stations) { station in
+                            NavigationLink { StationDetailView(station: station) } label: {
+                                HStack(spacing: 10) {
+                                    Image(systemName: "tram.fill")
+                                        .foregroundStyle(Color(hex: 0x635BFF))
+                                    Text(station.name)
+                                        .font(.subheadline.bold())
+                                        .foregroundStyle(.primary)
+                                        .lineLimit(2)
+                                }
+                                .padding(.horizontal, 14)
+                                .frame(minHeight: 52)
+                                .background(
+                                    Color(.secondarySystemGroupedBackground),
+                                    in: RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                )
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityIdentifier("nearby.favoriteStation.\(station.id)")
+                        }
+                    }
+                }
+                .scrollIndicators(.hidden)
+            }
+            .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+        }
+    }
+
+    @ViewBuilder
     private var insightCard: some View {
         if disruptionsVM.relevantCount == 0, routines.current != nil {
             NavigationLink { RoutinesView() } label: { insightCardLabel }
@@ -284,6 +328,9 @@ struct NearbyView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 18).padding(.vertical, 12)
                 quickActions.padding(.horizontal, 8).padding(.bottom, 8)
+                favoriteStationsStrip
+                    .padding(.horizontal, 18)
+                    .padding(.bottom, 8)
 
                 ForEach(vm.items) { item in
                     NavigationLink { StationDetailView(station: item.station) } label: {

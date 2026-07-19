@@ -2210,6 +2210,22 @@
         }
       }
     },
+    "Saved stations": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespeicherte Stationen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Збережені станції"
+          }
+        }
+      }
+    },
     "Schedule only": {
       "localizations": {
         "de": {
@@ -2286,6 +2302,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Знайти зупинку"
+          }
+        }
+      }
+    },
+    "See all": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle anzeigen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Переглянути всі"
           }
         }
       }

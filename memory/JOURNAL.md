@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Saved-station quick access on Nearby
+
+- Added a compact horizontal home strip for the first four saved stations in the user's chosen order across permission, empty, live, and departures Nearby states.
+- Added direct Station Detail cards plus a “See all” action that routes to Favourites while reusing the root-owned station index and favourites state without extra network or persistence work.
+- Localized the new controls in German and Ukrainian and kept the cards accessible with stable identifiers, a 52-point minimum height, and bounded Dynamic Type growth.
+- Extended the end-to-end search-save regression to verify that the saved station appears on Nearby and opens its Station Detail screen directly.
+
 ## 2026-07-19 — Quick station favourites from Search
 
 - Added a visible 44-point star action to station search results and recent stations so saving no longer requires opening Station Detail.
