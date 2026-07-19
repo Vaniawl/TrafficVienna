@@ -29,12 +29,9 @@ struct TrafficViennaApp: App {
                 if auth.session == nil {
                     AuthenticationView()
                         .transition(.opacity)
-                } else if appLock.isLocked {
-                    AppLockView()
-                        .transition(.opacity)
                 } else {
-                    RootTabView()
-                        .transition(.opacity)
+                    SignedInSessionView()
+                    .transition(.opacity)
                 }
             }
             .animation(.easeInOut, value: auth.session)
@@ -56,6 +53,19 @@ struct TrafficViennaApp: App {
                     appLock.lockIfNeeded(hasSession: auth.session != nil)
                 }
             }
+        }
+    }
+}
+
+private struct SignedInSessionView: View {
+    @EnvironmentObject private var appLock: AppLockStore
+    @StateObject private var rootState = RootTabState()
+
+    var body: some View {
+        if appLock.isLocked {
+            AppLockView()
+        } else {
+            RootTabView(state: rootState)
         }
     }
 }

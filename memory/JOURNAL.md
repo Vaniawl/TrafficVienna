@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — State-preserving app lock
+
+- Moved heavy dashboard owners into a signed-in-session `RootTabState` so prepared station indexes, cached view models, preferences, and selected-tab state survive lock/unlock.
+- Continued replacing the complete signed-in view hierarchy with the lock screen, guaranteeing that sheets, full-screen covers, interaction, accessibility content, and polling disappear while locked.
+- Scoped retained state to the active auth session so signing out still discards transient dashboard state instead of leaking it into a later session.
+- Avoided a visually hidden overlay architecture after review showed that independently presented SwiftUI modals could otherwise remain above the lock layer.
+
 ## 2026-07-19 — Optional biometric app lock
 
 - Added an opt-in Account security control for Face ID, Touch ID, or Optic ID and a dedicated lock screen that hides the signed-in interface after the app leaves the foreground.

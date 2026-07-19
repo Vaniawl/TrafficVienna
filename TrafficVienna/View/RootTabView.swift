@@ -24,19 +24,44 @@ final class NetworkMonitor: ObservableObject {
 
 private enum AppTab: String { case nearby, search, map, alerts, favourites }
 
+@MainActor
+final class RootTabState: ObservableObject {
+    let store = StationStore(loadSynchronously: false)
+    let locationManager = LocationManager()
+    let favoritesVM = FavoritesListViewModel()
+    let recentSearches = RecentSearchesStore()
+    let disruptionsVM = DisruptionsViewModel()
+    let networkMonitor = NetworkMonitor()
+    let themeManager = ThemeManager.shared
+    let homePreferences = HomePreferences()
+    @Published fileprivate var selectedTab: AppTab = .nearby
+    @Published var routedStation: Station?
+}
+
 struct RootTabView: View {
     @EnvironmentObject private var router: AppRouter
-    @StateObject private var store = StationStore(loadSynchronously: false)
-    @StateObject private var locationManager = LocationManager()
-    @StateObject private var favoritesVM = FavoritesListViewModel()
-    @StateObject private var recentSearches = RecentSearchesStore()
-    @StateObject private var disruptionsVM = DisruptionsViewModel()
-    @StateObject private var networkMonitor = NetworkMonitor()
-    @StateObject private var themeManager = ThemeManager.shared
-    @StateObject private var homePreferences = HomePreferences()
+    @ObservedObject private var state: RootTabState
+    @ObservedObject private var store: StationStore
+    @ObservedObject private var locationManager: LocationManager
+    @ObservedObject private var favoritesVM: FavoritesListViewModel
+    @ObservedObject private var recentSearches: RecentSearchesStore
+    @ObservedObject private var disruptionsVM: DisruptionsViewModel
+    @ObservedObject private var networkMonitor: NetworkMonitor
+    @ObservedObject private var themeManager: ThemeManager
+    @ObservedObject private var homePreferences: HomePreferences
     @AppStorage("hasOnboarded") private var hasOnboarded = false
-    @State private var selectedTab: AppTab = .nearby
-    @State private var routedStation: Station?
+
+    init(state: RootTabState) {
+        _state = ObservedObject(wrappedValue: state)
+        _store = ObservedObject(wrappedValue: state.store)
+        _locationManager = ObservedObject(wrappedValue: state.locationManager)
+        _favoritesVM = ObservedObject(wrappedValue: state.favoritesVM)
+        _recentSearches = ObservedObject(wrappedValue: state.recentSearches)
+        _disruptionsVM = ObservedObject(wrappedValue: state.disruptionsVM)
+        _networkMonitor = ObservedObject(wrappedValue: state.networkMonitor)
+        _themeManager = ObservedObject(wrappedValue: state.themeManager)
+        _homePreferences = ObservedObject(wrappedValue: state.homePreferences)
+    }
 
     var body: some View {
         Group {
@@ -74,24 +99,24 @@ struct RootTabView: View {
             }
             .onReceive(NotificationCenter.default.publisher(for: .init("shortcut"))) { note in
                 guard let type = note.object as? String else { return }
-                withAnimation { selectedTab = AppTab(rawValue: type) ?? .nearby }
+                withAnimation { state.selectedTab = AppTab(rawValue: type) ?? .nearby }
             }
             .onChange(of: router.destination) { _, destination in
                 guard let destination else { return }
                 switch destination {
-                case .nearby: selectedTab = .nearby
-                case .search: selectedTab = .search
-                case .map: selectedTab = .map
-                case .alerts: selectedTab = .alerts
-                case .favourites: selectedTab = .favourites
-                case .station(let id): routedStation = store.station(id: id)
+                case .nearby: state.selectedTab = .nearby
+                case .search: state.selectedTab = .search
+                case .map: state.selectedTab = .map
+                case .alerts: state.selectedTab = .alerts
+                case .favourites: state.selectedTab = .favourites
+                case .station(let id): state.routedStation = store.station(id: id)
                 }
                 router.consume()
             }
             .onChange(of: favoritesVM.favoriteRoutes, initial: true) { _, routes in
                 disruptionsVM.updateFavoriteRoutes(routes)
             }
-            .sheet(item: $routedStation) { station in
+            .sheet(item: $state.routedStation) { station in
                 NavigationStack { StationDetailView(station: station) }
             }
             .environmentObject(themeManager)
@@ -101,7 +126,7 @@ struct RootTabView: View {
     }
 
     private var tabs: some View {
-        TabView(selection: $selectedTab) {
+        TabView(selection: $state.selectedTab) {
             Tab("Nearby", systemImage: "location.fill", value: .nearby) {
                 NavigationStack {
                     NearbyView(
@@ -109,7 +134,7 @@ struct RootTabView: View {
                         locationManager: locationManager,
                         favoritesVM: favoritesVM,
                         disruptionsVM: disruptionsVM,
-                        isActive: selectedTab == .nearby
+                        isActive: state.selectedTab == .nearby
                     )
                 }
             }
@@ -132,14 +157,14 @@ struct RootTabView: View {
 
             Tab("Alerts", systemImage: "exclamationmark.triangle.fill", value: .alerts) {
                 NavigationStack {
-                    DisruptionsView(vm: disruptionsVM, isActive: selectedTab == .alerts)
+                    DisruptionsView(vm: disruptionsVM, isActive: state.selectedTab == .alerts)
                 }
             }
             .badge(disruptionsVM.relevantCount)
 
             Tab("Favourites", systemImage: "star.fill", value: .favourites) {
                 NavigationStack {
-                    FavoritesView(vm: favoritesVM, store: store, isActive: selectedTab == .favourites)
+                    FavoritesView(vm: favoritesVM, store: store, isActive: state.selectedTab == .favourites)
                 }
             }
         }
@@ -149,5 +174,5 @@ struct RootTabView: View {
 }
 
 #Preview {
-    RootTabView()
+    RootTabView(state: RootTabState())
 }
