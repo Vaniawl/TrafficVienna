@@ -456,6 +456,31 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertTrue(AuthStore.isValidPassword("12345678"))
     }
 
+    func testRegistrationRequiresMatchingPasswordConfirmation() {
+        XCTAssertFalse(AuthFormValidation.passwordsMatch("tramline26", confirmation: ""))
+        XCTAssertFalse(AuthFormValidation.passwordsMatch("tramline26", confirmation: "tramline27"))
+        XCTAssertTrue(AuthFormValidation.passwordsMatch("tramline26", confirmation: "tramline26"))
+
+        XCTAssertFalse(AuthFormValidation.canSubmit(
+            email: "rider@example.com",
+            password: "tramline26",
+            confirmation: "tramline27",
+            requiresConfirmation: true
+        ))
+        XCTAssertTrue(AuthFormValidation.canSubmit(
+            email: "rider@example.com",
+            password: "tramline26",
+            confirmation: "tramline26",
+            requiresConfirmation: true
+        ))
+        XCTAssertTrue(AuthFormValidation.canSubmit(
+            email: "rider@example.com",
+            password: "tramline26",
+            confirmation: "",
+            requiresConfirmation: false
+        ))
+    }
+
     @MainActor
     func testMultipleEmailAccountsCanRegister() throws {
         let store = AuthStore(keychain: MemoryKeychain(), defaults: UserDefaults(suiteName: UUID().uuidString)!)

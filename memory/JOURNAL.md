@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Typo-safe email registration
+
+- Added a required password-confirmation field for new email accounts while keeping existing-account sign-in to one password field.
+- Added live matching feedback and kept account creation disabled until email, password length, and confirmation are all valid.
+- Updated keyboard navigation to move from email to password to confirmation and submit with Go, including end-to-end UI coverage.
+- Localized the new field and validation message in English, German, and Ukrainian and added deterministic form-validation tests.
+
 ## 2026-07-19 — User-distance map-list ordering
 
 - Sorted visible-stop rows by straight-line distance from the current user whenever location is available, aligning the “Closest first” label with each displayed walking estimate.

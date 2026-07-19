@@ -24,10 +24,13 @@ final class TrafficViennaUITests: XCTestCase {
         XCTAssertTrue(password.exists)
         password.tap()
         password.typeText("tramline26")
+        enterPasswordConfirmation("tramline26")
 
-        dismissKeyboardIfPresent()
         let submit = app.buttons["auth.submit"]
         XCTAssertTrue(submit.waitForExistence(timeout: 3))
+        XCTAssertEqual(app.staticTexts["auth.email.validation"].value as? String, "Satisfied")
+        XCTAssertEqual(app.staticTexts["auth.password.validation"].value as? String, "Satisfied")
+        XCTAssertEqual(app.staticTexts["auth.passwordConfirmation.validation"].value as? String, "Satisfied")
         let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: submit)
         XCTAssertEqual(XCTWaiter.wait(for: [enabled], timeout: 3), .completed)
         if !submit.isHittable {
@@ -71,6 +74,12 @@ final class TrafficViennaUITests: XCTestCase {
 
         let password = app.secureTextFields["auth.password"]
         password.typeText("tramline26")
+        let passwordNext = app.keyboards.buttons.matching(NSPredicate(format: "label ==[c] %@", "Next")).firstMatch
+        XCTAssertTrue(passwordNext.exists)
+        passwordNext.tap()
+
+        let confirmation = app.textFields["auth.passwordConfirmation"]
+        confirmation.typeText("tramline26")
         let go = app.keyboards.buttons.matching(NSPredicate(format: "label ==[c] %@", "Go")).firstMatch
         XCTAssertTrue(go.exists)
         go.tap()
@@ -86,7 +95,7 @@ final class TrafficViennaUITests: XCTestCase {
         let password = app.secureTextFields["auth.password"]
         password.tap()
         password.typeText("tramline26")
-        dismissKeyboardIfPresent()
+        enterPasswordConfirmation("tramline26")
 
         let submit = app.buttons["auth.submit"]
         let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: submit)
@@ -240,7 +249,7 @@ final class TrafficViennaUITests: XCTestCase {
         let password = app.secureTextFields["auth.password"]
         password.tap()
         password.typeText("tramline26")
-        dismissKeyboardIfPresent()
+        enterPasswordConfirmation("tramline26")
 
         let submit = app.buttons["auth.submit"]
         let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: submit)
@@ -425,6 +434,22 @@ final class TrafficViennaUITests: XCTestCase {
         if keyboard.exists {
             keyboard.swipeDown()
         }
+    }
+
+    private func enterPasswordConfirmation(_ value: String) {
+        XCTAssertEqual(app.staticTexts["auth.password.validation"].value as? String, "Satisfied")
+        let confirmation = app.textFields["auth.passwordConfirmation"]
+        XCTAssertTrue(confirmation.waitForExistence(timeout: 3))
+        app.scrollViews.firstMatch.swipeUp()
+        XCTAssertTrue(confirmation.isHittable)
+        confirmation.tap()
+        confirmation.typeText(value)
+        let matching = app.staticTexts["auth.passwordConfirmation.validation"]
+        let satisfied = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "value == %@", "Satisfied"),
+            object: matching
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [satisfied], timeout: 3), .completed)
     }
 
     private func tapCenter(of element: XCUIElement) {

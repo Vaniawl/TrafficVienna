@@ -1,17 +1,36 @@
 import AuthenticationServices
 import SwiftUI
 
+enum AuthFormValidation {
+    static func passwordsMatch(_ password: String, confirmation: String) -> Bool {
+        !confirmation.isEmpty && password == confirmation
+    }
+
+    static func canSubmit(
+        email: String,
+        password: String,
+        confirmation: String,
+        requiresConfirmation: Bool
+    ) -> Bool {
+        guard AuthStore.normalizedValidEmail(email) != nil,
+              AuthStore.isValidPassword(password) else { return false }
+        return !requiresConfirmation || passwordsMatch(password, confirmation: confirmation)
+    }
+}
+
 struct AuthenticationView: View {
     @EnvironmentObject private var auth: AuthStore
     @State private var mode: Mode = .register
     @State private var email = ""
     @State private var password = ""
+    @State private var passwordConfirmation = ""
     @State private var isPasswordVisible = false
     @FocusState private var focusedField: Field?
 
     private enum Field {
         case email
         case password
+        case passwordConfirmation
     }
 
     private enum Mode: CaseIterable {
@@ -43,6 +62,7 @@ struct AuthenticationView: View {
                 .padding(.horizontal, 20)
                 .padding(.vertical, 40)
             }
+            .scrollDismissesKeyboard(.interactively)
         }
     }
 
@@ -92,13 +112,13 @@ struct AuthenticationView: View {
                             if isPasswordVisible {
                                 TextField("Password", text: $password)
                                     .focused($focusedField, equals: .password)
-                                    .submitLabel(.go)
-                                    .onSubmit(submitFromKeyboard)
+                                    .submitLabel(mode == .register ? .next : .go)
+                                    .onSubmit(submitPassword)
                             } else {
                                 SecureField("Password", text: $password)
                                     .focused($focusedField, equals: .password)
-                                    .submitLabel(.go)
-                                    .onSubmit(submitFromKeyboard)
+                                    .submitLabel(mode == .register ? .next : .go)
+                                    .onSubmit(submitPassword)
                             }
                         }
                         .textContentType(isUITesting ? nil : (mode == .register ? .newPassword : .password))
@@ -113,10 +133,37 @@ struct AuthenticationView: View {
                         }
                         .accessibilityLabel(isPasswordVisible ? "Hide password" : "Show password")
                         .accessibilityHint("Changes whether the password is visible on screen")
+
                     }
                 } icon: { Image(systemName: "lock") }
                 .padding(14)
                 .background(.quaternary, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+
+                if mode == .register {
+                    Label {
+                        HStack {
+                            Group {
+                                if isPasswordVisible || isUITesting {
+                                    TextField("Confirm password", text: $passwordConfirmation)
+                                        .textContentType(isUITesting ? nil : .newPassword)
+                                        .focused($focusedField, equals: .passwordConfirmation)
+                                        .submitLabel(.go)
+                                        .onSubmit(submitFromKeyboard)
+                                        .accessibilityIdentifier("auth.passwordConfirmation")
+                                } else {
+                                    SecureField("Confirm password", text: $passwordConfirmation)
+                                        .textContentType(isUITesting ? nil : .newPassword)
+                                        .focused($focusedField, equals: .passwordConfirmation)
+                                        .submitLabel(.go)
+                                        .onSubmit(submitFromKeyboard)
+                                        .accessibilityIdentifier("auth.passwordConfirmation")
+                                }
+                            }
+                        }
+                    } icon: { Image(systemName: "lock.badge.checkmark") }
+                    .padding(14)
+                    .background(.quaternary, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                }
             }
 
             VStack(alignment: .leading, spacing: 8) {
@@ -130,6 +177,13 @@ struct AuthenticationView: View {
                     isSatisfied: isPasswordValid,
                     identifier: "auth.password.validation"
                 )
+                if mode == .register {
+                    validationRequirement(
+                        "Passwords match",
+                        isSatisfied: passwordsMatch,
+                        identifier: "auth.passwordConfirmation.validation"
+                    )
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -171,7 +225,11 @@ struct AuthenticationView: View {
         }
         .onChange(of: email) { _, _ in auth.clearError() }
         .onChange(of: password) { _, _ in auth.clearError() }
-        .onChange(of: mode) { _, _ in auth.clearError() }
+        .onChange(of: passwordConfirmation) { _, _ in auth.clearError() }
+        .onChange(of: mode) { _, _ in
+            auth.clearError()
+            passwordConfirmation = ""
+        }
         .padding(20)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
         .overlay { RoundedRectangle(cornerRadius: 28, style: .continuous).stroke(.white.opacity(0.4)) }
@@ -196,7 +254,16 @@ struct AuthenticationView: View {
     }
 
     private var canSubmitEmail: Bool {
-        isEmailValid && isPasswordValid
+        AuthFormValidation.canSubmit(
+            email: email,
+            password: password,
+            confirmation: passwordConfirmation,
+            requiresConfirmation: mode == .register
+        )
+    }
+
+    private var passwordsMatch: Bool {
+        AuthFormValidation.passwordsMatch(password, confirmation: passwordConfirmation)
     }
 
     private func validationRequirement(
@@ -228,6 +295,14 @@ struct AuthenticationView: View {
     private func submitFromKeyboard() {
         guard canSubmitEmail else { return }
         submitEmail()
+    }
+
+    private func submitPassword() {
+        if mode == .register {
+            focusedField = .passwordConfirmation
+        } else {
+            submitFromKeyboard()
+        }
     }
 }
 

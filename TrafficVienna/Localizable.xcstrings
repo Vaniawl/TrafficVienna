@@ -737,6 +737,22 @@
         }
       }
     },
+    "Confirm password": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passwort bestätigen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Підтвердьте пароль"
+          }
+        }
+      }
+    },
     "CONNECTING": {
       "localizations": {
         "de": {
@@ -2702,6 +2718,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Пароль"
+          }
+        }
+      }
+    },
+    "Passwords match": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passwörter stimmen überein"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Паролі збігаються"
           }
         }
       }
