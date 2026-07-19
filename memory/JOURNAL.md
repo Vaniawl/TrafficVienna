@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Cached favourite departure timestamps
+
+- Parsed each favourite departure's preferred realtime/planned ISO timestamp once when its immutable UI model is created instead of reparsing it during every SwiftUI row evaluation.
+- Preserved the live countdown by deriving current minutes from the cached Date on each render, while malformed or absent timestamps still use the API countdown fallback.
+- Added deterministic coverage for cached realtime timestamps, malformed fallback data, and fractional ISO parsing with an explicit reference time.
+- Verified a warning-free build, repository/OpenCode validators, and the full iPhone 17 suite: 178 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Cached alert presentation
 
 - Cached available alert categories and the filtered, relevance-prioritized alert list in the view model instead of rebuilding them during every SwiftUI body evaluation.

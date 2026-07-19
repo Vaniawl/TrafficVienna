@@ -1940,11 +1940,16 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(result, 2)
     }
 
-    func testLiveMinutesFromFractionalISODate() {
+    func testLiveMinutesFromFractionalISODate() throws {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        let future = formatter.string(from: Date().addingTimeInterval(180))
-        let result = DepartureClock.liveMinutes(realtime: future, planned: nil, fallback: 99)
+        let now = Date()
+        let futureDate = now.addingTimeInterval(179)
+        let future = formatter.string(from: futureDate)
+        let parsedDate = try XCTUnwrap(DepartureClock.departureDate(realtime: future, planned: nil))
+        let result = DepartureClock.liveMinutes(departureDate: parsedDate, fallback: 99, now: now)
+
+        XCTAssertEqual(parsedDate.timeIntervalSince1970, futureDate.timeIntervalSince1970, accuracy: 0.001)
         XCTAssertEqual(result, 3)
     }
 
@@ -1959,6 +1964,31 @@ final class TrafficViennaTests: XCTestCase {
     func testDepartureTimeLiveMinutesFallback() {
         let dt = DepartureTime(countdown: 7, timePlanned: nil, timeReal: nil)
         XCTAssertEqual(dt.liveMinutes, 7)
+    }
+
+    func testFavoriteDepartureCachesParsedTimestampAndKeepsLiveCountdown() {
+        let future = ISO8601DateFormatter().string(from: Date().addingTimeInterval(6 * 60))
+        let departure = DepartureInfo(
+            countdown: 99,
+            planned: "invalid",
+            real: future,
+            isRealtime: true
+        )
+
+        XCTAssertNotNil(departure.departureDate)
+        XCTAssertTrue((5...6).contains(departure.liveMinutes))
+    }
+
+    func testFavoriteDepartureKeepsFallbackWhenTimestampCannotBeParsed() {
+        let departure = DepartureInfo(
+            countdown: 42,
+            planned: "invalid",
+            real: nil,
+            isRealtime: false
+        )
+
+        XCTAssertNil(departure.departureDate)
+        XCTAssertEqual(departure.liveMinutes, 42)
     }
 
     // MARK: - MonitorService (mock network)

@@ -18,6 +18,15 @@ nonisolated struct DepartureInfo: Identifiable, Hashable, Sendable {
     let planned: String
     let real: String?
     let isRealtime: Bool
+    let departureDate: Date?
+
+    init(countdown: Int, planned: String, real: String?, isRealtime: Bool) {
+        self.countdown = countdown
+        self.planned = planned
+        self.real = real
+        self.isRealtime = isRealtime
+        self.departureDate = DepartureClock.departureDate(realtime: real, planned: planned)
+    }
 
     var id: String { "\(planned)|\(real ?? "")|\(countdown)" }
 }

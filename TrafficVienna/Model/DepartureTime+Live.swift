@@ -20,13 +20,29 @@ enum DepartureClock {
 
     private nonisolated(unsafe) static let isoFormatter = ISO8601DateFormatter()
 
+    static func departureDate(realtime: String?, planned: String?) -> Date? {
+        guard let raw = realtime ?? planned,
+              let date = fractionalISOFormatter.date(from: raw) ?? isoFormatter.date(from: raw)
+        else { return nil }
+        return date
+    }
+
     // Minutes from now until departure, preferring the real-time instant.
     // Falls back to `fallback` when no timestamp can be parsed (e.g. mock data).
     static func liveMinutes(realtime: String?, planned: String?, fallback: Int) -> Int {
-        guard let raw = realtime ?? planned,
-              let date = fractionalISOFormatter.date(from: raw) ?? isoFormatter.date(from: raw)
-        else { return fallback }
-        return max(0, Int(ceil(date.timeIntervalSinceNow / 60)))
+        liveMinutes(
+            departureDate: departureDate(realtime: realtime, planned: planned),
+            fallback: fallback
+        )
+    }
+
+    static func liveMinutes(departureDate: Date?, fallback: Int) -> Int {
+        liveMinutes(departureDate: departureDate, fallback: fallback, now: .now)
+    }
+
+    static func liveMinutes(departureDate: Date?, fallback: Int, now: Date) -> Int {
+        guard let departureDate else { return fallback }
+        return max(0, Int(ceil(departureDate.timeIntervalSince(now) / 60)))
     }
 }
 
@@ -38,6 +54,6 @@ extension DepartureTime {
 
 extension DepartureInfo {
     var liveMinutes: Int {
-        DepartureClock.liveMinutes(realtime: real, planned: planned, fallback: countdown)
+        DepartureClock.liveMinutes(departureDate: departureDate, fallback: countdown)
     }
 }
