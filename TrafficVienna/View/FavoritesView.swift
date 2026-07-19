@@ -14,6 +14,7 @@ struct FavoritesView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.isLowDataMode) private var isLowDataMode
     @Environment(\.isLowPowerMode) private var isLowPowerMode
+    @Environment(\.isThermallyConstrained) private var isThermallyConstrained
     var isActive = true
     @State private var showAbout = false
     @State private var showAccount = false
@@ -118,7 +119,11 @@ struct FavoritesView: View {
     }
 
     private var usesConstrainedCadence: Bool {
-        EnergyPolicy(isLowDataMode: isLowDataMode, isLowPowerMode: isLowPowerMode)
+        EnergyPolicy(
+            isLowDataMode: isLowDataMode,
+            isLowPowerMode: isLowPowerMode,
+            isThermallyConstrained: isThermallyConstrained
+        )
             .usesConstrainedPolling
     }
 

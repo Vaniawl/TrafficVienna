@@ -132,11 +132,13 @@ struct RootTabView: View {
             .environmentObject(recentSearches)
             .environment(\.isLowDataMode, networkMonitor.isConstrained)
             .environment(\.isLowPowerMode, energyMonitor.isLowPowerModeEnabled)
+            .environment(\.isThermallyConstrained, energyMonitor.isThermallyConstrained)
             .environment(
                 \.allowsContinuousAnimation,
                 EnergyPolicy(
                     isLowDataMode: networkMonitor.isConstrained,
-                    isLowPowerMode: energyMonitor.isLowPowerModeEnabled
+                    isLowPowerMode: energyMonitor.isLowPowerModeEnabled,
+                    isThermallyConstrained: energyMonitor.isThermallyConstrained
                 ).allowsContinuousAnimation
             )
     }

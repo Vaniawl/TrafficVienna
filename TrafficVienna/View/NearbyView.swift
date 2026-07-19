@@ -16,6 +16,7 @@ struct NearbyView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.isLowDataMode) private var isLowDataMode
     @Environment(\.isLowPowerMode) private var isLowPowerMode
+    @Environment(\.isThermallyConstrained) private var isThermallyConstrained
     private let store: StationStore
     private let isActive: Bool
     @State private var showAccount = false
@@ -76,7 +77,8 @@ struct NearbyView: View {
             hasSavedRoutes: !favoritesVM.favoriteRoutes.isEmpty,
             usesConstrainedCadence: EnergyPolicy(
                 isLowDataMode: isLowDataMode,
-                isLowPowerMode: isLowPowerMode
+                isLowPowerMode: isLowPowerMode,
+                isThermallyConstrained: isThermallyConstrained
             ).usesConstrainedPolling
         )
     }

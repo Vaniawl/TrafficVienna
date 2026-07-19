@@ -13,6 +13,7 @@ struct StationDetailView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.isLowDataMode) private var isLowDataMode
     @Environment(\.isLowPowerMode) private var isLowPowerMode
+    @Environment(\.isThermallyConstrained) private var isThermallyConstrained
     @EnvironmentObject private var favoritesVM: FavoritesListViewModel
     @StateObject private var vm: StationDetailViewModel
     @State private var lineFavoriteToggles = 0
@@ -87,7 +88,11 @@ struct StationDetailView: View {
     }
 
     private var usesConstrainedCadence: Bool {
-        EnergyPolicy(isLowDataMode: isLowDataMode, isLowPowerMode: isLowPowerMode)
+        EnergyPolicy(
+            isLowDataMode: isLowDataMode,
+            isLowPowerMode: isLowPowerMode,
+            isThermallyConstrained: isThermallyConstrained
+        )
             .usesConstrainedPolling
     }
 

@@ -257,38 +257,71 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     func testEnergyPolicyConservesPollingForEitherSystemConstraint() {
-        let normal = EnergyPolicy(isLowDataMode: false, isLowPowerMode: false)
+        let normal = EnergyPolicy(
+            isLowDataMode: false,
+            isLowPowerMode: false,
+            isThermallyConstrained: false
+        )
         XCTAssertFalse(normal.usesConstrainedPolling)
         XCTAssertTrue(normal.allowsContinuousAnimation)
 
-        let lowData = EnergyPolicy(isLowDataMode: true, isLowPowerMode: false)
+        let lowData = EnergyPolicy(
+            isLowDataMode: true,
+            isLowPowerMode: false,
+            isThermallyConstrained: false
+        )
         XCTAssertTrue(lowData.usesConstrainedPolling)
         XCTAssertTrue(lowData.allowsContinuousAnimation)
 
-        let lowPower = EnergyPolicy(isLowDataMode: false, isLowPowerMode: true)
+        let lowPower = EnergyPolicy(
+            isLowDataMode: false,
+            isLowPowerMode: true,
+            isThermallyConstrained: false
+        )
         XCTAssertTrue(lowPower.usesConstrainedPolling)
         XCTAssertFalse(lowPower.allowsContinuousAnimation)
 
-        let both = EnergyPolicy(isLowDataMode: true, isLowPowerMode: true)
+        let both = EnergyPolicy(
+            isLowDataMode: true,
+            isLowPowerMode: true,
+            isThermallyConstrained: false
+        )
         XCTAssertTrue(both.usesConstrainedPolling)
         XCTAssertFalse(both.allowsContinuousAnimation)
+
+        let thermalPressure = EnergyPolicy(
+            isLowDataMode: false,
+            isLowPowerMode: false,
+            isThermallyConstrained: true
+        )
+        XCTAssertTrue(thermalPressure.usesConstrainedPolling)
+        XCTAssertFalse(thermalPressure.allowsContinuousAnimation)
     }
 
     @MainActor
     func testEnergyMonitorTracksPowerStateNotifications() async {
         let notificationCenter = NotificationCenter()
-        var currentValue = false
+        var lowPowerValue = false
+        var thermalValue = false
         let monitor = EnergyMonitor(
             notificationCenter: notificationCenter,
-            currentValue: { currentValue }
+            currentLowPowerValue: { lowPowerValue },
+            currentThermalValue: { thermalValue }
         )
         XCTAssertFalse(monitor.isLowPowerModeEnabled)
+        XCTAssertFalse(monitor.isThermallyConstrained)
 
-        currentValue = true
+        lowPowerValue = true
         notificationCenter.post(name: .NSProcessInfoPowerStateDidChange, object: nil)
         await Task.yield()
 
         XCTAssertTrue(monitor.isLowPowerModeEnabled)
+
+        thermalValue = true
+        notificationCenter.post(name: ProcessInfo.thermalStateDidChangeNotification, object: nil)
+        await Task.yield()
+
+        XCTAssertTrue(monitor.isThermallyConstrained)
     }
 
     @MainActor

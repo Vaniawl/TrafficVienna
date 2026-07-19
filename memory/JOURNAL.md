@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Thermal-pressure-aware runtime
+
+- Extended the root-owned `EnergyMonitor` to react to system thermal-state changes without adding per-screen observers.
+- Treated serious and critical thermal pressure as constrained while preserving normal behavior for nominal and fair states.
+- Reused the constrained cadence across all five live feeds and removed continuous pulse/shimmer effects from the view tree until pressure recovers automatically.
+- Preserved immediate first loads and manual refreshes, added injectable policy/notification coverage, and introduced no persistence, migration, or dependency.
+
 ## 2026-07-19 — Deduplicated widget timeline updates
 
 - Moved unchanged-payload detection into the shared `WidgetSyncManager` so Favourites, Station Detail, and future callers all avoid redundant App Group writes and `WidgetCenter.reloadTimelines` calls.
