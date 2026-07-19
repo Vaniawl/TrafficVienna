@@ -185,6 +185,17 @@ final class StationStore: ObservableObject, StationStoring {
 
     // Returns stations that roughly match the query by name
     func stationsSuggestion(matching query: String) -> [Station] {
+        stationSuggestions(matching: query, limit: nil)
+    }
+
+    // Keeps the same ranking as the complete search while bounding result
+    // storage for screens that can render only a fixed number of suggestions.
+    func stationsSuggestion(matching query: String, limit: Int) -> [Station] {
+        guard limit > 0 else { return [] }
+        return stationSuggestions(matching: query, limit: limit)
+    }
+
+    private func stationSuggestions(matching query: String, limit: Int?) -> [Station] {
         let q = Self.normalize(query)
 
         guard !q.isEmpty else { return [] }
@@ -192,17 +203,23 @@ final class StationStore: ObservableObject, StationStoring {
         var ranked = Array(repeating: [Station](), count: 4)
         for entry in searchCandidates(for: q) {
             guard entry.normalizedName.contains(q) else { continue }
+            let rank: Int
             if entry.normalizedName == q {
-                ranked[0].append(entry.station)
+                rank = 0
             } else if entry.normalizedName.hasPrefix(q) {
-                ranked[1].append(entry.station)
+                rank = 1
             } else if entry.words.contains(where: { $0.hasPrefix(q) }) {
-                ranked[2].append(entry.station)
+                rank = 2
             } else {
-                ranked[3].append(entry.station)
+                rank = 3
+            }
+            if limit.map({ ranked[rank].count < $0 }) ?? true {
+                ranked[rank].append(entry.station)
             }
         }
-        return ranked.flatMap { $0 }
+        let results = ranked.flatMap { $0 }
+        guard let limit else { return results }
+        return Array(results.prefix(limit))
     }
 
     func indexedCandidateCount(matching query: String) -> Int {

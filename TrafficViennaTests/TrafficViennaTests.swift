@@ -1338,6 +1338,18 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertTrue(store.stationsSuggestion(matching: "Hauptzz").isEmpty)
     }
 
+    func testLimitedStationSearchMatchesRankedPrefixWithoutOverproducingResults() {
+        let store = StationStore()
+        let completeResults = store.stationsSuggestion(matching: "a")
+
+        XCTAssertGreaterThan(completeResults.count, 10)
+        XCTAssertEqual(
+            store.stationsSuggestion(matching: "a", limit: 10).map(\.id),
+            Array(completeResults.prefix(10)).map(\.id)
+        )
+        XCTAssertTrue(store.stationsSuggestion(matching: "a", limit: 0).isEmpty)
+    }
+
     func testExactDivaLookupUsesNormalizedName() {
         let store = StationStore()
 

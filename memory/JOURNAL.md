@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Bounded station search results
+
+- Added a limited station-suggestion path that preserves the complete search's exact/prefix/word/substring ranking while bounding every ranking bucket to the screen's requested result count.
+- Updated Search to request its 50 visible results directly instead of constructing every matching station and discarding the remainder after the search returns.
+- Preserved the existing unlimited API for other consumers and added regression coverage proving the limited result IDs equal the full ranked prefix and that a zero limit produces no work product.
+- Passed repository/OpenCode validators and the full iPhone 17 suite: 172 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Cached map-list ordering
 
 - Cached visible-stop row ordering and user distances in view state instead of rebuilding them on every SwiftUI body evaluation while typing search text or toggling favourites.

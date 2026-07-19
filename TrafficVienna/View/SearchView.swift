@@ -35,7 +35,7 @@ struct SearchView: View {
             results = []
             try? await Task.sleep(for: .milliseconds(250))
             guard !Task.isCancelled else { return }
-            results = Array(store.stationsSuggestion(matching: query).prefix(50))
+            results = store.stationsSuggestion(matching: query, limit: 50)
             isSearching = false
         }
         .confirmationDialog(
