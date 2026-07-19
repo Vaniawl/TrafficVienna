@@ -957,6 +957,24 @@ final class TrafficViennaTests: XCTestCase {
         )
     }
 
+    func testMapStationListOrderUsesUserDistanceAndStableTies() {
+        let origin = CLLocation(latitude: 48.2000, longitude: 16.3700)
+        let stations = [
+            Station(id: 1, diva: 1, name: "Far", lat: 48.2100, lon: 16.3700),
+            Station(id: 2, diva: 2, name: "Near first", lat: 48.2010, lon: 16.3700),
+            Station(id: 3, diva: 3, name: "Near second", lat: 48.2010, lon: 16.3700)
+        ]
+
+        XCTAssertEqual(
+            MapStationListOrder.nearest(stations, to: origin).map(\.id),
+            [2, 3, 1]
+        )
+        XCTAssertEqual(
+            MapStationListOrder.nearest(stations, to: nil).map(\.id),
+            stations.map(\.id)
+        )
+    }
+
     func testWalkingEstimateUsesSharedMinutesAndDistanceFormatting() {
         XCTAssertEqual(WalkingEstimate(distanceMeters: 280).minutes, 4)
         XCTAssertEqual(WalkingEstimate(distanceMeters: 280).text, "4 min · 280 m")

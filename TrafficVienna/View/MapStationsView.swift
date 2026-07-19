@@ -70,6 +70,20 @@ enum MapStationListSearch {
     }
 }
 
+enum MapStationListOrder {
+    static func nearest(_ stations: [Station], to origin: CLLocation?) -> [Station] {
+        guard let origin else { return stations }
+
+        return stations.enumerated()
+            .map { offset, station in
+                let location = CLLocation(latitude: station.lat, longitude: station.lon)
+                return (offset: offset, station: station, distance: location.distance(from: origin))
+            }
+            .sorted { ($0.distance, $0.offset) < ($1.distance, $1.offset) }
+            .map(\.station)
+    }
+}
+
 struct MapStationsView: View {
     @ObservedObject var store: StationStore
     @ObservedObject var locationManager: LocationManager
@@ -221,7 +235,8 @@ private struct MapStationListView: View {
     @State private var query = ""
 
     private var displayedStations: [Station] {
-        MapStationListSearch.matching(stations, query: query)
+        let orderedStations = MapStationListOrder.nearest(stations, to: walkingOrigin)
+        return MapStationListSearch.matching(orderedStations, query: query)
     }
 
     private var hasQuery: Bool {

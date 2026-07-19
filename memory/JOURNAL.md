@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — User-distance map-list ordering
+
+- Sorted visible-stop rows by straight-line distance from the current user whenever location is available, aligning the “Closest first” label with each displayed walking estimate.
+- Preserved the map's existing viewport order when location is unavailable instead of fabricating a user-relative ranking from Vienna centre.
+- Kept equal-distance stations stable in their incoming order and applied local name search after sorting so filtered results retain the same proximity ranking.
+- Limited the work to the existing 60-marker cap with no new polling or network calls and added exact location, tie, and no-location ordering coverage.
+
 ## 2026-07-19 — Walking context in the map list
 
 - Added straight-line walking estimates from the current user location to each visible-stop row, while omitting the estimate when location is unavailable.
