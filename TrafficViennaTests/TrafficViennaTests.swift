@@ -1,9 +1,31 @@
 import XCTest
 import CoreLocation
+import MapKit
 import UserNotifications
 @testable import TrafficVienna
 
 final class TrafficViennaTests: XCTestCase {
+
+    @MainActor
+    func testStationDirectionsPreserveNameCoordinatesAndWalkingMode() {
+        let station = Station(
+            id: 1,
+            diva: 60200001,
+            name: "Karlsplatz",
+            lat: 48.200832,
+            lon: 16.369505
+        )
+
+        let item = StationDirections.mapItem(for: station)
+
+        XCTAssertEqual(item.name, "Karlsplatz")
+        XCTAssertEqual(item.location.coordinate.latitude, station.lat, accuracy: 0.000_001)
+        XCTAssertEqual(item.location.coordinate.longitude, station.lon, accuracy: 0.000_001)
+        XCTAssertEqual(
+            StationDirections.walkingLaunchOptions[MKLaunchOptionsDirectionsModeKey] as? String,
+            MKLaunchOptionsDirectionsModeWalking
+        )
+    }
 
     func testRecentSearchRemovalPersistsWithoutReorderingOthers() {
         let suite = "RecentSearchTests.\(UUID().uuidString)"

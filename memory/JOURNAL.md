@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Walking directions from Station Detail
+
+- Added a persistent walking-directions toolbar action to every Station Detail state, including schedule-only, loading, empty, and failed live-data states.
+- Added a prominent neobank-style directions card when live departures are visible so the Apple Maps handoff is discoverable from Search, Favourites, Home, and Map entry paths.
+- Centralized the MKMapItem name, exact station coordinates, and walking launch mode without introducing or claiming an in-app A-to-B routing engine.
+- Localized the action in German and Ukrainian and added unit plus end-to-end discoverability coverage.
+
 ## 2026-07-19 — User-managed recent searches
 
 - Added a visible per-station remove action to Search history without changing the station's favourite state or the order of remaining recents.

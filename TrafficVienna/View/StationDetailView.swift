@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import MapKit
 
 struct StationDetailView: View {
     @Environment(\.scenePhase) private var scenePhase
@@ -35,6 +36,15 @@ struct StationDetailView: View {
                             .foregroundStyle(isStationFavorited ? .yellow : .secondary)
                     }
                     .accessibilityLabel(isStationFavorited ? "Remove station from favourites" : "Add station to favourites")
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        StationDirections.openWalkingDirections(to: vm.station)
+                    } label: {
+                        Image(systemName: "figure.walk")
+                    }
+                    .accessibilityLabel("Walking directions")
+                    .accessibilityIdentifier("station.walkingDirections.toolbar")
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -94,6 +104,36 @@ struct StationDetailView: View {
             .listRowInsets(EdgeInsets(top: 12, leading: 18, bottom: 12, trailing: 18))
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
+
+            Button {
+                StationDirections.openWalkingDirections(to: vm.station)
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "figure.walk")
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(Color(hex: 0x635BFF))
+                        .frame(width: 36, height: 36)
+                        .background(Color(hex: 0x635BFF).opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Walking directions")
+                            .font(.headline)
+                        Text("Open this stop in Apple Maps")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Image(systemName: "arrow.up.right")
+                        .font(.caption.bold())
+                        .foregroundStyle(.tertiary)
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .neoCard()
+            .listRowInsets(EdgeInsets(top: 4, leading: 18, bottom: 8, trailing: 18))
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+            .accessibilityIdentifier("station.walkingDirections.card")
 
             if let staleMessage = vm.staleMessage {
                 StaleDataBanner(message: staleMessage)

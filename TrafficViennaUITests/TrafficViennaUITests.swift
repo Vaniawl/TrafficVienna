@@ -320,6 +320,7 @@ final class TrafficViennaUITests: XCTestCase {
         XCTAssertTrue(quickStation.waitForExistence(timeout: 3))
         quickStation.tap()
         XCTAssertTrue(app.navigationBars["Karlsplatz"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["station.walkingDirections.toolbar"].waitForExistence(timeout: 3))
     }
 
     func testUkrainianAuthenticationModesAreLocalized() {
