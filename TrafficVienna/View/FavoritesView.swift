@@ -12,6 +12,7 @@ struct FavoritesView: View {
     @ObservedObject var vm: FavoritesListViewModel
     @ObservedObject var store: StationStore
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.isLowDataMode) private var isLowDataMode
     var isActive = true
     @State private var showAbout = false
     @State private var showAccount = false
@@ -94,11 +95,13 @@ struct FavoritesView: View {
         }
         .sheet(isPresented: $showAbout) { AboutView() }
         .sheet(isPresented: $showAccount) { AccountView() }
-        .task(id: shouldPoll) {
-            guard shouldPoll else { return }
+        .task(id: pollingContext) {
+            guard pollingContext.isActive else { return }
             while !Task.isCancelled {
                 await vm.loadFavorites()
-                try? await Task.sleep(for: .seconds(60))
+                try? await Task.sleep(for: .seconds(
+                    PollingFeed.favoriteRoutes.seconds(isLowDataMode: isLowDataMode)
+                ))
             }
         }
         .refreshable {
@@ -108,6 +111,10 @@ struct FavoritesView: View {
     }
 
     private var shouldPoll: Bool { isActive && scenePhase == .active }
+
+    private var pollingContext: PollingContext {
+        PollingContext(isActive: shouldPoll, isLowDataMode: isLowDataMode)
+    }
 
     private var stationsSection: some View {
         Section("Stations") {

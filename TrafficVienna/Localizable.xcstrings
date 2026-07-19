@@ -2482,6 +2482,22 @@
         }
       }
     },
+    "Low Data": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datensparmodus"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Економія даних"
+          }
+        }
+      }
+    },
     "Map": {
       "localizations": {
         "de": {

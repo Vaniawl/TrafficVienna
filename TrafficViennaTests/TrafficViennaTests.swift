@@ -190,7 +190,8 @@ final class TrafficViennaTests: XCTestCase {
                 isActive: false,
                 loadsNearbyDepartures: false,
                 loadsFavoriteRoutes: false,
-                loadsAlerts: false
+                loadsAlerts: false,
+                isLowDataMode: false
             )
         )
 
@@ -226,6 +227,33 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertTrue(plan.loadsNearbyDepartures)
         XCTAssertTrue(plan.loadsFavoriteRoutes)
         XCTAssertTrue(plan.loadsAlerts)
+    }
+
+    func testLowDataModeExtendsOnlyAutomaticPollingCadence() {
+        XCTAssertEqual(PollingFeed.nearbyWithoutResults.normalSeconds, 5)
+        XCTAssertEqual(PollingFeed.nearbyWithoutResults.constrainedSeconds, 15)
+        XCTAssertEqual(PollingFeed.nearbyDepartures.normalSeconds, 60)
+        XCTAssertEqual(PollingFeed.nearbyDepartures.constrainedSeconds, 180)
+        XCTAssertEqual(PollingFeed.homeDashboard.normalSeconds, 60)
+        XCTAssertEqual(PollingFeed.homeDashboard.constrainedSeconds, 180)
+        XCTAssertEqual(PollingFeed.stationDetail.normalSeconds, 30)
+        XCTAssertEqual(PollingFeed.stationDetail.constrainedSeconds, 90)
+        XCTAssertEqual(PollingFeed.serviceAlerts.normalSeconds, 120)
+        XCTAssertEqual(PollingFeed.serviceAlerts.constrainedSeconds, 300)
+        XCTAssertEqual(PollingFeed.favoriteRoutes.normalSeconds, 60)
+        XCTAssertEqual(PollingFeed.favoriteRoutes.constrainedSeconds, 180)
+
+        let plan = HomePollingPlan.make(
+            isActive: true,
+            hasLocation: true,
+            showsSavedRoutes: true,
+            hasSavedRoutes: true,
+            isLowDataMode: true
+        )
+        XCTAssertEqual(plan.nearbySeconds(hasResults: false), 15)
+        XCTAssertEqual(plan.nearbySeconds(hasResults: true), 180)
+        XCTAssertEqual(plan.dashboardSeconds, 180)
+        XCTAssertTrue(PollingFeed.allCases.allSatisfy { $0.constrainedSeconds > $0.normalSeconds })
     }
 
     @MainActor

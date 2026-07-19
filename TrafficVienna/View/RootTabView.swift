@@ -5,18 +5,22 @@ import Network
 @MainActor
 final class NetworkMonitor: ObservableObject {
     @Published private(set) var isConnected = true
+    @Published private(set) var isConstrained = false
     private let monitor = NWPathMonitor()
     private let queue = DispatchQueue(label: "NetworkMonitor")
 
     init() {
         monitor.pathUpdateHandler = { [weak self] path in
             let connected = path.status == .satisfied
+            let constrained = path.isConstrained
             Task { @MainActor [weak self] in
                 self?.isConnected = connected
+                self?.isConstrained = constrained
             }
         }
         monitor.start(queue: queue)
         isConnected = monitor.currentPath.status == .satisfied
+        isConstrained = monitor.currentPath.isConstrained
     }
 
     deinit { monitor.cancel() }
@@ -79,10 +83,10 @@ struct RootTabView: View {
             }
         }
             .overlay(alignment: .top) {
-                if !networkMonitor.isConnected {
-                    Text("Offline")
+                if !networkMonitor.isConnected || networkMonitor.isConstrained {
+                    Text(networkMonitor.isConnected ? LocalizedStringKey("Low Data") : LocalizedStringKey("Offline"))
                         .font(.caption2.weight(.medium))
-                        .foregroundStyle(.red)
+                        .foregroundStyle(networkMonitor.isConnected ? Color.orange : Color.red)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
                         .background(.appOfflineBg)
@@ -123,6 +127,7 @@ struct RootTabView: View {
             .environmentObject(homePreferences)
             .environmentObject(favoritesVM)
             .environmentObject(recentSearches)
+            .environment(\.isLowDataMode, networkMonitor.isConstrained)
     }
 
     private var tabs: some View {

@@ -14,19 +14,31 @@ struct HomePollingPlan: Hashable {
     let loadsNearbyDepartures: Bool
     let loadsFavoriteRoutes: Bool
     let loadsAlerts: Bool
+    let isLowDataMode: Bool
 
     nonisolated static func make(
         isActive: Bool,
         hasLocation: Bool,
         showsSavedRoutes: Bool,
-        hasSavedRoutes: Bool
+        hasSavedRoutes: Bool,
+        isLowDataMode: Bool = false
     ) -> HomePollingPlan {
         HomePollingPlan(
             isActive: isActive,
             loadsNearbyDepartures: isActive && hasLocation,
             loadsFavoriteRoutes: isActive && showsSavedRoutes && hasSavedRoutes,
-            loadsAlerts: isActive
+            loadsAlerts: isActive,
+            isLowDataMode: isLowDataMode
         )
+    }
+
+    func nearbySeconds(hasResults: Bool) -> Int {
+        (hasResults ? PollingFeed.nearbyDepartures : .nearbyWithoutResults)
+            .seconds(isLowDataMode: isLowDataMode)
+    }
+
+    var dashboardSeconds: Int {
+        PollingFeed.homeDashboard.seconds(isLowDataMode: isLowDataMode)
     }
 }
 

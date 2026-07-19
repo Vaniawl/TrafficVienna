@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Low Data Mode-aware polling
+
+- Extended the root network monitor to surface iOS constrained-path state and injected it once through the SwiftUI environment.
+- Centralized normal and constrained refresh intervals for Nearby, Home dashboard, Station Detail, Alerts, and Favourites, with polling tasks restarting when the network mode changes.
+- Reduced automatic request frequency by roughly 2.5–3× in Low Data Mode while preserving immediate first loads, active-screen cancellation, cache behavior, and force-refresh gestures.
+- Added a localized Low Data status indicator plus deterministic cadence coverage for every feed.
+
 ## 2026-07-19 — Validated local backup restore
 
 - Added a system JSON importer with a preview summary and explicit destructive confirmation before replacing local appearance, Home layout, favourites, routines, and recent searches.

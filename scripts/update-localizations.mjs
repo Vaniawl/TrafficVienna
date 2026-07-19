@@ -37,7 +37,7 @@ const newEnglish = [
   "Remind", "Saved data", "Saved data, %@", "Saved routes", "Saved stations", "See all", "Service is busy right now. Please try again in a moment.", "Showing saved data", "Show password", "Track", "We’ll notify you shortly before %@ departs.",
   "Schedule only", "Search every station across Vienna", "Sign in", "Sign out", "Start typing to see live departures anywhere in Vienna.",
   "Station or stop", "The departures you care about", "Traffic Vienna user", "Travel routines", "Try again from another location or open the map to explore the city.", "Try another station name.",
-  "NO RESULTS", "OFFLINE", "SET UP", "Uses your Apple ID to create or open your account", "VIENNA LIVE", "Where to next?", "Your city", "Your city, moving with you", "Your routines", "or",
+  "NO RESULTS", "OFFLINE", "SET UP", "Low Data", "Uses your Apple ID to create or open your account", "VIENNA LIVE", "Where to next?", "Your city", "Your city, moving with you", "Your routines", "or",
   "%@, followed by %@ minutes", "Updates this line in your favourites"
 ];
 
@@ -95,7 +95,7 @@ const de = {
   "Live departures, wherever you are.":"Live-Abfahrten, egal wo du bist.",
   "Live departures within 500 metres":"Live-Abfahrten im Umkreis von 500 Metern", "Live station":"Live-Station", "Locate":"Standort",
   "Loading...":"Wird geladen…", "Nearby now":"Jetzt in der Nähe", "Network":"Netz", "No matching stops":"Keine passenden Haltestellen",
-  "No routines":"Keine Routinen", "Offline":"Offline", "Open in Maps":"In Karten öffnen", "Password":"Passwort", "Preparing Vienna…":"Wien wird vorbereitet…",
+  "No routines":"Keine Routinen", "Offline":"Offline", "Low Data":"Datensparmodus", "Open in Maps":"In Karten öffnen", "Password":"Passwort", "Preparing Vienna…":"Wien wird vorbereitet…",
   "Real-time departures and service updates":"Echtzeit-Abfahrten und Verkehrsmeldungen", "Refresh":"Aktualisieren", "Remind me before departure":"Vor der Abfahrt erinnern",
   "Remind":"Erinnern", "Track":"Verfolgen",
   "This departure is too soon for a reminder.":"Diese Abfahrt ist zu kurzfristig für eine Erinnerung.",
@@ -169,7 +169,7 @@ const uk = {
   "Live Wiener Linien departures, wherever you are.":"Актуальні відправлення Wiener Linien, де б ви не були.", "Loading...":"Завантаження…", "Loading…":"Завантаження…",
   "Locate":"Знайти мене", "Locating you…":"Визначаємо ваше місцезнаходження…", "Map":"Мапа", "min":"хв", "Nearby":"Поруч", "Nearby now":"Зараз поруч",
   "Network":"Мережа", "No departures":"Немає відправлень", "No favourites yet":"Обраного ще немає", "No matching stops":"Зупинок не знайдено",
-  "No routines":"Немає сценаріїв", "Nothing scheduled right now.":"Зараз нічого не заплановано.", "now":"зараз", "Offline":"Офлайн", "Open in Maps":"Відкрити в Картах",
+  "No routines":"Немає сценаріїв", "Nothing scheduled right now.":"Зараз нічого не заплановано.", "now":"зараз", "Offline":"Офлайн", "Low Data":"Економія даних", "Open in Maps":"Відкрити в Картах",
   "Password":"Пароль", "Preparing Vienna…":"Готуємо Відень…", "Provider":"Постачальник", "Real-time departures and service updates":"Відправлення та зміни руху в реальному часі", "Recent":"Нещодавні",
   "Refresh":"Оновити", "Refresh alerts":"Оновити сповіщення", "Refresh departures":"Оновити відправлення", "Remind me before departure":"Нагадати перед відправленням",
   "Remind":"Нагадати", "Track":"Відстежувати",

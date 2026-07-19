@@ -14,6 +14,7 @@ struct NearbyView: View {
     @Environment(\.openURL) private var openURL
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.isLowDataMode) private var isLowDataMode
     private let store: StationStore
     private let isActive: Bool
     @State private var showAccount = false
@@ -45,7 +46,7 @@ struct NearbyView: View {
             guard plan.loadsNearbyDepartures else { return }
             while !Task.isCancelled {
                 await vm.load(force: false)
-                try? await Task.sleep(for: .seconds(vm.items.isEmpty ? 5 : 60))
+                try? await Task.sleep(for: .seconds(plan.nearbySeconds(hasResults: !vm.items.isEmpty)))
             }
         }
         .task(id: pollingPlan) {
@@ -59,7 +60,7 @@ struct NearbyView: View {
                 } else if plan.loadsAlerts {
                     await disruptionsVM.load()
                 }
-                try? await Task.sleep(for: .seconds(60))
+                try? await Task.sleep(for: .seconds(plan.dashboardSeconds))
             }
         }
     }
@@ -71,7 +72,8 @@ struct NearbyView: View {
             isActive: shouldPoll,
             hasLocation: vm.hasLocation,
             showsSavedRoutes: homePreferences.showsSavedRoutes,
-            hasSavedRoutes: !favoritesVM.favoriteRoutes.isEmpty
+            hasSavedRoutes: !favoritesVM.favoriteRoutes.isEmpty,
+            isLowDataMode: isLowDataMode
         )
     }
 

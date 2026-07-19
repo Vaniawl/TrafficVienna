@@ -3,6 +3,7 @@ import SwiftUI
 struct DisruptionsView: View {
     @ObservedObject var vm: DisruptionsViewModel
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.isLowDataMode) private var isLowDataMode
     var isActive = true
 
     var body: some View {
@@ -22,16 +23,22 @@ struct DisruptionsView: View {
             }
             .refreshable { await vm.load(force: true) }
             .searchable(text: $vm.lineFilter, placement: .navigationBarDrawer(displayMode: .always), prompt: "Filter")
-            .task(id: shouldPoll) {
-                guard shouldPoll else { return }
+            .task(id: pollingContext) {
+                guard pollingContext.isActive else { return }
                 while !Task.isCancelled {
                     await vm.load()
-                    try? await Task.sleep(for: .seconds(120))
+                    try? await Task.sleep(for: .seconds(
+                        PollingFeed.serviceAlerts.seconds(isLowDataMode: isLowDataMode)
+                    ))
                 }
             }
     }
 
     private var shouldPoll: Bool { isActive && scenePhase == .active }
+
+    private var pollingContext: PollingContext {
+        PollingContext(isActive: shouldPoll, isLowDataMode: isLowDataMode)
+    }
 
     @ViewBuilder
     private var content: some View {
