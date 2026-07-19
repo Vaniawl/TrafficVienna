@@ -2482,6 +2482,44 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testDisruptionPresentationCacheTracksDataFiltersAndRelevance() async {
+        let u1 = TrafficInfo(name: "u1", title: "U1 delay", description: nil, priority: "1", relatedLines: ["U1"])
+        let bus = TrafficInfo(name: "bus", title: "13A diversion", description: nil, priority: "1", relatedLines: ["13A"])
+        let u3 = TrafficInfo(name: "u3", title: "U3 delay", description: nil, priority: "1", relatedLines: ["U3"])
+        let viewModel = DisruptionsViewModel(
+            service: MonitorService(
+                network: MockNetworkManager(trafficInfos: [bus, u3, u1]),
+                cacheTTL: 0
+            ),
+            favoritesRepo: CountingFavoritesRepository(
+                routes: [FavoriteRoute(diva: "1", lineName: "U1", destination: "Leopoldau")]
+            )
+        )
+
+        await viewModel.load()
+
+        XCTAssertEqual(viewModel.availableCategories, [.metro, .bus])
+        XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["u1", "bus", "u3"])
+
+        viewModel.categoryFilter = .bus
+        XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["bus"])
+
+        viewModel.lineFilter = "u"
+        XCTAssertTrue(viewModel.filteredInfos.isEmpty)
+
+        viewModel.categoryFilter = nil
+        XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["u1", "u3"])
+
+        viewModel.updateFavoriteRoutes([
+            FavoriteRoute(diva: "3", lineName: "U3", destination: "Ottakring")
+        ])
+        XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["u3", "u1"])
+
+        viewModel.lineFilter = ""
+        XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["u3", "bus", "u1"])
+    }
+
+    @MainActor
     func testAlertManualRefreshBypassesTrafficInfoCache() async {
         let info = TrafficInfo(name: "u1", title: "U1 delay", description: nil, priority: "1", relatedLines: ["U1"])
         let network = MockNetworkManager(trafficInfos: [info])

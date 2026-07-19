@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Cached alert presentation
+
+- Cached available alert categories and the filtered, relevance-prioritized alert list in the view model instead of rebuilding them during every SwiftUI body evaluation.
+- Rebuilt the presentation only after accepted traffic data, favourite-route changes, or filter changes, and replaced two relevance-filter passes with one stable partition over matching alerts.
+- Preserved category/text filtering, favourite-first ordering, failed-refresh fallback, and overlapping-request behavior with focused regression coverage.
+- Verified a warning-free build, repository/OpenCode validators, and the full iPhone 17 suite: 176 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Off-main station-detail transformation
 
 - Extracted station-detail platform merging, departure sorting, and disruption indexing into a pure Sendable derived snapshot builder and ran it in a user-initiated detached task after each accepted monitor response.
