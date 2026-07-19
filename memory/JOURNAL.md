@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Preference-aware Home polling
+
+- Replaced unconditional Home refresh loops with a deterministic polling plan derived from tab activity, location availability, saved-route visibility, and saved-route existence.
+- Stopped the five-second Nearby wake-up loop while no user location exists and restarted it automatically when a location becomes available.
+- Skipped favourite-route monitor work when its Home module is hidden or no routes exist, while preserving city-alert refreshes for the global personalized tab badge.
+- Added matrix coverage for inactive, no-location, hidden-route, empty-route, and fully active polling states.
+
 ## 2026-07-19 — Reorderable Home modules
 
 - Added Edit-mode drag reordering for saved stations, saved routes, and Smart insight while retaining each module's independent visibility toggle.

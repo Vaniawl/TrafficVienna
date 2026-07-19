@@ -9,6 +9,27 @@ enum HomeModule: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
+struct HomePollingPlan: Hashable {
+    let isActive: Bool
+    let loadsNearbyDepartures: Bool
+    let loadsFavoriteRoutes: Bool
+    let loadsAlerts: Bool
+
+    nonisolated static func make(
+        isActive: Bool,
+        hasLocation: Bool,
+        showsSavedRoutes: Bool,
+        hasSavedRoutes: Bool
+    ) -> HomePollingPlan {
+        HomePollingPlan(
+            isActive: isActive,
+            loadsNearbyDepartures: isActive && hasLocation,
+            loadsFavoriteRoutes: isActive && showsSavedRoutes && hasSavedRoutes,
+            loadsAlerts: isActive
+        )
+    }
+}
+
 @MainActor
 final class HomePreferences: ObservableObject {
     private enum Key {

@@ -40,25 +40,40 @@ struct NearbyView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: $showAccount) { AccountView() }
-        .task(id: shouldPoll) {
-            guard shouldPoll else { return }
+        .task(id: pollingPlan) {
+            let plan = pollingPlan
+            guard plan.loadsNearbyDepartures else { return }
             while !Task.isCancelled {
                 await vm.load(force: false)
                 try? await Task.sleep(for: .seconds(vm.items.isEmpty ? 5 : 60))
             }
         }
-        .task(id: shouldPoll) {
-            guard shouldPoll else { return }
+        .task(id: pollingPlan) {
+            let plan = pollingPlan
+            guard plan.isActive else { return }
             while !Task.isCancelled {
-                async let favoriteLoad: Void = favoritesVM.loadFavorites()
-                async let alertLoad: Void = disruptionsVM.load()
-                _ = await (favoriteLoad, alertLoad)
+                if plan.loadsFavoriteRoutes {
+                    async let favoriteLoad: Void = favoritesVM.loadFavorites()
+                    async let alertLoad: Void = disruptionsVM.load()
+                    _ = await (favoriteLoad, alertLoad)
+                } else if plan.loadsAlerts {
+                    await disruptionsVM.load()
+                }
                 try? await Task.sleep(for: .seconds(60))
             }
         }
     }
 
     private var shouldPoll: Bool { isActive && scenePhase == .active }
+
+    private var pollingPlan: HomePollingPlan {
+        HomePollingPlan.make(
+            isActive: shouldPoll,
+            hasLocation: vm.hasLocation,
+            showsSavedRoutes: homePreferences.showsSavedRoutes,
+            hasSavedRoutes: !favoritesVM.favoriteRoutes.isEmpty
+        )
+    }
 
     @ViewBuilder
     private var content: some View {

@@ -92,6 +92,57 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(preferences.moduleOrder, [.smartInsight, .savedStations, .savedRoutes])
     }
 
+    func testHomePollingPlanSkipsWorkThatCannotProduceVisibleContent() {
+        let inactive = HomePollingPlan.make(
+            isActive: false,
+            hasLocation: true,
+            showsSavedRoutes: true,
+            hasSavedRoutes: true
+        )
+        XCTAssertEqual(
+            inactive,
+            HomePollingPlan(
+                isActive: false,
+                loadsNearbyDepartures: false,
+                loadsFavoriteRoutes: false,
+                loadsAlerts: false
+            )
+        )
+
+        let noLocationOrVisibleRoutes = HomePollingPlan.make(
+            isActive: true,
+            hasLocation: false,
+            showsSavedRoutes: false,
+            hasSavedRoutes: true
+        )
+        XCTAssertFalse(noLocationOrVisibleRoutes.loadsNearbyDepartures)
+        XCTAssertFalse(noLocationOrVisibleRoutes.loadsFavoriteRoutes)
+        XCTAssertTrue(noLocationOrVisibleRoutes.loadsAlerts)
+
+        let noSavedRoutes = HomePollingPlan.make(
+            isActive: true,
+            hasLocation: true,
+            showsSavedRoutes: true,
+            hasSavedRoutes: false
+        )
+        XCTAssertTrue(noSavedRoutes.loadsNearbyDepartures)
+        XCTAssertFalse(noSavedRoutes.loadsFavoriteRoutes)
+        XCTAssertTrue(noSavedRoutes.loadsAlerts)
+    }
+
+    func testHomePollingPlanLoadsEveryActiveDataSourceWhenUseful() {
+        let plan = HomePollingPlan.make(
+            isActive: true,
+            hasLocation: true,
+            showsSavedRoutes: true,
+            hasSavedRoutes: true
+        )
+
+        XCTAssertTrue(plan.loadsNearbyDepartures)
+        XCTAssertTrue(plan.loadsFavoriteRoutes)
+        XCTAssertTrue(plan.loadsAlerts)
+    }
+
     @MainActor
     func testLiveActivityPlanStartsOrUpdatesOneMatchingDeparture() {
         let target = LiveActivityDescriptor(line: "U1", destination: "Leopoldau", stop: "Karlsplatz")
