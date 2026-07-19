@@ -14,7 +14,7 @@ struct MapCenterKey: Hashable {
     let latitudeBucket: Int
     let longitudeBucket: Int
 
-    init(location: CLLocation) {
+    nonisolated init(location: CLLocation) {
         latitudeBucket = Int((location.coordinate.latitude * 1_000).rounded())
         longitudeBucket = Int((location.coordinate.longitude * 1_000).rounded())
     }
@@ -63,6 +63,7 @@ struct MapStationsView: View {
     @State private var markerCenter = CLLocation(latitude: 48.2082, longitude: 16.3738)
     @State private var didCenterOnUser = false
     @State private var favoritesOnly = false
+    @State private var showsStationList = false
 
     // Vienna city centre, used until a real location is available.
     private static let viennaCenter = CLLocationCoordinate2D(latitude: 48.2082, longitude: 16.3738)
@@ -122,26 +123,30 @@ struct MapStationsView: View {
                     .background(.regularMaterial, in: Capsule())
                     .accessibilityElement(children: .combine)
                     .accessibilityIdentifier("map.visibleStops")
-                Button {
-                    favoritesOnly.toggle()
-                    selectedID = nil
-                    sheetStation = nil
-                } label: {
-                    Label(
-                        filterTitle,
-                        systemImage: favoritesOnly ? "map" : "star.fill"
-                    )
-                    .font(.caption.bold())
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(
-                        favoritesOnly ? NeoDesign.accent : Color(.systemBackground),
-                        in: Capsule()
-                    )
-                    .foregroundStyle(favoritesOnly ? .white : .primary)
+                HStack(spacing: 8) {
+                    Button {
+                        showsStationList = true
+                    } label: {
+                        Label("Stops list", systemImage: "list.bullet")
+                            .mapPill(isSelected: false)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("map.stopsList")
+
+                    Button {
+                        favoritesOnly.toggle()
+                        selectedID = nil
+                        sheetStation = nil
+                    } label: {
+                        Label(
+                            filterTitle,
+                            systemImage: favoritesOnly ? "map" : "star.fill"
+                        )
+                        .mapPill(isSelected: favoritesOnly)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("map.favouritesFilter")
                 }
-                .buttonStyle(.plain)
-                .accessibilityIdentifier("map.favouritesFilter")
             }
             .padding(.vertical, 8)
         }
@@ -175,6 +180,91 @@ struct MapStationsView: View {
             }
             .presentationDetents([.medium, .large])
         }
+        .sheet(isPresented: $showsStationList) {
+            MapStationListView(
+                stations: visibleStations,
+                favoriteStationIDs: favoriteStationIDs,
+                favoritesOnly: $favoritesOnly
+            )
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
+        }
+    }
+}
+
+private struct MapStationListView: View {
+    let stations: [Station]
+    let favoriteStationIDs: Set<Int>
+    @Binding var favoritesOnly: Bool
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            Group {
+                if stations.isEmpty {
+                    ContentUnavailableView {
+                        Label(
+                            favoritesOnly ? "No favourite stops in view" : "No stops in view",
+                            systemImage: favoritesOnly ? "star.slash" : "tram"
+                        )
+                    } description: {
+                        Text("Move the map or show all stops.")
+                    } actions: {
+                        if favoritesOnly {
+                            Button("Show all stops") { favoritesOnly = false }
+                                .buttonStyle(.borderedProminent)
+                        }
+                    }
+                } else {
+                    List(stations) { station in
+                        let isFavorite = favoriteStationIDs.contains(station.id)
+                        NavigationLink {
+                            StationDetailView(station: station)
+                        } label: {
+                            HStack(spacing: 14) {
+                                NeoIcon(
+                                    systemName: isFavorite ? "star.fill" : "tram.fill",
+                                    tint: isFavorite ? .yellow : NeoDesign.accent
+                                )
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(station.name)
+                                        .font(.headline)
+                                    Text(station.diva == nil ? "Schedule only" : "Live departures")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            .padding(.vertical, 4)
+                        }
+                        .accessibilityIdentifier("map.station.\(station.id)")
+                    }
+                    .listStyle(.plain)
+                }
+            }
+            .navigationTitle("Visible stops")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Text("Closest first")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
+        .tint(NeoDesign.accent)
+    }
+}
+
+private extension View {
+    func mapPill(isSelected: Bool) -> some View {
+        font(.caption.bold())
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(isSelected ? NeoDesign.accent : Color(.systemBackground), in: Capsule())
+            .foregroundStyle(isSelected ? .white : .primary)
     }
 }
 

@@ -705,6 +705,22 @@
         }
       }
     },
+    "Closest first": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nächste zuerst"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Найближчі спочатку"
+          }
+        }
+      }
+    },
     "Collapsed": {
       "localizations": {
         "de": {
@@ -2162,6 +2178,22 @@
         }
       }
     },
+    "Move the map or show all stops.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verschiebe die Karte oder zeige alle Haltestellen an."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перемістіть мапу або покажіть усі зупинки."
+          }
+        }
+      }
+    },
     "Nearby": {
       "localizations": {
         "de": {
@@ -2354,6 +2386,22 @@
         }
       }
     },
+    "No favourite stops in view": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Favoriten im Ausschnitt"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На мапі немає обраних зупинок"
+          }
+        }
+      }
+    },
     "No favourites yet": {
       "localizations": {
         "de": {
@@ -2430,6 +2478,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Немає сценаріїв"
+          }
+        }
+      }
+    },
+    "No stops in view": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Haltestellen im Ausschnitt"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На мапі немає зупинок"
           }
         }
       }
@@ -3586,6 +3650,22 @@
         }
       }
     },
+    "Stops list": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haltestellenliste"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Список зупинок"
+          }
+        }
+      }
+    },
     "System": {
       "localizations": {
         "de": {
@@ -4158,6 +4238,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "ВІДЕНЬ НАЖИВО"
+          }
+        }
+      }
+    },
+    "Visible stops": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sichtbare Haltestellen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Видимі зупинки"
           }
         }
       }

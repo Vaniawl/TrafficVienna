@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Browseable visible-stop map list
+
+- Added a compact List control to Map that presents every currently rendered stop in the same nearest-first order as its markers.
+- Made each row a direct Station Detail destination with live-versus-schedule context and a distinct saved-station star treatment.
+- Kept the sheet synchronized with the favourites-only filter and added an actionable empty state that can restore all visible stops without dismissing the sheet.
+- Localized the complete flow in German and Ukrainian, retained the viewport marker cap, and removed the map-centre concurrency warning with an explicitly nonisolated value initializer.
+
 ## 2026-07-19 — Personalized favourite-station map
 
 - Highlighted saved stations with yellow star markers while retaining the standard tram treatment for other visible stops.
