@@ -135,7 +135,7 @@ struct RootTabView: View {
 
             Tab("Favourites", systemImage: "star.fill", value: .favourites) {
                 NavigationStack {
-                    FavoritesView(vm: favoritesVM, isActive: selectedTab == .favourites)
+                    FavoritesView(vm: favoritesVM, store: store, isActive: selectedTab == .favourites)
                 }
             }
         }

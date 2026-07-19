@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Resolved favourite-station coordinates
+
+- Replaced the synthetic `0,0` Station Detail destination from Favourites with canonical station data resolved through the shared StationStore.
+- Persisted optional station coordinates with new favourites as a backward-compatible fallback while continuing to decode existing coordinate-free saved data.
+- Hid Apple Maps walking actions when neither canonical nor stored coordinates are available, preventing an invalid handoff near the Gulf of Guinea.
+- Added canonical-precedence and legacy-decoding regressions plus end-to-end coverage for Search → Favourites → Station Detail directions.
+
 ## 2026-07-19 — Walking directions from Station Detail
 
 - Added a persistent walking-directions toolbar action to every Station Detail state, including schedule-only, loading, empty, and failed live-data states.

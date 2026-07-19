@@ -12,17 +12,35 @@ nonisolated struct FavoriteStation: Codable, Hashable, Identifiable {
     let id: Int        // HALTESTELLEN_ID
     let diva: Int?
     let name: String
+    let lat: Double?
+    let lon: Double?
 
-    init(id: Int, diva: Int?, name: String) {
+    init(id: Int, diva: Int?, name: String, lat: Double? = nil, lon: Double? = nil) {
         self.id = id
         self.diva = diva
         self.name = name
+        self.lat = lat
+        self.lon = lon
     }
 
     init(_ station: Station) {
         self.id = station.id
         self.diva = station.diva
         self.name = station.name
+        self.lat = station.lat
+        self.lon = station.lon
+    }
+
+    @MainActor
+    func resolved(in store: StationStoring) -> Station {
+        if let canonical = store.station(id: id) { return canonical }
+        return Station(
+            id: id,
+            diva: diva,
+            name: name,
+            lat: lat ?? 0,
+            lon: lon ?? 0
+        )
     }
 }
 

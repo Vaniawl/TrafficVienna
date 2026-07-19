@@ -305,6 +305,10 @@ final class TrafficViennaUITests: XCTestCase {
             object: savedStation
         )
         XCTAssertEqual(XCTWaiter.wait(for: [stationIsHittable], timeout: 3), .completed)
+        savedStation.tap()
+        XCTAssertTrue(app.navigationBars["Karlsplatz"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["station.walkingDirections.toolbar"].waitForExistence(timeout: 3))
+        app.buttons["BackButton"].tap()
 
         let nearbyTab = tabBar.buttons["Nearby"]
         for _ in 0..<3 where !nearbyTab.isSelected {

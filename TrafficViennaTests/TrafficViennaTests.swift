@@ -25,6 +25,41 @@ final class TrafficViennaTests: XCTestCase {
             StationDirections.walkingLaunchOptions[MKLaunchOptionsDirectionsModeKey] as? String,
             MKLaunchOptionsDirectionsModeWalking
         )
+        XCTAssertTrue(StationDirections.isAvailable(for: station))
+        XCTAssertFalse(StationDirections.isAvailable(for: Station(
+            id: 2, diva: nil, name: "Unresolved", lat: 0, lon: 0
+        )))
+    }
+
+    func testFavoriteStationResolvesCanonicalCoordinatesBeforeStoredFallback() throws {
+        let store = StationStore()
+        let canonical = try XCTUnwrap(store.station(id: 1085618000))
+        let favorite = FavoriteStation(
+            id: canonical.id,
+            diva: canonical.diva,
+            name: canonical.name,
+            lat: 1,
+            lon: 2
+        )
+
+        let resolved = favorite.resolved(in: store)
+
+        XCTAssertEqual(resolved.lat, canonical.lat)
+        XCTAssertEqual(resolved.lon, canonical.lon)
+        XCTAssertTrue(StationDirections.isAvailable(for: resolved))
+    }
+
+    func testLegacyFavoriteStationWithoutCoordinatesStillDecodes() throws {
+        let data = try JSONSerialization.data(withJSONObject: [
+            "id": 42,
+            "diva": 123,
+            "name": "Legacy stop"
+        ])
+
+        let favorite = try JSONDecoder().decode(FavoriteStation.self, from: data)
+
+        XCTAssertNil(favorite.lat)
+        XCTAssertNil(favorite.lon)
     }
 
     func testRecentSearchRemovalPersistsWithoutReorderingOthers() {

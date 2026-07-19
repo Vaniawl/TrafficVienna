@@ -10,6 +10,7 @@ import SwiftUI
 
 struct FavoritesView: View {
     @ObservedObject var vm: FavoritesListViewModel
+    @ObservedObject var store: StationStore
     @Environment(\.scenePhase) private var scenePhase
     var isActive = true
     @State private var showAbout = false
@@ -92,10 +93,7 @@ struct FavoritesView: View {
         Section("Stations") {
             ForEach(vm.stations) { station in
                 NavigationLink {
-                    StationDetailView(
-                        station: Station(id: station.id, diva: station.diva,
-                                         name: station.name, lat: 0, lon: 0)
-                    )
+                    StationDetailView(station: station.resolved(in: store))
                 } label: {
                     HStack(spacing: 14) {
                         NeoIcon(systemName: "tram.fill")
@@ -166,5 +164,5 @@ struct FavoritesView: View {
             ]
         )
     ]
-    return NavigationStack { FavoritesView(vm: vm) }
+    return NavigationStack { FavoritesView(vm: vm, store: StationStore()) }
 }
