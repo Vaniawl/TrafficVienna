@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Multi-bigram station search
+
+- Changed station lookup to intersect every distinct query-bigram posting list instead of scanning every station that shares only the first two query characters.
+- Starts with the smallest posting list and uses linear intersections over the already sorted station indices, reducing candidate work while preserving deterministic search-index order and the existing exact/prefix/word/substring ranking.
+- Added regressions proving complete results for a representative multi-bigram query, stricter candidate reduction than its two-character prefix, and immediate empty results when any query bigram is absent.
+- Passed repository/OpenCode validators and the full iPhone 17 suite: 158 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Localized widget interface
 
 - Added a widget-target strings catalog with complete German and Ukrainian translations for empty state, departures, relative freshness, countdown units, refresh controls, configuration, and App Intent copy.

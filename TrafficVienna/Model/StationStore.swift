@@ -207,8 +207,24 @@ final class StationStore: ObservableObject, StationStoring {
     }
 
     private func searchCandidates(for normalizedQuery: String) -> [SearchEntry] {
-        guard let firstBigram = Self.bigrams(in: normalizedQuery).first else { return searchIndex }
-        return searchBigramIndex[firstBigram, default: []].map { searchIndex[$0] }
+        let queryBigrams = Set(Self.bigrams(in: normalizedQuery))
+        guard !queryBigrams.isEmpty else { return searchIndex }
+
+        let postingLists = queryBigrams.compactMap { bigram -> (bigram: String, indices: [Int])? in
+            guard let indices = searchBigramIndex[bigram] else { return nil }
+            return (bigram, indices)
+        }
+        guard postingLists.count == queryBigrams.count else { return [] }
+
+        let orderedLists = postingLists.sorted {
+            ($0.indices.count, $0.bigram) < ($1.indices.count, $1.bigram)
+        }
+        var candidateIndices = orderedLists[0].indices
+        for postingList in orderedLists.dropFirst() {
+            candidateIndices = Self.intersection(candidateIndices, postingList.indices)
+            if candidateIndices.isEmpty { break }
+        }
+        return candidateIndices.map { searchIndex[$0] }
     }
 
     func station(id: Int) -> Station? { stationsByID[id] }
@@ -244,6 +260,28 @@ final class StationStore: ObservableObject, StationStoring {
         let characters = Array(value)
         guard characters.count >= 2 else { return [] }
         return (0..<(characters.count - 1)).map { String(characters[$0...($0 + 1)]) }
+    }
+
+    nonisolated private static func intersection(_ lhs: [Int], _ rhs: [Int]) -> [Int] {
+        var leftIndex = 0
+        var rightIndex = 0
+        var result: [Int] = []
+        result.reserveCapacity(min(lhs.count, rhs.count))
+
+        while leftIndex < lhs.count, rightIndex < rhs.count {
+            let left = lhs[leftIndex]
+            let right = rhs[rightIndex]
+            if left == right {
+                result.append(left)
+                leftIndex += 1
+                rightIndex += 1
+            } else if left < right {
+                leftIndex += 1
+            } else {
+                rightIndex += 1
+            }
+        }
+        return result
     }
 
     nonisolated private static func spatialCell(latitude: Double, longitude: Double) -> SpatialCell {

@@ -1270,12 +1270,28 @@ final class TrafficViennaTests: XCTestCase {
     func testStationSearchBigramIndexNarrowsCandidatesWithoutDroppingMatches() {
         let store = StationStore()
 
-        let names = store.stationsSuggestion(matching: "Haupt").map(\.name)
+        let results = store.stationsSuggestion(matching: "Haupt")
+        let names = results.map(\.name)
+        let expectedIDs = Set(store.stations.filter {
+            $0.name.localizedCaseInsensitiveContains("Haupt")
+        }.map(\.id))
 
         XCTAssertTrue(names.contains("Hauptbahnhof"))
         XCTAssertTrue(names.contains("St. Pölten Hauptbahnhof"))
+        XCTAssertEqual(Set(results.map(\.id)), expectedIDs)
         XCTAssertLessThan(store.indexedCandidateCount(matching: "Haupt"), store.stations.count / 2)
+        XCTAssertLessThan(
+            store.indexedCandidateCount(matching: "Haupt"),
+            store.indexedCandidateCount(matching: "Ha")
+        )
         XCTAssertEqual(store.indexedCandidateCount(matching: "H"), store.stations.count)
+    }
+
+    func testStationSearchReturnsNoCandidatesWhenAnyQueryBigramIsMissing() {
+        let store = StationStore()
+
+        XCTAssertEqual(store.indexedCandidateCount(matching: "Hauptzz"), 0)
+        XCTAssertTrue(store.stationsSuggestion(matching: "Hauptzz").isEmpty)
     }
 
     func testExactDivaLookupUsesNormalizedName() {
