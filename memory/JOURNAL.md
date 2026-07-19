@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Off-main station-detail transformation
+
+- Extracted station-detail platform merging, departure sorting, and disruption indexing into a pure Sendable derived snapshot builder and ran it in a user-initiated detached task after each accepted monitor response.
+- Added cancellation propagation to the transformation task plus a second cancellation/generation guard before applying the snapshot, so abandoned or superseded loads cannot publish derived state.
+- Kept the MainActor responsible only for category derivation and atomic snapshot/monitor/freshness publication, preserving filters, failed-refresh fallback, widget sync, and manual refresh semantics.
+- Verified a warning-free build, repository/OpenCode validators, and the full iPhone 17 suite: 175 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Compact off-main Nearby updates
 
 - Removed full raw `[Lines]` payloads from each Nearby UI item after introducing the immutable card snapshot, eliminating duplicate retained response content for up to eight visible stations.

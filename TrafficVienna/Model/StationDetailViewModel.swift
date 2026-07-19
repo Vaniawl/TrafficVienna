@@ -37,12 +37,19 @@ final class StationDetailViewModel: ObservableObject {
     }
 
     // One departure direction at the station.
-    struct DepartureGroup: Identifiable {
+    nonisolated struct DepartureGroup: Identifiable, Sendable {
         let line: String
         let destination: String
         let minutes: [Int]   // live, ascending
         let isLive: Bool
         var id: String { line + "|" + destination }
+    }
+
+    nonisolated private struct DerivedContent: Sendable {
+        static let empty = DerivedContent(groups: [], affectedLineNames: [])
+
+        let groups: [DepartureGroup]
+        let affectedLineNames: Set<String>
     }
 
     // All departures across every platform, merged by line+direction and
@@ -53,11 +60,12 @@ final class StationDetailViewModel: ObservableObject {
         return allGroups.filter { LineCategory.of($0.line) == filter }
     }
 
-    private func rebuildDerivedContent(from response: MonitorResponse) {
+    nonisolated private static func makeDerivedContent(from response: MonitorResponse) -> DerivedContent {
         var merged: [String: (line: String, dest: String, mins: [Int], live: Bool)] = [:]
         var order: [String] = []
 
         for platform in response.data.monitors {
+            guard !Task.isCancelled else { return .empty }
             for line in platform.lines {
                 let key = line.name + "|" + line.towards
                 let mins = line.departures.departure.map { $0.departureTime.liveMinutes }
@@ -73,13 +81,23 @@ final class StationDetailViewModel: ObservableObject {
             }
         }
 
-        allGroups = order.compactMap { merged[$0] }
+        let groups = order.compactMap { merged[$0] }
             .map { DepartureGroup(line: $0.line, destination: $0.dest,
                                   minutes: $0.mins.sorted(), isLive: $0.live) }
             .sorted { ($0.minutes.first ?? .max) < ($1.minutes.first ?? .max) }
+        return DerivedContent(
+            groups: groups,
+            affectedLineNames: Set(
+                response.data.trafficInfos?.flatMap { $0.relatedLines ?? [] } ?? []
+            )
+        )
+    }
+
+    private func apply(_ content: DerivedContent) {
+        allGroups = content.groups
         let categories = Set(allGroups.map { LineCategory.of($0.line) })
         availableCategories = LineCategory.allCases.filter(categories.contains)
-        affectedLineNames = Set(response.data.trafficInfos?.flatMap { $0.relatedLines ?? [] } ?? [])
+        affectedLineNames = content.affectedLineNames
     }
 
     var lastUpdatedText: String? {
@@ -128,7 +146,16 @@ final class StationDetailViewModel: ObservableObject {
         do {
             let result = try await service.monitorResult(diva: diva, forceRefresh: forceRefresh)
             guard !Task.isCancelled, generation == loadGeneration else { return }
-            rebuildDerivedContent(from: result.value)
+            let transformTask = Task.detached(priority: .userInitiated) {
+                Self.makeDerivedContent(from: result.value)
+            }
+            let derivedContent = await withTaskCancellationHandler {
+                await transformTask.value
+            } onCancel: {
+                transformTask.cancel()
+            }
+            guard !Task.isCancelled, generation == loadGeneration else { return }
+            apply(derivedContent)
             self.monitor = result.value
             self.freshness = result.freshness
             self.lastUpdated = result.freshness.updatedAt
