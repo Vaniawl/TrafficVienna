@@ -46,9 +46,14 @@ final class StationDetailViewModel: ObservableObject {
     }
 
     nonisolated private struct DerivedContent: Sendable {
-        static let empty = DerivedContent(groups: [], affectedLineNames: [])
+        static let empty = DerivedContent(
+            groups: [],
+            availableCategories: [],
+            affectedLineNames: []
+        )
 
         let groups: [DepartureGroup]
+        let availableCategories: [LineCategory]
         let affectedLineNames: Set<String>
     }
 
@@ -63,10 +68,20 @@ final class StationDetailViewModel: ObservableObject {
     nonisolated private static func makeDerivedContent(from response: MonitorResponse) -> DerivedContent {
         var merged: [String: (line: String, dest: String, mins: [Int], live: Bool)] = [:]
         var order: [String] = []
+        var presentCategories = Set<LineCategory>()
+        presentCategories.reserveCapacity(LineCategory.allCases.count)
+        var affectedLineNames = Set<String>()
+
+        for info in response.data.trafficInfos ?? [] {
+            for line in info.relatedLines ?? [] {
+                affectedLineNames.insert(line)
+            }
+        }
 
         for platform in response.data.monitors {
             guard !Task.isCancelled else { return .empty }
             for line in platform.lines {
+                presentCategories.insert(LineCategory.of(line.name))
                 let key = line.name + "|" + line.towards
                 let mins = line.departures.departure.map { $0.departureTime.liveMinutes }
                 let live = line.departures.departure.first?.departureTime.timeReal != nil
@@ -81,22 +96,29 @@ final class StationDetailViewModel: ObservableObject {
             }
         }
 
-        let groups = order.compactMap { merged[$0] }
-            .map { DepartureGroup(line: $0.line, destination: $0.dest,
-                                  minutes: $0.mins.sorted(), isLive: $0.live) }
-            .sorted { ($0.minutes.first ?? .max) < ($1.minutes.first ?? .max) }
+        var groups: [DepartureGroup] = []
+        groups.reserveCapacity(order.count)
+        for key in order {
+            guard let group = merged[key] else { continue }
+            groups.append(DepartureGroup(
+                line: group.line,
+                destination: group.dest,
+                minutes: group.mins.sorted(),
+                isLive: group.live
+            ))
+        }
+        groups.sort { ($0.minutes.first ?? .max) < ($1.minutes.first ?? .max) }
+
         return DerivedContent(
             groups: groups,
-            affectedLineNames: Set(
-                response.data.trafficInfos?.flatMap { $0.relatedLines ?? [] } ?? []
-            )
+            availableCategories: LineCategory.allCases.filter(presentCategories.contains),
+            affectedLineNames: affectedLineNames
         )
     }
 
     private func apply(_ content: DerivedContent) {
         allGroups = content.groups
-        let categories = Set(allGroups.map { LineCategory.of($0.line) })
-        availableCategories = LineCategory.allCases.filter(categories.contains)
+        availableCategories = content.availableCategories
         affectedLineNames = content.affectedLineNames
     }
 

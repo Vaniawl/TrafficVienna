@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Unified station-detail presentation snapshot
+
+- Derived merged departure groups, ordered line categories, and disrupted-line membership in one off-main snapshot instead of rebuilding categories and flattening related lines after publication on the MainActor.
+- Replaced the chained group `compactMap`/`map` intermediates with capacity-reserved assembly while preserving first-seen direction order before soonest-departure sorting.
+- Covered duplicate platform directions and duplicate disruption lines, including merged minute ordering, category order/deduplication, filtering, and refresh replacement.
+- Verified warning-free focused and Release builds, repository/OpenCode validators, and the full iPhone 17 suite: 187 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Single-pass alert derivation and deterministic UI departures
 
 - Combined accepted-alert category discovery and favourite relevance into one capacity-reserved scan, removing the separate `flatMap` category pass while retaining lightweight route-only relevance rebuilds.

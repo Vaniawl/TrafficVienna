@@ -25,7 +25,7 @@ extension Color {
 
 // The kind of service a line belongs to. Used for colouring and for the
 // line-type filter on the station detail screen.
-enum LineCategory: String, CaseIterable, Identifiable {
+nonisolated enum LineCategory: String, CaseIterable, Identifiable, Sendable {
     case metro = "U-Bahn"
     case sbahn = "S-Bahn"
     case tram = "Tram"
@@ -44,7 +44,7 @@ enum LineCategory: String, CaseIterable, Identifiable {
         }
     }
 
-    var color: Color {
+    @MainActor var color: Color {
         switch self {
         case .metro: return Color(hex: 0x1C6BA0)
         case .sbahn: return Color(hex: 0x004A99)

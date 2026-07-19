@@ -1711,12 +1711,16 @@ final class TrafficViennaTests: XCTestCase {
             title: "U1 delay",
             description: nil,
             priority: "1",
-            relatedLines: ["U1"]
+            relatedLines: ["U1", "U1"]
         )
+        let secondPlatformMetroDepartures = Departures(departure: [
+            Departure(departureTime: DepartureTime(countdown: 4, timePlanned: nil, timeReal: nil))
+        ])
         let network = MockNetworkManager(
             trafficInfos: [disruption],
             monitorLines: [
                 Lines(name: "U1", towards: "Leopoldau", departures: metroDepartures),
+                Lines(name: "U1", towards: "Leopoldau", departures: secondPlatformMetroDepartures),
                 Lines(name: "13A", towards: "Hauptbahnhof", departures: busDepartures)
             ]
         )
@@ -1734,6 +1738,8 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertFalse(viewModel.hasDisruption(lineName: "13A"))
         viewModel.categoryFilter = .metro
         XCTAssertEqual(viewModel.groups.map(\.id), ["U1|Leopoldau"])
+        XCTAssertEqual(viewModel.groups.first?.minutes, [4, 5, 12])
+        XCTAssertEqual(viewModel.groups.first?.isLive, false)
 
         network.trafficInfos = []
         network.monitorLines = [
