@@ -1041,6 +1041,70 @@
         }
       }
     },
+    "End": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beenden"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Завершити"
+          }
+        }
+      }
+    },
+    "End all": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle beenden"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Завершити всі"
+          }
+        }
+      }
+    },
+    "End all activities": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Aktivitäten beenden"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Завершити всі дії"
+          }
+        }
+      }
+    },
+    "End all Live Activities?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Live-Aktivitäten beenden?"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Завершити всі дії наживо?"
+          }
+        }
+      }
+    },
     "Enter a station name to see live departures.": {
       "localizations": {
         "de": {
@@ -1313,6 +1377,22 @@
         }
       }
     },
+    "Keep activities": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktivitäten behalten"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Залишити дії"
+          }
+        }
+      }
+    },
     "Keep reminders": {
       "localizations": {
         "de": {
@@ -1373,6 +1453,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Лінії"
+          }
+        }
+      }
+    },
+    "Live Activities": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live-Aktivitäten"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дії наживо"
           }
         }
       }
@@ -1790,6 +1886,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Обраного ще немає"
+          }
+        }
+      }
+    },
+    "No Live Activities": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Live-Aktivitäten"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Немає дій наживо"
           }
         }
       }
@@ -2834,6 +2946,22 @@
         }
       }
     },
+    "This removes every Traffic Vienna departure from your Lock Screen.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dadurch werden alle Traffic-Vienna-Abfahrten von deinem Sperrbildschirm entfernt."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Це прибере всі відправлення Traffic Vienna з екрана блокування."
+          }
+        }
+      }
+    },
     "This removes favourites, routines, recent searches, departure reminders, Live Activities, widget data, and cached departures. Your sign-in stays active.": {
       "localizations": {
         "de": {
@@ -2878,6 +3006,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Відстежувати"
+          }
+        }
+      }
+    },
+    "Track a live departure to see it on your Lock Screen.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verfolge eine Live-Abfahrt, um sie auf deinem Sperrbildschirm zu sehen."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Почніть відстежувати відправлення наживо, щоб бачити його на екрані блокування."
           }
         }
       }

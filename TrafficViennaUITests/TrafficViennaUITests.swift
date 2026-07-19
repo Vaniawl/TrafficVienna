@@ -131,6 +131,19 @@ final class TrafficViennaUITests: XCTestCase {
         XCTAssertTrue(backToAccount.waitForExistence(timeout: 3))
         XCTAssertEqual(backToAccount.label, "Account")
         backToAccount.tap()
+
+        let liveActivities = app.descendants(matching: .any)["account.liveActivities"]
+        XCTAssertTrue(liveActivities.waitForExistence(timeout: 3))
+        for _ in 0..<3 where !app.navigationBars["Live Activities"].exists {
+            liveActivities.tap()
+            _ = app.navigationBars["Live Activities"].waitForExistence(timeout: 1)
+        }
+        XCTAssertTrue(app.navigationBars["Live Activities"].waitForExistence(timeout: 3))
+        let backFromActivities = app.buttons["BackButton"]
+        XCTAssertTrue(backFromActivities.waitForExistence(timeout: 3))
+        XCTAssertEqual(backFromActivities.label, "Account")
+        backFromActivities.tap()
+
         app.buttons["Done"].tap()
         app.tabBars.buttons["Nearby"].tap()
         XCTAssertTrue(app.staticTexts["Codex Rider"].waitForExistence(timeout: 3))

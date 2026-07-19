@@ -10,6 +10,15 @@ struct LiveActivityDescriptor: Equatable {
     let stop: String
 }
 
+struct TrackedLiveActivity: Identifiable, Equatable {
+    let id: String
+    let line: String
+    let destination: String
+    let stop: String
+    let departureDate: Date
+    let isLive: Bool
+}
+
 enum LiveActivityPlan: Equatable {
     case start
     case update(primaryIndex: Int, duplicateIndices: [Int])
@@ -48,6 +57,26 @@ enum LiveActivityController {
         let matchingIndices = active.indices.filter { active[$0] == target }
         guard let primaryIndex = matchingIndices.first else { return .start }
         return .update(primaryIndex: primaryIndex, duplicateIndices: Array(matchingIndices.dropFirst()))
+    }
+
+    static var activeDepartures: [TrackedLiveActivity] {
+        sorted(Activity<DepartureActivityAttributes>.activities.map { activity in
+            TrackedLiveActivity(
+                id: activity.id,
+                line: activity.attributes.line,
+                destination: activity.attributes.destination,
+                stop: activity.attributes.stopName,
+                departureDate: activity.content.state.departureDate,
+                isLive: activity.content.state.isLive
+            )
+        })
+    }
+
+    static func sorted(_ activities: [TrackedLiveActivity]) -> [TrackedLiveActivity] {
+        activities.sorted {
+            if $0.departureDate != $1.departureDate { return $0.departureDate < $1.departureDate }
+            return $0.id < $1.id
+        }
     }
 
     static func track(
@@ -101,5 +130,12 @@ enum LiveActivityController {
         for activity in Activity<DepartureActivityAttributes>.activities {
             await activity.end(nil, dismissalPolicy: .immediate)
         }
+    }
+
+    static func stop(id: String) async {
+        guard let activity = Activity<DepartureActivityAttributes>.activities.first(where: { $0.id == id }) else {
+            return
+        }
+        await activity.end(nil, dismissalPolicy: .immediate)
     }
 }

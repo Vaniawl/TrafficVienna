@@ -58,6 +58,13 @@ struct AccountView: View {
                         Label("Departure reminders", systemImage: "bell.badge")
                     }
                     .accessibilityIdentifier("account.departureReminders")
+
+                    NavigationLink {
+                        LiveActivitiesView()
+                    } label: {
+                        Label("Live Activities", systemImage: "dot.radiowaves.left.and.right")
+                    }
+                    .accessibilityIdentifier("account.liveActivities")
                 }
 
                 Section {

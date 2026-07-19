@@ -42,6 +42,39 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testManagedLiveActivitiesAreChronologicalAndStable() {
+        let later = TrackedLiveActivity(
+            id: "b",
+            line: "D",
+            destination: "Nussdorf",
+            stop: "Schottentor",
+            departureDate: Date(timeIntervalSince1970: 200),
+            isLive: true
+        )
+        let sameTimeFirst = TrackedLiveActivity(
+            id: "a",
+            line: "U1",
+            destination: "Leopoldau",
+            stop: "Karlsplatz",
+            departureDate: Date(timeIntervalSince1970: 200),
+            isLive: false
+        )
+        let earlier = TrackedLiveActivity(
+            id: "c",
+            line: "2",
+            destination: "Dornbach",
+            stop: "Schwedenplatz",
+            departureDate: Date(timeIntervalSince1970: 100),
+            isLive: true
+        )
+
+        XCTAssertEqual(
+            LiveActivityController.sorted([later, sameTimeFirst, earlier]).map(\.id),
+            ["c", "a", "b"]
+        )
+    }
+
+    @MainActor
     func testCommuteRoutinePersistence() {
         let suite = "RoutineTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!

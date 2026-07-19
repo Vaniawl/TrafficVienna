@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — User-managed Live Activities
+
+- Added an Account destination that lists TrafficVienna Live Activities chronologically with line, destination, stop, scheduled departure time, and realtime status.
+- Added swipe-to-end for one tracked departure plus a confirmed end-all action independent from the destructive travel-data reset.
+- Reloaded the system-owned activity snapshot when the management screen becomes active and kept targeted ending scoped to the selected ActivityKit identifier.
+- Localized the flow in German and Ukrainian and added deterministic ordering plus end-to-end Account navigation coverage.
+
 ## 2026-07-19 — Time-relevant Smart Home routines
 
 - Limited Smart Home routine selection to a two-hour window around the saved commute time instead of surfacing the nearest routine throughout its entire active weekday.
