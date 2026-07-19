@@ -3,6 +3,21 @@ import fs from "node:fs";
 const path = new URL("../TrafficVienna/Localizable.xcstrings", import.meta.url);
 const catalog = JSON.parse(fs.readFileSync(path, "utf8"));
 const original = JSON.stringify(catalog);
+const widgetPath = new URL("../TrafficViennaWidget/Localizable.xcstrings", import.meta.url);
+const widgetCatalog = JSON.parse(fs.readFileSync(widgetPath, "utf8"));
+const requiredWidgetKeys = [
+  "Departures",
+  "Live departures for your favourite lines.",
+  "min",
+  "No favourites yet",
+  "now",
+  "Refresh",
+  "Refresh Favorites",
+  "Request the widget to refresh its data.",
+  "Tap the heart on a line in the app.",
+  "then %@ min",
+  "Updated %@"
+];
 
 const newEnglish = [
   "Restore from backup", "Restore this backup?", "Replace local data", "Backup restored", "Your account and App Lock were not changed.", "Couldn’t complete the data operation", "The backup file is too large.", "This isn’t a valid Traffic Vienna backup.", "This backup version isn’t supported.", "The backup couldn’t be restored. Your previous data was kept.", "The backup couldn’t be restored completely. Review your local data before trying again.", "Backup contains %lld stations, %lld routes, %lld routines, and %lld recent searches. Existing travel data, appearance, and Home layout will be replaced. Your account and App Lock stay unchanged.",
@@ -203,6 +218,15 @@ const incomplete = Object.entries(catalog.strings).filter(([, entry]) =>
 );
 if (incomplete.length) {
   console.error(`Missing de/uk localization: ${incomplete.map(([key]) => key).join(", ")}`);
+  process.exit(1);
+}
+const incompleteWidget = requiredWidgetKeys.filter((key) => {
+  const entry = widgetCatalog.strings?.[key];
+  return !entry?.localizations?.de?.stringUnit?.value ||
+    !entry?.localizations?.uk?.stringUnit?.value;
+});
+if (incompleteWidget.length) {
+  console.error(`Missing widget de/uk localization: ${incompleteWidget.join(", ")}`);
   process.exit(1);
 }
 if (process.argv.includes("--check")) {

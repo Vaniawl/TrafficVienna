@@ -272,7 +272,11 @@ struct TrafficViennaWidgetEntryView: View {
                 }
             }
             if item.departures.count > 1 {
-                Text("then " + item.departures.dropFirst().prefix(2).map { "\($0)" }.joined(separator: ", ") + " min")
+                Text(String(
+                    format: String(localized: "then %@ min"),
+                    locale: .current,
+                    item.departures.dropFirst().prefix(2).map(String.init).joined(separator: ", ")
+                ))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
@@ -348,13 +352,17 @@ struct TrafficViennaWidgetEntryView: View {
     }
 
     private func timeString(_ minutes: Int) -> String {
-        minutes <= 0 ? "now" : "\(minutes)"
+        minutes <= 0 ? String(localized: "now") : "\(minutes)"
     }
 
     private func relativeUpdatedString(since date: Date) -> String {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .short
-        return "Updated \(formatter.localizedString(for: date, relativeTo: .now))"
+        return String(
+            format: String(localized: "Updated %@"),
+            locale: .current,
+            formatter.localizedString(for: date, relativeTo: .now)
+        )
     }
 }
 

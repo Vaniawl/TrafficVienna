@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-07-19 — Localized widget interface
+
+- Added a widget-target strings catalog with complete German and Ukrainian translations for empty state, departures, relative freshness, countdown units, refresh controls, configuration, and App Intent copy.
+- Replaced runtime English concatenation for “now”, subsequent minutes, and last-updated text with localized format keys that preserve locale-aware relative dates.
+- Extended repository localization validation to require every widget key in both supported non-English locales instead of relying on the main-app catalog, which is not packaged in the extension.
+- Built the extension and verified the compiled `.appex` contains both `de.lproj` and `uk.lproj` `Localizable.strings` with the expected values.
+- Passed repository/OpenCode validators and the full iPhone 17 suite: 157 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Immediate widget route synchronization
 
 - Made Station Detail heart toggles notify the widget immediately instead of waiting for its next scheduled timeline cycle.

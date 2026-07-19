@@ -12,6 +12,7 @@ SwiftUI iOS app for live Vienna public transport departures.
 - Departure reminders, Live Activities, Dynamic Island, and a home-screen widget with immediate favourite-route synchronization, deduplicated app-driven updates, and staggered concurrent timeline refreshes.
 - Indexed station search/spatial queries, off-main batch response processing, throttled API access, bounded and memory-pressure-aware response caching, active-tab polling, Low Data/Low Power/thermal-aware cadence and continuous animations, and stale offline fallback.
 - App and widget privacy manifests with declared UserDefaults reasons and no tracking/data-collection declaration.
+- English, German, and Ukrainian app and widget interfaces, including localized dynamic countdown and freshness text.
 - Validated English, German, and Ukrainian App Store metadata plus review and screenshot guidance in [`docs/app-store/`](docs/app-store/).
 
 ## Validation
