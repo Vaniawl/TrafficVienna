@@ -137,6 +137,7 @@ final class TrafficViennaUITests: XCTestCase {
         XCTAssertTrue(app.secureTextFields["account.newPassword"].exists)
         XCTAssertTrue(app.secureTextFields["account.confirmNewPassword"].exists)
         app.buttons["BackButton"].tap()
+        XCTAssertTrue(app.descendants(matching: .any)["account.biometricUnlock"].waitForExistence(timeout: 3))
 
         let reminders = app.descendants(matching: .any)["account.departureReminders"]
         XCTAssertTrue(reminders.waitForExistence(timeout: 3))
@@ -466,10 +467,10 @@ final class TrafficViennaUITests: XCTestCase {
     }
 
     private func scrollToMakeHittable(_ element: XCUIElement) {
-        XCTAssertTrue(element.waitForExistence(timeout: 3))
         for _ in 0..<5 where !element.isHittable {
-            app.tables.firstMatch.swipeUp()
+            app.collectionViews.firstMatch.swipeUp()
         }
+        XCTAssertTrue(element.waitForExistence(timeout: 3))
         XCTAssertTrue(element.isHittable)
     }
 

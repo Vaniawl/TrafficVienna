@@ -35,6 +35,8 @@
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>We use your location to show nearby stops.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Use Face ID to protect your departures and saved travel data.</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>

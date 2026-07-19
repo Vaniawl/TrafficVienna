@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Optional biometric app lock
+
+- Added an opt-in Account security control for Face ID, Touch ID, or Optic ID and a dedicated lock screen that hides the signed-in interface after the app leaves the foreground.
+- Required successful system authentication before enabling protection, persisted only the device-level preference, and kept biometric data entirely inside LocalAuthentication.
+- Used device-owner authentication so a system passcode remains available after biometric lockout or enrollment changes, avoiding an unrecoverable local lock.
+- Added the Face ID purpose string, privacy disclosure, English/German/Ukrainian copy, deterministic state/failure/fallback tests, and Account discoverability coverage.
+
 ## 2026-07-19 — Local email password changes
 
 - Added a Change password destination for signed-in email accounts while keeping the option hidden for Apple ID sessions.

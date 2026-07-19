@@ -482,6 +482,62 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testBiometricAppLockPersistsAndRelocksAfterBackgrounding() async {
+        let suite = "AppLockTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let authenticator = MockBiometricAuthenticator(kind: .faceID)
+        let store = AppLockStore(defaults: defaults, authenticator: authenticator)
+
+        XCTAssertFalse(store.isEnabled)
+        await store.enable()
+        XCTAssertTrue(store.isEnabled)
+        XCTAssertFalse(store.isLocked)
+        XCTAssertEqual(authenticator.reasons, ["Confirm to enable biometric unlock."])
+
+        store.lockIfNeeded(hasSession: true)
+        XCTAssertTrue(store.isLocked)
+        await store.unlock()
+        XCTAssertFalse(store.isLocked)
+        XCTAssertEqual(authenticator.reasons.last, "Unlock Traffic Vienna.")
+
+        let restored = AppLockStore(defaults: defaults, authenticator: authenticator)
+        XCTAssertTrue(restored.isEnabled)
+        XCTAssertTrue(restored.isLocked)
+        XCTAssertEqual(SystemBiometricAuthenticator.policy, .deviceOwnerAuthentication)
+    }
+
+    @MainActor
+    func testUnavailableOrFailedBiometricsNeverEnableAppLock() async {
+        let suite = "UnavailableAppLockTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+
+        let unavailable = AppLockStore(
+            defaults: defaults,
+            authenticator: MockBiometricAuthenticator(kind: .unavailable)
+        )
+        await unavailable.enable()
+        XCTAssertFalse(unavailable.isEnabled)
+        XCTAssertEqual(unavailable.errorMessage, AppLockError.unavailable.localizedDescription)
+
+        let failingAuthenticator = MockBiometricAuthenticator(kind: .touchID, error: AppLockError.failed)
+        let failing = AppLockStore(defaults: defaults, authenticator: failingAuthenticator)
+        await failing.enable()
+        XCTAssertFalse(failing.isEnabled)
+        XCTAssertFalse(failing.isLocked)
+        XCTAssertEqual(failing.errorMessage, AppLockError.failed.localizedDescription)
+
+        defaults.set(true, forKey: "appLock.biometricEnabled")
+        let passcodeFallback = MockBiometricAuthenticator(kind: .unavailable, canAuthenticate: true)
+        let fallbackStore = AppLockStore(defaults: defaults, authenticator: passcodeFallback)
+        XCTAssertTrue(fallbackStore.isEnabled)
+        XCTAssertTrue(fallbackStore.isLocked)
+        await fallbackStore.unlock()
+        XCTAssertFalse(fallbackStore.isLocked)
+    }
+
+    @MainActor
     func testMultipleEmailAccountsCanRegister() throws {
         let store = AuthStore(keychain: MemoryKeychain(), defaults: UserDefaults(suiteName: UUID().uuidString)!)
         try store.register(email: "first@example.com", password: "tramline26")
@@ -2022,6 +2078,25 @@ private final class MemoryKeychain: KeychainStoring {
         guard removeSucceeds else { return false }
         storage.removeValue(forKey: key)
         return true
+    }
+}
+
+@MainActor
+private final class MockBiometricAuthenticator: BiometricAuthenticating {
+    let kind: BiometricKind
+    let canAuthenticate: Bool
+    let error: Error?
+    private(set) var reasons: [String] = []
+
+    init(kind: BiometricKind, canAuthenticate: Bool? = nil, error: Error? = nil) {
+        self.kind = kind
+        self.canAuthenticate = canAuthenticate ?? (kind != .unavailable)
+        self.error = error
+    }
+
+    func authenticate(reason: String) async throws {
+        reasons.append(reason)
+        if let error { throw error }
     }
 }
 

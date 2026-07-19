@@ -449,6 +449,70 @@
         }
       }
     },
+    "Biometric app lock": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biometrische App-Sperre"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Біометричне блокування застосунку"
+          }
+        }
+      }
+    },
+    "Biometric authentication is not available on this device.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biometrische Authentifizierung ist auf diesem Gerät nicht verfügbar."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Біометрична автентифікація недоступна на цьому пристрої."
+          }
+        }
+      }
+    },
+    "Biometric unlock": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biometrische Entsperrung"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Біометричне розблокування"
+          }
+        }
+      }
+    },
+    "Biometrics changed. You can unlock with your device passcode or turn off app lock.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Biometrie wurde geändert. Du kannst mit dem Gerätecode entsperren oder die App-Sperre ausschalten."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Біометричні дані змінилися. Можна розблокувати застосунок кодом пристрою або вимкнути блокування."
+          }
+        }
+      }
+    },
     "Cancel": {
       "localizations": {
         "de": {
@@ -785,6 +849,22 @@
         }
       }
     },
+    "Confirm to enable biometric unlock.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bestätige, um die biometrische Entsperrung zu aktivieren."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Підтвердьте ввімкнення біометричного розблокування."
+          }
+        }
+      }
+    },
     "CONNECTING": {
       "localizations": {
         "de": {
@@ -877,6 +957,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Не вдалося запустити відстеження на екрані блокування. Спробуйте ще раз."
+          }
+        }
+      }
+    },
+    "Couldn’t verify your identity. Please try again.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Identität konnte nicht bestätigt werden. Versuche es erneut."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не вдалося підтвердити вашу особу. Спробуйте ще раз."
           }
         }
       }
@@ -1085,6 +1181,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Відправлення"
+          }
+        }
+      }
+    },
+    "Device passcode": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gerätecode"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Код пристрою"
           }
         }
       }
@@ -1533,6 +1645,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Розгорнуто"
+          }
+        }
+      }
+    },
+    "Face ID": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Face ID"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Face ID"
+          }
+        }
+      }
+    },
+    "Face ID, Touch ID, or Optic ID is verified by the system. Traffic Vienna never receives or stores your biometric data.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Face ID, Touch ID oder Optic ID wird vom System geprüft. Traffic Vienna empfängt oder speichert niemals deine biometrischen Daten."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Face ID, Touch ID або Optic ID перевіряє система. Traffic Vienna ніколи не отримує та не зберігає ваші біометричні дані."
           }
         }
       }
@@ -2770,6 +2914,22 @@
         }
       }
     },
+    "Optic ID": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Optic ID"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Optic ID"
+          }
+        }
+      }
+    },
     "or": {
       "localizations": {
         "de": {
@@ -3138,6 +3298,22 @@
         }
       }
     },
+    "Require biometric authentication when returning to the app.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beim Zurückkehren zur App eine biometrische Authentifizierung verlangen."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вимагати біометричну автентифікацію після повернення до застосунку."
+          }
+        }
+      }
+    },
     "Restore default layout": {
       "localizations": {
         "de": {
@@ -3406,6 +3582,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Пошук серед видимих зупинок"
+          }
+        }
+      }
+    },
+    "Security": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sicherheit"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Безпека"
           }
         }
       }
@@ -3970,6 +4162,22 @@
         }
       }
     },
+    "Touch ID": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touch ID"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touch ID"
+          }
+        }
+      }
+    },
     "Track": {
       "localizations": {
         "de": {
@@ -4062,6 +4270,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Traffic Vienna не містить реклами, аналітики чи SDK для відстеження."
+          }
+        }
+      }
+    },
+    "Traffic Vienna is locked": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traffic Vienna ist gesperrt"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traffic Vienna заблоковано"
           }
         }
       }
@@ -4178,6 +4402,54 @@
         }
       }
     },
+    "Unlock to see your departures and saved travel data.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entsperre die App, um deine Abfahrten und gespeicherten Reisedaten zu sehen."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Розблокуйте застосунок, щоб побачити відправлення та збережені дані поїздок."
+          }
+        }
+      }
+    },
+    "Unlock Traffic Vienna.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traffic Vienna entsperren."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Розблокуйте Traffic Vienna."
+          }
+        }
+      }
+    },
+    "Unlock with %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit %@ entsperren"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Розблокувати за допомогою %@"
+          }
+        }
+      }
+    },
     "Update password": {
       "localizations": {
         "de": {
@@ -4286,6 +4558,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Оновлює цю лінію в обраному"
+          }
+        }
+      }
+    },
+    "Use %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ verwenden"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Використовувати %@"
           }
         }
       }

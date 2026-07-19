@@ -1,5 +1,13 @@
 # Architectural Decisions
 
+## 2026-07-19 — Device-owner authentication for optional app lock
+
+**Context:** A neobank-style app lock should conceal the signed-in UI when TrafficVienna leaves the foreground, but a biometrics-only policy can strand users after lockout or enrollment changes. The app must not receive or persist biometric material.
+
+**Decision:** Keep app-lock state in a root-owned `AppLockStore`, persist only an opt-in boolean in app-local defaults, and delegate verification to `LocalAuthentication`. Require an enrolled biometric to enable the feature, then evaluate `deviceOwnerAuthentication` for unlocking so the operating system can fall back to the device passcode. Replace the signed-in root with a dedicated lock view whenever the protected app is not active.
+
+**Consequences:** Face ID, Touch ID, and Optic ID remain system-controlled, failed or cancelled attempts never expose the signed-in UI, and biometric changes do not create an unrecoverable lock. This is a local privacy barrier rather than server authorization or encryption of the underlying device data.
+
 ## 2026-07-18 — Allowlisted travel-data reset distinct from identity removal
 
 **Context:** Travel preferences and runtime artifacts span App Group repositories, recent-search state, widget metadata, notifications, Live Activities, and monitor caches. They are device-level data rather than records owned by the current local authentication identity.

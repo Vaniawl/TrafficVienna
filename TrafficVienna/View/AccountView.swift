@@ -5,6 +5,7 @@ struct AccountView: View {
     @EnvironmentObject private var favoritesVM: FavoritesListViewModel
     @EnvironmentObject private var routines: CommuteRoutineStore
     @EnvironmentObject private var recentSearches: RecentSearchesStore
+    @EnvironmentObject private var appLock: AppLockStore
     @Environment(\.dismiss) private var dismiss
     @State private var showingAccountRemoval = false
     @State private var removalError: String?
@@ -91,6 +92,8 @@ struct AccountView: View {
                     .accessibilityIdentifier("account.liveActivities")
                 }
 
+                securitySection
+
                 Section {
                     NavigationLink {
                         PrivacyDataView()
@@ -152,6 +155,14 @@ struct AccountView: View {
             } message: {
                 Text(removalError ?? "")
             }
+            .alert("Biometric unlock", isPresented: Binding(
+                get: { appLock.errorMessage != nil },
+                set: { if !$0 { appLock.errorMessage = nil } }
+            )) {
+                Button("OK", role: .cancel) { appLock.errorMessage = nil }
+            } message: {
+                Text(appLock.errorMessage ?? "")
+            }
             .confirmationDialog(
                 "Clear travel data",
                 isPresented: $showingTravelDataClear,
@@ -170,6 +181,46 @@ struct AccountView: View {
             return String(localized: "This removes the Apple sign-in session from this device. It does not delete or revoke your Apple ID. Your saved stations and routines remain.")
         }
         return String(localized: "This deletes the local email password verifier and signs you out. Your saved stations and routines remain on this device.")
+    }
+
+    private var biometricUnlockBinding: Binding<Bool> {
+        Binding(
+            get: { appLock.isEnabled },
+            set: { enabled in
+                if enabled {
+                    Task { await appLock.enable() }
+                } else {
+                    appLock.disable()
+                }
+            }
+        )
+    }
+
+    private var securitySection: some View {
+        Section {
+            Toggle(isOn: biometricUnlockBinding) {
+                Label("Use \(appLock.biometricKind.title)", systemImage: "lock.shield")
+            }
+            .disabled(
+                (appLock.biometricKind == .unavailable && !appLock.isEnabled)
+                    || appLock.isAuthenticating
+            )
+            .accessibilityIdentifier("account.biometricUnlock")
+        } header: {
+            Text("Security")
+        } footer: {
+            Text(biometricFooter)
+        }
+    }
+
+    private var biometricFooter: String {
+        if appLock.biometricKind == .unavailable, appLock.isEnabled {
+            return String(localized: "Biometrics changed. You can unlock with your device passcode or turn off app lock.")
+        }
+        if appLock.biometricKind == .unavailable {
+            return String(localized: "Biometric authentication is not available on this device.")
+        }
+        return String(localized: "Require biometric authentication when returning to the app.")
     }
 
     private func removeAccount() {

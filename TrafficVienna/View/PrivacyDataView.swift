@@ -9,6 +9,11 @@ struct PrivacyDataView: View {
                     title: "Identity",
                     description: "Email password verifiers stay in Keychain on this device. Sign in with Apple uses Apple’s system authentication service. Traffic Vienna has no account server."
                 )
+                privacyRow(
+                    icon: "lock.shield",
+                    title: "Biometric app lock",
+                    description: "Face ID, Touch ID, or Optic ID is verified by the system. Traffic Vienna never receives or stores your biometric data."
+                )
             } header: {
                 Text("Your account")
             } footer: {
