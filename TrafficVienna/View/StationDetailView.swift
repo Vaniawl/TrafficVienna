@@ -13,7 +13,7 @@ struct StationDetailView: View {
     @EnvironmentObject private var favoritesVM: FavoritesListViewModel
     @StateObject private var vm: StationDetailViewModel
     @State private var lineFavoriteToggles = 0
-    @State private var reminderMessage: String?
+    @State private var feedback: StationFeedback?
 
     init(station: Station) {
         _vm = StateObject(wrappedValue: StationDetailViewModel(station: station))
@@ -56,9 +56,14 @@ struct StationDetailView: View {
                 }
             }
             .refreshable { await vm.load(forceRefresh: true) }
-            .alert("Departure reminder", isPresented: Binding(get: { reminderMessage != nil }, set: { if !$0 { reminderMessage = nil } })) {
-                Button("OK", role: .cancel) { reminderMessage = nil }
-            } message: { Text(reminderMessage ?? "") }
+            .alert(feedback?.title ?? "", isPresented: Binding(
+                get: { feedback != nil },
+                set: { if !$0 { feedback = nil } }
+            )) {
+                Button("OK", role: .cancel) { feedback = nil }
+            } message: {
+                Text(feedback?.message ?? "")
+            }
     }
 
     private var isStationFavorited: Bool {
@@ -162,7 +167,7 @@ struct StationDetailView: View {
     }
 
     private func lineRow(_ group: StationDetailViewModel.DepartureGroup) -> some View {
-        HStack(spacing: 10) {
+        VStack(alignment: .leading, spacing: 6) {
             DepartureLineRow(
                 lineName: group.line,
                 destination: group.destination,
@@ -171,39 +176,58 @@ struct StationDetailView: View {
                 nextIsLive: group.isLive
             )
 
-            Button {
-                scheduleReminder(for: group)
-            } label: {
-                Image(systemName: "bell.badge")
-                    .foregroundStyle(.secondary)
-                    .frame(width: 32, height: 44)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(Text(verbatim: "\(String(localized: "Remind me before departure")): \(group.line), \(group.destination)"))
-
-            if vm.station.diva != nil {
-                let isFav = favoritesVM.isLineFavorite(
-                    diva: vm.station.diva,
-                    lineName: group.line,
-                    destination: group.destination
-                )
+            HStack(spacing: 8) {
                 Button {
-                    favoritesVM.toggleLineFavorite(
+                    scheduleReminder(for: group)
+                } label: {
+                    Label("Remind", systemImage: "bell.badge")
+                        .font(.caption.bold())
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .background(.quaternary, in: Capsule())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text(verbatim: "\(String(localized: "Remind me before departure")): \(group.line), \(group.destination)"))
+
+                Button {
+                    startTracking(group)
+                } label: {
+                    Label("Track", systemImage: "dot.radiowaves.left.and.right")
+                        .font(.caption.bold())
+                        .foregroundStyle(Color(hex: 0x635BFF))
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .background(Color(hex: 0x635BFF).opacity(0.12), in: Capsule())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text(verbatim: "\(String(localized: "Track on Lock Screen")): \(group.line), \(group.destination)"))
+                .accessibilityIdentifier("station.track.\(group.id)")
+
+                if vm.station.diva != nil {
+                    let isFav = favoritesVM.isLineFavorite(
                         diva: vm.station.diva,
                         lineName: group.line,
                         destination: group.destination
                     )
-                    lineFavoriteToggles += 1
-                } label: {
-                    Image(systemName: isFav ? "heart.fill" : "heart")
-                        .foregroundStyle(isFav ? .red : .secondary)
+                    Button {
+                        favoritesVM.toggleLineFavorite(
+                            diva: vm.station.diva,
+                            lineName: group.line,
+                            destination: group.destination
+                        )
+                        lineFavoriteToggles += 1
+                    } label: {
+                        Image(systemName: isFav ? "heart.fill" : "heart")
+                            .foregroundStyle(isFav ? .red : .secondary)
+                            .frame(width: 44, height: 44)
+                            .background(.quaternary, in: Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(isFav ? "Remove \(group.line) from favourites" : "Save \(group.line) to favourites")
+                    .accessibilityHint("Updates this line in your favourites")
+                } else {
+                    Color.clear
+                        .frame(width: 44, height: 44)
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel(isFav ? "Remove \(group.line) from favourites" : "Save \(group.line) to favourites")
-                .accessibilityHint("Updates this line in your favourites")
-            } else {
-                Color.clear
-                    .frame(width: 44)
             }
         }
         .padding(.vertical, 4)
@@ -215,15 +239,9 @@ struct StationDetailView: View {
             }
 
             Button {
-                LiveActivityController.track(
-                    line: group.line,
-                    destination: group.destination,
-                    stop: vm.station.name,
-                    minutes: group.minutes.first ?? 0,
-                    isLive: group.isLive
-                )
+                startTracking(group)
             } label: {
-                Label("Track on Lock Screen", systemImage: "bell.badge")
+                Label("Track on Lock Screen", systemImage: "dot.radiowaves.left.and.right")
             }
 
             Button {
@@ -255,16 +273,43 @@ struct StationDetailView: View {
                     stop: vm.station.name,
                     minutes: group.minutes.first ?? 0
                 )
-                reminderMessage = String(
-                    format: String(localized: "We’ll notify you shortly before %@ departs."),
-                    locale: .current,
-                    group.line
+                feedback = StationFeedback(
+                    title: String(localized: "Departure reminder"),
+                    message: String(
+                        format: String(localized: "We’ll notify you shortly before %@ departs."),
+                        locale: .current,
+                        group.line
+                    )
                 )
             } catch {
-                reminderMessage = error.localizedDescription
+                feedback = StationFeedback(
+                    title: String(localized: "Departure reminder"),
+                    message: error.localizedDescription
+                )
             }
         }
     }
+
+    private func startTracking(_ group: StationDetailViewModel.DepartureGroup) {
+        Task {
+            let result = await LiveActivityController.track(
+                line: group.line,
+                destination: group.destination,
+                stop: vm.station.name,
+                minutes: group.minutes.first ?? 0,
+                isLive: group.isLive
+            )
+            feedback = StationFeedback(
+                title: String(localized: "Lock Screen tracking"),
+                message: result.message(line: group.line)
+            )
+        }
+    }
+}
+
+private struct StationFeedback {
+    let title: String
+    let message: String
 }
 
 #Preview {

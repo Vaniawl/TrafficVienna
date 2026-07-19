@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Discoverable and duplicate-safe Live Activities
+
+- Added a visible Lock Screen tracking action to every Station Detail departure row instead of leaving Live Activity creation inside the context menu only.
+- Reused and updated an existing activity for the same line, destination, and stop while ending any older matching duplicates before they consume another system activity slot.
+- Unified Station Detail feedback so reminders and Live Activity start, update, unavailable, and failure outcomes all produce clear localized confirmation.
+- Added a deterministic reconciliation regression and stable accessibility identifiers; localized the complete flow in German and Ukrainian.
+
 ## 2026-07-19 — Weekday-aware travel routines
 
 - Added a localized seven-day picker to routine creation and editing, with 44-point controls, locale-aware ordering, VoiceOver selection state, and validation that keeps at least one active day.

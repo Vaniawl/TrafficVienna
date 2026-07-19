@@ -30,6 +30,18 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testLiveActivityPlanStartsOrUpdatesOneMatchingDeparture() {
+        let target = LiveActivityDescriptor(line: "U1", destination: "Leopoldau", stop: "Karlsplatz")
+        let other = LiveActivityDescriptor(line: "D", destination: "Nussdorf", stop: "Schottentor")
+
+        XCTAssertEqual(LiveActivityController.plan(for: target, among: [other]), .start)
+        XCTAssertEqual(
+            LiveActivityController.plan(for: target, among: [other, target, other, target]),
+            .update(primaryIndex: 1, duplicateIndices: [3])
+        )
+    }
+
+    @MainActor
     func testCommuteRoutinePersistence() {
         let suite = "RoutineTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!

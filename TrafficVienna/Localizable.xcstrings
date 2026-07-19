@@ -657,6 +657,22 @@
         }
       }
     },
+    "Couldn’t start Lock Screen tracking. Please try again.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Tracking auf dem Sperrbildschirm konnte nicht gestartet werden. Versuche es erneut."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не вдалося запустити відстеження на екрані блокування. Спробуйте ще раз."
+          }
+        }
+      }
+    },
     "Create account": {
       "localizations": {
         "de": {
@@ -733,6 +749,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "відправляється зараз"
+          }
+        }
+      }
+    },
+    "Departure reminder": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abfahrtserinnerung"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нагадування про відправлення"
           }
         }
       }
@@ -1345,6 +1377,22 @@
         }
       }
     },
+    "Live Activities are turned off. Enable them in Settings to track departures on your Lock Screen.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live-Aktivitäten sind deaktiviert. Aktiviere sie in den Einstellungen, um Abfahrten auf deinem Sperrbildschirm zu verfolgen."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live Activities вимкнено. Увімкніть їх у Параметрах, щоб відстежувати відправлення на екрані блокування."
+          }
+        }
+      }
+    },
     "Live changes across Vienna": {
       "localizations": {
         "de": {
@@ -1534,6 +1582,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Геолокацію вимкнено."
+          }
+        }
+      }
+    },
+    "Lock Screen tracking": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sperrbildschirm-Tracking"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відстеження на екрані блокування"
           }
         }
       }
@@ -2046,6 +2110,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Оновити відправлення"
+          }
+        }
+      }
+    },
+    "Remind": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erinnern"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нагадати"
           }
         }
       }
@@ -2786,6 +2866,22 @@
         }
       }
     },
+    "Track": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verfolgen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відстежувати"
+          }
+        }
+      }
+    },
     "Track on Lock Screen": {
       "localizations": {
         "de": {
@@ -2798,6 +2894,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Відстежувати на екрані блокування"
+          }
+        }
+      }
+    },
+    "Tracking %@ on your Lock Screen.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ wird auf deinem Sperrbildschirm verfolgt."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ відстежується на екрані блокування."
           }
         }
       }
@@ -2878,6 +2990,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Спробуйте іншу назву станції."
+          }
+        }
+      }
+    },
+    "Updated %@ on your Lock Screen.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ wurde auf deinem Sperrbildschirm aktualisiert."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ оновлено на екрані блокування."
           }
         }
       }
