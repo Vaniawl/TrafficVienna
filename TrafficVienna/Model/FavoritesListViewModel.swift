@@ -10,7 +10,7 @@ import Combine
 import SwiftUI
 import OSLog
 
-private let log = Logger(subsystem: "at.wellbe.TrafficVienna", category: "favorites")
+nonisolated private let log = Logger(subsystem: "at.wellbe.TrafficVienna", category: "favorites")
 
 
 nonisolated struct DepartureInfo: Identifiable, Hashable, Sendable {

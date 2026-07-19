@@ -57,8 +57,7 @@ final class DisruptionsViewModel: ObservableObject {
             let result = try await service.trafficInfoResult(forceRefresh: force)
             guard !Task.isCancelled, generation == loadGeneration else { return }
             infos = result.value
-            rebuildAvailableCategories()
-            rebuildRelevance()
+            rebuildPresentation(updatesAvailableCategories: true)
             freshness = result.freshness
         } catch {
             guard !Task.isCancelled, generation == loadGeneration else { return }
@@ -72,18 +71,38 @@ final class DisruptionsViewModel: ObservableObject {
     }
 
     private func rebuildRelevance() {
-        relevantInfoIDs = Set(infos.lazy.filter { info in
-            (info.relatedLines ?? []).contains(where: self.favouriteLines.contains)
-        }.map(\.id))
-        relevantCount = relevantInfoIDs.count
-        rebuildFilteredInfos()
+        rebuildPresentation(updatesAvailableCategories: false)
     }
 
-    private func rebuildAvailableCategories() {
-        let present = Set(infos.flatMap { info in
-            (info.relatedLines ?? []).map(LineCategory.of)
-        })
-        availableCategories = LineCategory.allCases.filter(present.contains)
+    private func rebuildPresentation(updatesAvailableCategories: Bool) {
+        var relevantIDs = Set<String>()
+        relevantIDs.reserveCapacity(infos.count)
+        var presentCategories = Set<LineCategory>()
+        if updatesAvailableCategories {
+            presentCategories.reserveCapacity(LineCategory.allCases.count)
+        }
+
+        for info in infos {
+            var isRelevant = false
+            for line in info.relatedLines ?? [] {
+                if updatesAvailableCategories {
+                    presentCategories.insert(LineCategory.of(line))
+                }
+                if favouriteLines.contains(line) {
+                    isRelevant = true
+                }
+            }
+            if isRelevant {
+                relevantIDs.insert(info.id)
+            }
+        }
+
+        relevantInfoIDs = relevantIDs
+        relevantCount = relevantIDs.count
+        if updatesAvailableCategories {
+            availableCategories = LineCategory.allCases.filter(presentCategories.contains)
+        }
+        rebuildFilteredInfos()
     }
 
     private func rebuildFilteredInfos() {

@@ -65,6 +65,22 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertTrue(NetworkFallbackPolicy.allowsCachedResponse(after: URLError(.timedOut)))
     }
 
+    func testUITestNetworkFixtureProvidesDeterministicMonitorData() async throws {
+        let network = NetworkManager(usesUITestFixture: true)
+
+        let monitor = try await network.fetchMonitorData(diva: 60200657, includeArea: true)
+        let trafficInfo = try await network.fetchTrafficInfoList()
+
+        XCTAssertEqual(monitor.data.monitors.first?.locationStop.properties.title, "Karlsplatz")
+        XCTAssertEqual(monitor.data.monitors.first?.lines.first?.name, "U1")
+        XCTAssertEqual(
+            monitor.data.monitors.first?.lines.first?.departures.departure.map(\.departureTime.countdown),
+            [2, 7]
+        )
+        XCTAssertTrue(trafficInfo.data.monitors.isEmpty)
+        XCTAssertTrue(trafficInfo.data.trafficInfos?.isEmpty == true)
+    }
+
     @MainActor
     func testStationDirectionsPreserveNameCoordinatesAndWalkingMode() {
         let station = Station(
@@ -653,12 +669,12 @@ final class TrafficViennaTests: XCTestCase {
             salt: salt,
             passwordHash: Data(SHA256.hash(data: salt + Data(password.utf8)))
         )
-        keychain.set(try JSONEncoder().encode(fixture), for: "legacy-account")
+        _ = keychain.set(try JSONEncoder().encode(fixture), for: "legacy-account")
         let store = AuthStore(keychain: keychain, defaults: defaults)
 
         await assertThrowsErrorAsync(try await store.signIn(email: "rider@example.com", password: password))
         let actualKey = try XCTUnwrap(keychain.lastReadKey)
-        keychain.set(try JSONEncoder().encode(fixture), for: actualKey)
+        _ = keychain.set(try JSONEncoder().encode(fixture), for: actualKey)
 
         try await store.signIn(email: "rider@example.com", password: password)
 
@@ -2446,7 +2462,7 @@ final class TrafficViennaTests: XCTestCase {
         let route = FavoriteRoute(diva: "1", lineName: "U1", destination: "Leopoldau")
         let probe = ExecutionThreadProbe()
         let loader = FavoriteRouteLoader { route, _, _ in
-            await probe.record(Thread.isMainThread)
+            await probe.record(currentThreadIsMain())
             return FavoriteWithDeparture(route: route, stopName: "Test Stop", departures: [])
         }
         let viewModel = FavoritesListViewModel(
@@ -2593,7 +2609,7 @@ final class TrafficViennaTests: XCTestCase {
 
     @MainActor
     func testDisruptionRelevanceCacheUpdatesAfterLoadAndFavouriteChanges() async {
-        let u1 = TrafficInfo(name: "u1", title: "U1 delay", description: nil, priority: "1", relatedLines: ["U1"])
+        let u1 = TrafficInfo(name: "u1", title: "U1 delay", description: nil, priority: "1", relatedLines: ["U1", "U1"])
         let u3 = TrafficInfo(name: "u3", title: "U3 delay", description: nil, priority: "1", relatedLines: ["U3"])
         let network = MockNetworkManager(trafficInfos: [u3, u1])
         let favorites = CountingFavoritesRepository(
@@ -2623,7 +2639,7 @@ final class TrafficViennaTests: XCTestCase {
 
     @MainActor
     func testDisruptionPresentationCacheTracksDataFiltersAndRelevance() async {
-        let u1 = TrafficInfo(name: "u1", title: "U1 delay", description: nil, priority: "1", relatedLines: ["U1"])
+        let u1 = TrafficInfo(name: "u1", title: "U1 delay", description: nil, priority: "1", relatedLines: ["U1", "U1"])
         let bus = TrafficInfo(name: "bus", title: "13A diversion", description: nil, priority: "1", relatedLines: ["13A"])
         let u3 = TrafficInfo(name: "u3", title: "U3 delay", description: nil, priority: "1", relatedLines: ["U3"])
         let viewModel = DisruptionsViewModel(
@@ -3384,7 +3400,7 @@ private final class RecordingWidgetSync: WidgetSyncing, @unchecked Sendable {
     func clear() { clearCallCount += 1 }
 }
 
-private final class RecordingWidgetReloader: @unchecked Sendable {
+nonisolated private final class RecordingWidgetReloader: @unchecked Sendable {
     private let lock = NSLock()
     private var recordedCallCount = 0
 
@@ -3466,6 +3482,10 @@ private actor ExecutionThreadProbe {
     func record(_ value: Bool) {
         values.append(value)
     }
+}
+
+nonisolated private func currentThreadIsMain() -> Bool {
+    Thread.isMainThread
 }
 
 private actor BatchExecutionProbe {

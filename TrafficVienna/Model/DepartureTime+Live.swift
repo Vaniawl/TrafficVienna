@@ -9,7 +9,7 @@
 
 import Foundation
 
-enum DepartureClock {
+nonisolated enum DepartureClock {
     // Shared parser. ISO8601DateFormatter is safe for concurrent reads, so the
     // unsafe opt-out is acceptable here.
     private nonisolated(unsafe) static let fractionalISOFormatter: ISO8601DateFormatter = {
@@ -47,13 +47,13 @@ enum DepartureClock {
 }
 
 extension DepartureTime {
-    var liveMinutes: Int {
+    nonisolated var liveMinutes: Int {
         DepartureClock.liveMinutes(realtime: timeReal, planned: timePlanned, fallback: countdown)
     }
 }
 
 extension DepartureInfo {
-    var liveMinutes: Int {
+    nonisolated var liveMinutes: Int {
         DepartureClock.liveMinutes(departureDate: departureDate, fallback: countdown)
     }
 }

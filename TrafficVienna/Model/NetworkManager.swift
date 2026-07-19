@@ -60,8 +60,13 @@ extension NetworkManaging {
 }
 nonisolated final class NetworkManager: NetworkManaging {
     private let session: URLSession
+    private let usesUITestFixture: Bool
 
-    init(session: URLSession? = nil) {
+    init(
+        session: URLSession? = nil,
+        usesUITestFixture: Bool = NetworkManager.defaultUsesUITestFixture
+    ) {
+        self.usesUITestFixture = usesUITestFixture
         if let session {
             self.session = session
         } else {
@@ -74,14 +79,28 @@ nonisolated final class NetworkManager: NetworkManaging {
         }
     }
 
+    private static var defaultUsesUITestFixture: Bool {
+#if DEBUG
+        ProcessInfo.processInfo.arguments.contains("-ui-testing-reset")
+#else
+        false
+#endif
+    }
+
     // Uses stopId to get monitor data for a single stop/direction.
     func fetchMonitorData(for stopId: Int) async throws -> MonitorResponse {
-        try await perform("https://www.wienerlinien.at/ogd_realtime/monitor?stopId=\(stopId)")
+#if DEBUG
+        if usesUITestFixture { return UITestNetworkFixture.monitorResponse }
+#endif
+        return try await perform("https://www.wienerlinien.at/ogd_realtime/monitor?stopId=\(stopId)")
     }
 
     /// Uses DIVA to get monitor data for all directions at a station, including
     /// any active service disruptions / info notices for its lines.
     func fetchMonitorData(diva: Int, includeArea: Bool) async throws -> MonitorResponse {
+#if DEBUG
+        if usesUITestFixture { return UITestNetworkFixture.monitorResponse }
+#endif
         var urlString = "https://www.wienerlinien.at/ogd_realtime/monitor?diva=\(diva)"
         if includeArea { urlString += "&aArea=1" }
         urlString += "&activateTrafficInfo=stoerunglang"
@@ -90,7 +109,10 @@ nonisolated final class NetworkManager: NetworkManaging {
     }
 
     func fetchTrafficInfoList() async throws -> MonitorResponse {
-        try await perform("https://www.wienerlinien.at/ogd_realtime/trafficInfoList")
+#if DEBUG
+        if usesUITestFixture { return UITestNetworkFixture.trafficInfoResponse }
+#endif
+        return try await perform("https://www.wienerlinien.at/ogd_realtime/trafficInfoList")
     }
 
     nonisolated func removeCachedResponses() {
@@ -137,6 +159,49 @@ nonisolated final class NetworkManager: NetworkManaging {
         return decoded
     }
 }
+
+#if DEBUG
+private nonisolated enum UITestNetworkFixture {
+    static let monitorResponse = MonitorResponse(
+        data: DataBlock(
+            monitors: [
+                Monitor(
+                    locationStop: LocationStop(
+                        properties: Properties(
+                            title: "Karlsplatz",
+                            attributes: Attributes(rbl: 1)
+                        ),
+                        geometry: nil
+                    ),
+                    lines: [
+                        Lines(
+                            name: "U1",
+                            towards: "Leopoldau",
+                            departures: Departures(departure: [
+                                Departure(departureTime: DepartureTime(
+                                    countdown: 2,
+                                    timePlanned: nil,
+                                    timeReal: nil
+                                )),
+                                Departure(departureTime: DepartureTime(
+                                    countdown: 7,
+                                    timePlanned: nil,
+                                    timeReal: nil
+                                ))
+                            ])
+                        )
+                    ]
+                )
+            ],
+            trafficInfos: []
+        )
+    )
+
+    static let trafficInfoResponse = MonitorResponse(
+        data: DataBlock(monitors: [], trafficInfos: [])
+    )
+}
+#endif
 
 // MARK: - example of answer
 

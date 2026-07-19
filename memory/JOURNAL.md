@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-07-19 — Single-pass alert derivation and deterministic UI departures
+
+- Combined accepted-alert category discovery and favourite relevance into one capacity-reserved scan, removing the separate `flatMap` category pass while retaining lightweight route-only relevance rebuilds.
+- Preserved category order/deduplication, relevant counts, relevant-first filtering, and line/category filters for duplicate related lines with focused coverage.
+- Diagnosed a reproducible favourite-route UI smoke failure to live provider responses containing disruptions but no departures, then added a DEBUG-only `-ui-testing-reset` monitor/traffic fixture through the production `NetworkManaging` boundary; release builds retain only the URLSession path.
+- Cleared Swift 6 isolation diagnostics exposed by Release compilation and warning-only test-harness diagnostics without changing runtime behavior.
+- Verified the exact previously failing end-to-end UI flow, warning-free Debug/Release compilation, repository/OpenCode validators, and the full iPhone 17 suite: 187 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Storage-free alert polling
 
 - Removed the App Group favourites repository read and JSON decode from every Alerts polling/manual-refresh cycle, retaining one initialization snapshot plus root-owned route updates.

@@ -15,7 +15,7 @@
 
 import Foundation
 
-enum RouteMatching {
+nonisolated enum RouteMatching {
     /// Normalises a line destination for tolerant equality comparison.
     static func normalize(_ destination: String) -> String {
         var s = destination
