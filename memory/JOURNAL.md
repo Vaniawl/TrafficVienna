@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Time-relevant Smart Home routines
+
+- Limited Smart Home routine selection to a two-hour window around the saved commute time instead of surfacing the nearest routine throughout its entire active weekday.
+- Preserved circular minute handling around midnight and weekday filtering while making the relevance boundary explicit and deterministic.
+- Changed the active-routine insight from opening routine settings to opening that station's live departures directly, with a bundled-station lookup and safe saved-station fallback.
+- Added exact before/after boundary regression coverage and a stable accessibility identifier for the contextual home action.
+
 ## 2026-07-19 — Discoverable and duplicate-safe Live Activities
 
 - Added a visible Lock Screen tracking action to every Station Detail departure row instead of leaving Live Activity creation inside the context menu only.

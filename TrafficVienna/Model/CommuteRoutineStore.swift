@@ -85,6 +85,8 @@ struct CommuteRoutine: Codable, Identifiable, Equatable {
 
 @MainActor
 final class CommuteRoutineStore: ObservableObject {
+    nonisolated static let relevanceWindowMinutes = 120
+
     @Published private(set) var routines: [CommuteRoutine] = []
     private let defaults: UserDefaults
     private let key = "commute_routines"
@@ -103,10 +105,15 @@ final class CommuteRoutineStore: ObservableObject {
     func current(at date: Date, calendar: Calendar = .current) -> CommuteRoutine? {
         let components = calendar.dateComponents([.hour, .minute], from: date)
         let currentMinutes = (components.hour ?? 0) * 60 + (components.minute ?? 0)
-        return routines.filter { $0.isEnabled && $0.isActive(on: date, calendar: calendar) }.min {
+        let nearest = routines.filter { $0.isEnabled && $0.isActive(on: date, calendar: calendar) }.min {
             circularDistance(from: $0.minutesSinceMidnight, to: currentMinutes)
                 < circularDistance(from: $1.minutesSinceMidnight, to: currentMinutes)
         }
+        guard let nearest,
+              circularDistance(from: nearest.minutesSinceMidnight, to: currentMinutes) <= Self.relevanceWindowMinutes else {
+            return nil
+        }
+        return nearest
     }
 
     func add(

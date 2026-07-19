@@ -109,6 +109,30 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testCurrentRoutineOnlySurfacesInsideRelevanceWindow() {
+        let suite = "RoutineRelevanceTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = CommuteRoutineStore(defaults: defaults)
+        store.add(
+            name: "Work",
+            station: FavoriteStation(id: 1, diva: 123, name: "Karlsplatz"),
+            hour: 8
+        )
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let startBoundary = calendar.date(from: DateComponents(year: 2026, month: 7, day: 20, hour: 6))!
+        let endBoundary = calendar.date(from: DateComponents(year: 2026, month: 7, day: 20, hour: 10))!
+        let tooEarly = calendar.date(from: DateComponents(year: 2026, month: 7, day: 20, hour: 5, minute: 59))!
+        let tooLate = calendar.date(from: DateComponents(year: 2026, month: 7, day: 20, hour: 10, minute: 1))!
+
+        XCTAssertEqual(store.current(at: startBoundary, calendar: calendar)?.name, "Work")
+        XCTAssertEqual(store.current(at: endBoundary, calendar: calendar)?.name, "Work")
+        XCTAssertNil(store.current(at: tooEarly, calendar: calendar))
+        XCTAssertNil(store.current(at: tooLate, calendar: calendar))
+    }
+
+    @MainActor
     func testCurrentRoutineUsesCircularMinuteDistanceAcrossMidnight() {
         let suite = "RoutineMidnightTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!

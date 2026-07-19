@@ -269,24 +269,30 @@ struct NearbyView: View {
 
     @ViewBuilder
     private var insightCard: some View {
-        if disruptionsVM.relevantCount == 0, routines.current != nil {
-            NavigationLink { RoutinesView() } label: { insightCardLabel }
+        let activeRoutine = disruptionsVM.relevantCount == 0 ? routines.current : nil
+        if let activeRoutine {
+            NavigationLink { StationDetailView(station: station(for: activeRoutine)) } label: {
+                insightCardLabel(routine: activeRoutine)
+            }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("nearby.activeRoutine")
         } else {
-            Button { router.navigate(to: insightDestination) } label: { insightCardLabel }
+            Button { router.navigate(to: insightDestination) } label: {
+                insightCardLabel(routine: nil)
+            }
                 .buttonStyle(.plain)
         }
     }
 
-    private var insightCardLabel: some View {
+    private func insightCardLabel(routine: CommuteRoutine?) -> some View {
         HStack(spacing: 16) {
             Image(systemName: "bolt.fill")
                 .foregroundStyle(Color(hex: 0x635BFF))
                 .frame(width: 44, height: 44)
                 .background(Color(hex: 0x635BFF).opacity(0.12), in: Circle())
             VStack(alignment: .leading, spacing: 4) {
-                Text(smartInsightTitle).font(.headline)
-                Text(smartInsightSubtitle).font(.subheadline).foregroundStyle(.secondary)
+                Text(smartInsightTitle(routine: routine)).font(.headline)
+                Text(smartInsightSubtitle(routine: routine)).font(.subheadline).foregroundStyle(.secondary)
             }
             Spacer()
             Image(systemName: "chevron.right").font(.caption.bold()).foregroundStyle(.tertiary)
@@ -302,19 +308,29 @@ struct NearbyView: View {
         return .search
     }
 
-    private var smartInsightTitle: String {
+    private func smartInsightTitle(routine: CommuteRoutine?) -> String {
         if disruptionsVM.relevantCount > 0 { return String(localized: "Alerts for your lines") }
-        if let routine = routines.current { return "\(routine.name): \(routine.station.name)" }
+        if let routine { return "\(routine.name): \(routine.station.name)" }
         if !favoritesVM.stations.isEmpty { return String(localized: "Favourite stations ready") }
         return String(localized: "Live departures")
     }
 
-    private var smartInsightSubtitle: String {
+    private func smartInsightSubtitle(routine: CommuteRoutine?) -> String {
         if disruptionsVM.relevantCount > 0 { return String(localized: "Check service changes before you leave") }
-        if let routine = routines.current {
+        if let routine {
             return String(format: String(localized: "Scheduled around %@"), routine.timeText)
         }
         return String(localized: "Automatic updates every 60 seconds")
+    }
+
+    private func station(for routine: CommuteRoutine) -> Station {
+        store.station(id: routine.station.id) ?? Station(
+            id: routine.station.id,
+            diva: routine.station.diva,
+            name: routine.station.name,
+            lat: 0,
+            lon: 0
+        )
     }
 
     private var departuresDashboard: some View {
