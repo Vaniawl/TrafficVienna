@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Walking context in the map list
+
+- Added straight-line walking estimates from the current user location to each visible-stop row, while omitting the estimate when location is unavailable.
+- Kept the status and walking context on separate compact lines so station names and favourite controls remain usable at larger text sizes.
+- Centralized minute and metre/kilometre formatting in `WalkingEstimate` and reused it in Nearby station cards plus the existing `CLLocation` helper, removing duplicated formulas.
+- Kept the feature fully local with no routing or network claim and added exact coverage for metre, kilometre, negative-distance, and shared-minute behavior.
+
 ## 2026-07-19 — Searchable visible-stop map list
 
 - Added native search to the visible-stop sheet so users can narrow the current map area without leaving Map or starting another network request.

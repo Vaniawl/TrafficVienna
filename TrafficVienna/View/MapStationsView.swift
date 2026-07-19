@@ -203,7 +203,8 @@ struct MapStationsView: View {
             MapStationListView(
                 stations: visibleStations,
                 favoritesVM: favoritesVM,
-                favoritesOnly: $favoritesOnly
+                favoritesOnly: $favoritesOnly,
+                walkingOrigin: locationManager.userLocation
             )
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)
@@ -215,6 +216,7 @@ private struct MapStationListView: View {
     let stations: [Station]
     @ObservedObject var favoritesVM: FavoritesListViewModel
     @Binding var favoritesOnly: Bool
+    let walkingOrigin: CLLocation?
     @Environment(\.dismiss) private var dismiss
     @State private var query = ""
 
@@ -248,6 +250,7 @@ private struct MapStationListView: View {
                 } else {
                     List(displayedStations) { station in
                         let isFavorite = favoritesVM.isStationFavorite(id: station.id)
+                        let walkingEstimate = walkingEstimate(to: station)
                         HStack(spacing: 8) {
                             NavigationLink {
                                 StationDetailView(station: station)
@@ -263,6 +266,11 @@ private struct MapStationListView: View {
                                         Text(station.diva == nil ? "Schedule only" : "Live departures")
                                             .font(.caption)
                                             .foregroundStyle(.secondary)
+                                        if let walkingEstimate {
+                                            Label(walkingEstimate.text, systemImage: "figure.walk")
+                                                .font(.caption2)
+                                                .foregroundStyle(.secondary)
+                                        }
                                     }
                                 }
                                 .contentShape(Rectangle())
@@ -307,6 +315,12 @@ private struct MapStationListView: View {
             }
         }
         .tint(NeoDesign.accent)
+    }
+
+    private func walkingEstimate(to station: Station) -> WalkingEstimate? {
+        guard let walkingOrigin else { return nil }
+        let stationLocation = CLLocation(latitude: station.lat, longitude: station.lon)
+        return WalkingEstimate(distanceMeters: stationLocation.distance(from: walkingOrigin))
     }
 }
 

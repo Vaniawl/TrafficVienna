@@ -21,7 +21,7 @@ struct StationCardView: View {
 
     private var walkMinutes: Int? {
         guard let distance else { return nil }
-        return max(1, Int((distance / walkingSpeed).rounded()))
+        return WalkingEstimate(distanceMeters: distance).minutes
     }
 
     var body: some View {
@@ -125,9 +125,7 @@ struct StationCardView: View {
     }
 
     private func walkText(_ meters: Double) -> String {
-        let walkMin = max(1, Int((meters / walkingSpeed).rounded()))
-        let dist = meters < 1000 ? "\(Int(meters)) m" : String(format: "%.1f km", meters / 1000)
-        return "\(walkMin) min · \(dist)"
+        WalkingEstimate(distanceMeters: meters).text
     }
 
     private func updatedText(_ date: Date) -> String {

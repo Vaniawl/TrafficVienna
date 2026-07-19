@@ -957,6 +957,22 @@ final class TrafficViennaTests: XCTestCase {
         )
     }
 
+    func testWalkingEstimateUsesSharedMinutesAndDistanceFormatting() {
+        XCTAssertEqual(WalkingEstimate(distanceMeters: 280).minutes, 4)
+        XCTAssertEqual(WalkingEstimate(distanceMeters: 280).text, "4 min · 280 m")
+        XCTAssertEqual(WalkingEstimate(distanceMeters: 1_280).minutes, 16)
+        XCTAssertEqual(WalkingEstimate(distanceMeters: 1_280).distanceText, "1.3 km")
+        XCTAssertEqual(WalkingEstimate(distanceMeters: -10).distanceMeters, 0)
+        XCTAssertEqual(WalkingEstimate(distanceMeters: -10).minutes, 1)
+
+        let origin = CLLocation(latitude: 48.2082, longitude: 16.3738)
+        let destination = CLLocation(latitude: 48.2100, longitude: 16.3738)
+        XCTAssertEqual(
+            origin.walkMinutes(to: destination),
+            WalkingEstimate(distanceMeters: destination.distance(from: origin)).minutes
+        )
+    }
+
     // MARK: - RouteMatching
 
     func testNormalizeTrimsWhitespace() {
