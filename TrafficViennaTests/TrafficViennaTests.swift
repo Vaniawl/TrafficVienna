@@ -1663,6 +1663,32 @@ final class TrafficViennaTests: XCTestCase {
             MapStationListOrder.nearest(stations, to: nil).map(\.id),
             stations.map(\.id)
         )
+
+        let items = MapStationListOrder.items(stations, from: origin)
+        XCTAssertEqual(items.map(\.id), [2, 3, 1])
+        XCTAssertTrue(items.allSatisfy { $0.distance != nil && $0.walkingEstimate != nil })
+        XCTAssertEqual(
+            items.map(\.walkingEstimate?.minutes),
+            items.map { item in item.distance.map { WalkingEstimate(distanceMeters: $0).minutes } }
+        )
+
+        let noLocationItems = MapStationListOrder.items(stations, from: nil)
+        XCTAssertEqual(noLocationItems.map(\.id), stations.map(\.id))
+        XCTAssertTrue(noLocationItems.allSatisfy { $0.distance == nil && $0.walkingEstimate == nil })
+    }
+
+    func testMapStationListSearchPreservesReusableDistanceItems() {
+        let origin = CLLocation(latitude: 48.2000, longitude: 16.3700)
+        let stations = [
+            Station(id: 1, diva: 1, name: "Stephansplatz", lat: 48.2100, lon: 16.3700),
+            Station(id: 2, diva: 2, name: "Schönbrunn", lat: 48.2010, lon: 16.3700)
+        ]
+        let items = MapStationListOrder.items(stations, from: origin)
+
+        let filtered = MapStationListSearch.matching(items, query: "schon")
+
+        XCTAssertEqual(filtered.map(\.id), [2])
+        XCTAssertEqual(filtered.first?.distance, items.first { $0.id == 2 }?.distance)
     }
 
     func testWalkingEstimateUsesSharedMinutesAndDistanceFormatting() {

@@ -56,6 +56,11 @@ enum MapStationListSearch {
         }
     }
 
+    static func matching(_ items: [MapStationListItem], query: String) -> [MapStationListItem] {
+        let matchingIDs = Set(matching(items.map(\.station), query: query).map(\.id))
+        return items.filter { matchingIDs.contains($0.id) }
+    }
+
     private static func normalized(_ text: String) -> String {
         text.folding(
             options: [.caseInsensitive, .diacriticInsensitive],
@@ -64,17 +69,37 @@ enum MapStationListSearch {
     }
 }
 
+struct MapStationListItem: Identifiable {
+    let station: Station
+    let distance: CLLocationDistance?
+
+    var id: Int { station.id }
+    var walkingEstimate: WalkingEstimate? { distance.map(WalkingEstimate.init(distanceMeters:)) }
+}
+
 enum MapStationListOrder {
-    static func nearest(_ stations: [Station], to origin: CLLocation?) -> [Station] {
-        guard let origin else { return stations }
+    static func items(_ stations: [Station], from origin: CLLocation?) -> [MapStationListItem] {
+        guard let origin else {
+            return stations.map { MapStationListItem(station: $0, distance: nil) }
+        }
 
         return stations.enumerated()
             .map { offset, station in
                 let location = CLLocation(latitude: station.lat, longitude: station.lon)
-                return (offset: offset, station: station, distance: location.distance(from: origin))
+                return (
+                    offset: offset,
+                    item: MapStationListItem(
+                        station: station,
+                        distance: location.distance(from: origin)
+                    )
+                )
             }
-            .sorted { ($0.distance, $0.offset) < ($1.distance, $1.offset) }
-            .map(\.station)
+            .sorted { (($0.item.distance ?? 0), $0.offset) < (($1.item.distance ?? 0), $1.offset) }
+            .map(\.item)
+    }
+
+    static func nearest(_ stations: [Station], to origin: CLLocation?) -> [Station] {
+        items(stations, from: origin).map(\.station)
     }
 }
 
@@ -228,9 +253,9 @@ private struct MapStationListView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var query = ""
 
-    private var displayedStations: [Station] {
-        let orderedStations = MapStationListOrder.nearest(stations, to: walkingOrigin)
-        return MapStationListSearch.matching(orderedStations, query: query)
+    private var displayedItems: [MapStationListItem] {
+        let orderedItems = MapStationListOrder.items(stations, from: walkingOrigin)
+        return MapStationListSearch.matching(orderedItems, query: query)
     }
 
     private var hasQuery: Bool {
@@ -240,7 +265,7 @@ private struct MapStationListView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if displayedStations.isEmpty {
+                if displayedItems.isEmpty {
                     ContentUnavailableView {
                         Label(
                             hasQuery
@@ -257,9 +282,9 @@ private struct MapStationListView: View {
                         }
                     }
                 } else {
-                    List(displayedStations) { station in
+                    List(displayedItems) { item in
+                        let station = item.station
                         let isFavorite = favoritesVM.isStationFavorite(id: station.id)
-                        let walkingEstimate = walkingEstimate(to: station)
                         HStack(spacing: 8) {
                             NavigationLink {
                                 StationDetailView(station: station)
@@ -275,7 +300,7 @@ private struct MapStationListView: View {
                                         Text(station.diva == nil ? "Schedule only" : "Live departures")
                                             .font(.caption)
                                             .foregroundStyle(.secondary)
-                                        if let walkingEstimate {
+                                        if let walkingEstimate = item.walkingEstimate {
                                             Label(walkingEstimate.text, systemImage: "figure.walk")
                                                 .font(.caption2)
                                                 .foregroundStyle(.secondary)
@@ -326,11 +351,6 @@ private struct MapStationListView: View {
         .tint(NeoDesign.accent)
     }
 
-    private func walkingEstimate(to station: Station) -> WalkingEstimate? {
-        guard let walkingOrigin else { return nil }
-        let stationLocation = CLLocation(latitude: station.lat, longitude: station.lon)
-        return WalkingEstimate(distanceMeters: stationLocation.distance(from: walkingOrigin))
-    }
 }
 
 private extension View {

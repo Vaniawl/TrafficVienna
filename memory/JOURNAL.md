@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Reused map-list walking distances
+
+- Introduced a stable visible-stop row value carrying each station and its optional user distance, computed once when the map sheet orders its current stations.
+- Reused the same distance for both “Closest first” ordering and the rendered walking estimate instead of allocating a second `CLLocation` and recalculating every visible row during SwiftUI body evaluation.
+- Kept search order and distance values intact through filtering, preserved stable equal-distance ties, and continued omitting walking context without user location.
+- Passed repository/OpenCode validators and the full iPhone 17 suite: 170 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Reused spatial-query distances
 
 - Extended the indexed nearby-station query to return each exact Core Location distance alongside its station instead of discarding it after radius filtering.
