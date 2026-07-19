@@ -99,6 +99,14 @@ final class FavoritesListViewModel: ObservableObject {
         stations.removeAll { $0.id == id }
     }
 
+    func removeStations(at offsets: IndexSet) {
+        let ids = offsets.compactMap { stations.indices.contains($0) ? stations[$0].id : nil }
+        guard !ids.isEmpty else { return }
+        ids.forEach { stationsRepo.remove(id: $0) }
+        let removedIDs = Set(ids)
+        stations.removeAll { removedIDs.contains($0.id) }
+    }
+
     func moveStations(fromOffsets: IndexSet, toOffset: Int) {
         stations.move(fromOffsets: fromOffsets, toOffset: toOffset)
         stationsRepo.setOrder(stations)
@@ -219,6 +227,19 @@ final class FavoritesListViewModel: ObservableObject {
         )
         favoriteRoutes.removeAll { $0 == route }
         items.removeAll { $0.route == route }
+        syncWidget()
+    }
+
+    func removeFavoriteRoutes(at offsets: IndexSet) {
+        let routes = offsets.compactMap {
+            favoriteRoutes.indices.contains($0) ? favoriteRoutes[$0] : nil
+        }
+        guard !routes.isEmpty else { return }
+        invalidateLoads()
+        let removedRoutes = Set(routes)
+        favoriteRoutes.removeAll { removedRoutes.contains($0) }
+        items.removeAll { removedRoutes.contains($0.route) }
+        favoritesRepo.setOrder(favoriteRoutes)
         syncWidget()
     }
 

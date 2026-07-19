@@ -5,6 +5,7 @@ const catalog = JSON.parse(fs.readFileSync(path, "utf8"));
 const original = JSON.stringify(catalog);
 
 const newEnglish = [
+  "Clear all favourites", "Clear all favourites?", "This removes all saved stations and routes from this device.",
   "Walking directions", "Open this stop in Apple Maps",
   "Remove from recent", "Clear recent searches?", "Clear all", "This removes all recent stations from this device.",
   "Share departure", "Live departure: %@ to %@", "%@ to %@ is departing now from %@. — Traffic Vienna", "%@ to %@ departs from %@ in %lld min. — Traffic Vienna",
@@ -35,6 +36,7 @@ const newEnglish = [
 ];
 
 const de = {
+  "Clear all favourites":"Alle Favoriten löschen", "Clear all favourites?":"Alle Favoriten löschen?", "This removes all saved stations and routes from this device.":"Dadurch werden alle gespeicherten Stationen und Verbindungen von diesem Gerät entfernt.",
   "Walking directions":"Fußweg", "Open this stop in Apple Maps":"Diese Haltestelle in Apple Karten öffnen",
   "Remove from recent":"Aus Verlauf entfernen", "Clear recent searches?":"Letzte Suchanfragen löschen?", "Clear all":"Alle löschen", "This removes all recent stations from this device.":"Dadurch werden alle zuletzt verwendeten Stationen von diesem Gerät entfernt.",
   "Share departure":"Abfahrt teilen", "Live departure: %@ to %@":"Live-Abfahrt: %@ nach %@", "%@ to %@ is departing now from %@. — Traffic Vienna":"%@ nach %@ fährt jetzt von %@ ab. — Traffic Vienna", "%@ to %@ departs from %@ in %lld min. — Traffic Vienna":"%@ nach %@ fährt von %@ in %lld Min. ab. — Traffic Vienna",
@@ -96,6 +98,7 @@ const de = {
 };
 
 const uk = {
+  "Clear all favourites":"Очистити все обране", "Clear all favourites?":"Очистити все обране?", "This removes all saved stations and routes from this device.":"Це видалить усі збережені станції та маршрути з цього пристрою.",
   "Walking directions":"Піший маршрут", "Open this stop in Apple Maps":"Відкрити цю зупинку в Apple Maps",
   "Remove from recent":"Видалити з недавніх", "Clear recent searches?":"Очистити недавні пошуки?", "Clear all":"Очистити все", "This removes all recent stations from this device.":"Це видалить усі недавні станції з цього пристрою.",
   "Share departure":"Поділитися відправленням", "Live departure: %@ to %@":"Актуальне відправлення: %@ до %@", "%@ to %@ is departing now from %@. — Traffic Vienna":"%@ до %@ відправляється зараз зі станції %@. — Traffic Vienna", "%@ to %@ departs from %@ in %lld min. — Traffic Vienna":"%@ до %@ відправляється зі станції %@ через %lld хв. — Traffic Vienna",

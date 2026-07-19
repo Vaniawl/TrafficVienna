@@ -625,6 +625,38 @@
         }
       }
     },
+    "Clear all favourites": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Favoriten löschen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Очистити все обране"
+          }
+        }
+      }
+    },
+    "Clear all favourites?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Favoriten löschen?"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Очистити все обране?"
+          }
+        }
+      }
+    },
     "Clear data": {
       "localizations": {
         "de": {
@@ -3582,6 +3614,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Це видалить усі недавні станції з цього пристрою."
+          }
+        }
+      }
+    },
+    "This removes all saved stations and routes from this device.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dadurch werden alle gespeicherten Stationen und Verbindungen von diesem Gerät entfernt."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Це видалить усі збережені станції та маршрути з цього пристрою."
           }
         }
       }

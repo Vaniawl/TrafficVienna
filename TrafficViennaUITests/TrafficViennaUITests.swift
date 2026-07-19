@@ -325,6 +325,17 @@ final class TrafficViennaUITests: XCTestCase {
         quickStation.tap()
         XCTAssertTrue(app.navigationBars["Karlsplatz"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.buttons["station.walkingDirections.toolbar"].waitForExistence(timeout: 3))
+        app.buttons["BackButton"].tap()
+
+        favouritesTab.tap()
+        XCTAssertTrue(app.buttons["favourites.edit"].waitForExistence(timeout: 3))
+        app.buttons["favourites.edit"].tap()
+        XCTAssertTrue(app.buttons["favourites.clearAll"].waitForExistence(timeout: 3))
+        app.buttons["favourites.clearAll"].tap()
+        let confirmClear = app.buttons["Clear all"]
+        XCTAssertTrue(confirmClear.waitForExistence(timeout: 3))
+        confirmClear.tap()
+        XCTAssertTrue(app.staticTexts["No favourites yet"].waitForExistence(timeout: 3))
     }
 
     func testUkrainianAuthenticationModesAreLocalized() {

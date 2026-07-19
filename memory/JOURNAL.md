@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — In-place favourites management
+
+- Completed Favourites Edit mode for both saved stations and saved routes with native reorder and delete controls in the same list.
+- Added a prominent destructive card with explicit confirmation for clearing every saved station and route without affecting authentication, routines, or unrelated travel data.
+- Batched route deletion through ordered persistence and a single widget synchronization instead of repeatedly toggling and refreshing shared state.
+- Localized the management flow in German and Ukrainian and extended the end-to-end Search → Favourites flow through confirmed clearing and the empty state.
+
 ## 2026-07-19 — Resolved favourite-station coordinates
 
 - Replaced the synthetic `0,0` Station Detail destination from Favourites with canonical station data resolved through the shared StationStore.

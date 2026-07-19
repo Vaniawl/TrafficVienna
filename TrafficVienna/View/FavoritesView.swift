@@ -15,6 +15,8 @@ struct FavoritesView: View {
     var isActive = true
     @State private var showAbout = false
     @State private var showAccount = false
+    @State private var editMode: EditMode = .inactive
+    @State private var showClearConfirmation = false
 
     var body: some View {
         Group {
@@ -47,6 +49,7 @@ struct FavoritesView: View {
                     }
                     if !vm.stations.isEmpty { stationsSection }
                     if !vm.items.isEmpty { linesSection }
+                    if editMode == .active { clearAllSection }
                 }
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
@@ -69,8 +72,25 @@ struct FavoritesView: View {
                     .accessibilityIdentifier("favourites.account")
             }
             if !vm.stations.isEmpty || !vm.favoriteRoutes.isEmpty {
-                ToolbarItem(placement: .topBarTrailing) { EditButton() }
+                ToolbarItem(placement: .topBarTrailing) {
+                    EditButton()
+                        .accessibilityIdentifier("favourites.edit")
+                }
             }
+        }
+        .environment(\.editMode, $editMode)
+        .confirmationDialog(
+            "Clear all favourites?",
+            isPresented: $showClearConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Clear all", role: .destructive) {
+                vm.clearTravelFavorites()
+                editMode = .inactive
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This removes all saved stations and routes from this device.")
         }
         .sheet(isPresented: $showAbout) { AboutView() }
         .sheet(isPresented: $showAccount) { AccountView() }
@@ -109,9 +129,7 @@ struct FavoritesView: View {
                 .listRowSeparator(.hidden)
             }
             .onMove { vm.moveStations(fromOffsets: $0, toOffset: $1) }
-            .onDelete { offsets in
-                offsets.map { vm.stations[$0].id }.forEach(vm.removeStation)
-            }
+            .onDelete(perform: vm.removeStations)
         }
     }
 
@@ -144,6 +162,23 @@ struct FavoritesView: View {
                 }
             }
             .onMove { vm.moveFavoriteRoutes(fromOffsets: $0, toOffset: $1) }
+            .onDelete(perform: vm.removeFavoriteRoutes)
+        }
+    }
+
+    private var clearAllSection: some View {
+        Section {
+            Button(role: .destructive) {
+                showClearConfirmation = true
+            } label: {
+                Label("Clear all favourites", systemImage: "trash")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .neoCard()
+            }
+            .accessibilityIdentifier("favourites.clearAll")
+            .listRowInsets(EdgeInsets(top: 10, leading: 18, bottom: 12, trailing: 18))
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
         }
     }
 }

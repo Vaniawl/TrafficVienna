@@ -1574,6 +1574,32 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(widget.clearCallCount, 1)
     }
 
+    @MainActor
+    func testBatchFavoriteRemovalUpdatesPersistenceAndWidgetOnce() {
+        let firstRoute = FavoriteRoute(diva: "1", lineName: "U1", destination: "Leopoldau")
+        let secondRoute = FavoriteRoute(diva: "2", lineName: "U2", destination: "Seestadt")
+        let routes = CountingFavoritesRepository(routes: [firstRoute, secondRoute])
+        let firstStation = FavoriteStation(id: 1, diva: 1, name: "First")
+        let secondStation = FavoriteStation(id: 2, diva: 2, name: "Second")
+        let stations = CountingFavoriteStationsRepository(stations: [firstStation, secondStation])
+        let widget = RecordingWidgetSync()
+        let viewModel = FavoritesListViewModel(
+            service: MonitorService(network: MockNetworkManager()),
+            favoritesRepo: routes,
+            stationsRepo: stations,
+            widgetSync: widget
+        )
+
+        viewModel.removeStations(at: IndexSet(integer: 0))
+        viewModel.removeFavoriteRoutes(at: IndexSet(integer: 1))
+
+        XCTAssertEqual(viewModel.stations, [secondStation])
+        XCTAssertEqual(stations.all(), [secondStation])
+        XCTAssertEqual(viewModel.favoriteRoutes, [firstRoute])
+        XCTAssertEqual(routes.getAll(), [firstRoute])
+        XCTAssertEqual(widget.saveCallCount, 1)
+    }
+
     func testTravelDataResetClearsOnlyAllowlistedAuxiliaryKeys() {
         let suite = "TravelDataResetTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
