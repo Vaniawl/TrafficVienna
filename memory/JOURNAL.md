@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Cached station-detail derived content
+
+- Moved station-detail platform merging, departure sorting, category discovery, and disrupted-line indexing from SwiftUI-read computed properties into one derived snapshot rebuilt only when a new monitor response is accepted.
+- Kept category filtering lightweight over the cached groups and rebuilt derived data before publishing the new monitor, preventing redraws from seeing mismatched response and cache state; failed refreshes retain the previous useful snapshot.
+- Added a multi-line regression covering ordering, categories, disruption badges, filtering, force-refresh replacement, and stale-derived-data removal.
+- Verified a warning-free build, repository/OpenCode validators, and the full iPhone 17 suite: 174 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Bounded nearest-station selection
 
 - Added a deterministic max-heap nearest query that keeps only the requested number of exact station distances while scanning spatial buckets, then sorts that bounded result by distance and station ID.

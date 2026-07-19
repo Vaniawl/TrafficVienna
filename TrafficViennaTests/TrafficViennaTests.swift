@@ -1623,6 +1623,57 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(viewModel.groups.map(\.id), originalGroups)
     }
 
+    @MainActor
+    func testStationDetailCachesDerivedContentAndReplacesItAfterRefresh() async {
+        let metroDepartures = Departures(departure: [
+            Departure(departureTime: DepartureTime(countdown: 12, timePlanned: nil, timeReal: nil)),
+            Departure(departureTime: DepartureTime(countdown: 5, timePlanned: nil, timeReal: "live"))
+        ])
+        let busDepartures = Departures(departure: [
+            Departure(departureTime: DepartureTime(countdown: 3, timePlanned: nil, timeReal: nil))
+        ])
+        let disruption = TrafficInfo(
+            name: "u1-delay",
+            title: "U1 delay",
+            description: nil,
+            priority: "1",
+            relatedLines: ["U1"]
+        )
+        let network = MockNetworkManager(
+            trafficInfos: [disruption],
+            monitorLines: [
+                Lines(name: "U1", towards: "Leopoldau", departures: metroDepartures),
+                Lines(name: "13A", towards: "Hauptbahnhof", departures: busDepartures)
+            ]
+        )
+        let viewModel = StationDetailViewModel(
+            station: Station(id: 1, diva: 1, name: "Test Stop", lat: 48.2, lon: 16.3),
+            service: MonitorService(network: network, cacheTTL: 0, minInterval: 0),
+            widgetSync: NoopWidgetSync()
+        )
+
+        await viewModel.load()
+
+        XCTAssertEqual(viewModel.groups.map(\.id), ["13A|Hauptbahnhof", "U1|Leopoldau"])
+        XCTAssertEqual(viewModel.availableCategories, [.metro, .bus])
+        XCTAssertTrue(viewModel.hasDisruption(lineName: "U1"))
+        XCTAssertFalse(viewModel.hasDisruption(lineName: "13A"))
+        viewModel.categoryFilter = .metro
+        XCTAssertEqual(viewModel.groups.map(\.id), ["U1|Leopoldau"])
+
+        network.trafficInfos = []
+        network.monitorLines = [
+            Lines(name: "D", towards: "Nußdorf", departures: busDepartures)
+        ]
+        await viewModel.load(forceRefresh: true)
+
+        XCTAssertTrue(viewModel.groups.isEmpty)
+        XCTAssertEqual(viewModel.availableCategories, [.tram])
+        XCTAssertFalse(viewModel.hasDisruption(lineName: "U1"))
+        viewModel.categoryFilter = nil
+        XCTAssertEqual(viewModel.groups.map(\.id), ["D|Nußdorf"])
+    }
+
     func testMapStationSelectionIsDistanceSortedAndLimited() {
         let store = StationStore()
         let center = CLLocation(latitude: 48.2082, longitude: 16.3738)
@@ -3199,6 +3250,7 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
     var shouldRateLimit = false
     var responseSource: NetworkResponseSource = .network
     var trafficInfos: [TrafficInfo]?
+    var monitorLines: [Lines]?
     var monitorDelayNanoseconds: UInt64
     var trafficInfoDelayNanoseconds: UInt64
 
@@ -3214,6 +3266,7 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
         shouldRateLimit: Bool = false,
         responseSource: NetworkResponseSource = .network,
         trafficInfos: [TrafficInfo]? = nil,
+        monitorLines: [Lines]? = nil,
         monitorDelayNanoseconds: UInt64 = 0,
         trafficInfoDelayNanoseconds: UInt64 = 0
     ) {
@@ -3221,6 +3274,7 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
         self.shouldRateLimit = shouldRateLimit
         self.responseSource = responseSource
         self.trafficInfos = trafficInfos
+        self.monitorLines = monitorLines
         self.monitorDelayNanoseconds = monitorDelayNanoseconds
         self.trafficInfoDelayNanoseconds = trafficInfoDelayNanoseconds
     }
@@ -3293,7 +3347,7 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
         let attr = Attributes(rbl: 1234)
         let props = Properties(title: "Test Stop", attributes: attr)
         let stop = LocationStop(properties: props, geometry: nil)
-        let monitor = Monitor(locationStop: stop, lines: [line])
+        let monitor = Monitor(locationStop: stop, lines: monitorLines ?? [line])
         let data = DataBlock(monitors: [monitor], trafficInfos: trafficInfos)
         return MonitorResponse(data: data, source: responseSource)
     }

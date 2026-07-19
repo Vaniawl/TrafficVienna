@@ -23,19 +23,17 @@ final class StationDetailViewModel: ObservableObject {
     @Published var lastUpdated: Date?
     @Published var categoryFilter: LineCategory? = nil
     @Published private(set) var freshness: DataFreshness?
+    private var allGroups: [DepartureGroup] = []
+    private var affectedLineNames: Set<String> = []
+    private(set) var availableCategories: [LineCategory] = []
 
     // Active disruptions / notices for this station's lines.
     var trafficInfos: [TrafficInfo] {
         monitor?.data.trafficInfos ?? []
     }
 
-    // Line names that are affected by at least one disruption.
-    private var disruptedLines: Set<String> {
-        Set(trafficInfos.flatMap { $0.relatedLines ?? [] })
-    }
-
     func hasDisruption(lineName: String) -> Bool {
-        disruptedLines.contains(lineName)
+        affectedLineNames.contains(lineName)
     }
 
     // One departure direction at the station.
@@ -51,11 +49,15 @@ final class StationDetailViewModel: ObservableObject {
     // sorted so the soonest one is first. Replaces the per-platform grouping
     // that produced repeated "<station>" section headers.
     var groups: [DepartureGroup] {
-        guard let monitor else { return [] }
+        guard let filter = categoryFilter else { return allGroups }
+        return allGroups.filter { LineCategory.of($0.line) == filter }
+    }
+
+    private func rebuildDerivedContent(from response: MonitorResponse) {
         var merged: [String: (line: String, dest: String, mins: [Int], live: Bool)] = [:]
         var order: [String] = []
 
-        for platform in monitor.data.monitors {
+        for platform in response.data.monitors {
             for line in platform.lines {
                 let key = line.name + "|" + line.towards
                 let mins = line.departures.departure.map { $0.departureTime.liveMinutes }
@@ -71,23 +73,13 @@ final class StationDetailViewModel: ObservableObject {
             }
         }
 
-        let all = order.compactMap { merged[$0] }
+        allGroups = order.compactMap { merged[$0] }
             .map { DepartureGroup(line: $0.line, destination: $0.dest,
                                   minutes: $0.mins.sorted(), isLive: $0.live) }
             .sorted { ($0.minutes.first ?? .max) < ($1.minutes.first ?? .max) }
-
-        guard let filter = categoryFilter else { return all }
-        return all.filter { LineCategory.of($0.line) == filter }
-    }
-
-    var availableCategories: [LineCategory] {
-        guard let monitor else { return [] }
-        let all = Set(
-            monitor.data.monitors
-                .flatMap { $0.lines }
-                .map { LineCategory.of($0.name) }
-        )
-        return LineCategory.allCases.filter(all.contains)
+        let categories = Set(allGroups.map { LineCategory.of($0.line) })
+        availableCategories = LineCategory.allCases.filter(categories.contains)
+        affectedLineNames = Set(response.data.trafficInfos?.flatMap { $0.relatedLines ?? [] } ?? [])
     }
 
     var lastUpdatedText: String? {
@@ -136,6 +128,7 @@ final class StationDetailViewModel: ObservableObject {
         do {
             let result = try await service.monitorResult(diva: diva, forceRefresh: forceRefresh)
             guard !Task.isCancelled, generation == loadGeneration else { return }
+            rebuildDerivedContent(from: result.value)
             self.monitor = result.value
             self.freshness = result.freshness
             self.lastUpdated = result.freshness.updatedAt
