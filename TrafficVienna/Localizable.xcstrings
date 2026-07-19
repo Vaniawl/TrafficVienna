@@ -3266,6 +3266,22 @@
         }
       }
     },
+    "Search visible stops": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sichtbare Haltestellen suchen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пошук серед видимих зупинок"
+          }
+        }
+      }
+    },
     "See all": {
       "localizations": {
         "de": {

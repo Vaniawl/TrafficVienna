@@ -51,6 +51,25 @@ enum MapStationFilter {
     }
 }
 
+enum MapStationListSearch {
+    static func matching(_ stations: [Station], query: String) -> [Station] {
+        let tokens = normalized(query).split(separator: " ")
+        guard !tokens.isEmpty else { return stations }
+
+        return stations.filter { station in
+            let name = normalized(station.name)
+            return tokens.allSatisfy(name.contains)
+        }
+    }
+
+    private static func normalized(_ text: String) -> String {
+        text.folding(
+            options: [.caseInsensitive, .diacriticInsensitive],
+            locale: Locale(identifier: "de_AT")
+        )
+    }
+}
+
 struct MapStationsView: View {
     @ObservedObject var store: StationStore
     @ObservedObject var locationManager: LocationManager
@@ -197,18 +216,29 @@ private struct MapStationListView: View {
     @ObservedObject var favoritesVM: FavoritesListViewModel
     @Binding var favoritesOnly: Bool
     @Environment(\.dismiss) private var dismiss
+    @State private var query = ""
+
+    private var displayedStations: [Station] {
+        MapStationListSearch.matching(stations, query: query)
+    }
+
+    private var hasQuery: Bool {
+        !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
 
     var body: some View {
         NavigationStack {
             Group {
-                if stations.isEmpty {
+                if displayedStations.isEmpty {
                     ContentUnavailableView {
                         Label(
-                            favoritesOnly ? "No favourite stops in view" : "No stops in view",
-                            systemImage: favoritesOnly ? "star.slash" : "tram"
+                            hasQuery
+                                ? "No matching stops"
+                                : favoritesOnly ? "No favourite stops in view" : "No stops in view",
+                            systemImage: hasQuery ? "magnifyingglass" : favoritesOnly ? "star.slash" : "tram"
                         )
                     } description: {
-                        Text("Move the map or show all stops.")
+                        Text(hasQuery ? "Try another station name." : "Move the map or show all stops.")
                     } actions: {
                         if favoritesOnly {
                             Button("Show all stops") { favoritesOnly = false }
@@ -216,7 +246,7 @@ private struct MapStationListView: View {
                         }
                     }
                 } else {
-                    List(stations) { station in
+                    List(displayedStations) { station in
                         let isFavorite = favoritesVM.isStationFavorite(id: station.id)
                         HStack(spacing: 8) {
                             NavigationLink {
@@ -263,6 +293,8 @@ private struct MapStationListView: View {
             }
             .navigationTitle("Visible stops")
             .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $query, prompt: "Search visible stops")
+            .autocorrectionDisabled()
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Text("Closest first")

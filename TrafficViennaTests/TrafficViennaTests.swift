@@ -936,6 +936,27 @@ final class TrafficViennaTests: XCTestCase {
         )
     }
 
+    func testMapStationListSearchIsDiacriticInsensitiveAndPreservesDistanceOrder() {
+        let stations = [
+            Station(id: 1, diva: 1, name: "Schönbrunn", lat: 48.1, lon: 16.1),
+            Station(id: 2, diva: 2, name: "Westbahnhof", lat: 48.2, lon: 16.2),
+            Station(id: 3, diva: 3, name: "Schönbrunner Straße", lat: 48.3, lon: 16.3)
+        ]
+
+        XCTAssertEqual(
+            MapStationListSearch.matching(stations, query: "  SCHON  ").map(\.id),
+            [1, 3]
+        )
+        XCTAssertEqual(
+            MapStationListSearch.matching(stations, query: "str schon").map(\.id),
+            [3]
+        )
+        XCTAssertEqual(
+            MapStationListSearch.matching(stations, query: "   ").map(\.id),
+            stations.map(\.id)
+        )
+    }
+
     // MARK: - RouteMatching
 
     func testNormalizeTrimsWhitespace() {

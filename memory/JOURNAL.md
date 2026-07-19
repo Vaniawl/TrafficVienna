@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Searchable visible-stop map list
+
+- Added native search to the visible-stop sheet so users can narrow the current map area without leaving Map or starting another network request.
+- Matched station names case- and diacritic-insensitively, supported whitespace-separated search terms, and preserved the existing nearest-first order.
+- Added a query-specific empty state while retaining the favourites-only recovery action when a search has no saved matches.
+- Localized the search prompt in German and Ukrainian and added deterministic coverage for diacritics, multiple terms, blank queries, and order preservation.
+
 ## 2026-07-19 — Inline map-list favourites
 
 - Added a dedicated 44-point star control to every visible-stop row so a station can be saved or removed without leaving the map list.
