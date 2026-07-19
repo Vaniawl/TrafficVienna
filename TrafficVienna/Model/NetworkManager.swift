@@ -7,16 +7,6 @@
 
 import Foundation
 
-// Error body returned by the API (e.g. when the request limit is reached).
-nonisolated struct MonitorErrorEnvelope: Decodable {
-    nonisolated struct Message: Decodable {
-        let value: String
-        let messageCode: Int
-    }
-
-    let message: Message
-}
-
 enum MonitorApiError: Error {
     // too many requests. request limit reached (code 316)
     case rateLimited
@@ -24,6 +14,30 @@ enum MonitorApiError: Error {
 
 // Wiener Linien rate-limit message code (returned with an HTTP 200 body).
 private nonisolated let rateLimitMessageCode = 316
+
+// Success and API-error bodies share one top-level envelope. Decoding this once
+// avoids parsing every successful monitor payload a second time just to prove it
+// is not the API's HTTP-200 rate-limit response.
+nonisolated struct MonitorAPIEnvelope: Decodable {
+    nonisolated struct Message: Decodable {
+        let value: String
+        let messageCode: Int
+    }
+
+    let data: DataBlock?
+    let message: Message?
+}
+
+nonisolated enum MonitorResponseDecoder {
+    static func decode(_ payload: Data, source: NetworkResponseSource) throws -> MonitorResponse {
+        let envelope = try JSONDecoder().decode(MonitorAPIEnvelope.self, from: payload)
+        if envelope.message?.messageCode == rateLimitMessageCode {
+            throw MonitorApiError.rateLimited
+        }
+        guard let data = envelope.data else { throw URLError(.cannotParseResponse) }
+        return MonitorResponse(data: data, source: source)
+    }
+}
 
 
 protocol NetworkManaging: Sendable {
@@ -92,13 +106,6 @@ nonisolated final class NetworkManager: NetworkManaging {
             source = .urlCache(storedAt: cached.userInfo?["storedAt"] as? Date ?? .distantPast)
         }
 
-        // The API signals throttling with an HTTP 200 body whose message code is
-        // 316, so inspect the message before trusting the status code.
-        if let envelope = try? JSONDecoder().decode(MonitorErrorEnvelope.self, from: data),
-           envelope.message.messageCode == rateLimitMessageCode {
-            throw MonitorApiError.rateLimited
-        }
-
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw URLError(.badServerResponse)
         }
@@ -113,8 +120,7 @@ nonisolated final class NetworkManager: NetworkManaging {
             session.configuration.urlCache?.storeCachedResponse(cached, for: request)
         }
 
-        let decoded = try JSONDecoder().decode(MonitorResponse.self, from: data)
-        return MonitorResponse(data: decoded.data, source: source)
+        return try MonitorResponseDecoder.decode(data, source: source)
     }
 }
 

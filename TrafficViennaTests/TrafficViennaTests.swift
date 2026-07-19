@@ -21,6 +21,39 @@ final class TrafficViennaTests: XCTestCase {
         }
     }
 
+    func testMonitorResponseDecoderBuildsSuccessfulResponseInOneEnvelopePass() throws {
+        let payload = Data(#"{"data":{"monitors":[]}}"#.utf8)
+        let storedAt = Date(timeIntervalSince1970: 1_700_000_000)
+
+        let response = try MonitorResponseDecoder.decode(payload, source: .urlCache(storedAt: storedAt))
+
+        XCTAssertTrue(response.data.monitors.isEmpty)
+        XCTAssertNil(response.data.trafficInfos)
+        if case let .urlCache(responseStoredAt) = response.source {
+            XCTAssertEqual(responseStoredAt, storedAt)
+        } else {
+            XCTFail("Expected the response source to be preserved")
+        }
+    }
+
+    func testMonitorResponseDecoderRecognizesHTTP200RateLimitEnvelope() {
+        let payload = Data(#"{"message":{"value":"rate limit","messageCode":316}}"#.utf8)
+
+        XCTAssertThrowsError(try MonitorResponseDecoder.decode(payload, source: .network)) { error in
+            guard case MonitorApiError.rateLimited = error else {
+                return XCTFail("Expected MonitorApiError.rateLimited, got \(error)")
+            }
+        }
+    }
+
+    func testMonitorResponseDecoderRejectsEnvelopeWithoutDataOrRateLimit() {
+        XCTAssertThrowsError(
+            try MonitorResponseDecoder.decode(Data("{}".utf8), source: .network)
+        ) { error in
+            XCTAssertEqual((error as? URLError)?.code, .cannotParseResponse)
+        }
+    }
+
     @MainActor
     func testStationDirectionsPreserveNameCoordinatesAndWalkingMode() {
         let station = Station(

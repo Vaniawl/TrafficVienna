@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Single-pass monitor response decoding
+
+- Replaced the successful Wiener Linien response path's speculative error-envelope decode followed by a full second decode with one shared top-level envelope pass.
+- Preserved the API's HTTP-200 rate-limit code `316`, HTTP status validation, network-versus-URL-cache provenance, persistent cache writes, and malformed-response failure behavior.
+- Added direct decoder regressions for successful cached data, rate limiting, and an envelope missing both usable data and a recognized rate-limit message.
+- Passed repository/OpenCode validators and the full iPhone 17 suite: 161 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Multi-bigram station search
 
 - Changed station lookup to intersect every distinct query-bigram posting list instead of scanning every station that shares only the first two query characters.
