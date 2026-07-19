@@ -1821,6 +1821,26 @@ final class TrafficViennaTests: XCTestCase {
         }
     }
 
+    func testMapStationListPresentationPreparesSearchAndEmptyStateOnce() {
+        let stations = [
+            Station(id: 1, diva: 1, name: "Schönbrunn", lat: 48.1, lon: 16.1),
+            Station(id: 2, diva: 2, name: "Westbahnhof", lat: 48.2, lon: 16.2)
+        ]
+        let items = MapStationListOrder.items(
+            stations,
+            from: CLLocation(latitude: 48.15, longitude: 16.15)
+        )
+
+        let matching = MapStationListPresentation(items: items, query: "SCHON")
+        XCTAssertTrue(matching.hasQuery)
+        XCTAssertEqual(matching.items.map(\.id), [1])
+        XCTAssertNotNil(matching.items.first?.walkingEstimate)
+
+        let whitespace = MapStationListPresentation(items: items, query: "   ")
+        XCTAssertFalse(whitespace.hasQuery)
+        XCTAssertEqual(whitespace.items.map(\.id), items.map(\.id))
+    }
+
     func testMapStationListInputKeyInvalidatesOnlyForOrderingInputs() {
         let stations = [
             Station(id: 1, diva: 1, name: "One", lat: 48.20, lon: 16.37),

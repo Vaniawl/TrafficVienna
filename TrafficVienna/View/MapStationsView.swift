@@ -79,15 +79,26 @@ struct MapStationListItem: Identifiable {
     let station: Station
     let distance: CLLocationDistance?
     let normalizedName: String
+    let walkingEstimate: WalkingEstimate?
 
     init(station: Station, distance: CLLocationDistance?) {
         self.station = station
         self.distance = distance
         self.normalizedName = MapStationListSearch.normalized(station.name)
+        self.walkingEstimate = distance.map(WalkingEstimate.init(distanceMeters:))
     }
 
     var id: Int { station.id }
-    var walkingEstimate: WalkingEstimate? { distance.map(WalkingEstimate.init(distanceMeters:)) }
+}
+
+struct MapStationListPresentation {
+    let items: [MapStationListItem]
+    let hasQuery: Bool
+
+    init(items: [MapStationListItem], query: String) {
+        self.items = MapStationListSearch.matching(items, query: query)
+        self.hasQuery = !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
 }
 
 struct MapStationListInputKey: Equatable {
@@ -295,27 +306,21 @@ private struct MapStationListView: View {
         MapStationListInputKey(stations: stations, origin: walkingOrigin)
     }
 
-    private var displayedItems: [MapStationListItem] {
-        return MapStationListSearch.matching(orderedItems, query: query)
-    }
-
-    private var hasQuery: Bool {
-        !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-
     var body: some View {
+        let presentation = MapStationListPresentation(items: orderedItems, query: query)
+
         NavigationStack {
             Group {
-                if displayedItems.isEmpty {
+                if presentation.items.isEmpty {
                     ContentUnavailableView {
                         Label(
-                            hasQuery
+                            presentation.hasQuery
                                 ? "No matching stops"
                                 : favoritesOnly ? "No favourite stops in view" : "No stops in view",
-                            systemImage: hasQuery ? "magnifyingglass" : favoritesOnly ? "star.slash" : "tram"
+                            systemImage: presentation.hasQuery ? "magnifyingglass" : favoritesOnly ? "star.slash" : "tram"
                         )
                     } description: {
-                        Text(hasQuery ? "Try another station name." : "Move the map or show all stops.")
+                        Text(presentation.hasQuery ? "Try another station name." : "Move the map or show all stops.")
                     } actions: {
                         if favoritesOnly {
                             Button("Show all stops") { favoritesOnly = false }
@@ -323,7 +328,7 @@ private struct MapStationListView: View {
                         }
                     }
                 } else {
-                    List(displayedItems) { item in
+                    List(presentation.items) { item in
                         let station = item.station
                         let isFavorite = favoritesVM.isStationFavorite(id: station.id)
                         HStack(spacing: 8) {

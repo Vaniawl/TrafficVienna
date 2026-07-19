@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Prepared visible-stop presentation
+
+- Stored each visible-stop item's walking estimate alongside its exact distance and normalized name instead of recreating the derived value during every row evaluation.
+- Added one presentation snapshot per Map list body evaluation so search filtering and query-empty state are computed once and shared by the empty view and List.
+- Preserved distance ordering, no-location behavior, folded search, walking text inputs, and whitespace empty-state semantics with focused coverage.
+- Verified a warning-free build, repository/OpenCode validators, and the full iPhone 17 suite: 182 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Single-pass visible-stop search
 
 - Cached each Map list item's locale-aware, case/diacritic-folded station name when the reusable distance item is created.
