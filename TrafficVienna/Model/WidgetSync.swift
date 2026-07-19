@@ -13,10 +13,18 @@ private let log = Logger(subsystem: "at.wellbe.TrafficVienna", category: "widget
 
 protocol WidgetSyncing: Sendable {
     func save(_ data: [WidgetDepartureData])
+    func routesDidChange(
+        _ selectedRoutes: [WidgetRouteKey],
+        fresh: [WidgetDepartureData]
+    )
     func clear()
 }
 
 extension WidgetSyncing {
+    func routesDidChange(
+        _ selectedRoutes: [WidgetRouteKey],
+        fresh: [WidgetDepartureData]
+    ) {}
     func clear() { save([]) }
 }
 
@@ -78,6 +86,29 @@ nonisolated final class WidgetSyncManager: WidgetSyncing {
         reloadTimelines()
 
         log.debug("Saved \(data.count) items to widget")
+    }
+
+    func routesDidChange(
+        _ selectedRoutes: [WidgetRouteKey],
+        fresh: [WidgetDepartureData]
+    ) {
+        guard let storage else { return }
+        lock.withLock {
+            let cached = storage.data(forKey: dataKey)
+                .flatMap { try? JSONDecoder().decode([WidgetDepartureData].self, from: $0) }
+                ?? []
+            let merged = WidgetDataMerge.ordered(
+                selected: selectedRoutes,
+                fresh: fresh,
+                cached: cached
+            )
+            if merged != cached, let encoded = try? JSONEncoder().encode(merged) {
+                storage.set(encoded, forKey: dataKey)
+            }
+            storage.removeObject(forKey: "widget_last_fetch_attempt")
+        }
+        reloadTimelines()
+        log.debug("Reloaded widget after favourite routes changed")
     }
 
     func clear() {

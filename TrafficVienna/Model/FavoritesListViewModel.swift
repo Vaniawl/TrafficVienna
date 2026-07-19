@@ -241,7 +241,7 @@ final class FavoritesListViewModel: ObservableObject {
         favoritesRepo.setOrder(favoriteRoutes)
         let itemsByRoute = Dictionary(uniqueKeysWithValues: items.map { ($0.route, $0) })
         items = favoriteRoutes.compactMap { itemsByRoute[$0] }
-        syncWidget()
+        notifyWidgetRoutesChanged()
     }
 
     var isEmpty: Bool {
@@ -266,6 +266,7 @@ final class FavoritesListViewModel: ObservableObject {
         } else {
             favoriteRoutes.append(route)
         }
+        notifyWidgetRoutesChanged()
     }
 
     var staleMessage: String? {
@@ -354,7 +355,7 @@ final class FavoritesListViewModel: ObservableObject {
         )
         favoriteRoutes.removeAll { $0 == route }
         items.removeAll { $0.route == route }
-        syncWidget()
+        notifyWidgetRoutesChanged()
     }
 
     func removeFavoriteRoutes(at offsets: IndexSet) {
@@ -367,7 +368,7 @@ final class FavoritesListViewModel: ObservableObject {
         favoriteRoutes.removeAll { removedRoutes.contains($0) }
         items.removeAll { removedRoutes.contains($0.route) }
         favoritesRepo.setOrder(favoriteRoutes)
-        syncWidget()
+        notifyWidgetRoutesChanged()
     }
 
     func removeAll() {
@@ -375,7 +376,7 @@ final class FavoritesListViewModel: ObservableObject {
         favoritesRepo.removeAll()
         favoriteRoutes = []
         items = []
-        syncWidget()
+        notifyWidgetRoutesChanged()
     }
 
     func clearTravelFavorites() {
@@ -405,6 +406,19 @@ final class FavoritesListViewModel: ObservableObject {
     }
     
     private func syncWidget() {
+        widgetSync.save(widgetItems())
+    }
+
+    private func notifyWidgetRoutesChanged() {
+        widgetSync.routesDidChange(
+            favoriteRoutes.prefix(3).map {
+                WidgetRouteKey(lineName: $0.lineName, destination: $0.destination)
+            },
+            fresh: widgetItems()
+        )
+    }
+
+    private func widgetItems() -> [WidgetDepartureData] {
         //takes first 3 lines
         let topFavorites = items.prefix(3)
         
@@ -417,6 +431,6 @@ final class FavoritesListViewModel: ObservableObject {
             )
         }
         
-        widgetSync.save(widgetItems)
+        return widgetItems
     }
 }

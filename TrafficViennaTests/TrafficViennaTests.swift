@@ -2324,13 +2324,14 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
-    func testLineFavoriteToggleUpdatesSharedStateWithoutReloadingStorage() {
+    func testLineFavoriteToggleUpdatesSharedStateAndForcesWidgetRefresh() {
         let routes = CountingFavoritesRepository(routes: [])
+        let widget = RecordingWidgetSync()
         let viewModel = FavoritesListViewModel(
             service: MonitorService(network: MockNetworkManager()),
             favoritesRepo: routes,
             stationsRepo: CountingFavoriteStationsRepository(),
-            widgetSync: NoopWidgetSync()
+            widgetSync: widget
         )
 
         for _ in 0..<100 {
@@ -2338,9 +2339,15 @@ final class TrafficViennaTests: XCTestCase {
         }
         viewModel.toggleLineFavorite(diva: 60200657, lineName: "U1", destination: "Leopoldau")
         XCTAssertTrue(viewModel.isLineFavorite(diva: 60200657, lineName: "U1", destination: "Leopoldau"))
+        XCTAssertEqual(widget.routeChangeCallCount, 1)
+        XCTAssertEqual(widget.selectedRoutes, [
+            WidgetRouteKey(lineName: "U1", destination: "Leopoldau")
+        ])
         viewModel.toggleLineFavorite(diva: 60200657, lineName: "U1", destination: "Leopoldau")
         XCTAssertFalse(viewModel.isLineFavorite(diva: 60200657, lineName: "U1", destination: "Leopoldau"))
         XCTAssertEqual(routes.getAllCallCount, 1)
+        XCTAssertEqual(widget.routeChangeCallCount, 2)
+        XCTAssertEqual(widget.selectedRoutes, [])
     }
 
     @MainActor
@@ -2389,7 +2396,7 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(stations.all(), [secondStation])
         XCTAssertEqual(viewModel.favoriteRoutes, [firstRoute])
         XCTAssertEqual(routes.getAll(), [firstRoute])
-        XCTAssertEqual(widget.saveCallCount, 1)
+        XCTAssertEqual(widget.routeChangeCallCount, 1)
     }
 
     func testTravelDataResetClearsOnlyAllowlistedAuxiliaryKeys() {
@@ -2476,7 +2483,9 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(viewModel.favoriteRoutes, expected)
         XCTAssertEqual(viewModel.items.map(\.route), expected)
         XCTAssertEqual(repository.getAll(), expected)
-        XCTAssertEqual(widget.savedData.map(\.destination), expected.map(\.destination))
+        XCTAssertEqual(widget.routeChangeCallCount, 1)
+        XCTAssertEqual(widget.selectedRoutes.map(\.destination), expected.map(\.destination))
+        XCTAssertEqual(widget.routeChangeFreshData.map(\.destination), expected.map(\.destination))
     }
 
     func testLegacyDuplicateLineFavoritesNormalizeInFirstSeenOrder() throws {
@@ -2573,6 +2582,47 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(reloader.callCount, 3)
         XCTAssertNil(defaults.data(forKey: "widget_departure"))
         XCTAssertNil(defaults.object(forKey: "widget_last_updated"))
+    }
+
+    func testWidgetRouteChangeFiltersCachedRowsAndBypassesFetchGate() throws {
+        let suite = "WidgetRouteChangeTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let reloader = RecordingWidgetReloader()
+        let sync = WidgetSyncManager(
+            appGroupID: suite,
+            storage: defaults,
+            reloadTimelines: { reloader.reload() }
+        )
+        let removed = WidgetDepartureData(
+            lineName: "U1",
+            stopName: "Karlsplatz",
+            destination: "Leopoldau",
+            departures: [2]
+        )
+        let retained = WidgetDepartureData(
+            lineName: "O",
+            stopName: "Praterstern",
+            destination: "Raxstraße",
+            departures: [4]
+        )
+        sync.save([removed, retained])
+        let lastUpdated = defaults.object(forKey: "widget_last_updated") as? Date
+        defaults.set(Date(), forKey: "widget_last_fetch_attempt")
+
+        sync.routesDidChange(
+            [WidgetRouteKey(lineName: retained.lineName, destination: retained.destination)],
+            fresh: []
+        )
+
+        let storedData = try XCTUnwrap(defaults.data(forKey: "widget_departure"))
+        XCTAssertEqual(
+            try JSONDecoder().decode([WidgetDepartureData].self, from: storedData),
+            [retained]
+        )
+        XCTAssertNil(defaults.object(forKey: "widget_last_fetch_attempt"))
+        XCTAssertEqual(defaults.object(forKey: "widget_last_updated") as? Date, lastUpdated)
+        XCTAssertEqual(reloader.callCount, 2)
     }
 
     func testWidgetMergePreservesSelectedOrderAndUsesCacheForPartialFailure() {
@@ -2722,10 +2772,21 @@ private struct NoopWidgetSync: WidgetSyncing {
 private final class RecordingWidgetSync: WidgetSyncing, @unchecked Sendable {
     private(set) var clearCallCount = 0
     private(set) var saveCallCount = 0
+    private(set) var routeChangeCallCount = 0
+    private(set) var selectedRoutes: [WidgetRouteKey] = []
+    private(set) var routeChangeFreshData: [WidgetDepartureData] = []
     private(set) var savedData: [WidgetDepartureData] = []
     func save(_ data: [WidgetDepartureData]) {
         saveCallCount += 1
         savedData = data
+    }
+    func routesDidChange(
+        _ selectedRoutes: [WidgetRouteKey],
+        fresh: [WidgetDepartureData]
+    ) {
+        routeChangeCallCount += 1
+        self.selectedRoutes = selectedRoutes
+        routeChangeFreshData = fresh
     }
     func clear() { clearCallCount += 1 }
 }

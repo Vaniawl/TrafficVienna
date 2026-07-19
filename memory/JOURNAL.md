@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Immediate widget route synchronization
+
+- Made Station Detail heart toggles notify the widget immediately instead of waiting for its next scheduled timeline cycle.
+- Filtered cached widget rows against the new ordered route selection before reloading, so removed routes disappear without clearing still-valid offline departures or depending on a loaded Favourites screen.
+- Reset the one-minute fetch-attempt gate for both app-driven route changes and the widget's manual refresh intent, allowing the requested timeline reload to fetch immediately.
+- Preserved widget last-updated timestamps when only the selection changes and added regressions for add/remove notifications, cache filtering, fetch-gate reset, reload deduplication, and App Group persistence.
+
 ## 2026-07-19 — Staggered concurrent widget refresh
 
 - Replaced sequential per-station widget fetches with a deterministic task group, reducing timeline latency when up to three saved routes belong to different stations.
