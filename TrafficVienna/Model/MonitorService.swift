@@ -70,11 +70,16 @@ actor MonitorService {
         let timestamp: Date
     }
 
+    private struct InFlightRequest {
+        let task: Task<MonitorResponse, Error>
+        var waiters: Set<UUID>
+    }
+
     private var cache: [Int: CacheEntry] = [:]
     private var cacheRecency: [Int] = []
     private var trafficInfoCache: (items: [TrafficInfo], timestamp: Date)?
-    private var inFlight: [Int: Task<MonitorResponse, Error>] = [:]
-    private var trafficInfoInFlight: Task<MonitorResponse, Error>?
+    private var inFlight: [Int: InFlightRequest] = [:]
+    private var trafficInfoInFlight: InFlightRequest?
     // Next moment a network call is allowed to start (for spacing).
     private var nextSlot = Date.distantPast
 
@@ -123,6 +128,7 @@ actor MonitorService {
             storeInCache(response, diva: diva, timestamp: timestamp)
             return ServiceResult(value: response, freshness: .network(timestamp))
         } catch {
+            guard NetworkFallbackPolicy.allowsCachedResponse(after: error) else { throw error }
             if let stale = cache[diva] {
                 markCacheEntryUsed(diva)
                 return ServiceResult(
@@ -160,6 +166,7 @@ actor MonitorService {
             trafficInfoCache = (items, timestamp)
             return ServiceResult(value: items, freshness: .network(timestamp))
         } catch {
+            guard NetworkFallbackPolicy.allowsCachedResponse(after: error) else { throw error }
             if let trafficInfoCache {
                 return ServiceResult(
                     value: trafficInfoCache.items,
@@ -171,8 +178,8 @@ actor MonitorService {
     }
 
     func clearCache() {
-        inFlight.values.forEach { $0.cancel() }
-        trafficInfoInFlight?.cancel()
+        inFlight.values.forEach { $0.task.cancel() }
+        trafficInfoInFlight?.task.cancel()
         inFlight = [:]
         trafficInfoInFlight = nil
         releaseCachedResponses()
@@ -190,30 +197,84 @@ actor MonitorService {
 
     // Shares one in-flight request per DIVA across concurrent callers.
     private func fetchCoalesced(diva: Int) async throws -> MonitorResponse {
-        if let existing = inFlight[diva] {
-            return try await existing.value
+        let waiter = UUID()
+        let task: Task<MonitorResponse, Error>
+        if var existing = inFlight[diva] {
+            existing.waiters.insert(waiter)
+            inFlight[diva] = existing
+            task = existing.task
+        } else {
+            task = Task<MonitorResponse, Error> { [self] in
+                try await throttle()
+                return try await fetchWithRetry(diva: diva)
+            }
+            inFlight[diva] = InFlightRequest(task: task, waiters: [waiter])
         }
-        let task = Task<MonitorResponse, Error> { [self] in
-            try await throttle()
-            return try await fetchWithRetry(diva: diva)
+
+        return try await withTaskCancellationHandler {
+            defer { releaseStationWaiter(waiter, diva: diva) }
+            let response = try await task.value
+            try Task.checkCancellation()
+            return response
+        } onCancel: {
+            Task { await self.cancelStationWaiter(waiter, diva: diva) }
         }
-        inFlight[diva] = task
-        defer { inFlight[diva] = nil }
-        return try await task.value
     }
 
     // Shares the city-wide traffic-info request across dashboard and Alerts refreshes.
     private func fetchTrafficInfoCoalesced() async throws -> MonitorResponse {
-        if let trafficInfoInFlight {
-            return try await trafficInfoInFlight.value
+        let waiter = UUID()
+        let task: Task<MonitorResponse, Error>
+        if var existing = trafficInfoInFlight {
+            existing.waiters.insert(waiter)
+            trafficInfoInFlight = existing
+            task = existing.task
+        } else {
+            task = Task<MonitorResponse, Error> { [self] in
+                try await throttle()
+                return try await network.fetchTrafficInfoList()
+            }
+            trafficInfoInFlight = InFlightRequest(task: task, waiters: [waiter])
         }
-        let task = Task<MonitorResponse, Error> { [self] in
-            try await throttle()
-            return try await network.fetchTrafficInfoList()
+
+        return try await withTaskCancellationHandler {
+            defer { releaseTrafficInfoWaiter(waiter) }
+            let response = try await task.value
+            try Task.checkCancellation()
+            return response
+        } onCancel: {
+            Task { await self.cancelTrafficInfoWaiter(waiter) }
         }
-        trafficInfoInFlight = task
-        defer { trafficInfoInFlight = nil }
-        return try await task.value
+    }
+
+    private func cancelStationWaiter(_ waiter: UUID, diva: Int) {
+        releaseStationWaiter(waiter, diva: diva)
+    }
+
+    private func releaseStationWaiter(_ waiter: UUID, diva: Int) {
+        guard var request = inFlight[diva] else { return }
+        request.waiters.remove(waiter)
+        if request.waiters.isEmpty {
+            request.task.cancel()
+            inFlight[diva] = nil
+        } else {
+            inFlight[diva] = request
+        }
+    }
+
+    private func cancelTrafficInfoWaiter(_ waiter: UUID) {
+        releaseTrafficInfoWaiter(waiter)
+    }
+
+    private func releaseTrafficInfoWaiter(_ waiter: UUID) {
+        guard var request = trafficInfoInFlight else { return }
+        request.waiters.remove(waiter)
+        if request.waiters.isEmpty {
+            request.task.cancel()
+            trafficInfoInFlight = nil
+        } else {
+            trafficInfoInFlight = request
+        }
     }
 
     // MARK: - Internals

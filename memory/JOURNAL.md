@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-07-19 — Reference-counted request cancellation
+
+- Added waiter ownership to coalesced station and city-wide traffic-info requests so concurrent consumers still share one network task.
+- Cancelling one waiter leaves shared work alive for remaining consumers, while cancelling the final waiter immediately cancels the underlying request instead of spending network, CPU, and battery after navigation.
+- Propagated cancellation instead of converting it to either a successful shared value or stale in-memory fallback, and retained explicit `clearCache()` cancellation semantics.
+- Added deterministic regressions for sole station/traffic waiters, a two-consumer shared station request, stale-cache cancellation, and existing traffic coalescing.
+- Passed repository/OpenCode validators and the full iPhone 17 suite: 166 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Cancellation-aware network fallback
 
 - Stopped the shared network pipeline from reading and decoding persistent URL-cache data after either Swift task cancellation or `NSURLErrorCancelled`.

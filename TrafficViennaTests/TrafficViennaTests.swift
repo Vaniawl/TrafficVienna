@@ -1902,6 +1902,46 @@ final class TrafficViennaTests: XCTestCase {
         }
     }
 
+    func testCancellingOnlyMonitorWaiterStopsRequestWithoutReturningStaleData() async throws {
+        let mock = MockNetworkManager()
+        let service = MonitorService(network: mock, cacheTTL: 600, minInterval: 0)
+        _ = try await service.monitor(diva: 60201435)
+        mock.monitorDelayNanoseconds = 5_000_000_000
+        let request = Task { try await service.monitorResult(diva: 60201435, forceRefresh: true) }
+        while mock.callCount < 2 { await Task.yield() }
+
+        request.cancel()
+
+        do {
+            _ = try await request.value
+            XCTFail("Cancellation must not be converted into stale cached data")
+        } catch is CancellationError {}
+        XCTAssertEqual(mock.activeMonitorCallCount, 0)
+    }
+
+    func testCancellingOneOfTwoMonitorWaitersKeepsSharedRequestAlive() async throws {
+        let mock = MockNetworkManager(monitorDelayNanoseconds: 5_000_000_000)
+        let service = MonitorService(network: mock, cacheTTL: 0, minInterval: 0)
+        let first = Task { try await service.monitor(diva: 60201435, forceRefresh: true) }
+        let second = Task { try await service.monitor(diva: 60201435, forceRefresh: true) }
+        while mock.callCount < 1 { await Task.yield() }
+        try await Task.sleep(nanoseconds: 20_000_000)
+
+        first.cancel()
+        try await Task.sleep(nanoseconds: 20_000_000)
+        XCTAssertEqual(mock.callCount, 1)
+        XCTAssertEqual(mock.activeMonitorCallCount, 1)
+
+        second.cancel()
+        for task in [first, second] {
+            do {
+                _ = try await task.value
+                XCTFail("Both cancelled waiters should finish with cancellation")
+            } catch is CancellationError {}
+        }
+        XCTAssertEqual(mock.activeMonitorCallCount, 0)
+    }
+
     func testMonitorServiceReportsNetworkThenFreshCache() async throws {
         let service = MonitorService(network: MockNetworkManager(), cacheTTL: 30, minInterval: 0)
 
@@ -1958,6 +1998,21 @@ final class TrafficViennaTests: XCTestCase {
         _ = try await (first, second)
 
         XCTAssertEqual(mock.callCount, 1)
+    }
+
+    func testCancellingOnlyTrafficInfoWaiterStopsSharedRequest() async throws {
+        let mock = MockNetworkManager(trafficInfoDelayNanoseconds: 5_000_000_000)
+        let service = MonitorService(network: mock, cacheTTL: 0, minInterval: 0)
+        let request = Task { try await service.trafficInfoList(forceRefresh: true) }
+        while mock.callCount < 1 { await Task.yield() }
+
+        request.cancel()
+
+        do {
+            _ = try await request.value
+            XCTFail("Expected the traffic-info request to be cancelled")
+        } catch is CancellationError {}
+        XCTAssertEqual(mock.activeTrafficInfoCallCount, 0)
     }
 
     func testFailedTrafficInfoRequestDoesNotRemainInFlight() async throws {
@@ -2987,6 +3042,7 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
     private let lock = NSLock()
     private var recordedCallCount = 0
     private var activeMonitorCalls = 0
+    private var activeTrafficInfoCalls = 0
     private var recordedMaxConcurrentMonitorCalls = 0
     private var recordedCachedResponseRemovalCount = 0
     var shouldFail = false
@@ -2998,6 +3054,8 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
 
     var callCount: Int { lock.withLock { recordedCallCount } }
     var maxConcurrentMonitorCalls: Int { lock.withLock { recordedMaxConcurrentMonitorCalls } }
+    var activeMonitorCallCount: Int { lock.withLock { activeMonitorCalls } }
+    var activeTrafficInfoCallCount: Int { lock.withLock { activeTrafficInfoCalls } }
     var cachedResponseRemovalCount: Int { lock.withLock { recordedCachedResponseRemovalCount } }
 
     init(
@@ -3039,7 +3097,8 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
     }
 
     func fetchTrafficInfoList() async throws -> MonitorResponse {
-        recordCall()
+        beginTrafficInfoCall()
+        defer { endTrafficInfoCall() }
         if trafficInfoDelayNanoseconds > 0 {
             try await Task.sleep(nanoseconds: trafficInfoDelayNanoseconds)
         }
@@ -3064,8 +3123,15 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
         lock.withLock { activeMonitorCalls -= 1 }
     }
 
-    private func recordCall() {
-        lock.withLock { recordedCallCount += 1 }
+    private func beginTrafficInfoCall() {
+        lock.withLock {
+            recordedCallCount += 1
+            activeTrafficInfoCalls += 1
+        }
+    }
+
+    private func endTrafficInfoCall() {
+        lock.withLock { activeTrafficInfoCalls -= 1 }
     }
 
     private func mockResponse() -> MonitorResponse {
