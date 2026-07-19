@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Bounded nearest-station selection
+
+- Added a deterministic max-heap nearest query that keeps only the requested number of exact station distances while scanning spatial buckets, then sorts that bounded result by distance and station ID.
+- Routed Nearby's eight stations and Map's sixty markers through the bounded path instead of allocating and fully sorting every station inside the radius.
+- Preserved the unlimited distance API and proved limits 1, 8, 25, 60, and larger-than-result exactly match the corresponding prefixes of the previous full sort; zero returns no results.
+- Passed repository/OpenCode validators and the full iPhone 17 suite: 173 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Single-buffer spatial queries
 
 - Replaced the spatial index query's nested `flatMap` candidate materialization followed by `compactMap` filtering with one ordered bucket traversal that appends only stations inside the requested radius.

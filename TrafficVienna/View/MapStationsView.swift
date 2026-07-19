@@ -27,9 +27,11 @@ enum MapStationSelection {
         radius: Double,
         limit: Int
     ) -> [Station] {
-        store.stationsWithDistance(near: center, radiusInMeters: radius)
-            .sorted { ($0.meters, $0.station.id) < ($1.meters, $1.station.id) }
-            .prefix(limit)
+        store.nearestStationsWithDistance(
+            near: center,
+            radiusInMeters: radius,
+            limit: limit
+        )
             .map(\.station)
     }
 }

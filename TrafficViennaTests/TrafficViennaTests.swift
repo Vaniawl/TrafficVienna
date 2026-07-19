@@ -1402,6 +1402,30 @@ final class TrafficViennaTests: XCTestCase {
         ).map(\.id))
     }
 
+    func testBoundedSpatialQueryMatchesEveryFullSortedPrefix() {
+        let store = StationStore()
+        let center = CLLocation(latitude: 48.2082, longitude: 16.3738)
+        let all = store.stationsWithDistance(near: center, radiusInMeters: 1_500)
+            .sorted { ($0.meters, $0.station.id) < ($1.meters, $1.station.id) }
+
+        XCTAssertGreaterThan(all.count, 60)
+        for limit in [1, 8, 25, 60, 10_000] {
+            XCTAssertEqual(
+                store.nearestStationsWithDistance(
+                    near: center,
+                    radiusInMeters: 1_500,
+                    limit: limit
+                ).map(\.station.id),
+                Array(all.prefix(limit)).map(\.station.id)
+            )
+        }
+        XCTAssertTrue(store.nearestStationsWithDistance(
+            near: center,
+            radiusInMeters: 1_500,
+            limit: 0
+        ).isEmpty)
+    }
+
     @MainActor
     func testNearbyLoadsStationMonitorsConcurrentlyThroughService() async {
         let network = MockNetworkManager(monitorDelayNanoseconds: 50_000_000)

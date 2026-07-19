@@ -267,9 +267,40 @@ final class StationStore: ObservableObject, StationStoring {
         near location: CLLocation,
         radiusInMeters radius: Double
     ) -> [StationDistance] {
+        var results: [StationDistance] = []
+        forEachStationDistance(near: location, radiusInMeters: radius) { results.append($0) }
+        return results
+    }
+
+    // Keeps only the closest requested stations while scanning the spatial
+    // buckets, avoiding a full in-radius result allocation and sort.
+    func nearestStationsWithDistance(
+        near location: CLLocation,
+        radiusInMeters radius: Double,
+        limit: Int
+    ) -> [StationDistance] {
+        guard limit > 0 else { return [] }
+        var heap: [StationDistance] = []
+        heap.reserveCapacity(limit)
+        forEachStationDistance(near: location, radiusInMeters: radius) { candidate in
+            if heap.count < limit {
+                heap.append(candidate)
+                Self.siftFarthestUp(in: &heap, from: heap.count - 1)
+            } else if let farthest = heap.first, Self.isCloser(candidate, than: farthest) {
+                heap[0] = candidate
+                Self.siftFarthestDown(in: &heap, from: 0)
+            }
+        }
+        return heap.sorted { Self.isCloser($0, than: $1) }
+    }
+
+    private func forEachStationDistance(
+        near location: CLLocation,
+        radiusInMeters radius: Double,
+        _ visit: (StationDistance) -> Void
+    ) {
         let center = Self.spatialCell(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
         let cellRadius = max(1, Int(ceil(radius / 700)))
-        var results: [StationDistance] = []
         for latitudeOffset in -cellRadius...cellRadius {
             for longitudeOffset in -cellRadius...cellRadius {
                 let cell = SpatialCell(
@@ -284,11 +315,39 @@ final class StationStore: ObservableObject, StationStoring {
                     )
                     let distance = stationLocation.distance(from: location)
                     guard distance <= radius else { continue }
-                    results.append(StationDistance(station: station, meters: distance))
+                    visit(StationDistance(station: station, meters: distance))
                 }
             }
         }
-        return results
+    }
+
+    private static func isCloser(_ lhs: StationDistance, than rhs: StationDistance) -> Bool {
+        (lhs.meters, lhs.station.id) < (rhs.meters, rhs.station.id)
+    }
+
+    private static func siftFarthestUp(in heap: inout [StationDistance], from index: Int) {
+        var child = index
+        while child > 0 {
+            let parent = (child - 1) / 2
+            guard isCloser(heap[parent], than: heap[child]) else { return }
+            heap.swapAt(parent, child)
+            child = parent
+        }
+    }
+
+    private static func siftFarthestDown(in heap: inout [StationDistance], from index: Int) {
+        var parent = index
+        while true {
+            let left = parent * 2 + 1
+            guard left < heap.count else { return }
+            let right = left + 1
+            let fartherChild = right < heap.count && isCloser(heap[left], than: heap[right])
+                ? right
+                : left
+            guard isCloser(heap[parent], than: heap[fartherChild]) else { return }
+            heap.swapAt(parent, fartherChild)
+            parent = fartherChild
+        }
     }
 
     nonisolated private static func spatialCell(for station: Station) -> SpatialCell {
