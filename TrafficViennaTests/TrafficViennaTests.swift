@@ -3227,6 +3227,21 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(values, [10, 20, 30])
     }
 
+    func testWidgetBatchLoaderFlattensVariableAndEmptyBatchesInInputOrder() async {
+        let values = await WidgetBatchLoader.load(
+            [1, 2, 3],
+            spacingNanoseconds: 0
+        ) { value in
+            switch value {
+            case 1: [10, 11]
+            case 2: []
+            default: [30, 31, 32]
+            }
+        }
+
+        XCTAssertEqual(values, [10, 11, 30, 31, 32])
+    }
+
     func testWidgetBatchLoaderCancelsDelayedGroupsBeforeTheyStart() async {
         let probe = BatchExecutionProbe()
         let load = Task {

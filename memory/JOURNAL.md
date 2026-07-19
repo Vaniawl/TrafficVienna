@@ -1,5 +1,11 @@
 # Journal
 
+## 2026-07-19 — Capacity-reserved widget batch assembly
+
+- Replaced the widget batch loader's `compactMap` plus `flatMap` chain with direct ordered appends, eliminating the intermediate array of successful batches.
+- Reserved the exact final item capacity before assembly while preserving concurrent execution, cancellation behavior, group order, variable batch sizes, and empty results.
+- Verified a warning-free app/widget build, repository/OpenCode validators, and the full iPhone 17 suite: 185 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Allocation-free favourite line matching
 
 - Replaced the favourite loader's flattened monitor-line array with an early-return nested scan, avoiding a temporary allocation for every saved route refresh.

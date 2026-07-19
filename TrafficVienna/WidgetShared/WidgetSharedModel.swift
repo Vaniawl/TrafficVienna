@@ -68,7 +68,15 @@ nonisolated enum WidgetBatchLoader {
             }
         }
 
-        return batches.compactMap { $0 }.flatMap { $0 }
+        let itemCount = batches.reduce(into: 0) { count, batch in
+            count += batch?.count ?? 0
+        }
+        var items: [Item] = []
+        items.reserveCapacity(itemCount)
+        for case let batch? in batches {
+            items.append(contentsOf: batch)
+        }
+        return items
     }
 }
 
