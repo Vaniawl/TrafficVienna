@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Email sign-in attempt cooldown
+
+- Added an in-memory, normalized-email limiter that starts a 30-second cooldown on the fifth consecutive failed local sign-in attempt and retains at most 32 recent addresses.
+- Rejected attempts during cooldown before reading the Keychain or deriving another PBKDF2 candidate, reducing brute-force and CPU-abuse exposure.
+- Reset the counter after successful registration/sign-in and on app restart, avoiding a persistent denial-of-service state while leaving Sign in with Apple unchanged.
+- Localized the cooldown error in English, German, and Ukrainian and added exact fifth-attempt, blocked-work, expiry, and success-reset coverage.
+
 ## 2026-07-19 — Memory-pressure-aware response caches
 
 - Added one signed-in-session observer for the iOS memory-warning notification rather than duplicating lifecycle handling across live screens.

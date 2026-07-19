@@ -4482,6 +4482,22 @@
         }
       }
     },
+    "Too many sign-in attempts. Try again in 30 seconds.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zu viele Anmeldeversuche. Versuche es in 30 Sekunden erneut."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Забагато спроб входу. Повторіть через 30 секунд."
+          }
+        }
+      }
+    },
     "Touch ID": {
       "localizations": {
         "de": {

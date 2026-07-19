@@ -22,6 +22,7 @@ enum AuthError: LocalizedError, Equatable {
     case weakPassword
     case accountExists
     case invalidCredentials
+    case tooManyAttempts
     case incorrectCurrentPassword
     case unavailable
 
@@ -31,8 +32,71 @@ enum AuthError: LocalizedError, Equatable {
         case .weakPassword: return String(localized: "Use at least 8 characters for your password.")
         case .accountExists: return String(localized: "An account with this email already exists.")
         case .invalidCredentials: return String(localized: "Email or password is incorrect.")
+        case .tooManyAttempts: return String(localized: "Too many sign-in attempts. Try again in 30 seconds.")
         case .incorrectCurrentPassword: return String(localized: "Current password is incorrect.")
         case .unavailable: return String(localized: "Sign in is unavailable right now. Please try again.")
+        }
+    }
+}
+
+struct EmailSignInLimiter {
+    private struct FailureState {
+        var count = 0
+        var blockedUntil: Date?
+        var lastAttempt = Date.distantPast
+    }
+
+    private let maximumFailures: Int
+    private let cooldown: TimeInterval
+    private let maximumTrackedEmails: Int
+    private let now: () -> Date
+    private var failures: [String: FailureState] = [:]
+
+    init(
+        maximumFailures: Int = 5,
+        cooldown: TimeInterval = 30,
+        maximumTrackedEmails: Int = 32,
+        now: @escaping () -> Date = Date.init
+    ) {
+        precondition(maximumFailures > 0)
+        precondition(cooldown > 0)
+        precondition(maximumTrackedEmails > 0)
+        self.maximumFailures = maximumFailures
+        self.cooldown = cooldown
+        self.maximumTrackedEmails = maximumTrackedEmails
+        self.now = now
+    }
+
+    mutating func checkAllowed(for email: String) throws {
+        guard let state = failures[email], let blockedUntil = state.blockedUntil else { return }
+        guard now() >= blockedUntil else { throw AuthError.tooManyAttempts }
+        failures[email] = nil
+    }
+
+    mutating func recordFailure(for email: String) -> Bool {
+        var state = failures[email] ?? FailureState()
+        state.count += 1
+        state.lastAttempt = now()
+        if state.count >= maximumFailures {
+            state.count = 0
+            state.blockedUntil = state.lastAttempt.addingTimeInterval(cooldown)
+            failures[email] = state
+            evictOldestIfNeeded()
+            return true
+        }
+        failures[email] = state
+        evictOldestIfNeeded()
+        return false
+    }
+
+    mutating func reset(for email: String) {
+        failures[email] = nil
+    }
+
+    private mutating func evictOldestIfNeeded() {
+        while failures.count > maximumTrackedEmails,
+              let oldest = failures.min(by: { $0.value.lastAttempt < $1.value.lastAttempt })?.key {
+            failures[oldest] = nil
         }
     }
 }
@@ -46,14 +110,17 @@ final class AuthStore: ObservableObject {
     private let defaults: UserDefaults
     private let sessionKey = "auth.session"
     private let passwordIterations: UInt32 = 120_000
+    private var signInLimiter: EmailSignInLimiter
 
     init(
         keychain: KeychainStoring? = nil,
         defaults: UserDefaults = .standard,
-        resetSession: Bool = ProcessInfo.processInfo.arguments.contains("-ui-testing-reset")
+        resetSession: Bool = ProcessInfo.processInfo.arguments.contains("-ui-testing-reset"),
+        signInLimiter: EmailSignInLimiter = EmailSignInLimiter()
     ) {
         self.keychain = keychain ?? Self.defaultKeychain()
         self.defaults = defaults
+        self.signInLimiter = signInLimiter
         if resetSession {
             defaults.removeObject(forKey: sessionKey)
         } else if let data = defaults.data(forKey: sessionKey) {
@@ -86,17 +153,21 @@ final class AuthStore: ObservableObject {
         guard let encoded = try? JSONEncoder().encode(record), keychain.set(encoded, for: accountKey) else {
             throw AuthError.unavailable
         }
+        signInLimiter.reset(for: normalizedEmail)
         setSession(AuthSession(userID: normalizedEmail, email: normalizedEmail, displayName: nil, provider: .email))
     }
 
     func signIn(email: String, password: String) throws {
         let normalizedEmail = try validated(email: email, password: password)
+        try signInLimiter.checkAllowed(for: normalizedEmail)
         let accountKey = emailAccountKey(for: normalizedEmail)
         guard
             let data = keychain.data(for: accountKey),
             let record = try? JSONDecoder().decode(EmailAccount.self, from: data),
             record.email == normalizedEmail
-        else { throw AuthError.invalidCredentials }
+        else {
+            throw failedSignIn(for: normalizedEmail)
+        }
 
         let candidate: Data
         if record.algorithm == "pbkdf2-sha256", let iterations = record.iterations {
@@ -104,7 +175,9 @@ final class AuthStore: ObservableObject {
         } else {
             candidate = legacyHash(password, salt: record.salt)
         }
-        guard timingSafeEqual(candidate, record.passwordHash) else { throw AuthError.invalidCredentials }
+        guard timingSafeEqual(candidate, record.passwordHash) else {
+            throw failedSignIn(for: normalizedEmail)
+        }
 
         if record.algorithm == nil {
             let upgraded = EmailAccount(
@@ -117,6 +190,7 @@ final class AuthStore: ObservableObject {
             if let data = try? JSONEncoder().encode(upgraded) { _ = keychain.set(data, for: accountKey) }
         }
 
+        signInLimiter.reset(for: normalizedEmail)
         setSession(AuthSession(userID: normalizedEmail, email: normalizedEmail, displayName: nil, provider: .email))
     }
 
@@ -272,6 +346,10 @@ final class AuthStore: ObservableObject {
 
     private func emailAccountKey(for email: String) -> String {
         "auth.email.\(SHA256.hash(data: Data(email.utf8)).map { String(format: "%02x", $0) }.joined())"
+    }
+
+    private func failedSignIn(for email: String) -> AuthError {
+        signInLimiter.recordFailure(for: email) ? .tooManyAttempts : .invalidCredentials
     }
 
     private func setSession(_ value: AuthSession) {

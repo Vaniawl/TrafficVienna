@@ -523,6 +523,84 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testEmailSignInCooldownStartsAtFifthFailureAndExpires() throws {
+        let suite = "AuthCooldownTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let keychain = MemoryKeychain()
+        var currentDate = Date(timeIntervalSince1970: 1_700_000_000)
+        let store = AuthStore(
+            keychain: keychain,
+            defaults: defaults,
+            signInLimiter: EmailSignInLimiter(now: { currentDate })
+        )
+        try store.register(email: "rider@example.com", password: "tramline26")
+        store.signOut()
+
+        for _ in 0..<4 {
+            XCTAssertThrowsError(try store.signIn(email: "rider@example.com", password: "wrongpass")) {
+                XCTAssertEqual($0 as? AuthError, .invalidCredentials)
+            }
+        }
+        XCTAssertThrowsError(try store.signIn(email: "rider@example.com", password: "wrongpass")) {
+            XCTAssertEqual($0 as? AuthError, .tooManyAttempts)
+        }
+
+        let readsBeforeBlockedAttempt = keychain.dataCallCount
+        XCTAssertThrowsError(try store.signIn(email: "rider@example.com", password: "tramline26")) {
+            XCTAssertEqual($0 as? AuthError, .tooManyAttempts)
+        }
+        XCTAssertEqual(keychain.dataCallCount, readsBeforeBlockedAttempt)
+
+        currentDate.addTimeInterval(30)
+        try store.signIn(email: "rider@example.com", password: "tramline26")
+        XCTAssertEqual(store.session?.email, "rider@example.com")
+    }
+
+    @MainActor
+    func testSuccessfulEmailSignInResetsFailureCount() throws {
+        let suite = "AuthCooldownResetTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let keychain = MemoryKeychain()
+        let store = AuthStore(keychain: keychain, defaults: defaults)
+        try store.register(email: "rider@example.com", password: "tramline26")
+        store.signOut()
+
+        for _ in 0..<4 {
+            XCTAssertThrowsError(try store.signIn(email: "rider@example.com", password: "wrongpass"))
+        }
+        try store.signIn(email: "rider@example.com", password: "tramline26")
+        store.signOut()
+
+        for _ in 0..<4 {
+            XCTAssertThrowsError(try store.signIn(email: "rider@example.com", password: "wrongpass")) {
+                XCTAssertEqual($0 as? AuthError, .invalidCredentials)
+            }
+        }
+    }
+
+    func testEmailSignInLimiterBoundsTrackedAddresses() {
+        var currentDate = Date(timeIntervalSince1970: 1_700_000_000)
+        var limiter = EmailSignInLimiter(
+            maximumFailures: 2,
+            maximumTrackedEmails: 2,
+            now: { currentDate }
+        )
+
+        XCTAssertFalse(limiter.recordFailure(for: "first@example.com"))
+        currentDate.addTimeInterval(1)
+        XCTAssertFalse(limiter.recordFailure(for: "second@example.com"))
+        currentDate.addTimeInterval(1)
+        XCTAssertFalse(limiter.recordFailure(for: "third@example.com"))
+
+        XCTAssertFalse(
+            limiter.recordFailure(for: "first@example.com"),
+            "The oldest tracked address should have been evicted instead of reaching its failure limit"
+        )
+    }
+
+    @MainActor
     func testUITestResetClearsPersistedAuthSessionBeforeLoading() throws {
         let suite = "AuthStoreResetTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
@@ -2483,7 +2561,11 @@ private final class MemoryKeychain: KeychainStoring {
     var removeSucceeds = true
     var setSucceeds = true
     private(set) var removeCallCount = 0
-    func data(for key: String) -> Data? { storage[key] }
+    private(set) var dataCallCount = 0
+    func data(for key: String) -> Data? {
+        dataCallCount += 1
+        return storage[key]
+    }
     func set(_ data: Data, for key: String) -> Bool {
         guard setSucceeds else { return false }
         storage[key] = data
