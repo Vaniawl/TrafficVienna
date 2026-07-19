@@ -167,7 +167,14 @@ struct StationDetailView: View {
     }
 
     private func lineRow(_ group: StationDetailViewModel.DepartureGroup) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        let shareContent = DepartureShareContent.make(
+            line: group.line,
+            destination: group.destination,
+            station: vm.station.name,
+            minutes: group.minutes.first ?? 0
+        )
+
+        return VStack(alignment: .leading, spacing: 6) {
             DepartureLineRow(
                 lineName: group.line,
                 destination: group.destination,
@@ -201,6 +208,16 @@ struct StationDetailView: View {
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text(verbatim: "\(String(localized: "Track on Lock Screen")): \(group.line), \(group.destination)"))
                 .accessibilityIdentifier("station.track.\(group.id)")
+
+                ShareLink(item: shareContent.text, subject: Text(shareContent.subject)) {
+                    Image(systemName: "square.and.arrow.up")
+                        .foregroundStyle(.secondary)
+                        .frame(width: 44, height: 44)
+                        .background(.quaternary, in: Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text(verbatim: "\(String(localized: "Share departure")): \(group.line), \(group.destination)"))
+                .accessibilityIdentifier("station.share.\(group.id)")
 
                 if vm.station.diva != nil {
                     let isFav = favoritesVM.isLineFavorite(
@@ -242,6 +259,10 @@ struct StationDetailView: View {
                 startTracking(group)
             } label: {
                 Label("Track on Lock Screen", systemImage: "dot.radiowaves.left.and.right")
+            }
+
+            ShareLink(item: shareContent.text, subject: Text(shareContent.subject)) {
+                Label("Share departure", systemImage: "square.and.arrow.up")
             }
 
             Button {

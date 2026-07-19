@@ -49,6 +49,38 @@
         }
       }
     },
+    "%@ to %@ departs from %@ in %lld min. — Traffic Vienna": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ nach %@ fährt von %@ in %lld Min. ab. — Traffic Vienna"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ до %@ відправляється зі станції %@ через %lld хв. — Traffic Vienna"
+          }
+        }
+      }
+    },
+    "%@ to %@ is departing now from %@. — Traffic Vienna": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ nach %@ fährt jetzt von %@ ab. — Traffic Vienna"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ до %@ відправляється зараз зі станції %@. — Traffic Vienna"
+          }
+        }
+      }
+    },
     "%@, followed by %@ minutes": {
       "localizations": {
         "de": {
@@ -1761,6 +1793,22 @@
         }
       }
     },
+    "Live departure: %@ to %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live-Abfahrt: %@ nach %@"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Актуальне відправлення: %@ до %@"
+          }
+        }
+      }
+    },
     "Live departures": {
       "localizations": {
         "de": {
@@ -3150,6 +3198,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "НАЛАШТУВАТИ"
+          }
+        }
+      }
+    },
+    "Share departure": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abfahrt teilen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поділитися відправленням"
           }
         }
       }

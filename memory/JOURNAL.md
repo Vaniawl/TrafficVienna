@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Shareable live departures
+
+- Added a visible system Share action to every Station Detail departure group alongside reminder, Lock Screen tracking, and favourite controls.
+- Shared the line, destination, station, and nearest live countdown with a dedicated departing-now message instead of exposing internal API data or identifiers.
+- Reused the same deterministic share content in the row context menu, with a 44-point target, route-aware VoiceOver label, and stable accessibility identifier.
+- Localized share labels and messages in German and Ukrainian and added exact formatter regressions for future and departing-now states.
+
 ## 2026-07-19 — Discoverable privacy and app information
 
 - Added a localized Privacy & data destination in Account covering on-device identity, optional transient location, local travel preferences, Wiener Linien HTTPS requests, and the absence of ads, analytics, and tracking SDKs.

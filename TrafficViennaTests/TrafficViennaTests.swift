@@ -874,6 +874,29 @@ final class TrafficViennaTests: XCTestCase {
 
     // MARK: - DepartureClock
 
+    func testDepartureShareContentUsesNearestCountdown() {
+        let content = DepartureShareContent.make(
+            line: "U4",
+            destination: "Hütteldorf",
+            station: "Karlsplatz",
+            minutes: 3
+        )
+
+        XCTAssertEqual(content.subject, "Live departure: U4 to Hütteldorf")
+        XCTAssertEqual(content.text, "U4 to Hütteldorf departs from Karlsplatz in 3 min. — Traffic Vienna")
+    }
+
+    func testDepartureShareContentDescribesDepartingNow() {
+        let content = DepartureShareContent.make(
+            line: "D",
+            destination: "Nußdorf",
+            station: "Schottentor",
+            minutes: 0
+        )
+
+        XCTAssertEqual(content.text, "D to Nußdorf is departing now from Schottentor. — Traffic Vienna")
+    }
+
     func testLiveMinutesFallback() {
         let result = DepartureClock.liveMinutes(realtime: nil, planned: nil, fallback: 42)
         XCTAssertEqual(result, 42)
