@@ -2573,7 +2573,7 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
-    func testDisruptionRelevanceDoesNotReadFavoritesForEveryItem() async {
+    func testDisruptionRelevanceUsesSharedSnapshotWithoutReloadingStorage() async {
         let favorites = CountingFavoritesRepository(
             routes: [FavoriteRoute(diva: "60201435", lineName: "U1", destination: "Leopoldau")]
         )
@@ -2584,10 +2584,11 @@ final class TrafficViennaTests: XCTestCase {
         )
 
         await viewModel.load()
+        await viewModel.load(force: true)
 
         for _ in 0..<100 { XCTAssertTrue(viewModel.isRelevant(info)) }
 
-        XCTAssertEqual(favorites.getAllCallCount, 2)
+        XCTAssertEqual(favorites.getAllCallCount, 1)
     }
 
     @MainActor

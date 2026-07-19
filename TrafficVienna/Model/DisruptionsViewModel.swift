@@ -19,7 +19,6 @@ final class DisruptionsViewModel: ObservableObject {
     @Published private(set) var filteredInfos: [TrafficInfo] = []
 
     private let service: MonitorService
-    private let favoritesRepo: FavoritesRepository
     private var favouriteLines: Set<String>
     private var relevantInfoIDs: Set<String> = []
     private var isRequesting = false
@@ -27,7 +26,6 @@ final class DisruptionsViewModel: ObservableObject {
 
     init(service: MonitorService = .shared, favoritesRepo: FavoritesRepository = UserDefaultsFavoritesRepository()) {
         self.service = service
-        self.favoritesRepo = favoritesRepo
         self.favouriteLines = Set(favoritesRepo.getAll().map(\.lineName))
     }
 
@@ -45,7 +43,6 @@ final class DisruptionsViewModel: ObservableObject {
         loadGeneration &+= 1
         let generation = loadGeneration
         isRequesting = true
-        favouriteLines = Set(favoritesRepo.getAll().map(\.lineName))
         if infos.isEmpty { isLoading = true } else { isRefreshing = true }
         errorMessage = nil
         defer {

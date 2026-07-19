@@ -1,5 +1,11 @@
 # Journal
 
+## 2026-07-19 — Storage-free alert polling
+
+- Removed the App Group favourites repository read and JSON decode from every Alerts polling/manual-refresh cycle, retaining one initialization snapshot plus root-owned route updates.
+- Preserved relevance during normal refresh, force refresh, favourite changes, and route changes that occur while an alert request is in flight; repeated loads now keep repository reads at one.
+- Verified a warning-free build, repository/OpenCode validators, and the full iPhone 17 suite: 186 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Single-pass commute routine selection
 
 - Replaced Home's current-routine `filter` plus comparator-based `min` with one stable scan, eliminating the candidate array and repeated circular-distance calculations during dashboard recomputation.
