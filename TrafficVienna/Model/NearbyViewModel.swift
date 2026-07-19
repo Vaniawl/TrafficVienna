@@ -53,13 +53,12 @@ final class NearbyViewModel: ObservableObject {
             return
         }
         let previous = Dictionary(uniqueKeysWithValues: items.map { ($0.id, $0) })
-        items = store.stations(near: location, radiusInMeters: radius)
-            .map { (station: $0, distance: CLLocation(latitude: $0.lat, longitude: $0.lon).distance(from: location)) }
-            .sorted { $0.distance < $1.distance }
+        items = store.stationsWithDistance(near: location, radiusInMeters: radius)
+            .sorted { ($0.meters, $0.station.id) < ($1.meters, $1.station.id) }
             .prefix(maxStations)
             .map { pair in
                 Item(station: pair.station,
-                     distance: pair.distance,
+                     distance: pair.meters,
                      lines: previous[pair.station.id]?.lines ?? [],
                      failed: false)
             }

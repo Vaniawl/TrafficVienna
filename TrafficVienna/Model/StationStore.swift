@@ -28,6 +28,11 @@ nonisolated struct Station: Decodable, Identifiable, Sendable {
     }
 }
 
+nonisolated struct StationDistance: Sendable {
+    let station: Station
+    let meters: CLLocationDistance
+}
+
 
 protocol StationStoring {
     var stations: [Station] { get }     // All known stations loaded from the JSON dataset
@@ -236,6 +241,15 @@ final class StationStore: ObservableObject, StationStoring {
         near location: CLLocation,
         radiusInMeters radius: Double
     ) -> [Station] {
+        stationsWithDistance(near: location, radiusInMeters: radius).map(\.station)
+    }
+
+    // Performs the exact Core Location calculation once so nearby consumers
+    // can filter, sort, limit, and render using the same distance value.
+    func stationsWithDistance(
+        near location: CLLocation,
+        radiusInMeters radius: Double
+    ) -> [StationDistance] {
         let center = Self.spatialCell(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
         let cellRadius = max(1, Int(ceil(radius / 700)))
         let candidates = (-cellRadius...cellRadius).flatMap { latitudeOffset in
@@ -243,12 +257,14 @@ final class StationStore: ObservableObject, StationStoring {
                 spatialIndex[SpatialCell(latitude: center.latitude + latitudeOffset, longitude: center.longitude + longitudeOffset)] ?? []
             }
         }
-        return candidates.filter { station in
+        return candidates.compactMap { station in
             let stationLocation = CLLocation(
                 latitude: station.lat,
                 longitude: station.lon
             )
-            return stationLocation.distance(from: location) <= radius
+            let distance = stationLocation.distance(from: location)
+            guard distance <= radius else { return nil }
+            return StationDistance(station: station, meters: distance)
         }
     }
 

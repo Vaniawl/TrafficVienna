@@ -1364,6 +1364,27 @@ final class TrafficViennaTests: XCTestCase {
         }
     }
 
+    func testSpatialQueryReturnsReusableExactDistanceInsideRadius() {
+        let store = StationStore()
+        let center = CLLocation(latitude: 48.2082, longitude: 16.3738)
+
+        let results = store.stationsWithDistance(near: center, radiusInMeters: 1_500)
+
+        XCTAssertFalse(results.isEmpty)
+        XCTAssertTrue(results.allSatisfy { $0.meters <= 1_500 })
+        for result in results.prefix(20) {
+            let expected = CLLocation(
+                latitude: result.station.lat,
+                longitude: result.station.lon
+            ).distance(from: center)
+            XCTAssertEqual(result.meters, expected, accuracy: 0.1)
+        }
+        XCTAssertEqual(results.map(\.station.id), store.stations(
+            near: center,
+            radiusInMeters: 1_500
+        ).map(\.id))
+    }
+
     @MainActor
     func testNearbyLoadsStationMonitorsConcurrentlyThroughService() async {
         let network = MockNetworkManager(monitorDelayNanoseconds: 50_000_000)

@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Reused spatial-query distances
+
+- Extended the indexed nearby-station query to return each exact Core Location distance alongside its station instead of discarding it after radius filtering.
+- Reused that value for Nearby ranking/walking context and Map marker ranking, removing the second `CLLocation` allocation and distance calculation per candidate on both hot paths.
+- Preserved radius filtering, Map limits, deterministic ID tie-breaking, the existing station-only API, and sub-metre Core Location equivalence with regression coverage.
+- Passed repository/OpenCode validators and the full iPhone 17 suite: 169 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Cancellation-safe request throttling
 
 - Changed the shared rate limiter to claim a request slot only when its start time arrives instead of reserving a chain of future slots before sleeping.

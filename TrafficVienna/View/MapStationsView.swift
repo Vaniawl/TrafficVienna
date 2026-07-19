@@ -27,14 +27,8 @@ enum MapStationSelection {
         radius: Double,
         limit: Int
     ) -> [Station] {
-        store.stations(near: center, radiusInMeters: radius)
-            .map { station in
-                (
-                    station: station,
-                    distance: CLLocation(latitude: station.lat, longitude: station.lon).distance(from: center)
-                )
-            }
-            .sorted { ($0.distance, $0.station.id) < ($1.distance, $1.station.id) }
+        store.stationsWithDistance(near: center, radiusInMeters: radius)
+            .sorted { ($0.meters, $0.station.id) < ($1.meters, $1.station.id) }
             .prefix(limit)
             .map(\.station)
     }
