@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Reorderable Home modules
+
+- Added Edit-mode drag reordering for saved stations, saved routes, and Smart insight while retaining each module's independent visibility toggle.
+- Persisted a duplicate-safe module order, appended newly introduced modules during forward migration, and restored both order and visibility with the existing default-layout action.
+- Rendered the shared ordered module list in every Nearby state and added the previously missing Smart insight to the live-departures dashboard.
+- Localized the reordering guidance and added persistence, corrupted/future-value normalization, and Account discoverability coverage.
+
 ## 2026-07-19 — User-configurable Home modules
 
 - Added a localized Account destination for independently showing or hiding saved stations, saved routes, and the contextual Smart insight on Home.

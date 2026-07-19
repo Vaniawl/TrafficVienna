@@ -135,9 +135,11 @@ struct NearbyView: View {
                 topBar
                 heroCard(state)
                 quickActions
-                if homePreferences.showsSavedStations { favoriteStationsStrip }
-                if homePreferences.showsSavedRoutes { favoriteRoutesSection }
-                if homePreferences.showsSmartInsight { insightCard }
+                ForEach(homePreferences.moduleOrder) { module in
+                    if homePreferences.isVisible(module) {
+                        homeModule(module)
+                    }
+                }
             }
             .padding(.horizontal, 18)
             .padding(.top, 12)
@@ -335,6 +337,15 @@ struct NearbyView: View {
     }
 
     @ViewBuilder
+    private func homeModule(_ module: HomeModule) -> some View {
+        switch module {
+        case .savedStations: favoriteStationsStrip
+        case .savedRoutes: favoriteRoutesSection
+        case .smartInsight: insightCard
+        }
+    }
+
+    @ViewBuilder
     private var insightCard: some View {
         let activeRoutine = disruptionsVM.relevantCount == 0 ? routines.current : nil
         if let activeRoutine {
@@ -412,15 +423,12 @@ struct NearbyView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 18).padding(.vertical, 12)
                 quickActions.padding(.horizontal, 8).padding(.bottom, 8)
-                if homePreferences.showsSavedStations {
-                    favoriteStationsStrip
-                        .padding(.horizontal, 18)
-                        .padding(.bottom, 8)
-                }
-                if homePreferences.showsSavedRoutes {
-                    favoriteRoutesSection
-                        .padding(.horizontal, 18)
-                        .padding(.bottom, 8)
+                ForEach(homePreferences.moduleOrder) { module in
+                    if homePreferences.isVisible(module) {
+                        homeModule(module)
+                            .padding(.horizontal, 18)
+                            .padding(.bottom, 8)
+                    }
                 }
 
                 ForEach(vm.items) { item in

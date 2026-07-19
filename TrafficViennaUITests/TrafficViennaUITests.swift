@@ -172,6 +172,7 @@ final class TrafficViennaUITests: XCTestCase {
         XCTAssertTrue(homeSettings.waitForExistence(timeout: 3))
         homeSettings.tap()
         XCTAssertTrue(app.navigationBars["Home screen"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["homeSettings.edit"].waitForExistence(timeout: 3))
         let smartInsightToggle = app.switches["homeSettings.smartInsight"]
         XCTAssertTrue(smartInsightToggle.waitForExistence(timeout: 3))
         if smartInsightToggle.value as? String == "0" {

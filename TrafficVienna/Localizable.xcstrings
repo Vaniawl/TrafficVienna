@@ -961,6 +961,22 @@
         }
       }
     },
+    "Drag modules in Edit mode to choose their order. Hidden modules keep their data.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ziehe Module im Bearbeitungsmodus in die gewünschte Reihenfolge. Ausgeblendete Module behalten ihre Daten."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перетягуйте модулі в режимі редагування, щоб змінити їх порядок. Приховані модулі зберігають дані."
+          }
+        }
+      }
+    },
     "Edit": {
       "localizations": {
         "de": {
@@ -1453,22 +1469,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Доброго ранку"
-          }
-        }
-      }
-    },
-    "Hidden modules keep their data and can be shown again at any time.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ausgeblendete Module behalten ihre Daten und können jederzeit wieder angezeigt werden."
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Приховані модулі зберігають свої дані, і їх можна будь-коли показати знову."
           }
         }
       }

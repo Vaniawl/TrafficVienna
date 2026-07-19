@@ -61,12 +61,35 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertFalse(restored.showsSmartInsight)
         XCTAssertFalse(restored.isDefault)
 
+        restored.moveModules(fromOffsets: IndexSet(integer: 0), toOffset: 3)
+        XCTAssertEqual(restored.moduleOrder, [.savedRoutes, .smartInsight, .savedStations])
+        XCTAssertEqual(
+            HomePreferences(defaults: defaults).moduleOrder,
+            [.savedRoutes, .smartInsight, .savedStations]
+        )
+
         restored.restoreDefaults()
         let reset = HomePreferences(defaults: defaults)
         XCTAssertTrue(reset.showsSavedStations)
         XCTAssertTrue(reset.showsSavedRoutes)
         XCTAssertTrue(reset.showsSmartInsight)
+        XCTAssertEqual(reset.moduleOrder, HomeModule.allCases)
         XCTAssertTrue(reset.isDefault)
+    }
+
+    @MainActor
+    func testHomePreferencesNormalizesDuplicateAndFutureModules() {
+        let suite = "HomeModuleMigrationTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        defaults.set(
+            ["smartInsight", "smartInsight", "futureModule"],
+            forKey: "home.moduleOrder"
+        )
+
+        let preferences = HomePreferences(defaults: defaults)
+
+        XCTAssertEqual(preferences.moduleOrder, [.smartInsight, .savedStations, .savedRoutes])
     }
 
     @MainActor

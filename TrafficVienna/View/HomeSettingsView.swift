@@ -6,36 +6,17 @@ struct HomeSettingsView: View {
     var body: some View {
         Form {
             Section {
-                Toggle(isOn: $preferences.showsSavedStations) {
-                    moduleLabel(
-                        title: "Saved stations",
-                        subtitle: "Quick access to your favourite stops",
-                        icon: "star.fill"
-                    )
+                ForEach(preferences.moduleOrder) { module in
+                    Toggle(isOn: visibilityBinding(for: module)) {
+                        moduleLabel(for: module)
+                    }
+                    .accessibilityIdentifier("homeSettings.\(module.rawValue)")
                 }
-                .accessibilityIdentifier("homeSettings.savedStations")
-
-                Toggle(isOn: $preferences.showsSavedRoutes) {
-                    moduleLabel(
-                        title: "Saved routes",
-                        subtitle: "Live departures for your favourite lines",
-                        icon: "tram.fill"
-                    )
-                }
-                .accessibilityIdentifier("homeSettings.savedRoutes")
-
-                Toggle(isOn: $preferences.showsSmartInsight) {
-                    moduleLabel(
-                        title: "Smart insight",
-                        subtitle: "Relevant alerts, routines, and updates",
-                        icon: "bolt.fill"
-                    )
-                }
-                .accessibilityIdentifier("homeSettings.smartInsight")
+                .onMove(perform: preferences.moveModules)
             } header: {
                 Text("Home modules")
             } footer: {
-                Text("Hidden modules keep their data and can be shown again at any time.")
+                Text("Drag modules in Edit mode to choose their order. Hidden modules keep their data.")
             }
 
             Section {
@@ -48,23 +29,54 @@ struct HomeSettingsView: View {
         }
         .navigationTitle("Home screen")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            EditButton()
+                .accessibilityIdentifier("homeSettings.edit")
+        }
     }
 
-    private func moduleLabel(
-        title: LocalizedStringKey,
-        subtitle: LocalizedStringKey,
-        icon: String
-    ) -> some View {
+    private func visibilityBinding(for module: HomeModule) -> Binding<Bool> {
+        Binding(
+            get: { preferences.isVisible(module) },
+            set: { preferences.setVisible($0, for: module) }
+        )
+    }
+
+    private func moduleLabel(for module: HomeModule) -> some View {
         Label {
             VStack(alignment: .leading, spacing: 3) {
-                Text(title)
-                Text(subtitle)
+                Text(title(for: module))
+                Text(subtitle(for: module))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
         } icon: {
-            Image(systemName: icon)
+            Image(systemName: icon(for: module))
                 .foregroundStyle(.tint)
+        }
+    }
+
+    private func title(for module: HomeModule) -> LocalizedStringKey {
+        switch module {
+        case .savedStations: "Saved stations"
+        case .savedRoutes: "Saved routes"
+        case .smartInsight: "Smart insight"
+        }
+    }
+
+    private func subtitle(for module: HomeModule) -> LocalizedStringKey {
+        switch module {
+        case .savedStations: "Quick access to your favourite stops"
+        case .savedRoutes: "Live departures for your favourite lines"
+        case .smartInsight: "Relevant alerts, routines, and updates"
+        }
+    }
+
+    private func icon(for module: HomeModule) -> String {
+        switch module {
+        case .savedStations: "star.fill"
+        case .savedRoutes: "tram.fill"
+        case .smartInsight: "bolt.fill"
         }
     }
 }
