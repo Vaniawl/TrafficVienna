@@ -192,7 +192,7 @@ struct TravelDataRestorePlan: Equatable {
         ) == self
     }
 
-    private static func isValid(_ station: FavoriteStation) -> Bool {
+    nonisolated private static func isValid(_ station: FavoriteStation) -> Bool {
         guard station.id > 0,
               station.diva.map({ $0 > 0 }) ?? true,
               !station.name.isEmpty,
@@ -205,20 +205,20 @@ struct TravelDataRestorePlan: Equatable {
         }
     }
 
-    private static func isValid(_ route: FavoriteRoute) -> Bool {
+    nonisolated private static func isValid(_ route: FavoriteRoute) -> Bool {
         (Int(route.diva).map { $0 > 0 } ?? false)
             && !route.lineName.isEmpty && route.lineName.count <= 100
             && !route.destination.isEmpty && route.destination.count <= 200
     }
 
-    private static func isValid(_ routine: CommuteRoutine) -> Bool {
+    nonisolated private static func isValid(_ routine: CommuteRoutine) -> Bool {
         !routine.name.isEmpty && routine.name.count <= 200
             && (0...23).contains(routine.hour)
             && (0...59).contains(routine.minute)
             && isValid(routine.station)
     }
 
-    private static func unique<Element, Key: Hashable>(
+    nonisolated private static func unique<Element, Key: Hashable>(
         _ values: [Element],
         by keyPath: KeyPath<Element, Key>
     ) -> [Element] {

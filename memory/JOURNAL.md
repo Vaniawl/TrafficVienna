@@ -1,5 +1,11 @@
 # Journal
 
+## 2026-07-19 — Warning-free concurrency boundaries
+
+- Marked the pure email limiter, password derivation wrapper, walking estimate, walking-speed constant, and travel-backup validation helpers as explicitly nonisolated instead of inheriting the project's default MainActor isolation.
+- Captured each Nearby station ID before launching task-group work so child tasks no longer access a main-actor-isolated view-model item; request concurrency, ordering, and state publication remain unchanged.
+- Verified a warning-free iPhone 17 build, four focused auth/Nearby/walking/restore tests, repository/OpenCode validators, and the full suite: 172 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Bounded station search results
 
 - Added a limited station-suggestion path that preserves the complete search's exact/prefix/word/substring ranking while bounding every ranking bucket to the screen's requested result count.

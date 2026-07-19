@@ -39,7 +39,7 @@ enum AuthError: LocalizedError, Equatable {
     }
 }
 
-struct EmailSignInLimiter {
+nonisolated struct EmailSignInLimiter {
     private struct FailureState {
         var count = 0
         var blockedUntil: Date?
@@ -101,7 +101,7 @@ struct EmailSignInLimiter {
     }
 }
 
-struct PasswordDeriver: Sendable {
+nonisolated struct PasswordDeriver: Sendable {
     private let operation: @Sendable (String, Data, UInt32) async -> Data
 
     init(

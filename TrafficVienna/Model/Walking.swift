@@ -10,9 +10,9 @@ import CoreLocation
 import Foundation
 
 /// Walking speed used for all "X min on foot" estimates.
-let walkingSpeed: CLLocationSpeed = 80 // m/min
+nonisolated let walkingSpeed: CLLocationSpeed = 80 // m/min
 
-struct WalkingEstimate: Equatable, Sendable {
+nonisolated struct WalkingEstimate: Equatable, Sendable {
     let distanceMeters: CLLocationDistance
     let minutes: Int
 
