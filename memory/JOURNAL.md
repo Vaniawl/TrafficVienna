@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Cancellation-safe request throttling
+
+- Changed the shared rate limiter to claim a request slot only when its start time arrives instead of reserving a chain of future slots before sleeping.
+- Cancelled queued station/alert work no longer leaves phantom reservations that delay the next real refresh after returning to the app or tab.
+- Preserved the configured minimum interval and rate-limit backoff across actual network starts, with regressions for measured spacing and prompt recovery after cancelling two queued requests.
+- Passed repository/OpenCode validators and the full iPhone 17 suite: 168 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Reference-counted request cancellation
 
 - Added waiter ownership to coalesced station and city-wide traffic-info requests so concurrent consumers still share one network task.

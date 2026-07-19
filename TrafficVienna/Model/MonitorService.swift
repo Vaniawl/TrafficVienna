@@ -298,15 +298,17 @@ actor MonitorService {
         cacheRecency.append(diva)
     }
 
-    // Claims the next time slot and sleeps until it's due. Reading and advancing
-    // `nextSlot` happens with no suspension in between, so bursts get spaced out.
+    // Waits until the current slot is available and only then claims the next
+    // one. Cancelled sleepers therefore leave no phantom reservations behind.
     private func throttle() async throws {
-        let now = Date()
-        let slot = max(now, nextSlot)
-        nextSlot = slot.addingTimeInterval(minInterval)
-
-        let wait = slot.timeIntervalSince(now)
-        if wait > 0 {
+        while true {
+            try Task.checkCancellation()
+            let now = Date()
+            let wait = nextSlot.timeIntervalSince(now)
+            if wait <= 0 {
+                nextSlot = now.addingTimeInterval(minInterval)
+                return
+            }
             try await Task.sleep(nanoseconds: UInt64(wait * 1_000_000_000))
         }
     }

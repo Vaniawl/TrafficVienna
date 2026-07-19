@@ -2015,6 +2015,46 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(mock.activeTrafficInfoCallCount, 0)
     }
 
+    func testThrottleSpacesActualRequestStarts() async throws {
+        let mock = MockNetworkManager()
+        let service = MonitorService(network: mock, cacheTTL: 0, minInterval: 0.05)
+
+        async let first = service.monitor(diva: 1, forceRefresh: true)
+        async let second = service.monitor(diva: 2, forceRefresh: true)
+        async let third = service.monitor(diva: 3, forceRefresh: true)
+        _ = try await (first, second, third)
+
+        let starts = mock.monitorCallDates.sorted()
+        XCTAssertEqual(starts.count, 3)
+        XCTAssertGreaterThanOrEqual(starts[1].timeIntervalSince(starts[0]), 0.04)
+        XCTAssertGreaterThanOrEqual(starts[2].timeIntervalSince(starts[1]), 0.04)
+    }
+
+    func testCancelledThrottleWaitersDoNotDelayNextRequestWithGhostSlots() async throws {
+        let mock = MockNetworkManager()
+        let service = MonitorService(network: mock, cacheTTL: 0, minInterval: 0.2)
+        let first = Task { try await service.monitor(diva: 1, forceRefresh: true) }
+        let cancelledSecond = Task { try await service.monitor(diva: 2, forceRefresh: true) }
+        let cancelledThird = Task { try await service.monitor(diva: 3, forceRefresh: true) }
+        while mock.callCount < 1 { await Task.yield() }
+        try await Task.sleep(nanoseconds: 20_000_000)
+        cancelledSecond.cancel()
+        cancelledThird.cancel()
+        _ = try await first.value
+        for task in [cancelledSecond, cancelledThird] {
+            do {
+                _ = try await task.value
+                XCTFail("Queued request should finish with cancellation")
+            } catch is CancellationError {}
+        }
+
+        let startedAt = Date()
+        _ = try await service.monitor(diva: 4, forceRefresh: true)
+
+        XCTAssertLessThan(Date().timeIntervalSince(startedAt), 0.35)
+        XCTAssertEqual(mock.callCount, 2)
+    }
+
     func testFailedTrafficInfoRequestDoesNotRemainInFlight() async throws {
         let mock = MockNetworkManager(shouldFail: true)
         let service = MonitorService(network: mock, cacheTTL: 0, minInterval: 0)
@@ -3043,6 +3083,7 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
     private var recordedCallCount = 0
     private var activeMonitorCalls = 0
     private var activeTrafficInfoCalls = 0
+    private var recordedMonitorCallDates: [Date] = []
     private var recordedMaxConcurrentMonitorCalls = 0
     private var recordedCachedResponseRemovalCount = 0
     var shouldFail = false
@@ -3056,6 +3097,7 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
     var maxConcurrentMonitorCalls: Int { lock.withLock { recordedMaxConcurrentMonitorCalls } }
     var activeMonitorCallCount: Int { lock.withLock { activeMonitorCalls } }
     var activeTrafficInfoCallCount: Int { lock.withLock { activeTrafficInfoCalls } }
+    var monitorCallDates: [Date] { lock.withLock { recordedMonitorCallDates } }
     var cachedResponseRemovalCount: Int { lock.withLock { recordedCachedResponseRemovalCount } }
 
     init(
@@ -3115,6 +3157,7 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
         lock.withLock {
             recordedCallCount += 1
             activeMonitorCalls += 1
+            recordedMonitorCallDates.append(Date())
             recordedMaxConcurrentMonitorCalls = max(recordedMaxConcurrentMonitorCalls, activeMonitorCalls)
         }
     }
