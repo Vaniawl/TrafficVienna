@@ -113,6 +113,22 @@
         }
       }
     },
+    "Active days": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktive Tage"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Активні дні"
+          }
+        }
+      }
+    },
     "Add a favourite station first, then create a daily routine.": {
       "localizations": {
         "de": {
@@ -125,6 +141,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Спочатку додайте улюблену станцію, а потім створіть щоденний сценарій."
+          }
+        }
+      }
+    },
+    "Add a favourite station first, then create a routine.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Füge zuerst eine Lieblingsstation hinzu und erstelle dann eine Routine."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Спочатку додайте улюблену станцію, а потім створіть сценарій."
           }
         }
       }
@@ -1041,6 +1073,22 @@
         }
       }
     },
+    "Every day": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jeden Tag"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Щодня"
+          }
+        }
+      }
+    },
     "Everything around you, live.": {
       "localizations": {
         "de": {
@@ -1762,6 +1810,22 @@
         }
       }
     },
+    "Not selected": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht ausgewählt"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не вибрано"
+          }
+        }
+      }
+    },
     "Nothing scheduled right now.": {
       "localizations": {
         "de": {
@@ -2318,6 +2382,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Переглянути всі"
+          }
+        }
+      }
+    },
+    "Select at least one day": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle mindestens einen Tag aus"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Виберіть принаймні один день"
+          }
+        }
+      }
+    },
+    "Selected": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausgewählt"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вибрано"
           }
         }
       }
@@ -2958,6 +3054,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ми сповістимо вас незадовго до відправлення %@."
+          }
+        }
+      }
+    },
+    "Weekdays": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Werktags"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Будні"
+          }
+        }
+      }
+    },
+    "Weekends": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Am Wochenende"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вихідні"
           }
         }
       }

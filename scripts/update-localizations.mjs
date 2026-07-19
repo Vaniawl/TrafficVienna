@@ -5,7 +5,7 @@ const catalog = JSON.parse(fs.readFileSync(path, "utf8"));
 const original = JSON.stringify(catalog);
 
 const newEnglish = [
-  "%@ leaves soon", "%@ → %@ in about %lld min.", "Account", "Add a favourite station first, then create a daily routine.", "Add routine", "Cancel", "Cancel all", "Cancel all reminders", "Cancel all reminders?", "Departure reminders", "Display name", "Edit", "Edit display name", "Edit routine", "Keep reminders", "No departure reminders", "Save", "Set a reminder from any live departure to see it here.",
+  "%@ leaves soon", "%@ → %@ in about %lld min.", "Account", "Active days", "Add a favourite station first, then create a daily routine.", "Add a favourite station first, then create a routine.", "Add routine", "Cancel", "Cancel all", "Cancel all reminders", "Cancel all reminders?", "Departure reminders", "Display name", "Edit", "Edit display name", "Edit routine", "Every day", "Keep reminders", "No departure reminders", "Not selected", "Save", "Select at least one day", "Selected", "Set a reminder from any live departure to see it here.", "Weekdays", "Weekends",
   "Remove account", "Remove account from device", "Couldn’t remove account",
   "Clear data", "Clear travel data",
   "This removes favourites, routines, recent searches, departure reminders, Live Activities, widget data, and cached departures. Your sign-in stays active.",
@@ -47,6 +47,7 @@ const de = {
   "%@, followed by %@ minutes":"%@, danach in %@ Minuten", "Updates this line in your favourites":"Aktualisiert diese Linie in deinen Favoriten",
   "%@ leaves soon":"%@ fährt bald ab", "%@ → %@ in about %lld min.":"%@ → %@ in etwa %lld Min.", "%lld":"%lld", "—":"—",
   "Account":"Konto", "Add a favourite station first, then create a daily routine.":"Füge zuerst eine Lieblingsstation hinzu und erstelle dann eine tägliche Routine.",
+  "Active days":"Aktive Tage", "Add a favourite station first, then create a routine.":"Füge zuerst eine Lieblingsstation hinzu und erstelle dann eine Routine.", "Every day":"Jeden Tag", "Not selected":"Nicht ausgewählt", "Select at least one day":"Wähle mindestens einen Tag aus", "Selected":"Ausgewählt", "Weekdays":"Werktags", "Weekends":"Am Wochenende",
   "Add routine":"Routine hinzufügen", "Affects your favourites":"Betrifft deine Favoriten", "All clear":"Alles frei", "Cancel":"Abbrechen", "Edit":"Bearbeiten", "Edit routine":"Routine bearbeiten", "Save":"Sichern",
   "Cancel all":"Alle löschen", "Cancel all reminders":"Alle Erinnerungen löschen", "Cancel all reminders?":"Alle Erinnerungen löschen?", "Departure reminders":"Abfahrtserinnerungen", "Keep reminders":"Erinnerungen behalten", "No departure reminders":"Keine Abfahrtserinnerungen", "Set a reminder from any live departure to see it here.":"Lege bei einer Live-Abfahrt eine Erinnerung fest, um sie hier zu sehen.",
   "Display name":"Anzeigename", "Edit display name":"Anzeigenamen bearbeiten",
@@ -96,6 +97,7 @@ const uk = {
   "Try again from another location or open the map to explore the city.":"Спробуйте ще раз в іншому місці або відкрийте мапу, щоб переглянути місто.",
   "%@, followed by %@ minutes":"%@, далі через %@ хв", "Updates this line in your favourites":"Оновлює цю лінію в обраному",
   "%@ leaves soon":"%@ скоро відправляється", "%@ → %@ in about %lld min.":"%@ → %@ приблизно через %lld хв.", "%lld":"%lld", "—":"—", "About":"Про застосунок", "Account":"Обліковий запис", "Add station to favourites":"Додати станцію до обраного",
+  "Active days":"Активні дні", "Add a favourite station first, then create a routine.":"Спочатку додайте улюблену станцію, а потім створіть сценарій.", "Every day":"Щодня", "Not selected":"Не вибрано", "Select at least one day":"Виберіть принаймні один день", "Selected":"Вибрано", "Weekdays":"Будні", "Weekends":"Вихідні",
   "Add to favourites":"Додати до обраного", "Add a favourite station first, then create a daily routine.":"Спочатку додайте улюблену станцію, а потім створіть щоденний сценарій.",
   "Add routine":"Додати сценарій", "Affects your favourites":"Впливає на обрані маршрути", "Alerts":"Сповіщення", "All":"Усі", "All clear":"Усе гаразд", "Cancel":"Скасувати", "Edit":"Редагувати", "Edit routine":"Редагувати сценарій", "Save":"Зберегти",
   "Cancel all":"Скасувати всі", "Cancel all reminders":"Скасувати всі нагадування", "Cancel all reminders?":"Скасувати всі нагадування?", "Departure reminders":"Нагадування про відправлення", "Keep reminders":"Залишити нагадування", "No departure reminders":"Немає нагадувань про відправлення", "Set a reminder from any live departure to see it here.":"Установіть нагадування для будь-якого актуального відправлення, щоб побачити його тут.",

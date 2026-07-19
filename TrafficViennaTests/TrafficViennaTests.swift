@@ -36,12 +36,13 @@ final class TrafficViennaTests: XCTestCase {
         defer { defaults.removePersistentDomain(forName: suite) }
         let station = FavoriteStation(id: 1, diva: 123, name: "Karlsplatz")
         let store = CommuteRoutineStore(defaults: defaults)
-        store.add(name: "Work", station: station, hour: 8, minute: 45)
+        store.add(name: "Work", station: station, hour: 8, minute: 45, activeWeekdays: [2, 3, 4, 5, 6])
 
         let restored = CommuteRoutineStore(defaults: defaults)
         XCTAssertEqual(restored.routines.first?.station.name, "Karlsplatz")
         XCTAssertEqual(restored.routines.first?.hour, 8)
         XCTAssertEqual(restored.routines.first?.minute, 45)
+        XCTAssertEqual(restored.routines.first?.activeWeekdays, [2, 3, 4, 5, 6])
     }
 
     @MainActor
@@ -70,6 +71,29 @@ final class TrafficViennaTests: XCTestCase {
 
         XCTAssertEqual(restored.routines.first?.hour, 8)
         XCTAssertEqual(restored.routines.first?.minute, 0)
+        XCTAssertEqual(restored.routines.first?.activeWeekdays, CommuteRoutine.everyWeekday)
+    }
+
+    @MainActor
+    func testCurrentRoutineRespectsSelectedWeekdays() {
+        let suite = "RoutineWeekdayTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let station = FavoriteStation(id: 1, diva: 123, name: "Karlsplatz")
+        let store = CommuteRoutineStore(defaults: defaults)
+        store.add(
+            name: "Work",
+            station: station,
+            hour: 8,
+            activeWeekdays: [2, 3, 4, 5, 6]
+        )
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let saturday = calendar.date(from: DateComponents(year: 2026, month: 7, day: 18, hour: 8))!
+        let monday = calendar.date(from: DateComponents(year: 2026, month: 7, day: 20, hour: 8))!
+
+        XCTAssertNil(store.current(at: saturday, calendar: calendar))
+        XCTAssertEqual(store.current(at: monday, calendar: calendar)?.name, "Work")
     }
 
     @MainActor
@@ -99,7 +123,14 @@ final class TrafficViennaTests: XCTestCase {
         store.add(name: "Work", station: originalStation, hour: 8, minute: 0)
         let id = try XCTUnwrap(store.routines.first?.id)
 
-        store.update(id: id, name: "Office", station: updatedStation, hour: 8, minute: 45)
+        store.update(
+            id: id,
+            name: "Office",
+            station: updatedStation,
+            hour: 8,
+            minute: 45,
+            activeWeekdays: [2, 4, 6]
+        )
         let restored = CommuteRoutineStore(defaults: defaults)
         let routine = try XCTUnwrap(restored.routines.first)
 
@@ -108,6 +139,7 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(routine.station, updatedStation)
         XCTAssertEqual(routine.hour, 8)
         XCTAssertEqual(routine.minute, 45)
+        XCTAssertEqual(routine.activeWeekdays, [2, 4, 6])
         XCTAssertTrue(routine.isEnabled)
     }
 

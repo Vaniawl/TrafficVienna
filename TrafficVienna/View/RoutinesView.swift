@@ -6,6 +6,7 @@ struct RoutinesView: View {
     @State private var name = ""
     @State private var selectedStationID: Int?
     @State private var time = Calendar.current.date(from: DateComponents(hour: 8)) ?? .now
+    @State private var activeWeekdays = Set(CommuteRoutine.everyWeekday)
     @State private var editingRoutine: CommuteRoutine?
 
     private var stations: [FavoriteStation] { favoritesVM.stations }
@@ -16,7 +17,7 @@ struct RoutinesView: View {
                 .listRowBackground(Color.clear).listRowSeparator(.hidden)
 
             if routines.routines.isEmpty {
-                ContentUnavailableView("No routines", systemImage: "clock.arrow.2.circlepath", description: Text("Add a favourite station first, then create a daily routine."))
+                ContentUnavailableView("No routines", systemImage: "clock.arrow.2.circlepath", description: Text("Add a favourite station first, then create a routine."))
                     .listRowBackground(Color.clear)
             } else {
                 Section("Your routines") {
@@ -27,6 +28,8 @@ struct RoutinesView: View {
                                 Text(routine.name).font(.headline)
                                 Text("\(routine.station.name) · \(routine.timeText)")
                                     .font(.caption).foregroundStyle(.secondary)
+                                Text(routine.weekdaySummary)
+                                    .font(.caption2).foregroundStyle(.secondary)
                             }
                             Spacer()
                             Button {
@@ -53,21 +56,23 @@ struct RoutinesView: View {
                         ForEach(stations) { Text($0.name).tag(Int?.some($0.id)) }
                     }
                     DatePicker("Time", selection: $time, displayedComponents: .hourAndMinute)
+                    WeekdayPicker(selection: $activeWeekdays)
                     Button("Add routine") { addRoutine() }
-                        .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || selectedStationID == nil)
+                        .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || selectedStationID == nil || activeWeekdays.isEmpty)
                 }
             }
         }
         .scrollContentBackground(.hidden).neoScreen()
         .navigationTitle("Routines").navigationBarTitleDisplayMode(.inline)
         .sheet(item: $editingRoutine) { routine in
-            RoutineEditorView(routine: routine, stations: stations) { name, station, hour, minute in
+            RoutineEditorView(routine: routine, stations: stations) { name, station, hour, minute, weekdays in
                 routines.update(
                     id: routine.id,
                     name: name,
                     station: station,
                     hour: hour,
-                    minute: minute
+                    minute: minute,
+                    activeWeekdays: weekdays
                 )
             }
         }
@@ -80,9 +85,11 @@ struct RoutinesView: View {
             name: name.trimmingCharacters(in: .whitespaces),
             station: station,
             hour: components.hour ?? 0,
-            minute: components.minute ?? 0
+            minute: components.minute ?? 0,
+            activeWeekdays: CommuteRoutine.everyWeekday.filter(activeWeekdays.contains)
         )
         name = ""
+        activeWeekdays = Set(CommuteRoutine.everyWeekday)
     }
 }
 
@@ -90,16 +97,17 @@ private struct RoutineEditorView: View {
     @Environment(\.dismiss) private var dismiss
     let routine: CommuteRoutine
     let stations: [FavoriteStation]
-    let onSave: (String, FavoriteStation, Int, Int) -> Void
+    let onSave: (String, FavoriteStation, Int, Int, [Int]) -> Void
 
     @State private var name: String
     @State private var selectedStationID: Int?
     @State private var time: Date
+    @State private var activeWeekdays: Set<Int>
 
     init(
         routine: CommuteRoutine,
         stations: [FavoriteStation],
-        onSave: @escaping (String, FavoriteStation, Int, Int) -> Void
+        onSave: @escaping (String, FavoriteStation, Int, Int, [Int]) -> Void
     ) {
         self.routine = routine
         self.stations = stations
@@ -109,6 +117,7 @@ private struct RoutineEditorView: View {
         _time = State(initialValue: Calendar.current.date(
             from: DateComponents(hour: routine.hour, minute: routine.minute)
         ) ?? .now)
+        _activeWeekdays = State(initialValue: Set(routine.activeWeekdays))
     }
 
     private var availableStations: [FavoriteStation] {
@@ -131,6 +140,7 @@ private struct RoutineEditorView: View {
                     }
                 }
                 DatePicker("Time", selection: $time, displayedComponents: .hourAndMinute)
+                WeekdayPicker(selection: $activeWeekdays)
             }
             .navigationTitle("Edit routine")
             .navigationBarTitleDisplayMode(.inline)
@@ -140,7 +150,7 @@ private struct RoutineEditorView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { save() }
-                        .disabled(trimmedName.isEmpty || selectedStationID == nil)
+                        .disabled(trimmedName.isEmpty || selectedStationID == nil || activeWeekdays.isEmpty)
                 }
             }
         }
@@ -149,7 +159,60 @@ private struct RoutineEditorView: View {
     private func save() {
         guard let station = availableStations.first(where: { $0.id == selectedStationID }) else { return }
         let components = Calendar.current.dateComponents([.hour, .minute], from: time)
-        onSave(trimmedName, station, components.hour ?? 0, components.minute ?? 0)
+        onSave(
+            trimmedName,
+            station,
+            components.hour ?? 0,
+            components.minute ?? 0,
+            CommuteRoutine.everyWeekday.filter(activeWeekdays.contains)
+        )
         dismiss()
+    }
+}
+
+private struct WeekdayPicker: View {
+    @Binding var selection: Set<Int>
+
+    private var orderedDays: [Int] {
+        let first = Calendar.current.firstWeekday
+        return (0..<7).map { ((first - 1 + $0) % 7) + 1 }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Active days")
+                .font(.subheadline)
+            ScrollView(.horizontal) {
+                HStack(spacing: 8) {
+                    ForEach(orderedDays, id: \.self) { day in
+                        Button {
+                            if selection.contains(day) {
+                                selection.remove(day)
+                            } else {
+                                selection.insert(day)
+                            }
+                        } label: {
+                            Text(Calendar.current.veryShortStandaloneWeekdaySymbols[day - 1])
+                                .font(.caption.bold())
+                                .frame(width: 44, height: 44)
+                                .foregroundStyle(selection.contains(day) ? .white : .primary)
+                                .background(
+                                    selection.contains(day) ? Color(hex: 0x635BFF) : Color(.secondarySystemGroupedBackground),
+                                    in: Circle()
+                                )
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(Calendar.current.standaloneWeekdaySymbols[day - 1])
+                        .accessibilityValue(selection.contains(day) ? "Selected" : "Not selected")
+                    }
+                }
+            }
+            .scrollIndicators(.hidden)
+            if selection.isEmpty {
+                Text("Select at least one day")
+                    .font(.caption)
+                    .foregroundStyle(.red)
+            }
+        }
     }
 }

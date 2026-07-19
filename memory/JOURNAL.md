@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Weekday-aware travel routines
+
+- Added a localized seven-day picker to routine creation and editing, with 44-point controls, locale-aware ordering, VoiceOver selection state, and validation that keeps at least one active day.
+- Persisted normalized weekday selections while decoding older routine payloads as every day and keeping the added field safe for rollback to older builds.
+- Limited Smart Home's current-routine choice to enabled routines scheduled for the current weekday, so weekday commutes no longer surface on weekends.
+- Added persistence, legacy migration, edit, and weekday-selection regressions with deterministic calendar and timezone coverage.
+
 ## 2026-07-19 — Saved-station quick access on Nearby
 
 - Added a compact horizontal home strip for the first four saved stations in the user's chosen order across permission, empty, live, and departures Nearby states.
