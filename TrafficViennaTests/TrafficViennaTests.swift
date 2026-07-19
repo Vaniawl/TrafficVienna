@@ -54,6 +54,17 @@ final class TrafficViennaTests: XCTestCase {
         }
     }
 
+    func testNetworkFallbackPolicyDoesNotReadCacheAfterCancellation() {
+        XCTAssertFalse(NetworkFallbackPolicy.allowsCachedResponse(after: CancellationError()))
+        XCTAssertFalse(NetworkFallbackPolicy.allowsCachedResponse(after: URLError(.cancelled)))
+    }
+
+    func testNetworkFallbackPolicyKeepsOfflineCacheForConnectivityErrors() {
+        XCTAssertTrue(NetworkFallbackPolicy.allowsCachedResponse(after: URLError(.notConnectedToInternet)))
+        XCTAssertTrue(NetworkFallbackPolicy.allowsCachedResponse(after: URLError(.networkConnectionLost)))
+        XCTAssertTrue(NetworkFallbackPolicy.allowsCachedResponse(after: URLError(.timedOut)))
+    }
+
     @MainActor
     func testStationDirectionsPreserveNameCoordinatesAndWalkingMode() {
         let station = Station(

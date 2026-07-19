@@ -39,6 +39,14 @@ nonisolated enum MonitorResponseDecoder {
     }
 }
 
+nonisolated enum NetworkFallbackPolicy {
+    static func allowsCachedResponse(after error: Error) -> Bool {
+        if error is CancellationError { return false }
+        if let urlError = error as? URLError, urlError.code == .cancelled { return false }
+        return true
+    }
+}
+
 
 protocol NetworkManaging: Sendable {
     func fetchMonitorData(for stopId: Int) async throws -> MonitorResponse
@@ -100,6 +108,7 @@ nonisolated final class NetworkManager: NetworkManaging {
             (data, response) = try await session.data(for: request)
             source = .network
         } catch {
+            guard NetworkFallbackPolicy.allowsCachedResponse(after: error) else { throw error }
             guard let cached = session.configuration.urlCache?.cachedResponse(for: request) else { throw error }
             data = cached.data
             response = cached.response

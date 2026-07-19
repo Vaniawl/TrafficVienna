@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Cancellation-aware network fallback
+
+- Stopped the shared network pipeline from reading and decoding persistent URL-cache data after either Swift task cancellation or `NSURLErrorCancelled`.
+- Preserved stale offline fallback for genuine connectivity loss and timeout failures, so leaving a screen saves work without weakening useful no-network behavior.
+- Centralized the decision in a deterministic policy with direct coverage for both cancellation forms and representative connection errors.
+- Passed repository/OpenCode validators and the full iPhone 17 suite: 163 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Validated monitor cache writes
 
 - Moved monitor payload decoding ahead of manual persistent URL-cache storage, so only a structurally valid successful API response can become the next offline fallback.
