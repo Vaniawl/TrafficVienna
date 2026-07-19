@@ -48,18 +48,16 @@ struct MapStationsView: View {
     @State private var selectedID: Int?
     @State private var sheetStation: Station?
     @State private var stations: [Station] = []
+    @State private var markerCenter = CLLocation(latitude: 48.2082, longitude: 16.3738)
+    @State private var didCenterOnUser = false
 
     // Vienna city centre, used until a real location is available.
     private static let viennaCenter = CLLocationCoordinate2D(latitude: 48.2082, longitude: 16.3738)
     private let radius: Double = 1500
     private let maxMarkers = 60
 
-    private var center: CLLocation {
-        locationManager.userLocation ?? CLLocation(latitude: Self.viennaCenter.latitude,
-                                                    longitude: Self.viennaCenter.longitude)
-    }
-
-    private var centerKey: MapCenterKey { MapCenterKey(location: center) }
+    private var markerCenterKey: MapCenterKey { MapCenterKey(location: markerCenter) }
+    private var userLocationKey: MapCenterKey? { locationManager.userLocation.map(MapCenterKey.init) }
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -76,27 +74,53 @@ struct MapStationsView: View {
                 MapUserLocationButton()
                 MapCompass()
             }
+            .onMapCameraChange(frequency: .onEnd) { context in
+                markerCenter = CLLocation(
+                    latitude: context.region.center.latitude,
+                    longitude: context.region.center.longitude
+                )
+            }
 
-            if locationManager.userLocation == nil {
-                Text("Showing Vienna centre — enable location to see stops near you.")
+            VStack(spacing: 8) {
+                if locationManager.userLocation == nil {
+                    Text("Showing Vienna centre — enable location to see stops near you.")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(.regularMaterial, in: Capsule())
+                }
+                Label("Stops in view: \(stations.count)", systemImage: "tram.fill")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
                     .background(.regularMaterial, in: Capsule())
-                    .padding(.top, 8)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityIdentifier("map.visibleStops")
             }
+            .padding(.top, 8)
         }
         .navigationTitle("Map")
         .tint(NeoDesign.accent)
         .navigationBarTitleDisplayMode(.inline)
-        .task(id: centerKey) {
+        .task(id: markerCenterKey) {
             stations = MapStationSelection.nearest(
                 in: store,
-                to: center,
+                to: markerCenter,
                 radius: radius,
                 limit: maxMarkers
             )
+        }
+        .onChange(of: userLocationKey, initial: true) { _, newKey in
+            guard !didCenterOnUser, newKey != nil, let location = locationManager.userLocation else { return }
+            didCenterOnUser = true
+            markerCenter = location
+            position = .region(MKCoordinateRegion(
+                center: location.coordinate,
+                latitudinalMeters: radius * 2,
+                longitudinalMeters: radius * 2
+            ))
         }
         .onChange(of: selectedID) { _, newValue in
             sheetStation = stations.first { $0.id == newValue }

@@ -5,6 +5,7 @@ const catalog = JSON.parse(fs.readFileSync(path, "utf8"));
 const original = JSON.stringify(catalog);
 
 const newEnglish = [
+  "Stops in view: %lld",
   "Clear all favourites", "Clear all favourites?", "This removes all saved stations and routes from this device.",
   "Walking directions", "Open this stop in Apple Maps",
   "Remove from recent", "Clear recent searches?", "Clear all", "This removes all recent stations from this device.",
@@ -36,6 +37,7 @@ const newEnglish = [
 ];
 
 const de = {
+  "Stops in view: %lld":"Haltestellen im Ausschnitt: %lld",
   "Clear all favourites":"Alle Favoriten löschen", "Clear all favourites?":"Alle Favoriten löschen?", "This removes all saved stations and routes from this device.":"Dadurch werden alle gespeicherten Stationen und Verbindungen von diesem Gerät entfernt.",
   "Walking directions":"Fußweg", "Open this stop in Apple Maps":"Diese Haltestelle in Apple Karten öffnen",
   "Remove from recent":"Aus Verlauf entfernen", "Clear recent searches?":"Letzte Suchanfragen löschen?", "Clear all":"Alle löschen", "This removes all recent stations from this device.":"Dadurch werden alle zuletzt verwendeten Stationen von diesem Gerät entfernt.",
@@ -98,6 +100,7 @@ const de = {
 };
 
 const uk = {
+  "Stops in view: %lld":"Зупинок на мапі: %lld",
   "Clear all favourites":"Очистити все обране", "Clear all favourites?":"Очистити все обране?", "This removes all saved stations and routes from this device.":"Це видалить усі збережені станції та маршрути з цього пристрою.",
   "Walking directions":"Піший маршрут", "Open this stop in Apple Maps":"Відкрити цю зупинку в Apple Maps",
   "Remove from recent":"Видалити з недавніх", "Clear recent searches?":"Очистити недавні пошуки?", "Clear all":"Очистити все", "This removes all recent stations from this device.":"Це видалить усі недавні станції з цього пристрою.",

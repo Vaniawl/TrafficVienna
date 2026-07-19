@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Viewport-aware station map
+
+- Updated map markers around the visible camera centre after each completed pan instead of leaving the original location's stations on screen.
+- Reused the spatial station index with a roughly 100-metre centre bucket and `.onEnd` camera updates, avoiding marker queries during every animation frame or small camera jitter.
+- Centred on the first available user location once while preserving subsequent manual exploration, and retained Vienna centre as the location-free fallback.
+- Added a localized visible-stop count for immediate map feedback and kept deterministic distance ordering plus the 60-marker rendering cap covered by tests.
+
 ## 2026-07-19 — Navigable saved-route cards
 
 - Turned each resolvable saved route in Favourites into a direct Station Detail link while retaining native swipe deletion, Edit-mode deletion, and reordering.

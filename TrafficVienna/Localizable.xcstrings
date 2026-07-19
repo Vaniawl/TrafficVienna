@@ -3538,6 +3538,22 @@
         }
       }
     },
+    "Stops in view: %lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haltestellen im Ausschnitt: %lld"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Зупинок на мапі: %lld"
+          }
+        }
+      }
+    },
     "System": {
       "localizations": {
         "de": {
