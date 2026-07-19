@@ -13,7 +13,7 @@ import OSLog
 private let log = Logger(subsystem: "at.wellbe.TrafficVienna", category: "favorites")
 
 
-struct DepartureInfo: Identifiable, Hashable {
+nonisolated struct DepartureInfo: Identifiable, Hashable, Sendable {
     let countdown: Int
     let planned: String
     let real: String?
@@ -22,7 +22,7 @@ struct DepartureInfo: Identifiable, Hashable {
     var id: String { "\(planned)|\(real ?? "")|\(countdown)" }
 }
 
-struct FavoriteWithDeparture: Identifiable {
+nonisolated struct FavoriteWithDeparture: Identifiable, Sendable {
     let route: FavoriteRoute
     let stopName: String
     let departures: [DepartureInfo]
@@ -30,6 +30,128 @@ struct FavoriteWithDeparture: Identifiable {
     var loadError: String? = nil
 
     var id: FavoriteRoute { route }
+}
+
+nonisolated struct FavoriteRouteLoader: Sendable {
+    private let operation: @Sendable (
+        FavoriteRoute,
+        Bool,
+        FavoriteWithDeparture?
+    ) async -> FavoriteWithDeparture
+
+    init(
+        operation: @escaping @Sendable (
+            FavoriteRoute,
+            Bool,
+            FavoriteWithDeparture?
+        ) async -> FavoriteWithDeparture
+    ) {
+        self.operation = operation
+    }
+
+    init(service: MonitorService) {
+        self.init { favorite, forceRefresh, fallback in
+            await Self.load(
+                service: service,
+                favorite: favorite,
+                forceRefresh: forceRefresh,
+                fallback: fallback
+            )
+        }
+    }
+
+    func load(
+        favorite: FavoriteRoute,
+        forceRefresh: Bool = false,
+        fallback: FavoriteWithDeparture? = nil
+    ) async -> FavoriteWithDeparture {
+        await operation(favorite, forceRefresh, fallback)
+    }
+
+    private static func load(
+        service: MonitorService,
+        favorite: FavoriteRoute,
+        forceRefresh: Bool,
+        fallback: FavoriteWithDeparture?
+    ) async -> FavoriteWithDeparture {
+        guard let divaInt = Int(favorite.diva) else {
+            log.warning("Invalid DIVA: \(favorite.diva, privacy: .public)")
+            return FavoriteWithDeparture(route: favorite, stopName: "", departures: [])
+        }
+
+        do {
+            let result = try await service.monitorResult(diva: divaInt, forceRefresh: forceRefresh)
+            let monitors = result.value.data.monitors
+
+            guard !monitors.isEmpty else {
+                log.warning("No monitors for DIVA \(divaInt)")
+                return FavoriteWithDeparture(route: favorite, stopName: "", departures: [])
+            }
+
+            guard let line = findMatchingLine(in: monitors, for: favorite) else {
+                log.warning("No matching line for \(favorite.lineName, privacy: .public) -> \(favorite.destination, privacy: .public)")
+                return FavoriteWithDeparture(route: favorite, stopName: "", departures: [])
+            }
+
+            let stopName = monitors.first?.locationStop.properties.title ?? ""
+            let departures = mapDepartures(from: line)
+
+            log.debug("Loaded \(favorite.lineName, privacy: .public) -> \(favorite.destination, privacy: .public), departures: \(departures.count)")
+            return FavoriteWithDeparture(
+                route: favorite,
+                stopName: stopName,
+                departures: departures,
+                freshness: result.freshness
+            )
+        } catch {
+            log.error("Failed to load favorite \(favorite.lineName, privacy: .public): \(error, privacy: .public)")
+            if let fallback {
+                return FavoriteWithDeparture(
+                    route: favorite,
+                    stopName: fallback.stopName,
+                    departures: fallback.departures,
+                    freshness: fallback.freshness,
+                    loadError: error.monitorDisplayMessage
+                )
+            }
+            return FavoriteWithDeparture(
+                route: favorite,
+                stopName: "",
+                departures: [],
+                loadError: error.monitorDisplayMessage
+            )
+        }
+    }
+
+    private static func findMatchingLine(
+        in monitors: [Monitor],
+        for favorite: FavoriteRoute
+    ) -> Lines? {
+        monitors
+            .flatMap { $0.lines }
+            .first { line in
+                RouteMatching.matches(
+                    lineName: line.name,
+                    towards: line.towards,
+                    favoriteLine: favorite.lineName,
+                    favoriteDestination: favorite.destination
+                )
+            }
+    }
+
+    private static func mapDepartures(from line: Lines) -> [DepartureInfo] {
+        line.departures.departure
+            .prefix(7)
+            .map { departure in
+                let time = departure.departureTime
+                return DepartureInfo(
+                    countdown: time.countdown,
+                    planned: time.timePlanned ?? "",
+                    real: time.timeReal,
+                    isRealtime: time.timeReal != nil
+                )
+            }
+    }
 }
 
 @MainActor
@@ -42,22 +164,23 @@ final class FavoritesListViewModel: ObservableObject {
     @Published var stations: [FavoriteStation] = []
     @Published private(set) var favoriteRoutes: [FavoriteRoute] = []
 
-    private let service: MonitorService
     private let favoritesRepo: FavoritesRepository
     private let stationsRepo: FavoriteStationsStoring
     private let widgetSync: WidgetSyncing
+    private let routeLoader: FavoriteRouteLoader
     private var loadGeneration = 0
 
     init(
         service: MonitorService,
         favoritesRepo: FavoritesRepository,
         stationsRepo: FavoriteStationsStoring = UserDefaultsFavoriteStationsRepository(),
-        widgetSync: WidgetSyncing = WidgetSyncManager()
+        widgetSync: WidgetSyncing = WidgetSyncManager(),
+        routeLoader: FavoriteRouteLoader? = nil
     ) {
-        self.service = service
         self.favoritesRepo = favoritesRepo
         self.stationsRepo = stationsRepo
         self.widgetSync = widgetSync
+        self.routeLoader = routeLoader ?? FavoriteRouteLoader(service: service)
         self.stations = stationsRepo.all()
         self.favoriteRoutes = favoritesRepo.getAll()
     }
@@ -174,11 +297,11 @@ final class FavoritesListViewModel: ObservableObject {
         var result = Array<FavoriteWithDeparture?>(repeating: nil, count: routes.count)
         await withTaskGroup(of: (Int, FavoriteWithDeparture).self) { group in
             for (index, route) in routes.enumerated() {
-                group.addTask { @MainActor in
+                group.addTask { [routeLoader] in
                     (
                         index,
-                        await self.loadItem(
-                            for: route,
+                        await routeLoader.load(
+                            favorite: route,
                             forceRefresh: forceRefresh,
                             fallback: previousItems[route]
                         )
@@ -204,7 +327,11 @@ final class FavoritesListViewModel: ObservableObject {
     func refresh(_ route: FavoriteRoute) {
         Task {
             let fallback = items.first { $0.route == route }
-            let updated = await loadItem(for: route, forceRefresh: true, fallback: fallback)
+            let updated = await routeLoader.load(
+                favorite: route,
+                forceRefresh: true,
+                fallback: fallback
+            )
             
             guard let index = items.firstIndex(where: {
                 $0.route.diva == route.diva &&
@@ -277,83 +404,6 @@ final class FavoritesListViewModel: ObservableObject {
         isLoading = false
     }
     
-    private func loadItem(
-        for favorite: FavoriteRoute,
-        forceRefresh: Bool = false,
-        fallback: FavoriteWithDeparture? = nil
-    ) async -> FavoriteWithDeparture {
-        guard let divaInt = Int(favorite.diva) else {
-            log.warning("Invalid DIVA: \(favorite.diva, privacy: .public)")
-            return FavoriteWithDeparture(route: favorite, stopName: "", departures: [])
-        }
-
-        do {
-            let result = try await service.monitorResult(diva: divaInt, forceRefresh: forceRefresh)
-            let monitors = result.value.data.monitors
-
-            guard !monitors.isEmpty else {
-                log.warning("No monitors for DIVA \(divaInt)")
-                return FavoriteWithDeparture(route: favorite, stopName: "", departures: [])
-            }
-
-            guard let line = findMatchingLine(in: monitors, for: favorite) else {
-                log.warning("No matching line for \(favorite.lineName, privacy: .public) -> \(favorite.destination, privacy: .public)")
-                return FavoriteWithDeparture(route: favorite, stopName: "", departures: [])
-            }
-
-            let stopName = monitors.first?.locationStop.properties.title ?? ""
-            let departures = mapDepartures(from: line)
-
-            log.debug("Loaded \(favorite.lineName, privacy: .public) -> \(favorite.destination, privacy: .public), departures: \(departures.count)")
-            return FavoriteWithDeparture(route: favorite, stopName: stopName, departures: departures, freshness: result.freshness)
-
-        } catch {
-            log.error("Failed to load favorite \(favorite.lineName, privacy: .public): \(error, privacy: .public)")
-            if let fallback {
-                return FavoriteWithDeparture(
-                    route: favorite,
-                    stopName: fallback.stopName,
-                    departures: fallback.departures,
-                    freshness: fallback.freshness,
-                    loadError: error.monitorDisplayMessage
-                )
-            }
-            return FavoriteWithDeparture(
-                route: favorite,
-                stopName: "",
-                departures: [],
-                loadError: error.monitorDisplayMessage
-            )
-        }
-    }
-    
-    private func findMatchingLine(in monitors: [Monitor], for favorite: FavoriteRoute) -> Lines? {
-        monitors
-            .flatMap { $0.lines }
-            .first { line in
-                RouteMatching.matches(
-                    lineName: line.name, towards: line.towards,
-                    favoriteLine: favorite.lineName, favoriteDestination: favorite.destination
-                )
-            }
-    }
-    
-    //to show next departures
-    private func mapDepartures(from line: Lines) -> [DepartureInfo] {
-        line.departures.departure
-            .prefix(7)
-            .map { departure in
-                let time = departure.departureTime
-                return DepartureInfo(
-                    countdown: time.countdown,
-                    planned: time.timePlanned ?? "",
-                    real: time.timeReal,
-                    isRealtime: time.timeReal != nil
-                )
-            }
-    }
-    
-
     private func syncWidget() {
         //takes first 3 lines
         let topFavorites = items.prefix(3)

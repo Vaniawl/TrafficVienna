@@ -1968,6 +1968,29 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testFavoriteBatchTransformsResultsAwayFromMainThread() async {
+        let route = FavoriteRoute(diva: "1", lineName: "U1", destination: "Leopoldau")
+        let probe = ExecutionThreadProbe()
+        let loader = FavoriteRouteLoader { route, _, _ in
+            await probe.record(Thread.isMainThread)
+            return FavoriteWithDeparture(route: route, stopName: "Test Stop", departures: [])
+        }
+        let viewModel = FavoritesListViewModel(
+            service: MonitorService(network: MockNetworkManager(), cacheTTL: 0, minInterval: 0),
+            favoritesRepo: CountingFavoritesRepository(routes: [route]),
+            stationsRepo: CountingFavoriteStationsRepository(),
+            widgetSync: NoopWidgetSync(),
+            routeLoader: loader
+        )
+
+        await viewModel.loadFavorites()
+
+        let executionWasOnMainThread = await probe.firstValue
+        XCTAssertEqual(executionWasOnMainThread, false)
+        XCTAssertEqual(viewModel.items.map(\.route), [route])
+    }
+
+    @MainActor
     func testFavoritePullToRefreshBypassesMonitorCache() async {
         let route = FavoriteRoute(diva: "1", lineName: "U1", destination: "Leopoldau")
         let network = MockNetworkManager()
@@ -2736,6 +2759,16 @@ private actor SuspendedPasswordDerivation {
     func finish(with data: Data) {
         resultContinuation?.resume(returning: data)
         resultContinuation = nil
+    }
+}
+
+private actor ExecutionThreadProbe {
+    private var values: [Bool] = []
+
+    var firstValue: Bool? { values.first }
+
+    func record(_ value: Bool) {
+        values.append(value)
     }
 }
 

@@ -92,7 +92,7 @@ final class NearbyViewModel: ObservableObject {
         await withTaskGroup(of: (Int, ServiceResult<MonitorResponse>?).self) { group in
             for item in items {
                 guard let diva = item.station.diva else { continue }
-                group.addTask { @MainActor [service] in
+                group.addTask { [service] in
                     let result = try? await service.monitorResult(diva: diva, forceRefresh: force)
                     return (item.id, result)
                 }

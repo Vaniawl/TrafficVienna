@@ -8,7 +8,7 @@
 import Foundation
 
 // describes one users favotite route
-nonisolated struct FavoriteRoute: Codable, Hashable {
+nonisolated struct FavoriteRoute: Codable, Hashable, Sendable {
     let diva: String
     let lineName: String
     let destination: String

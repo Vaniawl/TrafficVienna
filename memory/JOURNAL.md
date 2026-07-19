@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Off-main dashboard batch processing
+
+- Removed explicit MainActor inheritance from Nearby and Favourites task-group children so batched live-response work no longer queues behind UI updates.
+- Added a stateless Sendable favourite-route loader that performs route matching and departure mapping away from the UI executor while publishing final ordered state on MainActor.
+- Preserved request coalescing, throttling, saved-route order, stale fallback, generation guards, and widget synchronization without adding persistence or dependencies.
+- Added an executor regression proving favourite result transformation runs away from the main thread, alongside existing concurrency, ordering, refresh, and fallback coverage.
+
 ## 2026-07-19 — Off-main password derivation
 
 - Moved 120,000-round PBKDF2 derivation for email registration, sign-in, legacy upgrade, and password changes off the MainActor while keeping Keychain and session mutation serialized on it.
