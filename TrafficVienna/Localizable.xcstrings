@@ -609,6 +609,22 @@
         }
       }
     },
+    "Clear all": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle löschen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Очистити все"
+          }
+        }
+      }
+    },
     "Clear data": {
       "localizations": {
         "de": {
@@ -621,6 +637,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Очистити дані"
+          }
+        }
+      }
+    },
+    "Clear recent searches?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Letzte Suchanfragen löschen?"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Очистити недавні пошуки?"
           }
         }
       }
@@ -2818,6 +2850,22 @@
         }
       }
     },
+    "Remove from recent": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus Verlauf entfernen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Видалити з недавніх"
+          }
+        }
+      }
+    },
     "Remove station from favourites": {
       "localizations": {
         "de": {
@@ -3502,6 +3550,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Це відправлення вже надто близько для нагадування."
+          }
+        }
+      }
+    },
+    "This removes all recent stations from this device.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dadurch werden alle zuletzt verwendeten Stationen von diesem Gerät entfernt."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Це видалить усі недавні станції з цього пристрою."
           }
         }
       }

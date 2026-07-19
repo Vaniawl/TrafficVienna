@@ -7,6 +7,7 @@ struct SearchView: View {
     @State private var query = ""
     @State private var results: [Station] = []
     @State private var isSearching = false
+    @State private var showingClearRecentsConfirmation = false
 
     private var recentStations: [Station] { recents.ids.compactMap(store.station(id:)) }
 
@@ -37,14 +38,32 @@ struct SearchView: View {
             results = Array(store.stationsSuggestion(matching: query).prefix(50))
             isSearching = false
         }
+        .confirmationDialog(
+            "Clear recent searches?",
+            isPresented: $showingClearRecentsConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Clear all", role: .destructive) { recents.clear() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This removes all recent stations from this device.")
+        }
     }
 
     @ViewBuilder private var recentContent: some View {
         if recentStations.isEmpty {
             emptyCard(icon: "magnifyingglass", title: "Find your station", text: "Start typing to see live departures anywhere in Vienna.")
         } else {
-            HStack { Text("Recent").font(.title3.bold()); Spacer(); Button("Clear") { recents.clear() }.font(.subheadline.bold()) }
-            ForEach(recentStations) { station in stationCard(station, icon: "clock.arrow.circlepath") }
+            HStack {
+                Text("Recent").font(.title3.bold())
+                Spacer()
+                Button("Clear all") { showingClearRecentsConfirmation = true }
+                    .font(.subheadline.bold())
+                    .accessibilityIdentifier("search.clearRecents")
+            }
+            ForEach(recentStations) { station in
+                stationCard(station, icon: "clock.arrow.circlepath", showsRecentRemoval: true)
+            }
         }
     }
 
@@ -62,7 +81,7 @@ struct SearchView: View {
         }
     }
 
-    private func stationCard(_ station: Station, icon: String) -> some View {
+    private func stationCard(_ station: Station, icon: String, showsRecentRemoval: Bool = false) -> some View {
         HStack(spacing: 8) {
             NavigationLink { StationDetailView(station: station) } label: {
                 HStack(spacing: 14) {
@@ -78,6 +97,19 @@ struct SearchView: View {
             }
             .buttonStyle(.plain)
             .simultaneousGesture(TapGesture().onEnded { recents.record(station.id) })
+
+            if showsRecentRemoval {
+                Button {
+                    withAnimation { recents.remove(station.id) }
+                } label: {
+                    Image(systemName: "xmark")
+                        .foregroundStyle(.secondary)
+                        .frame(width: 44, height: 44)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text(verbatim: "\(String(localized: "Remove from recent")): \(station.name)"))
+                .accessibilityIdentifier("search.removeRecent.\(station.id)")
+            }
 
             let isFavorite = favoritesVM.isStationFavorite(id: station.id)
             Button {

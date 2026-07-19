@@ -5,6 +5,34 @@ import UserNotifications
 
 final class TrafficViennaTests: XCTestCase {
 
+    func testRecentSearchRemovalPersistsWithoutReorderingOthers() {
+        let suite = "RecentSearchTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = RecentSearchesStore(defaults: defaults)
+        store.record(1)
+        store.record(2)
+        store.record(3)
+
+        store.remove(2)
+
+        XCTAssertEqual(store.ids, [3, 1])
+        XCTAssertEqual(RecentSearchesStore(defaults: defaults).ids, [3, 1])
+    }
+
+    func testRemovingLastRecentSearchClearsPersistence() {
+        let suite = "RecentSearchClearTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = RecentSearchesStore(defaults: defaults)
+        store.record(42)
+
+        store.remove(42)
+
+        XCTAssertTrue(store.ids.isEmpty)
+        XCTAssertNil(defaults.array(forKey: "recent_search_ids"))
+    }
+
     @MainActor
     func testAppRouterParsesStationDeepLink() {
         let router = AppRouter()

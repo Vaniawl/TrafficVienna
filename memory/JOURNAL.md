@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — User-managed recent searches
+
+- Added a visible per-station remove action to Search history without changing the station's favourite state or the order of remaining recents.
+- Replaced immediate bulk clearing with an explicit destructive confirmation that explains the on-device scope.
+- Made recent-search persistence injectable for isolated verification while retaining the production App Group boundary and removing the stored key when history becomes empty.
+- Localized the management flow in German and Ukrainian and added persistence regressions for middle-item and final-item removal.
+
 ## 2026-07-19 — Shareable live departures
 
 - Added a visible system Share action to every Station Detail departure group alongside reminder, Lock Screen tracking, and favourite controls.

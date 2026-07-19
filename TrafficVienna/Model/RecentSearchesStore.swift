@@ -11,9 +11,9 @@ final class RecentSearchesStore: ObservableObject {
     private let maxCount = 8
     private let defaults: UserDefaults
 
-    init() {
+    init(defaults providedDefaults: UserDefaults? = UserDefaults(suiteName: "group.wellbe.TrafficVienna")) {
         let groupID = "group.wellbe.TrafficVienna"
-        guard let store = UserDefaults(suiteName: groupID) else {
+        guard let store = providedDefaults else {
             log.error("RecentSearchesStore: App Group \(groupID) unavailable, falling back to standard")
             defaults = .standard
             ids = []
@@ -28,6 +28,17 @@ final class RecentSearchesStore: ObservableObject {
         list.insert(id, at: 0)
         ids = Array(list.prefix(maxCount))
         defaults.set(ids, forKey: key)
+    }
+
+    func remove(_ id: Int) {
+        let updated = ids.filter { $0 != id }
+        guard updated != ids else { return }
+        ids = updated
+        if ids.isEmpty {
+            defaults.removeObject(forKey: key)
+        } else {
+            defaults.set(ids, forKey: key)
+        }
     }
 
     func clear() {
