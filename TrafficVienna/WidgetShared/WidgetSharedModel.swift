@@ -7,7 +7,7 @@
 
 import Foundation
 
-nonisolated struct WidgetDepartureData: Codable {
+nonisolated struct WidgetDepartureData: Codable, Equatable {
     let lineName: String
     let stopName: String
     let destination: String

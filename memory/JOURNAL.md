@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-19 — Deduplicated widget timeline updates
+
+- Moved unchanged-payload detection into the shared `WidgetSyncManager` so Favourites, Station Detail, and future callers all avoid redundant App Group writes and `WidgetCenter.reloadTimelines` calls.
+- Compared decoded ordered widget values rather than raw JSON bytes, preserving compatibility if encoder key order changes while still treating route order and countdown changes as meaningful.
+- Made compare-and-write atomic for concurrent `Sendable` callers, then kept the potentially expensive WidgetKit reload outside the lock.
+- Preserved immediate reloads for changed payloads and explicit clears, and added a 20-caller concurrency regression covering timestamps, persisted data, reload counts, and removal.
+
 ## 2026-07-19 — Low Power Mode-aware runtime
 
 - Added one root-owned observer for the system power-state notification instead of making every polling screen monitor `ProcessInfo` independently.

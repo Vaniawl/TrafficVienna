@@ -9,7 +9,7 @@ SwiftUI iOS app for live Vienna public transport departures.
 - Device-local email authentication and native Sign in with Apple.
 - Optional device-owner app lock with an immediate privacy shield and configurable unlock timeout.
 - User-controlled JSON backup and confirmed restore of local profile preferences and travel data.
-- Departure reminders, Live Activities, Dynamic Island, and a home-screen widget.
+- Departure reminders, Live Activities, Dynamic Island, and a home-screen widget with deduplicated app-driven timeline updates.
 - Indexed station search/spatial queries, throttled API access, active-tab polling, Low Data/Low Power-aware cadence, energy-aware continuous animations, and stale offline fallback.
 - App and widget privacy manifests with declared UserDefaults reasons and no tracking/data-collection declaration.
 - Validated English, German, and Ukrainian App Store metadata plus review and screenshot guidance in [`docs/app-store/`](docs/app-store/).

@@ -2208,6 +2208,51 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(decoded.departures, [2, 5, 12])
     }
 
+    func testWidgetSyncSkipsUnchangedPayloadAndReloadsChangesAndClear() throws {
+        let suite = "WidgetSyncDeduplicationTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let reloader = RecordingWidgetReloader()
+        let sync = WidgetSyncManager(
+            appGroupID: suite,
+            storage: defaults,
+            reloadTimelines: { reloader.reload() }
+        )
+        let original = WidgetDepartureData(
+            lineName: "U1",
+            stopName: "Karlsplatz",
+            destination: "Leopoldau",
+            departures: [2, 7, 12]
+        )
+
+        DispatchQueue.concurrentPerform(iterations: 20) { _ in
+            sync.save([original])
+        }
+        let firstUpdated = defaults.object(forKey: "widget_last_updated") as? Date
+        sync.save([original])
+
+        XCTAssertEqual(reloader.callCount, 1)
+        XCTAssertEqual(defaults.object(forKey: "widget_last_updated") as? Date, firstUpdated)
+
+        let changed = WidgetDepartureData(
+            lineName: "U1",
+            stopName: "Karlsplatz",
+            destination: "Leopoldau",
+            departures: [1, 6, 11]
+        )
+        sync.save([changed])
+
+        XCTAssertEqual(reloader.callCount, 2)
+        let storedData = try XCTUnwrap(defaults.data(forKey: "widget_departure"))
+        XCTAssertEqual(try JSONDecoder().decode([WidgetDepartureData].self, from: storedData), [changed])
+
+        sync.clear()
+
+        XCTAssertEqual(reloader.callCount, 3)
+        XCTAssertNil(defaults.data(forKey: "widget_departure"))
+        XCTAssertNil(defaults.object(forKey: "widget_last_updated"))
+    }
+
     func testWidgetMergePreservesSelectedOrderAndUsesCacheForPartialFailure() {
         let selected = [
             WidgetRouteKey(lineName: "U1", destination: "Leopoldau"),
@@ -2319,6 +2364,17 @@ private final class RecordingWidgetSync: WidgetSyncing, @unchecked Sendable {
         savedData = data
     }
     func clear() { clearCallCount += 1 }
+}
+
+private final class RecordingWidgetReloader: @unchecked Sendable {
+    private let lock = NSLock()
+    private var recordedCallCount = 0
+
+    var callCount: Int { lock.withLock { recordedCallCount } }
+
+    func reload() {
+        lock.withLock { recordedCallCount += 1 }
+    }
 }
 
 private final class MemoryKeychain: KeychainStoring {
