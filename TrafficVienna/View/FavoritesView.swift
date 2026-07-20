@@ -41,12 +41,12 @@ struct FavoritesView: View {
             } else {
                 List {
                     NeoHeader(eyebrow: "Your city", title: "Favourites", subtitle: "The departures you care about")
-                        .listRowInsets(EdgeInsets(top: 12, leading: 18, bottom: 12, trailing: 18))
+                        .listRowInsets(EdgeInsets(top: 12, leading: 14, bottom: 12, trailing: 14))
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
                     if let staleMessage = vm.staleMessage {
                         StaleDataBanner(message: staleMessage)
-                            .listRowInsets(EdgeInsets(top: 4, leading: 18, bottom: 8, trailing: 18))
+                            .listRowInsets(EdgeInsets(top: 4, leading: 12, bottom: 8, trailing: 12))
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
                     }
@@ -139,10 +139,10 @@ struct FavoritesView: View {
                         Spacer()
                         Image(systemName: "chevron.right").font(.caption.bold()).foregroundStyle(.tertiary)
                     }
-                    .neoCard()
+                    .neoCard(padding: 14)
                 }
                 .accessibilityIdentifier("favourites.station.\(station.id)")
-                .listRowInsets(EdgeInsets(top: 6, leading: 18, bottom: 6, trailing: 18))
+                .listRowInsets(EdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 12))
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
             }
@@ -155,7 +155,7 @@ struct FavoritesView: View {
         Section("Lines") {
             ForEach(vm.items) { item in
                 routeRow(item)
-                .listRowInsets(EdgeInsets(top: 6, leading: 18, bottom: 6, trailing: 18))
+                .listRowInsets(EdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 12))
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
                 .swipeActions(edge: .trailing) {
@@ -205,7 +205,7 @@ struct FavoritesView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .neoCard()
+        .neoCard(padding: 14)
     }
 
     private var clearAllSection: some View {
@@ -218,7 +218,7 @@ struct FavoritesView: View {
                     .neoCard()
             }
             .accessibilityIdentifier("favourites.clearAll")
-            .listRowInsets(EdgeInsets(top: 10, leading: 18, bottom: 12, trailing: 18))
+            .listRowInsets(EdgeInsets(top: 10, leading: 12, bottom: 12, trailing: 12))
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
         }

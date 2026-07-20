@@ -216,7 +216,7 @@ struct StationDetailView: View {
             Section {
                 ForEach(vm.groups) { group in
                     lineRow(group)
-                        .neoCard()
+                        .neoCard(padding: 14)
                         .listRowInsets(EdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 12))
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
@@ -276,11 +276,11 @@ struct StationDetailView: View {
                 Button {
                     scheduleReminder(for: group)
                 } label: {
-                    Label("Remind", systemImage: "bell.badge")
-                        .font(.caption.bold())
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                        .background(.quaternary, in: Capsule())
+                    DepartureActionLabel(
+                        title: "Remind",
+                        systemImage: "bell.badge",
+                        tint: .primary
+                    )
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text(verbatim: "\(String(localized: "Remind me before departure")): \(group.line), \(group.destination)"))
@@ -288,21 +288,23 @@ struct StationDetailView: View {
                 Button {
                     startTracking(group)
                 } label: {
-                    Label("Track", systemImage: "dot.radiowaves.left.and.right")
-                        .font(.caption.bold())
-                        .foregroundStyle(NeoDesign.accent)
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                        .background(NeoDesign.accent.opacity(0.10), in: Capsule())
+                    DepartureActionLabel(
+                        title: "Track",
+                        systemImage: "dot.radiowaves.left.and.right",
+                        tint: NeoDesign.accent,
+                        isEmphasized: true
+                    )
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text(verbatim: "\(String(localized: "Track on Lock Screen")): \(group.line), \(group.destination)"))
                 .accessibilityIdentifier("station.track.\(group.id)")
 
                 ShareLink(item: shareContent.text, subject: Text(shareContent.subject)) {
-                    Image(systemName: "square.and.arrow.up")
-                        .foregroundStyle(.secondary)
-                        .frame(width: 44, height: 44)
-                        .background(.quaternary, in: Circle())
+                    DepartureActionLabel(
+                        title: "Share",
+                        systemImage: "square.and.arrow.up",
+                        tint: .primary
+                    )
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text(verbatim: "\(String(localized: "Share departure")): \(group.line), \(group.destination)"))
@@ -322,17 +324,19 @@ struct StationDetailView: View {
                         )
                         lineFavoriteToggles += 1
                     } label: {
-                        Image(systemName: isFav ? "heart.fill" : "heart")
-                            .foregroundStyle(isFav ? NeoDesign.favorite : .secondary)
-                            .frame(width: 44, height: 44)
-                            .background(.quaternary, in: Circle())
+                        DepartureActionLabel(
+                            title: "Save",
+                            systemImage: isFav ? "heart.fill" : "heart",
+                            tint: isFav ? NeoDesign.favorite : .primary,
+                            isEmphasized: isFav
+                        )
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(isFav ? "Remove \(group.line) from favourites" : "Save \(group.line) to favourites")
                     .accessibilityHint("Updates this line in your favourites")
                 } else {
                     Color.clear
-                        .frame(width: 44, height: 44)
+                        .frame(maxWidth: .infinity, minHeight: 54)
                 }
             }
         }
@@ -420,6 +424,30 @@ struct StationDetailView: View {
 private struct StationFeedback {
     let title: String
     let message: String
+}
+
+private struct DepartureActionLabel: View {
+    let title: LocalizedStringKey
+    let systemImage: String
+    let tint: Color
+    var isEmphasized = false
+
+    var body: some View {
+        VStack(spacing: 5) {
+            Image(systemName: systemImage)
+                .font(.body.weight(.semibold))
+            Text(title)
+                .font(.caption2.weight(.semibold))
+                .lineLimit(1)
+        }
+        .foregroundStyle(tint)
+        .frame(maxWidth: .infinity, minHeight: 54)
+        .background(
+            isEmphasized ? tint.opacity(0.12) : NeoDesign.subtleSurface,
+            in: RoundedRectangle(cornerRadius: 14, style: .continuous)
+        )
+        .contentShape(Rectangle())
+    }
 }
 
 #Preview {

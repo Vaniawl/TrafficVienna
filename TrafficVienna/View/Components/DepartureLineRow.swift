@@ -31,7 +31,7 @@ struct DepartureLineRow: View {
     private let badgeColumn: CGFloat = 48
     private let glyphColumn: CGFloat = 16
     private let nextColumn: CGFloat = 60
-    private let followColumn: CGFloat = 48
+    private let followColumn: CGFloat = 58
 
     var body: some View {
         let next = minutes.first
@@ -110,10 +110,11 @@ struct DepartureLineRow: View {
     private var followUp: some View {
         let rest = Array(minutes.dropFirst().prefix(2))
         if !rest.isEmpty {
-            Text(rest.map(String.init).joined(separator: " · "))
-                .font(.caption)
+            Text("\(rest.map(String.init).joined(separator: " · ")) min")
+                .font(.caption2)
                 .monospacedDigit()
                 .foregroundStyle(.tertiary)
+                .lineLimit(1)
         }
     }
 

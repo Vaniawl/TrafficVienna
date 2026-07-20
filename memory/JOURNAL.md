@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-20 — Clear departure actions and wider favourites
+
+- Replaced the mixed capsule/circle departure controls with four equal 54-point action tiles for Remind, Track, Share, and Save; Track carries the primary accent and saved routes use the favourite accent.
+- Added the missing minute unit to follow-up departure times so secondary numbers no longer appear without context.
+- Matched Favourites to the wider 12-point content rhythm and reduced nested card padding while retaining 44-point navigation controls.
+- Visually reviewed the refined station action card and verified its end-to-end UI flow on iPhone 17.
+
 ## 2026-07-20 — Edge-to-edge station rhythm and bottom map controls
 
 - Reduced Station Detail row margins from 18 to 12 points, removed the inset-grouped outer container, and gave service alerts explicit full-width card rows to eliminate the visible double side padding.
