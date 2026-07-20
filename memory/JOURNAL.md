@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-20 — Edge-to-edge station rhythm and bottom map controls
+
+- Reduced Station Detail row margins from 18 to 12 points, removed the inset-grouped outer container, and gave service alerts explicit full-width card rows to eliminate the visible double side padding.
+- Moved Map's Stops list and Favourites-only actions into a persistent floating bottom control bar above the tab bar.
+- Collapsed the upper Map material panel to a compact stop count and location-status icon, leaving more of the map visible.
+- Visually reviewed Station Detail and Map on iPhone 17, then verified the focused station flow and the complete simulator test suite.
+
 ## 2026-07-20 — Calm secondary-screen visual system
 
 - Preserved the existing Home hero while moving secondary screens to a neutral surface system with one cobalt action accent, amber favourites, quieter borders, and consistent 44-point controls.

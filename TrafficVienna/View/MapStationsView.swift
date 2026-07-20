@@ -193,52 +193,62 @@ struct MapStationsView: View {
             )
         }
         .safeAreaInset(edge: .top, spacing: 0) {
-            VStack(alignment: .leading, spacing: 10) {
-                if locationManager.userLocation == nil {
-                    Label("Showing Vienna centre — enable location to see stops near you.", systemImage: "location.slash")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
+            HStack(spacing: 10) {
                 Label("Stops in view: \(visibleStations.count)", systemImage: "tram.fill")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.primary)
                     .accessibilityElement(children: .combine)
                     .accessibilityIdentifier("map.visibleStops")
-                HStack(spacing: 8) {
-                    Button {
-                        showsStationList = true
-                    } label: {
-                        Label("Stops list", systemImage: "list.bullet")
-                            .mapPill(isSelected: false)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityIdentifier("map.stopsList")
-
-                    Button {
-                        favoritesOnly.toggle()
-                        selectedID = nil
-                        sheetStation = nil
-                    } label: {
-                        Label(
-                            filterTitle,
-                            systemImage: favoritesOnly ? "map" : "star.fill"
-                        )
-                        .mapPill(isSelected: favoritesOnly)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityIdentifier("map.favouritesFilter")
+                Spacer(minLength: 12)
+                if locationManager.userLocation == nil {
+                    Image(systemName: "location.slash")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .accessibilityLabel("Showing Vienna centre — enable location to see stops near you.")
                 }
             }
-            .padding(12)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 9)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 17, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 17, style: .continuous)
+                    .stroke(Color.white.opacity(0.45), lineWidth: 1)
+            }
+            .shadow(color: .black.opacity(0.08), radius: 12, y: 5)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            HStack(spacing: 8) {
+                Button {
+                    showsStationList = true
+                } label: {
+                    Label("Stops list", systemImage: "list.bullet")
+                        .mapPill(isSelected: false)
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("map.stopsList")
+
+                Button {
+                    favoritesOnly.toggle()
+                    selectedID = nil
+                    sheetStation = nil
+                } label: {
+                    Label(filterTitle, systemImage: favoritesOnly ? "map" : "star.fill")
+                        .mapPill(isSelected: favoritesOnly)
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("map.favouritesFilter")
+            }
+            .padding(8)
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .stroke(Color.white.opacity(0.45), lineWidth: 1)
+                    .stroke(Color.white.opacity(0.55), lineWidth: 1)
             }
-            .shadow(color: .black.opacity(0.10), radius: 18, y: 8)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
+            .shadow(color: .black.opacity(0.12), radius: 16, y: 7)
+            .padding(.horizontal, 14)
+            .padding(.bottom, 8)
         }
         .navigationTitle("Map")
         .tint(NeoDesign.accent)

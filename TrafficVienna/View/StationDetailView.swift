@@ -129,14 +129,14 @@ struct StationDetailView: View {
                     title: LocalizedStringKey(vm.station.name),
                     subtitle: "Real-time departures and service updates"
                 )
-                .listRowInsets(EdgeInsets(top: 12, leading: 18, bottom: 8, trailing: 18))
+                .listRowInsets(EdgeInsets(top: 12, leading: 14, bottom: 8, trailing: 14))
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
             }
 
             if let text = vm.lastUpdatedText {
                 freshnessCard(text)
-                    .listRowInsets(EdgeInsets(top: presentation == .mapSheet ? 12 : 4, leading: 18, bottom: 8, trailing: 18))
+                    .listRowInsets(EdgeInsets(top: presentation == .mapSheet ? 12 : 4, leading: 12, bottom: 8, trailing: 12))
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
             }
@@ -167,7 +167,7 @@ struct StationDetailView: View {
                 }
                 .buttonStyle(.plain)
                 .neoCard()
-                .listRowInsets(EdgeInsets(top: 4, leading: 18, bottom: 8, trailing: 18))
+                .listRowInsets(EdgeInsets(top: 4, leading: 12, bottom: 8, trailing: 12))
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
                 .accessibilityIdentifier("station.walkingDirections.card")
@@ -175,7 +175,7 @@ struct StationDetailView: View {
 
             if let staleMessage = vm.staleMessage {
                 StaleDataBanner(message: staleMessage)
-                    .listRowInsets(EdgeInsets(top: 4, leading: 18, bottom: 8, trailing: 18))
+                    .listRowInsets(EdgeInsets(top: 4, leading: 12, bottom: 8, trailing: 12))
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
             }
@@ -185,7 +185,7 @@ struct StationDetailView: View {
                     .font(.caption)
                     .foregroundStyle(.orange)
                     .neoCard()
-                    .listRowInsets(EdgeInsets(top: 4, leading: 18, bottom: 8, trailing: 18))
+                    .listRowInsets(EdgeInsets(top: 4, leading: 12, bottom: 8, trailing: 12))
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
             }
@@ -193,7 +193,11 @@ struct StationDetailView: View {
             if !vm.trafficInfos.isEmpty {
                 Section {
                     ForEach(vm.trafficInfos) { info in
-                        DisruptionRow(info: info).neoCard()
+                        DisruptionRow(info: info)
+                            .neoCard(padding: 14)
+                            .listRowInsets(EdgeInsets(top: 5, leading: 12, bottom: 5, trailing: 12))
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
                     }
                 } header: {
                     Label("Service alerts", systemImage: "exclamationmark.triangle.fill")
@@ -213,7 +217,7 @@ struct StationDetailView: View {
                 ForEach(vm.groups) { group in
                     lineRow(group)
                         .neoCard()
-                        .listRowInsets(EdgeInsets(top: 6, leading: 18, bottom: 6, trailing: 18))
+                        .listRowInsets(EdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 12))
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
                 }
@@ -221,7 +225,7 @@ struct StationDetailView: View {
                 Text("Departures")
             }
         }
-        .listStyle(.insetGrouped)
+        .listStyle(.plain)
         .scrollContentBackground(.hidden)
     }
 
