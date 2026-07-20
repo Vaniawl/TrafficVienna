@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-20 — Personal Team physical-device build path
+
+- Added separate empty app/widget entitlement files and unique bundle identifiers for Debug so free Apple Personal Teams can provision the embedded application without paid capabilities.
+- Preserved the production bundle identifiers, Sign in with Apple entitlement, and App Group entitlement unchanged in Release.
+- Documented the Xcode device workflow, Personal Team limitations, and configuration rollback boundary.
+- Verified Debug and Release simulator products resolve their intended identifiers/capability inputs, an unsigned generic iPhoneOS build succeeds, repository/OpenCode validators pass, and the full iPhone 17 suite passes: 187 tests, 0 failures, 0 skipped.
+
 ## 2026-07-19 — Bounded Nearby departure snapshots
 
 - Built each Nearby card snapshot in one pass, retaining badges for every returned line while preparing only the first four visible rows.

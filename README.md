@@ -23,6 +23,10 @@ xcodebuild -scheme TrafficVienna -project TrafficVienna.xcodeproj -destination '
 
 The shared scheme includes the application, widget extension, `TrafficViennaTests` unit/performance target, and `TrafficViennaUITests` smoke target. UI coverage verifies email registration, validation messaging, primary tab navigation, and favourite station/route flows with isolated DEBUG-only state and network fixtures.
 
+### Personal Team device builds
+
+The Debug configuration uses development-only bundle identifiers and empty entitlement files so the app can be installed with a free Apple Personal Team. Select your Personal Team for both the `TrafficVienna` and `TrafficViennaWidgetExtension` targets, choose the connected iPhone, and run the shared scheme. Email authentication and the main app remain available; Sign in with Apple and cross-process App Group widget synchronization require a paid Apple Developer team and are intentionally available only in the Release configuration. Release retains the production bundle identifiers and full entitlement files.
+
 ## Distribution limitations
 
 - Email accounts are local to one device; password recovery and cross-device sync require a backend.

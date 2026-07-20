@@ -1,5 +1,13 @@
 # Architectural Decisions
 
+## 2026-07-20 — Capability-isolated Personal Team Debug builds
+
+**Context:** Free Apple Personal Teams cannot provision Sign in with Apple or App Groups, so the production app and embedded widget could not be installed on a developer's physical iPhone even though simulator builds worked.
+
+**Decision:** Give the existing Debug configurations unique development bundle identifiers and separate empty entitlement files for both the app and widget. Keep the Release identifiers and production entitlement files unchanged. Continue selecting the signing team locally in Xcode rather than committing a personal team identifier.
+
+**Consequences:** A Personal Team can install Debug builds and exercise device-local email authentication plus the main app. Sign in with Apple and cross-process widget synchronization remain unavailable in that build because those capabilities require a paid team. Release continues to carry the production Sign in with Apple and App Group declarations; reverting the Debug build-setting changes restores the former single-capability configuration without migrating user data.
+
 ## 2026-07-19 — Allowlisted local travel-data export
 
 **Context:** A privacy-focused app should let users inspect and retain their local profile and travel preferences, but a raw dump of app storage could expose password verifiers, provider identifiers, runtime caches, or implementation-only keys.
