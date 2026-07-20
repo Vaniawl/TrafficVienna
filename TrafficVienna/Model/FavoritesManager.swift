@@ -7,6 +7,15 @@
 
 import Foundation
 
+nonisolated var trafficViennaSharedDefaults: UserDefaults {
+#if DEBUG
+    // Personal Team builds cannot use the production App Group entitlement.
+    return .standard
+#else
+    return UserDefaults(suiteName: "group.wellbe.TrafficVienna") ?? .standard
+#endif
+}
+
 // describes one users favotite route
 nonisolated struct FavoriteRoute: Codable, Hashable, Sendable {
     let diva: String
@@ -37,7 +46,7 @@ nonisolated final class UserDefaultsFavoritesRepository: FavoritesRepository {
     // Sendable, so we opt out of the check explicitly.
     private nonisolated(unsafe) let storage: UserDefaults
     
-    init(storage: UserDefaults = UserDefaults(suiteName: "group.wellbe.TrafficVienna") ?? .standard) {
+    init(storage: UserDefaults = trafficViennaSharedDefaults) {
         self.storage = storage
     }
     

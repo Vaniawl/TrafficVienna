@@ -196,12 +196,12 @@ final class TrafficViennaTests: XCTestCase {
         defer { defaults.removePersistentDomain(forName: suite) }
         let manager = ThemeManager(defaults: defaults)
 
-        XCTAssertEqual(manager.preset, .vienna)
+        XCTAssertEqual(manager.preset, .dashboard)
         manager.preset = .night
         XCTAssertEqual(ThemeManager(defaults: defaults).preset, .night)
 
         defaults.set("unsupported-theme", forKey: "themePreset")
-        XCTAssertEqual(ThemeManager(defaults: defaults).preset, .vienna)
+        XCTAssertEqual(ThemeManager(defaults: defaults).preset, .dashboard)
     }
 
     @MainActor

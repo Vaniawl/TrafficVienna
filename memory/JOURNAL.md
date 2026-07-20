@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-20 — Calm secondary-screen visual system
+
+- Preserved the existing Home hero while moving secondary screens to a neutral surface system with one cobalt action accent, amber favourites, quieter borders, and consistent 44-point controls.
+- Rebuilt the Map control panel and station sheet hierarchy, removed the duplicate oversized station heading, and replaced the awkward bottom “updated” bar with an aligned inline freshness card using localized relative time.
+- Made Debug persistence compatible with capability-free Personal Team builds by using app-local defaults while keeping the production App Group in Release; UI-test fixtures now begin with deterministic favourites.
+- Added regression coverage for the default theme and station freshness component, visually reviewed Search, Station Detail, and Map screenshots, and verified the full iPhone 17 suite passes.
+
 ## 2026-07-20 — Personal Team physical-device build path
 
 - Added separate empty app/widget entitlement files and unique bundle identifiers for Debug so free Apple Personal Teams can provision the embedded application without paid capabilities.

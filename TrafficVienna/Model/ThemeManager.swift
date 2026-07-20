@@ -14,7 +14,7 @@ final class ThemeManager: ObservableObject {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
-        let raw = defaults.string(forKey: "themePreset") ?? ThemePreset.vienna.rawValue
-        preset = ThemePreset(rawValue: raw) ?? .vienna
+        let raw = defaults.string(forKey: "themePreset") ?? ThemePreset.dashboard.rawValue
+        preset = ThemePreset(rawValue: raw) ?? .dashboard
     }
 }

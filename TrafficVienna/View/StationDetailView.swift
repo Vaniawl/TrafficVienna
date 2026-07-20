@@ -9,6 +9,11 @@
 import SwiftUI
 import MapKit
 
+enum StationDetailPresentation: Equatable {
+    case standard
+    case mapSheet
+}
+
 struct StationDetailView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.isLowDataMode) private var isLowDataMode
@@ -18,8 +23,10 @@ struct StationDetailView: View {
     @StateObject private var vm: StationDetailViewModel
     @State private var lineFavoriteToggles = 0
     @State private var feedback: StationFeedback?
+    private let presentation: StationDetailPresentation
 
-    init(station: Station) {
+    init(station: Station, presentation: StationDetailPresentation = .standard) {
+        self.presentation = presentation
         _vm = StateObject(wrappedValue: StationDetailViewModel(station: station))
     }
 
@@ -36,7 +43,7 @@ struct StationDetailView: View {
                         favoritesVM.toggleStation(vm.station)
                     } label: {
                         Image(systemName: isStationFavorited ? "star.fill" : "star")
-                            .foregroundStyle(isStationFavorited ? .yellow : .secondary)
+                            .foregroundStyle(isStationFavorited ? NeoDesign.favorite : .secondary)
                     }
                     .accessibilityLabel(isStationFavorited ? "Remove station from favourites" : "Add station to favourites")
                 }
@@ -116,14 +123,23 @@ struct StationDetailView: View {
 
     private var departuresList: some View {
         List {
-            NeoHeader(
-                eyebrow: "Live station",
-                title: LocalizedStringKey(vm.station.name),
-                subtitle: "Real-time departures and service updates"
-            )
-            .listRowInsets(EdgeInsets(top: 12, leading: 18, bottom: 12, trailing: 18))
-            .listRowBackground(Color.clear)
-            .listRowSeparator(.hidden)
+            if presentation == .standard {
+                NeoHeader(
+                    eyebrow: "Live station",
+                    title: LocalizedStringKey(vm.station.name),
+                    subtitle: "Real-time departures and service updates"
+                )
+                .listRowInsets(EdgeInsets(top: 12, leading: 18, bottom: 8, trailing: 18))
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+            }
+
+            if let text = vm.lastUpdatedText {
+                freshnessCard(text)
+                    .listRowInsets(EdgeInsets(top: presentation == .mapSheet ? 12 : 4, leading: 18, bottom: 8, trailing: 18))
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+            }
 
             if StationDirections.isAvailable(for: vm.station) {
                 Button {
@@ -132,9 +148,9 @@ struct StationDetailView: View {
                     HStack(spacing: 12) {
                         Image(systemName: "figure.walk")
                             .font(.body.weight(.semibold))
-                            .foregroundStyle(Color(hex: 0x635BFF))
+                            .foregroundStyle(NeoDesign.accent)
                             .frame(width: 36, height: 36)
-                            .background(Color(hex: 0x635BFF).opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+                            .background(NeoDesign.accent.opacity(0.10), in: RoundedRectangle(cornerRadius: 10))
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Walking directions")
                                 .font(.headline)
@@ -207,25 +223,32 @@ struct StationDetailView: View {
         }
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
-        .safeAreaInset(edge: .bottom) { freshnessBar }
     }
 
-    @ViewBuilder
-    private var freshnessBar: some View {
-        if let text = vm.lastUpdatedText {
-            HStack(spacing: 6) {
-                Circle()
-                    .fill(vm.freshness?.isStale == true ? .orange : .green)
-                    .frame(width: 6, height: 6)
-                Text(text)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
-            .accessibilityLabel(vm.freshness?.isStale == true ? "Saved data, \(text)" : text)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 6)
-            .background(.bar)
+    private func freshnessCard(_ text: String) -> some View {
+        let isStale = vm.freshness?.isStale == true
+        return HStack(spacing: 12) {
+            Image(systemName: isStale ? "wifi.slash" : "bolt.fill")
+                .font(.caption.bold())
+                .foregroundStyle(isStale ? .orange : NeoDesign.accent)
+                .frame(width: 32, height: 32)
+                .background(
+                    (isStale ? Color.orange : NeoDesign.accent).opacity(0.10),
+                    in: Circle()
+                )
+            Text(isStale ? LocalizedStringKey("Saved data") : LocalizedStringKey("Live departures"))
+                .font(.subheadline.weight(.semibold))
+            Spacer(minLength: 12)
+            Text(text)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .multilineTextAlignment(.trailing)
         }
+        .neoCard(padding: 12)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(isStale ? "Saved data, \(text)" : text)
+        .accessibilityIdentifier("station.freshness")
     }
 
     private func lineRow(_ group: StationDetailViewModel.DepartureGroup) -> some View {
@@ -263,9 +286,9 @@ struct StationDetailView: View {
                 } label: {
                     Label("Track", systemImage: "dot.radiowaves.left.and.right")
                         .font(.caption.bold())
-                        .foregroundStyle(Color(hex: 0x635BFF))
+                        .foregroundStyle(NeoDesign.accent)
                         .frame(maxWidth: .infinity, minHeight: 44)
-                        .background(Color(hex: 0x635BFF).opacity(0.12), in: Capsule())
+                        .background(NeoDesign.accent.opacity(0.10), in: Capsule())
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text(verbatim: "\(String(localized: "Track on Lock Screen")): \(group.line), \(group.destination)"))
@@ -296,7 +319,7 @@ struct StationDetailView: View {
                         lineFavoriteToggles += 1
                     } label: {
                         Image(systemName: isFav ? "heart.fill" : "heart")
-                            .foregroundStyle(isFav ? .red : .secondary)
+                            .foregroundStyle(isFav ? NeoDesign.favorite : .secondary)
                             .frame(width: 44, height: 44)
                             .background(.quaternary, in: Circle())
                     }

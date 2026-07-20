@@ -91,7 +91,10 @@ struct SearchView: View {
 
     private func stationCard(_ station: Station, icon: String, showsRecentRemoval: Bool = false) -> some View {
         HStack(spacing: 8) {
-            NavigationLink { StationDetailView(station: station) } label: {
+            NavigationLink {
+                StationDetailView(station: station)
+                    .onAppear { recents.record(station.id) }
+            } label: {
                 HStack(spacing: 14) {
                     NeoIcon(systemName: icon)
                     VStack(alignment: .leading, spacing: 3) {
@@ -104,7 +107,6 @@ struct SearchView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .simultaneousGesture(TapGesture().onEnded { recents.record(station.id) })
 
             if showsRecentRemoval {
                 Button {
@@ -123,11 +125,17 @@ struct SearchView: View {
             Button {
                 favoritesVM.toggleStation(station)
             } label: {
-                Image(systemName: isFavorite ? "star.fill" : "star")
-                    .foregroundStyle(isFavorite ? .yellow : .secondary)
-                    .frame(width: 44, height: 44)
+                ZStack {
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(isFavorite ? NeoDesign.favorite.opacity(0.14) : NeoDesign.subtleSurface)
+                    Image(systemName: isFavorite ? "star.fill" : "star")
+                        .foregroundStyle(isFavorite ? NeoDesign.favorite : .secondary)
+                }
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.borderless)
+            .zIndex(1)
             .accessibilityLabel(isFavorite ? "Remove station from favourites" : "Add station to favourites")
             .accessibilityHint(Text(verbatim: station.name))
             .accessibilityIdentifier("search.favorite.\(station.id)")

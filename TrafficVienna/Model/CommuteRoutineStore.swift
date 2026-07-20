@@ -91,7 +91,7 @@ final class CommuteRoutineStore: ObservableObject {
     private let defaults: UserDefaults
     private let key = "commute_routines"
 
-    init(defaults: UserDefaults = UserDefaults(suiteName: "group.wellbe.TrafficVienna") ?? .standard) {
+    init(defaults: UserDefaults = trafficViennaSharedDefaults) {
         self.defaults = defaults
         if let data = defaults.data(forKey: key) {
             routines = (try? JSONDecoder().decode([CommuteRoutine].self, from: data)) ?? []

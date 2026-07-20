@@ -1,11 +1,16 @@
 import SwiftUI
 
 enum NeoDesign {
-    static let accent = Color(hex: 0x635BFF)
-    static let accentDark = Color(hex: 0x211A72)
+    // A single cool accent keeps secondary screens calm and financial-app-like.
+    // The Home hero intentionally retains its richer violet gradient.
+    static let accent = Color(hex: 0x246BFD)
+    static let accentDark = Color(hex: 0x123A8C)
+    static let favorite = Color(hex: 0xF5A623)
     static let background = Color(.systemGroupedBackground)
-    static let surface = Color(.secondarySystemGroupedBackground)
-    static let cornerRadius: CGFloat = 24
+    static let surface = Color(.systemBackground)
+    static let subtleSurface = Color(.secondarySystemGroupedBackground)
+    static let hairline = Color.primary.opacity(0.07)
+    static let cornerRadius: CGFloat = 22
 }
 
 struct NeoHeader: View {
@@ -40,7 +45,7 @@ struct NeoIcon: View {
             .font(.system(size: 18, weight: .semibold))
             .foregroundStyle(tint)
             .frame(width: 46, height: 46)
-            .background(tint.opacity(0.12), in: Circle())
+            .background(tint.opacity(0.10), in: Circle())
             .accessibilityHidden(true)
     }
 }
@@ -69,7 +74,15 @@ extension View {
     func neoCard(padding: CGFloat = 18) -> some View {
         self
             .padding(padding)
-            .background(NeoDesign.surface, in: RoundedRectangle(cornerRadius: NeoDesign.cornerRadius, style: .continuous))
+            .background {
+                RoundedRectangle(cornerRadius: NeoDesign.cornerRadius, style: .continuous)
+                    .fill(NeoDesign.surface)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: NeoDesign.cornerRadius, style: .continuous)
+                            .stroke(NeoDesign.hairline, lineWidth: 1)
+                    }
+            }
+            .shadow(color: .black.opacity(0.035), radius: 10, y: 4)
     }
 
     func neoScreen() -> some View {

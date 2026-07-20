@@ -178,7 +178,7 @@ struct MapStationsView: View {
                 let isFavorite = favoriteStationIDs.contains(station.id)
                 Marker(station.name, systemImage: isFavorite ? "star.fill" : "tram.fill",
                        coordinate: CLLocationCoordinate2D(latitude: station.lat, longitude: station.lon))
-                    .tint(isFavorite ? .yellow : NeoDesign.accent)
+                    .tint(isFavorite ? NeoDesign.favorite : NeoDesign.accent)
                     .tag(station.id)
             }
         }
@@ -193,21 +193,16 @@ struct MapStationsView: View {
             )
         }
         .safeAreaInset(edge: .top, spacing: 0) {
-            VStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 10) {
                 if locationManager.userLocation == nil {
-                    Text("Showing Vienna centre — enable location to see stops near you.")
-                        .font(.caption2)
+                    Label("Showing Vienna centre — enable location to see stops near you.", systemImage: "location.slash")
+                        .font(.caption)
                         .foregroundStyle(.secondary)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(.regularMaterial, in: Capsule())
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 Label("Stops in view: \(visibleStations.count)", systemImage: "tram.fill")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(.regularMaterial, in: Capsule())
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.primary)
                     .accessibilityElement(children: .combine)
                     .accessibilityIdentifier("map.visibleStops")
                 HStack(spacing: 8) {
@@ -235,6 +230,14 @@ struct MapStationsView: View {
                     .accessibilityIdentifier("map.favouritesFilter")
                 }
             }
+            .padding(12)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .stroke(Color.white.opacity(0.45), lineWidth: 1)
+            }
+            .shadow(color: .black.opacity(0.10), radius: 18, y: 8)
+            .padding(.horizontal, 16)
             .padding(.vertical, 8)
         }
         .navigationTitle("Map")
@@ -263,9 +266,12 @@ struct MapStationsView: View {
         }
         .sheet(item: $sheetStation, onDismiss: { selectedID = nil }) { station in
             NavigationStack {
-                StationDetailView(station: station)
+                StationDetailView(station: station, presentation: .mapSheet)
             }
             .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
+            .presentationCornerRadius(28)
+            .presentationBackground(NeoDesign.background)
         }
         .sheet(isPresented: $showsStationList) {
             MapStationListView(
@@ -338,7 +344,7 @@ private struct MapStationListView: View {
                                 HStack(spacing: 14) {
                                     NeoIcon(
                                         systemName: isFavorite ? "star.fill" : "tram.fill",
-                                        tint: isFavorite ? .yellow : NeoDesign.accent
+                                        tint: isFavorite ? NeoDesign.favorite : NeoDesign.accent
                                     )
                                     VStack(alignment: .leading, spacing: 3) {
                                         Text(station.name)
@@ -361,7 +367,7 @@ private struct MapStationListView: View {
                                 withAnimation { favoritesVM.toggleStation(station) }
                             } label: {
                                 Image(systemName: isFavorite ? "star.fill" : "star")
-                                    .foregroundStyle(isFavorite ? .yellow : .secondary)
+                                    .foregroundStyle(isFavorite ? NeoDesign.favorite : .secondary)
                                     .frame(width: 44, height: 44)
                             }
                             .buttonStyle(.plain)
@@ -405,10 +411,13 @@ private struct MapStationListView: View {
 private extension View {
     func mapPill(isSelected: Bool) -> some View {
         font(.caption.bold())
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(isSelected ? NeoDesign.accent : Color(.systemBackground), in: Capsule())
+            .frame(maxWidth: .infinity, minHeight: 42)
+            .padding(.horizontal, 10)
+            .background(isSelected ? NeoDesign.accent : Color(.systemBackground).opacity(0.82), in: Capsule())
             .foregroundStyle(isSelected ? .white : .primary)
+            .overlay {
+                Capsule().stroke(isSelected ? Color.clear : NeoDesign.hairline, lineWidth: 1)
+            }
     }
 }
 

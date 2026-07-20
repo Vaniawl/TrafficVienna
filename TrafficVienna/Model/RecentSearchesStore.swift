@@ -1,8 +1,5 @@
 import Foundation
 import Combine
-import OSLog
-
-private let log = Logger(subsystem: "at.wellbe.TrafficVienna", category: "store")
 
 final class RecentSearchesStore: ObservableObject {
     @Published private(set) var ids: [Int] = []
@@ -11,14 +8,8 @@ final class RecentSearchesStore: ObservableObject {
     private let maxCount = 8
     private let defaults: UserDefaults
 
-    init(defaults providedDefaults: UserDefaults? = UserDefaults(suiteName: "group.wellbe.TrafficVienna")) {
-        let groupID = "group.wellbe.TrafficVienna"
-        guard let store = providedDefaults else {
-            log.error("RecentSearchesStore: App Group \(groupID) unavailable, falling back to standard")
-            defaults = .standard
-            ids = []
-            return
-        }
+    init(defaults providedDefaults: UserDefaults? = nil) {
+        let store = providedDefaults ?? trafficViennaSharedDefaults
         defaults = store
         ids = store.array(forKey: key) as? [Int] ?? []
     }

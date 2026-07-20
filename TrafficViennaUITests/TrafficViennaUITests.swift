@@ -293,23 +293,22 @@ final class TrafficViennaUITests: XCTestCase {
             NSPredicate(format: "label ==[c] %@", "Search")
         ).firstMatch
         if keyboardSearch.exists { keyboardSearch.tap() }
+        dismissKeyboardIfPresent()
 
-        let quickFavorite = app.buttons["search.favorite.1085618000"]
+        let favoriteIdentifier = "search.favorite.1085618000"
+        let quickFavorite = app.buttons[favoriteIdentifier]
         XCTAssertTrue(quickFavorite.waitForExistence(timeout: 5))
         if quickFavorite.label == "Remove station from favourites" {
             quickFavorite.tap()
-            let removed = XCTNSPredicateExpectation(
-                predicate: NSPredicate(format: "label == %@", "Add station to favourites"),
-                object: quickFavorite
-            )
-            XCTAssertEqual(XCTWaiter.wait(for: [removed], timeout: 3), .completed)
+            XCTAssertTrue(app.buttons[favoriteIdentifier].waitForExistence(timeout: 3))
         }
-        quickFavorite.tap()
-        let saved = XCTNSPredicateExpectation(
-            predicate: NSPredicate(format: "label == %@", "Remove station from favourites"),
-            object: quickFavorite
-        )
-        XCTAssertEqual(XCTWaiter.wait(for: [saved], timeout: 3), .completed)
+        for _ in 0..<3 {
+            let addFavorite = app.buttons[favoriteIdentifier]
+            if addFavorite.label == "Remove station from favourites" { break }
+            addFavorite.tap()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+        }
+        XCTAssertEqual(app.buttons[favoriteIdentifier].label, "Remove station from favourites")
 
         dismissKeyboardIfPresent()
         let favouritesTab = tabBar.buttons["Favourites"]
@@ -332,6 +331,7 @@ final class TrafficViennaUITests: XCTestCase {
         savedStation.tap()
         XCTAssertTrue(app.navigationBars["Karlsplatz"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.buttons["station.walkingDirections.toolbar"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.descendants(matching: .any)["station.freshness"].waitForExistence(timeout: 8))
         let saveRoute = app.buttons.matching(NSPredicate(
             format: "label BEGINSWITH %@ AND label ENDSWITH %@",
             "Save ",

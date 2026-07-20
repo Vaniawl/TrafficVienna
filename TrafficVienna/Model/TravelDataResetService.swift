@@ -11,7 +11,7 @@ struct TravelDataResetService {
 
     private let defaults: UserDefaults
 
-    init(defaults: UserDefaults = UserDefaults(suiteName: "group.wellbe.TrafficVienna") ?? .standard) {
+    init(defaults: UserDefaults = trafficViennaSharedDefaults) {
         self.defaults = defaults
     }
 

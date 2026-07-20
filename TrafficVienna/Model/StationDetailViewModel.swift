@@ -124,13 +124,7 @@ final class StationDetailViewModel: ObservableObject {
 
     var lastUpdatedText: String? {
         guard let lastUpdated else { return nil }
-        let seconds = Int(Date().timeIntervalSince(lastUpdated))
-        switch seconds {
-        case ..<10:    return "updated just now"
-        case ..<60:    return "updated \(seconds)s ago"
-        case ..<3600:  return "updated \(seconds / 60)m ago"
-        default:       return "updated \(seconds / 3600)h ago"
-        }
+        return RelativeTime.updated(since: lastUpdated)
     }
 
     init(

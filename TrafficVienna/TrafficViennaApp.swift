@@ -19,6 +19,8 @@ struct TrafficViennaApp: App {
 #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("-ui-testing-reset") {
             UserDefaults.standard.set(true, forKey: "hasOnboarded")
+            UserDefaultsFavoritesRepository().removeAll()
+            UserDefaultsFavoriteStationsRepository().removeAll()
         }
 #endif
     }

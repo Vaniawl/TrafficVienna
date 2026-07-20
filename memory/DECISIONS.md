@@ -1,5 +1,13 @@
 # Architectural Decisions
 
+## 2026-07-20 — Calm secondary-screen palette with capability-aware storage
+
+**Context:** The first Home screen established a strong visual identity, but repeating saturated violet across utility screens made Map, Search, and Station Detail feel noisy. Debug builds also intentionally omit the production App Group for Personal Team provisioning, so repositories cannot assume that shared container exists in every configuration.
+
+**Decision:** Keep the Home hero unchanged and standardize secondary screens on neutral system surfaces, cobalt for primary actions, and amber only for favourites. Present station freshness inline with the content and use a compact station hierarchy in Map sheets. Resolve the default persistence container by build configuration: app-local defaults in Debug and the existing App Group in Release.
+
+**Consequences:** Secondary screens have calmer contrast, consistent alignment, larger interaction targets, and less duplicated hierarchy without flattening Home's identity. Personal Team Debug installs retain local favourites, routines, and recents inside the app but do not synchronize them with the widget; Release preserves production app/widget sharing. Reverting the palette is token-level, while changing the storage boundary requires revalidating Debug device behavior and Release widget synchronization.
+
 ## 2026-07-20 — Capability-isolated Personal Team Debug builds
 
 **Context:** Free Apple Personal Teams cannot provision Sign in with Apple or App Groups, so the production app and embedded widget could not be installed on a developer's physical iPhone even though simulator builds worked.

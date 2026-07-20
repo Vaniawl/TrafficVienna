@@ -50,7 +50,7 @@ enum ThemePreset: String, CaseIterable, Identifiable {
         switch self {
         case .indigo: return .indigo
         case .vienna: return Color(hex: 0xE20917)
-        case .dashboard: return Color(hex: 0x007AFF)
+        case .dashboard: return Color(hex: 0x246BFD)
         case .twilight: return Color(hex: 0x6B4EFF)
         case .forest: return Color(hex: 0x34A853)
         case .ocean: return Color(hex: 0x00BFA5)

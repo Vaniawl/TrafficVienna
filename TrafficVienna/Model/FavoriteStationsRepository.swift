@@ -58,7 +58,7 @@ nonisolated final class UserDefaultsFavoriteStationsRepository: FavoriteStations
     // UserDefaults is thread-safe but not Sendable; opt out explicitly.
     private nonisolated(unsafe) let storage: UserDefaults
 
-    init(storage: UserDefaults = UserDefaults(suiteName: "group.wellbe.TrafficVienna") ?? .standard) {
+    init(storage: UserDefaults = trafficViennaSharedDefaults) {
         self.storage = storage
     }
 
