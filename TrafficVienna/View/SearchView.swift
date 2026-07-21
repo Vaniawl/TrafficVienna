@@ -32,6 +32,7 @@ struct SearchView: View {
         .neoScreen()
         .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always), prompt: "Station or stop")
+        .keyboardType(isUITesting ? .asciiCapable : .default)
         .scrollDismissesKeyboard(.immediately)
         .task(id: query) {
             guard !query.isEmpty else {
@@ -56,6 +57,14 @@ struct SearchView: View {
         } message: {
             Text("This removes all recent stations from this device.")
         }
+    }
+
+    private var isUITesting: Bool {
+#if DEBUG
+        ProcessInfo.processInfo.arguments.contains("-ui-testing-reset")
+#else
+        false
+#endif
     }
 
     @ViewBuilder private func recentContent(_ recentStations: [Station]) -> some View {

@@ -128,6 +128,7 @@ struct AuthenticationView: View {
                             }
                         }
                         .textContentType(isUITesting ? nil : (mode == .register ? .newPassword : .password))
+                        .keyboardType(isUITesting ? .asciiCapable : .default)
                         .accessibilityIdentifier("auth.password")
 
                         Button {
@@ -165,6 +166,7 @@ struct AuthenticationView: View {
                                         .accessibilityIdentifier("auth.passwordConfirmation")
                                 }
                             }
+                            .keyboardType(isUITesting ? .asciiCapable : .default)
                         }
                     } icon: { Image(systemName: "lock.badge.checkmark") }
                     .padding(14)

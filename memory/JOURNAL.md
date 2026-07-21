@@ -1,5 +1,11 @@
 # Journal
 
+## 2026-07-21 — Deterministic multilingual UI-test input
+
+- Diagnosed auth and Search UI failures from simulator screen recordings as active non-Latin keyboard layout interference rather than app validation or search defects.
+- Kept production keyboard behavior unchanged and selected ASCII-capable keyboards only under the existing UI-test launch flag for password, confirmation, and Search input.
+- Verified the focused registration and Search favourite UI scenarios pass; stopped further simulator work at the user's request.
+
 ## 2026-07-21 — Shared throttle for every API retry
 
 - Traced a rate-limit burst to monitor retries sleeping outside the actor's shared request slot, allowing a retry and a queued request to start together when backoff expired.
