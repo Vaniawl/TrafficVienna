@@ -10,10 +10,10 @@
 //                     itself only updates every ~15-30s, so this is free).
 //   2. Coalescing   — concurrent requests for the same DIVA share one network
 //                     call instead of firing several.
-//   3. Throttling   — actual network calls are spaced at least `minInterval`
-//                     apart, so a burst of nearby cards can't flood the API.
-//   4. Backoff      — a 316 (rate limited) response is retried with growing
-//                     delays before giving up.
+//   3. Throttling   — every network attempt, including retries, is spaced at
+//                     least `minInterval` apart so bursts can't flood the API.
+//   4. Backoff      — monitor and traffic-info 316 responses share a growing
+//                     delay before their retry re-enters the common throttle.
 //   5. Bounded LRU  — only the most recently used station responses stay in
 //                     memory, preventing unbounded growth during long sessions.
 //
@@ -63,6 +63,7 @@ actor MonitorService {
     private let cacheTTL: TimeInterval
     private let minInterval: TimeInterval
     private let maxRetries: Int
+    private let retryBaseDelay: TimeInterval
     private let cacheCapacity: Int
 
     private struct CacheEntry {
@@ -88,13 +89,16 @@ actor MonitorService {
         cacheTTL: TimeInterval = 30,
         minInterval: TimeInterval = 0.5,
         maxRetries: Int = 2,
+        retryBaseDelay: TimeInterval = 0.8,
         cacheCapacity: Int = 64
     ) {
         precondition(cacheCapacity > 0, "Monitor cache capacity must be positive")
+        precondition(retryBaseDelay >= 0, "Retry delay cannot be negative")
         self.network = network
         self.cacheTTL = cacheTTL
         self.minInterval = minInterval
         self.maxRetries = maxRetries
+        self.retryBaseDelay = retryBaseDelay
         self.cacheCapacity = cacheCapacity
     }
 
@@ -205,8 +209,9 @@ actor MonitorService {
             task = existing.task
         } else {
             task = Task<MonitorResponse, Error> { [self] in
-                try await throttle()
-                return try await fetchWithRetry(diva: diva)
+                try await fetchWithRetry {
+                    try await network.fetchMonitorData(diva: diva, includeArea: true)
+                }
             }
             inFlight[diva] = InFlightRequest(task: task, waiters: [waiter])
         }
@@ -231,8 +236,9 @@ actor MonitorService {
             task = existing.task
         } else {
             task = Task<MonitorResponse, Error> { [self] in
-                try await throttle()
-                return try await network.fetchTrafficInfoList()
+                try await fetchWithRetry {
+                    try await network.fetchTrafficInfoList()
+                }
             }
             trafficInfoInFlight = InFlightRequest(task: task, waiters: [waiter])
         }
@@ -313,17 +319,25 @@ actor MonitorService {
         }
     }
 
-    private func fetchWithRetry(diva: Int) async throws -> MonitorResponse {
+    private func fetchWithRetry(
+        operation: @Sendable () async throws -> MonitorResponse
+    ) async throws -> MonitorResponse {
         var attempt = 0
         while true {
+            try await throttle()
             do {
-                return try await network.fetchMonitorData(diva: diva, includeArea: true)
+                return try await operation()
             } catch MonitorApiError.rateLimited {
                 guard attempt < maxRetries else { throw MonitorApiError.rateLimited }
-                let backoff = pow(2.0, Double(attempt)) * 0.8 // 0.8s, 1.6s, …
+                let backoff = pow(2.0, Double(attempt)) * retryBaseDelay
                 // Push the shared slot out so other queued calls also wait.
-                nextSlot = Date().addingTimeInterval(backoff)
-                try await Task.sleep(nanoseconds: UInt64(backoff * 1_000_000_000))
+                let backoffSlot = Date().addingTimeInterval(backoff)
+                if nextSlot < backoffSlot {
+                    nextSlot = backoffSlot
+                }
+                if backoff > 0 {
+                    try await Task.sleep(nanoseconds: UInt64(backoff * 1_000_000_000))
+                }
                 attempt += 1
             }
         }

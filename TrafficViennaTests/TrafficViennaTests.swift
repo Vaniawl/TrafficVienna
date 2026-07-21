@@ -2405,6 +2405,42 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(mock.callCount, 2)
     }
 
+    func testRateLimitRetryAndQueuedRequestKeepSharedSpacing() async throws {
+        let mock = MockNetworkManager(rateLimitFailuresRemaining: 1)
+        let service = MonitorService(
+            network: mock,
+            cacheTTL: 0,
+            minInterval: 0.05,
+            maxRetries: 1,
+            retryBaseDelay: 0.05
+        )
+        let retrying = Task { try await service.monitor(diva: 1, forceRefresh: true) }
+        while mock.callCount < 1 { await Task.yield() }
+        let queued = Task { try await service.monitor(diva: 2, forceRefresh: true) }
+
+        _ = try await (retrying.value, queued.value)
+
+        let starts = mock.allCallDates.sorted()
+        XCTAssertEqual(starts.count, 3)
+        XCTAssertGreaterThanOrEqual(starts[1].timeIntervalSince(starts[0]), 0.04)
+        XCTAssertGreaterThanOrEqual(starts[2].timeIntervalSince(starts[1]), 0.04)
+    }
+
+    func testTrafficInfoUsesSharedRateLimitRetryPolicy() async throws {
+        let mock = MockNetworkManager(rateLimitFailuresRemaining: 1)
+        let service = MonitorService(
+            network: mock,
+            cacheTTL: 0,
+            minInterval: 0,
+            maxRetries: 1,
+            retryBaseDelay: 0
+        )
+
+        _ = try await service.trafficInfoList(forceRefresh: true)
+
+        XCTAssertEqual(mock.callCount, 2)
+    }
+
     func testFailedTrafficInfoRequestDoesNotRemainInFlight() async throws {
         let mock = MockNetworkManager(shouldFail: true)
         let service = MonitorService(network: mock, cacheTTL: 0, minInterval: 0)
@@ -3602,10 +3638,12 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
     private var activeMonitorCalls = 0
     private var activeTrafficInfoCalls = 0
     private var recordedMonitorCallDates: [Date] = []
+    private var recordedTrafficInfoCallDates: [Date] = []
     private var recordedMaxConcurrentMonitorCalls = 0
     private var recordedCachedResponseRemovalCount = 0
     var shouldFail = false
     var shouldRateLimit = false
+    private var rateLimitFailuresRemaining: Int
     var responseSource: NetworkResponseSource = .network
     var trafficInfos: [TrafficInfo]?
     var monitorLines: [Lines]?
@@ -3617,11 +3655,13 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
     var activeMonitorCallCount: Int { lock.withLock { activeMonitorCalls } }
     var activeTrafficInfoCallCount: Int { lock.withLock { activeTrafficInfoCalls } }
     var monitorCallDates: [Date] { lock.withLock { recordedMonitorCallDates } }
+    var allCallDates: [Date] { lock.withLock { recordedMonitorCallDates + recordedTrafficInfoCallDates } }
     var cachedResponseRemovalCount: Int { lock.withLock { recordedCachedResponseRemovalCount } }
 
     init(
         shouldFail: Bool = false,
         shouldRateLimit: Bool = false,
+        rateLimitFailuresRemaining: Int = 0,
         responseSource: NetworkResponseSource = .network,
         trafficInfos: [TrafficInfo]? = nil,
         monitorLines: [Lines]? = nil,
@@ -3630,6 +3670,7 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
     ) {
         self.shouldFail = shouldFail
         self.shouldRateLimit = shouldRateLimit
+        self.rateLimitFailuresRemaining = rateLimitFailuresRemaining
         self.responseSource = responseSource
         self.trafficInfos = trafficInfos
         self.monitorLines = monitorLines
@@ -3643,7 +3684,7 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
         if monitorDelayNanoseconds > 0 {
             try await Task.sleep(nanoseconds: monitorDelayNanoseconds)
         }
-        if shouldRateLimit { throw MonitorApiError.rateLimited }
+        if shouldRateLimit || consumeRateLimitFailure() { throw MonitorApiError.rateLimited }
         if shouldFail { throw URLError(.notConnectedToInternet) }
         return mockResponse()
     }
@@ -3654,7 +3695,7 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
         if monitorDelayNanoseconds > 0 {
             try await Task.sleep(nanoseconds: monitorDelayNanoseconds)
         }
-        if shouldRateLimit { throw MonitorApiError.rateLimited }
+        if shouldRateLimit || consumeRateLimitFailure() { throw MonitorApiError.rateLimited }
         if shouldFail { throw URLError(.notConnectedToInternet) }
         return mockResponse()
     }
@@ -3665,7 +3706,7 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
         if trafficInfoDelayNanoseconds > 0 {
             try await Task.sleep(nanoseconds: trafficInfoDelayNanoseconds)
         }
-        if shouldRateLimit { throw MonitorApiError.rateLimited }
+        if shouldRateLimit || consumeRateLimitFailure() { throw MonitorApiError.rateLimited }
         if shouldFail { throw URLError(.notConnectedToInternet) }
         return mockResponse()
     }
@@ -3691,11 +3732,20 @@ private final class MockNetworkManager: NetworkManaging, @unchecked Sendable {
         lock.withLock {
             recordedCallCount += 1
             activeTrafficInfoCalls += 1
+            recordedTrafficInfoCallDates.append(Date())
         }
     }
 
     private func endTrafficInfoCall() {
         lock.withLock { activeTrafficInfoCalls -= 1 }
+    }
+
+    private func consumeRateLimitFailure() -> Bool {
+        lock.withLock {
+            guard rateLimitFailuresRemaining > 0 else { return false }
+            rateLimitFailuresRemaining -= 1
+            return true
+        }
     }
 
     private func mockResponse() -> MonitorResponse {

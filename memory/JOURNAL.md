@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-21 — Shared throttle for every API retry
+
+- Traced a rate-limit burst to monitor retries sleeping outside the actor's shared request slot, allowing a retry and a queued request to start together when backoff expired.
+- Routed every monitor and traffic-info attempt through one throttle, applied the same bounded 316 retry policy to both feeds, and kept the backoff boundary shared across queued work.
+- Added deterministic tests with injectable retry delay for post-backoff spacing and traffic-info recovery after one rate-limit response.
+- Verified the app, unit-test, and UI-test targets compile successfully through generic `build-for-testing`; focused execution is included in the single final simulator run.
+
 ## 2026-07-21 — Resilient Apple credential validation
 
 - Traced an authentication bug to `try?` mapping every Apple credential-state failure to `.notFound`, which could sign out a valid user during a transient provider error.
