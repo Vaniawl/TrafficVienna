@@ -10,6 +10,20 @@ enum AuthProvider: String, Codable {
     case apple
 }
 
+protocol AppleCredentialStateProviding {
+    func credentialState(
+        forUserID userID: String
+    ) async throws -> ASAuthorizationAppleIDProvider.CredentialState
+}
+
+struct SystemAppleCredentialStateProvider: AppleCredentialStateProviding {
+    func credentialState(
+        forUserID userID: String
+    ) async throws -> ASAuthorizationAppleIDProvider.CredentialState {
+        try await ASAuthorizationAppleIDProvider().credentialState(forUserID: userID)
+    }
+}
+
 struct AuthSession: Codable, Equatable {
     let userID: String
     let email: String?
@@ -154,6 +168,7 @@ final class AuthStore: ObservableObject {
     private let sessionKey = "auth.session"
     private let passwordIterations: UInt32 = 120_000
     private let passwordDeriver: PasswordDeriver
+    private let appleCredentialStateProvider: AppleCredentialStateProviding
     private var signInLimiter: EmailSignInLimiter
     private var isCredentialOperationInProgress = false
 
@@ -162,12 +177,14 @@ final class AuthStore: ObservableObject {
         defaults: UserDefaults = .standard,
         resetSession: Bool = ProcessInfo.processInfo.arguments.contains("-ui-testing-reset"),
         signInLimiter: EmailSignInLimiter = EmailSignInLimiter(),
-        passwordDeriver: PasswordDeriver = PasswordDeriver()
+        passwordDeriver: PasswordDeriver = PasswordDeriver(),
+        appleCredentialStateProvider: AppleCredentialStateProviding? = nil
     ) {
         self.keychain = keychain ?? Self.defaultKeychain()
         self.defaults = defaults
         self.signInLimiter = signInLimiter
         self.passwordDeriver = passwordDeriver
+        self.appleCredentialStateProvider = appleCredentialStateProvider ?? SystemAppleCredentialStateProvider()
         if resetSession {
             defaults.removeObject(forKey: sessionKey)
         } else if let data = defaults.data(forKey: sessionKey) {
@@ -340,9 +357,14 @@ final class AuthStore: ObservableObject {
 
     func validateStoredAppleCredential() async {
         guard let session, session.provider == .apple else { return }
-        let state = (try? await ASAuthorizationAppleIDProvider().credentialState(forUserID: session.userID)) ?? .notFound
-        if state == .revoked || state == .notFound {
-            signOut()
+        do {
+            let state = try await appleCredentialStateProvider.credentialState(forUserID: session.userID)
+            if state == .revoked || state == .notFound {
+                signOut()
+            }
+        } catch {
+            // A transient provider failure is not evidence that the user revoked
+            // access. Keep the local session and retry on a later launch.
         }
     }
 

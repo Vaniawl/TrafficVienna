@@ -1,4 +1,5 @@
 import XCTest
+import AuthenticationServices
 import CoreLocation
 import CryptoKit
 import MapKit
@@ -1283,6 +1284,44 @@ final class TrafficViennaTests: XCTestCase {
 
         XCTAssertNil(store.session)
         XCTAssertEqual(keychain.removeCallCount, 0)
+    }
+
+    @MainActor
+    func testTransientAppleCredentialFailureKeepsStoredSession() async throws {
+        let suite = "AppleCredentialFailureTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let session = AuthSession(userID: "apple-user", email: nil, displayName: "Rider", provider: .apple)
+        defaults.set(try JSONEncoder().encode(session), forKey: "auth.session")
+        let store = AuthStore(
+            keychain: MemoryKeychain(),
+            defaults: defaults,
+            appleCredentialStateProvider: MockAppleCredentialStateProvider(result: .failure(MockAppleCredentialError()))
+        )
+
+        await store.validateStoredAppleCredential()
+
+        XCTAssertEqual(store.session, session)
+        XCTAssertNotNil(defaults.data(forKey: "auth.session"))
+    }
+
+    @MainActor
+    func testRevokedAppleCredentialClearsStoredSession() async throws {
+        let suite = "AppleCredentialRevokedTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let session = AuthSession(userID: "apple-user", email: nil, displayName: "Rider", provider: .apple)
+        defaults.set(try JSONEncoder().encode(session), forKey: "auth.session")
+        let store = AuthStore(
+            keychain: MemoryKeychain(),
+            defaults: defaults,
+            appleCredentialStateProvider: MockAppleCredentialStateProvider(result: .success(.revoked))
+        )
+
+        await store.validateStoredAppleCredential()
+
+        XCTAssertNil(store.session)
+        XCTAssertNil(defaults.data(forKey: "auth.session"))
     }
 
     // MARK: - StationStore
@@ -3443,6 +3482,18 @@ private final class MemoryKeychain: KeychainStoring {
         guard removeSucceeds else { return false }
         storage.removeValue(forKey: key)
         return true
+    }
+}
+
+private struct MockAppleCredentialError: Error {}
+
+private struct MockAppleCredentialStateProvider: AppleCredentialStateProviding {
+    let result: Result<ASAuthorizationAppleIDProvider.CredentialState, Error>
+
+    func credentialState(
+        forUserID userID: String
+    ) async throws -> ASAuthorizationAppleIDProvider.CredentialState {
+        try result.get()
     }
 }
 

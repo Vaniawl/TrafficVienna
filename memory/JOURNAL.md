@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-21 — Resilient Apple credential validation
+
+- Traced an authentication bug to `try?` mapping every Apple credential-state failure to `.notFound`, which could sign out a valid user during a transient provider error.
+- Added an injectable Apple credential-state boundary, kept the local session on provider errors, and retained sign-out only for explicit revoked or not-found states.
+- Added regression coverage for both transient failure and revoked credentials, and disabled auth-mode changes while an email credential operation is in flight so the visible form cannot drift from the submitted mode.
+- Verified the app and test targets compile through a warning-free generic `build-for-testing`; test execution remains queued for the single final simulator pass.
+
 ## 2026-07-21 — Unified transport surfaces and confirmation sheet
 
 - Replaced the Map control material with a quiet white card, matched both Map sheets to the shared rounded neutral surface, and carried the mint status language through alerts and routine controls.

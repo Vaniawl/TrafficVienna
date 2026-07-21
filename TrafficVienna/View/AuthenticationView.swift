@@ -276,6 +276,8 @@ struct AuthenticationView: View {
         }
         .padding(4)
         .background(NeoDesign.subtleSurface, in: Capsule())
+        .disabled(isSubmitting)
+        .opacity(isSubmitting ? 0.62 : 1)
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Authentication mode")
     }
