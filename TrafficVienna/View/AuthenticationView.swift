@@ -20,6 +20,7 @@ enum AuthFormValidation {
 
 struct AuthenticationView: View {
     @EnvironmentObject private var auth: AuthStore
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var mode: Mode = .register
     @State private var email = ""
     @State private var password = ""
@@ -48,49 +49,53 @@ struct AuthenticationView: View {
 
     var body: some View {
         ZStack {
-            LinearGradient(
-                colors: [Color(hex: 0xE20917).opacity(0.18), Color(.systemBackground), Color.indigo.opacity(0.12)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            NeoDesign.background.ignoresSafeArea()
 
             ScrollView {
-                VStack(spacing: 28) {
+                VStack(spacing: 18) {
                     hero
                     authCard
                 }
                 .padding(.horizontal, 20)
-                .padding(.vertical, 40)
+                .padding(.vertical, 24)
             }
             .scrollDismissesKeyboard(.interactively)
         }
     }
 
     private var hero: some View {
-        VStack(spacing: 14) {
-            Image(systemName: "tram.fill")
-                .font(.system(size: 38, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame(width: 76, height: 76)
-                .background(Color(hex: 0xE20917).gradient, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-                .shadow(color: Color(hex: 0xE20917).opacity(0.25), radius: 24, y: 12)
-            Text("Traffic Vienna")
-                .font(.largeTitle.bold())
-            Text("Your city, moving with you")
-                .font(.title3)
-                .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 24) {
+            HStack {
+                Image(systemName: "tram.fill")
+                    .font(.system(size: 24, weight: .semibold))
+                    .frame(width: 52, height: 52)
+                    .background(.white.opacity(0.18), in: Circle())
+                Spacer()
+                Text("VIENNA LIVE")
+                    .font(.footnote.bold())
+                    .tracking(1.4)
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Traffic Vienna")
+                    .font(.largeTitle.bold())
+                    .tracking(-0.6)
+                Text("Your city, moving with you")
+                    .font(.title3)
+                    .foregroundStyle(.white.opacity(0.82))
+            }
         }
-        .multilineTextAlignment(.center)
+        .foregroundStyle(.white)
+        .padding(24)
+        .frame(maxWidth: .infinity, minHeight: 190, alignment: .leading)
+        .background(NeoDesign.heroGradient, in: RoundedRectangle(cornerRadius: 26))
+        .shadow(color: NeoDesign.accentDark.opacity(0.14), radius: 16, y: 8)
         .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
 
     private var authCard: some View {
         VStack(spacing: 18) {
-            Picker("Authentication mode", selection: $mode) {
-                ForEach(Mode.allCases, id: \.self) { Text($0.title).tag($0) }
-            }
-            .pickerStyle(.segmented)
+            modeSwitcher
 
             VStack(spacing: 12) {
                 Label {
@@ -105,7 +110,7 @@ struct AuthenticationView: View {
                         .accessibilityIdentifier("auth.email")
                 } icon: { Image(systemName: "envelope") }
                 .padding(14)
-                .background(.quaternary, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .background(NeoDesign.subtleSurface, in: RoundedRectangle(cornerRadius: 14))
 
                 Label {
                     HStack {
@@ -138,7 +143,7 @@ struct AuthenticationView: View {
                     }
                 } icon: { Image(systemName: "lock") }
                 .padding(14)
-                .background(.quaternary, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .background(NeoDesign.subtleSurface, in: RoundedRectangle(cornerRadius: 14))
 
                 if mode == .register {
                     Label {
@@ -163,7 +168,7 @@ struct AuthenticationView: View {
                         }
                     } icon: { Image(systemName: "lock.badge.checkmark") }
                     .padding(14)
-                    .background(.quaternary, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .background(NeoDesign.subtleSurface, in: RoundedRectangle(cornerRadius: 14))
                 }
             }
 
@@ -207,11 +212,13 @@ struct AuthenticationView: View {
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .frame(height: 50)
+                .frame(minHeight: 52)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(Color(hex: 0xE20917))
+            .foregroundStyle(NeoDesign.primaryActionText)
+            .background(NeoDesign.primaryAction, in: Capsule())
+            .buttonStyle(.plain)
             .disabled(!canSubmitEmail)
+            .opacity(canSubmitEmail ? 1 : 0.42)
             .accessibilityIdentifier("auth.submit")
 
             HStack { Divider(); Text("or").font(.footnote).foregroundStyle(.secondary); Divider() }
@@ -222,8 +229,8 @@ struct AuthenticationView: View {
                 auth.handleAppleAuthorization(result)
             }
             .signInWithAppleButtonStyle(.black)
-            .frame(height: 50)
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .frame(height: 52)
+            .clipShape(Capsule())
             .disabled(isSubmitting)
             .accessibilityHint("Uses your Apple ID to create or open your account")
 
@@ -240,10 +247,37 @@ struct AuthenticationView: View {
             passwordConfirmation = ""
         }
         .padding(20)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
-        .overlay { RoundedRectangle(cornerRadius: 28, style: .continuous).stroke(.white.opacity(0.4)) }
-        .shadow(color: .black.opacity(0.08), radius: 24, y: 12)
+        .background(NeoDesign.surface, in: RoundedRectangle(cornerRadius: 24))
+        .overlay { RoundedRectangle(cornerRadius: 24).stroke(NeoDesign.hairline, lineWidth: 1) }
         .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+    }
+
+    private var modeSwitcher: some View {
+        HStack(spacing: 4) {
+            ForEach(Mode.allCases, id: \.self) { candidate in
+                Button {
+                    withAnimation(reduceMotion ? nil : .snappy(duration: 0.28)) {
+                        mode = candidate
+                    }
+                } label: {
+                    Text(candidate.title)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(mode == candidate ? Color.primary : Color.secondary)
+                        .frame(maxWidth: .infinity)
+                        .frame(minHeight: 44)
+                        .background(
+                            mode == candidate ? NeoDesign.surface : Color.clear,
+                            in: Capsule()
+                        )
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(mode == candidate ? .isSelected : [])
+            }
+        }
+        .padding(4)
+        .background(NeoDesign.subtleSurface, in: Capsule())
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Authentication mode")
     }
 
     private var isUITesting: Bool {
@@ -282,7 +316,7 @@ struct AuthenticationView: View {
     ) -> some View {
         Label(title, systemImage: isSatisfied ? "checkmark.circle.fill" : "circle")
             .font(.footnote)
-            .foregroundStyle(isSatisfied ? .green : .secondary)
+            .foregroundStyle(isSatisfied ? NeoDesign.accent : Color.secondary)
             .accessibilityIdentifier(identifier)
             .accessibilityValue(isSatisfied ? String(localized: "Satisfied") : String(localized: "Not satisfied"))
     }

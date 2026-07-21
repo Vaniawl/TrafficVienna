@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-21 — Reference-aligned onboarding and authentication
+
+- Rebuilt onboarding and authentication around the shared mint hero, white surface cards, black capsule actions, restrained borders, and consistent large interaction targets.
+- Replaced the segmented authentication picker with a localized two-state control that preserves the existing email registration/sign-in behavior, validation identifiers, keyboard flow, reduced-motion handling, and native Sign in with Apple boundary.
+- Kept Dynamic Type support bounded to the app's existing accessible layout range and avoided adding a second theme or authentication implementation.
+- Verified a generic iOS Simulator build succeeds without launching a simulator; full UI and accessibility verification remains intentionally deferred to the single final simulator pass.
+
 ## 2026-07-21 — Unified mint product identity and focused Home hierarchy
 
 - Replaced the remaining selectable visual presets with one mint, white, and black product identity while preserving legacy preset decoding for existing preferences and exported backups.
