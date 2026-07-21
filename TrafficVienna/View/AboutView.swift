@@ -23,7 +23,7 @@ struct AboutView: View {
                 Section {
                     VStack(spacing: 12) {
                         RoundedRectangle(cornerRadius: 18, style: .continuous)
-                            .fill(Color(hex: 0xE20917))
+                            .fill(NeoDesign.heroGradient)
                             .frame(width: 72, height: 72)
                             .overlay(
                                 Image(systemName: "tram.fill")

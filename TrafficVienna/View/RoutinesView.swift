@@ -197,7 +197,7 @@ private struct WeekdayPicker: View {
                                 .frame(width: 44, height: 44)
                                 .foregroundStyle(selection.contains(day) ? .white : .primary)
                                 .background(
-                                    selection.contains(day) ? Color(hex: 0x635BFF) : Color(.secondarySystemGroupedBackground),
+                                    selection.contains(day) ? NeoDesign.accent : NeoDesign.subtleSurface,
                                     in: Circle()
                                 )
                         }

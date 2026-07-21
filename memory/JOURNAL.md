@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-21 — Unified transport surfaces and confirmation sheet
+
+- Replaced the Map control material with a quiet white card, matched both Map sheets to the shared rounded neutral surface, and carried the mint status language through alerts and routine controls.
+- Replaced station reminder/tracking system alerts with a reference-style result sheet that distinguishes success from failure, keeps the native task behavior intact, and closes through a black capsule action.
+- Removed the remaining legacy red, indigo, and violet styling from App Lock, About, and routine weekday selection; the tab bar keeps its intentional system glass treatment.
+- Caught and fixed a missing brace in the new sheet during compilation, then verified the generic iOS Simulator build succeeds without launching a simulator.
+
 ## 2026-07-21 — Reference-aligned onboarding and authentication
 
 - Rebuilt onboarding and authentication around the shared mint hero, white surface cards, black capsule actions, restrained borders, and consistent large interaction targets.

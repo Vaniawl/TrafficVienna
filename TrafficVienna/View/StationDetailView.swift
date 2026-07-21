@@ -80,13 +80,14 @@ struct StationDetailView: View {
                 }
             }
             .refreshable { await vm.load(forceRefresh: true) }
-            .alert(feedback?.title ?? "", isPresented: Binding(
-                get: { feedback != nil },
-                set: { if !$0 { feedback = nil } }
-            )) {
-                Button("OK", role: .cancel) { feedback = nil }
-            } message: {
-                Text(feedback?.message ?? "")
+            .sheet(item: $feedback) { feedback in
+                StationFeedbackSheet(feedback: feedback) {
+                    self.feedback = nil
+                }
+                .presentationDetents([.height(330)])
+                .presentationDragIndicator(.visible)
+                .presentationCornerRadius(28)
+                .presentationBackground(NeoDesign.surface)
             }
     }
 
@@ -385,12 +386,14 @@ struct StationDetailView: View {
                         format: String(localized: "We’ll notify you shortly before %@ departs."),
                         locale: .current,
                         group.line
-                    )
+                    ),
+                    isSuccess: true
                 )
             } catch {
                 feedback = StationFeedback(
                     title: String(localized: "Departure reminder"),
-                    message: error.localizedDescription
+                    message: error.localizedDescription,
+                    isSuccess: false
                 )
             }
         }
@@ -407,15 +410,57 @@ struct StationDetailView: View {
             )
             feedback = StationFeedback(
                 title: String(localized: "Lock Screen tracking"),
-                message: result.message(line: group.line)
+                message: result.message(line: group.line),
+                isSuccess: result == .started || result == .updated
             )
         }
     }
 }
 
-private struct StationFeedback {
+private struct StationFeedback: Identifiable {
+    let id = UUID()
     let title: String
     let message: String
+    let isSuccess: Bool
+}
+
+private struct StationFeedbackSheet: View {
+    let feedback: StationFeedback
+    let onDone: () -> Void
+
+    var body: some View {
+        VStack(spacing: 18) {
+            Image(systemName: feedback.isSuccess ? "checkmark" : "exclamationmark")
+                .font(.title2.bold())
+                .foregroundStyle(.white)
+                .frame(width: 54, height: 54)
+                .background(feedback.isSuccess ? NeoDesign.accent : Color.orange, in: Circle())
+
+            VStack(spacing: 8) {
+                Text(feedback.title)
+                    .font(.title2.bold())
+                Text(feedback.message)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+
+            Spacer(minLength: 0)
+
+            Button(action: onDone) {
+                Text("Done")
+                    .font(.headline)
+                    .foregroundStyle(NeoDesign.primaryActionText)
+                    .frame(maxWidth: .infinity, minHeight: 52)
+                    .background(NeoDesign.primaryAction, in: Capsule())
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("station.feedback.done")
+        }
+        .padding(.horizontal, 24)
+        .padding(.bottom, 20)
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+    }
 }
 
 #Preview {

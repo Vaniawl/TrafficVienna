@@ -67,19 +67,19 @@ struct DisruptionsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Button("Retry") { Task { await vm.load(force: true) } }
-                    .font(.caption.weight(.medium))
+                    .font(.subheadline.weight(.semibold))
                     .buttonStyle(.borderedProminent)
-                    .tint(.appAccent)
+                    .tint(NeoDesign.primaryAction)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if vm.infos.isEmpty {
             VStack(spacing: 8) {
                 Image(systemName: "checkmark.circle")
                     .font(.title2)
-                    .foregroundStyle(.green)
+                    .foregroundStyle(NeoDesign.accent)
                 Text("All clear")
                     .font(.subheadline.weight(.medium))
-                    .foregroundStyle(.green)
+                    .foregroundStyle(NeoDesign.accent)
                 Text("All lines are running normally.")
                     .font(.caption)
                     .foregroundStyle(.secondary)

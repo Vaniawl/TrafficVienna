@@ -5,19 +5,14 @@ struct AppLockView: View {
 
     var body: some View {
         ZStack {
-            LinearGradient(
-                colors: [Color(hex: 0xE20917).opacity(0.22), Color(.systemBackground), Color.indigo.opacity(0.14)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            NeoDesign.background.ignoresSafeArea()
 
             VStack(spacing: 24) {
                 Image(systemName: "lock.shield.fill")
                     .font(.system(size: 42, weight: .semibold))
                     .foregroundStyle(.white)
                     .frame(width: 82, height: 82)
-                    .background(Color(hex: 0xE20917).gradient, in: RoundedRectangle(cornerRadius: 26))
+                    .background(NeoDesign.heroGradient, in: RoundedRectangle(cornerRadius: 24))
 
                 VStack(spacing: 8) {
                     Text("Traffic Vienna is locked")
@@ -36,11 +31,13 @@ struct AppLockView: View {
                     )
                         .font(.headline)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 50)
+                        .frame(minHeight: 52)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(Color(hex: 0xE20917))
+                .foregroundStyle(NeoDesign.primaryActionText)
+                .background(NeoDesign.primaryAction, in: Capsule())
+                .buttonStyle(.plain)
                 .disabled(appLock.isAuthenticating)
+                .opacity(appLock.isAuthenticating ? 0.42 : 1)
                 .accessibilityIdentifier("appLock.unlock")
 
                 if let errorMessage = appLock.errorMessage {
@@ -53,6 +50,9 @@ struct AppLockView: View {
             }
             .padding(28)
             .frame(maxWidth: 460)
+            .background(NeoDesign.surface, in: RoundedRectangle(cornerRadius: 24))
+            .overlay { RoundedRectangle(cornerRadius: 24).stroke(NeoDesign.hairline, lineWidth: 1) }
+            .padding(20)
         }
     }
 }

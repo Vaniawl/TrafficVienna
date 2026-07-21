@@ -231,12 +231,12 @@ struct MapStationsView: View {
                 }
             }
             .padding(12)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .background(NeoDesign.surface, in: RoundedRectangle(cornerRadius: NeoDesign.cornerRadius))
             .overlay {
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .stroke(Color.white.opacity(0.45), lineWidth: 1)
+                RoundedRectangle(cornerRadius: NeoDesign.cornerRadius)
+                    .stroke(NeoDesign.hairline, lineWidth: 1)
             }
-            .shadow(color: .black.opacity(0.10), radius: 18, y: 8)
+            .shadow(color: .black.opacity(0.06), radius: 14, y: 7)
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
         }
@@ -282,6 +282,8 @@ struct MapStationsView: View {
             )
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)
+            .presentationCornerRadius(28)
+            .presentationBackground(NeoDesign.background)
         }
     }
 }
