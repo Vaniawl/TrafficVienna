@@ -1,5 +1,13 @@
 # Architectural Decisions
 
+## 2026-07-21 — One mint product identity with backward-compatible theme decoding
+
+**Context:** User-selectable themes and a mixture of violet, cobalt, and material effects made the app feel like several products. The supplied reference establishes a clearer system: mint brand surfaces, generous white space, soft neutral cards, black primary actions, and restrained rounding.
+
+**Decision:** Remove the Appearance destination and expose one visual identity across the app. Keep the existing `ThemePreset` cases and raw values only as a compatibility boundary for persisted preferences and version-1 travel-data backups, but map every legacy value to the same mint accent, neutral background, flat card style, and system color scheme. Treat black as the primary action color and mint as brand/status emphasis.
+
+**Consequences:** Users no longer choose mutually inconsistent designs, and old preferences or exported files remain decodable without a destructive migration. Restoring an older theme value is intentionally visually inert. The palette can be refined centrally through design tokens, while deleting the legacy enum cases requires a future backup-schema migration and rollback review.
+
 ## 2026-07-20 — Calm secondary-screen palette with capability-aware storage
 
 **Context:** The first Home screen established a strong visual identity, but repeating saturated violet across utility screens made Map, Search, and Station Detail feel noisy. Debug builds also intentionally omit the production App Group for Personal Team provisioning, so repositories cannot assume that shared container exists in every configuration.

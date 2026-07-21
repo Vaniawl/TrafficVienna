@@ -9,7 +9,6 @@
 import SwiftUI
 
 struct StationCardView: View {
-    @EnvironmentObject private var themeManager: ThemeManager
     let station: Station
     var distance: Double?
     var presentation: StationCardContent = .empty
@@ -29,15 +28,13 @@ struct StationCardView: View {
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemGroupedBackground),
-                    in: RoundedRectangle(cornerRadius: cardCornerRadius))
-        .shadow(color: themeManager.preset.cardStyle == .elevated ? .black.opacity(0.06) : .clear,
-                radius: 8, y: 2)
-        .contentShape(.rect(cornerRadius: cardCornerRadius))
-    }
-
-    private var cardCornerRadius: CGFloat {
-        themeManager.preset.cardStyle == .elevated ? 14 : 16
+        .background(NeoDesign.surface,
+                    in: RoundedRectangle(cornerRadius: NeoDesign.cornerRadius))
+        .overlay {
+            RoundedRectangle(cornerRadius: NeoDesign.cornerRadius)
+                .stroke(NeoDesign.hairline, lineWidth: 1)
+        }
+        .contentShape(.rect(cornerRadius: NeoDesign.cornerRadius))
     }
 
     private var header: some View {
@@ -62,12 +59,12 @@ struct StationCardView: View {
                 }
                 if let updatedAt {
                     Text(updatedText(updatedAt))
-                        .font(.caption2)
+                        .font(.footnote)
                         .foregroundStyle(.tertiary)
                 }
                 if isStale {
                     Label("Saved data", systemImage: "wifi.slash")
-                        .font(.caption2.bold())
+                        .font(.footnote.bold())
                         .foregroundStyle(.orange)
                 }
             }

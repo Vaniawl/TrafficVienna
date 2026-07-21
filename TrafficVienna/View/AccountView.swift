@@ -58,13 +58,6 @@ struct AccountView: View {
                     }
 
                     NavigationLink {
-                        AppearanceView()
-                    } label: {
-                        Label("Appearance", systemImage: "paintpalette")
-                    }
-                    .accessibilityIdentifier("account.appearance")
-
-                    NavigationLink {
                         HomeSettingsView()
                     } label: {
                         Label("Home screen", systemImage: "rectangle.grid.1x2")

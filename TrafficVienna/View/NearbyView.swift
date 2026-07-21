@@ -38,7 +38,7 @@ struct NearbyView: View {
 
     var body: some View {
         ZStack {
-            Color(.systemGroupedBackground).ignoresSafeArea()
+            NeoDesign.background.ignoresSafeArea()
             content
         }
         .toolbar(.hidden, for: .navigationBar)
@@ -146,7 +146,8 @@ struct NearbyView: View {
                 Image(systemName: "arrow.clockwise")
                     .font(.system(size: 16, weight: .semibold))
                     .frame(width: 44, height: 44)
-                    .background(Color(.secondarySystemGroupedBackground), in: Circle())
+                    .background(NeoDesign.surface, in: Circle())
+                    .overlay { Circle().stroke(NeoDesign.hairline, lineWidth: 1) }
             }
             .disabled(vm.isRefreshing)
             .accessibilityLabel("Refresh departures")
@@ -192,7 +193,8 @@ struct NearbyView: View {
             Spacer(minLength: 22)
 
             Text(state.title)
-                .font(.system(size: 32, weight: .bold, design: .rounded))
+                .font(.largeTitle)
+                .bold()
                 .tracking(-0.7)
             Text(state.subtitle)
                 .font(.subheadline)
@@ -211,10 +213,10 @@ struct NearbyView: View {
                         Spacer()
                         Image(systemName: "arrow.right")
                     }
-                    .foregroundStyle(.black)
+                    .foregroundStyle(NeoDesign.primaryActionText)
                     .padding(.horizontal, 18).padding(.vertical, 13)
                     .frame(minHeight: 52)
-                    .background(.white, in: Capsule())
+                    .background(NeoDesign.primaryAction, in: Capsule())
                 }
                 .buttonStyle(.plain)
                 .padding(.top, 24)
@@ -222,12 +224,12 @@ struct NearbyView: View {
         }
         .foregroundStyle(.white)
         .padding(22)
-        .frame(maxWidth: .infinity, minHeight: 370, alignment: .topLeading)
+        .frame(maxWidth: .infinity, minHeight: 340, alignment: .topLeading)
         .background(
-            LinearGradient(colors: [Color(hex: 0x635BFF), Color(hex: 0x2F28C9), Color(hex: 0x15112E)], startPoint: .topLeading, endPoint: .bottomTrailing),
-            in: RoundedRectangle(cornerRadius: 30, style: .continuous)
+            NeoDesign.heroGradient,
+            in: RoundedRectangle(cornerRadius: 24)
         )
-        .shadow(color: Color(hex: 0x4338CA).opacity(0.24), radius: 24, y: 14)
+        .shadow(color: NeoDesign.accentDark.opacity(0.16), radius: 18, y: 10)
         .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
 
@@ -259,7 +261,8 @@ struct NearbyView: View {
             Image(systemName: icon)
                 .font(.system(size: 18, weight: .semibold))
                 .frame(width: 52, height: 52)
-                .background(Color(.secondarySystemGroupedBackground), in: Circle())
+                .background(NeoDesign.surface, in: Circle())
+                .overlay { Circle().stroke(NeoDesign.hairline, lineWidth: 1) }
             Text(title).font(.caption).foregroundStyle(.primary)
         }
         .frame(maxWidth: .infinity)
@@ -284,7 +287,7 @@ struct NearbyView: View {
                             NavigationLink { StationDetailView(station: station) } label: {
                                 HStack(spacing: 10) {
                                     Image(systemName: "tram.fill")
-                                        .foregroundStyle(Color(hex: 0x635BFF))
+                                        .foregroundStyle(NeoDesign.accent)
                                     Text(station.name)
                                         .font(.subheadline.bold())
                                         .foregroundStyle(.primary)
@@ -293,9 +296,13 @@ struct NearbyView: View {
                                 .padding(.horizontal, 14)
                                 .frame(minHeight: 52)
                                 .background(
-                                    Color(.secondarySystemGroupedBackground),
-                                    in: RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                    NeoDesign.surface,
+                                    in: RoundedRectangle(cornerRadius: 16)
                                 )
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .stroke(NeoDesign.hairline, lineWidth: 1)
+                                }
                             }
                             .buttonStyle(.plain)
                             .accessibilityIdentifier("nearby.favoriteStation.\(station.id)")
@@ -362,9 +369,13 @@ struct NearbyView: View {
         }
         .padding(16)
         .background(
-            Color(.secondarySystemGroupedBackground),
-            in: RoundedRectangle(cornerRadius: 22, style: .continuous)
+            NeoDesign.surface,
+            in: RoundedRectangle(cornerRadius: NeoDesign.cornerRadius)
         )
+        .overlay {
+            RoundedRectangle(cornerRadius: NeoDesign.cornerRadius)
+                .stroke(NeoDesign.hairline, lineWidth: 1)
+        }
     }
 
     @ViewBuilder
@@ -396,9 +407,9 @@ struct NearbyView: View {
     private func insightCardLabel(routine: CommuteRoutine?) -> some View {
         HStack(spacing: 16) {
             Image(systemName: "bolt.fill")
-                .foregroundStyle(Color(hex: 0x635BFF))
+                .foregroundStyle(NeoDesign.accent)
                 .frame(width: 44, height: 44)
-                .background(Color(hex: 0x635BFF).opacity(0.12), in: Circle())
+                .background(NeoDesign.accent.opacity(0.12), in: Circle())
             VStack(alignment: .leading, spacing: 4) {
                 Text(smartInsightTitle(routine: routine)).font(.headline)
                 Text(smartInsightSubtitle(routine: routine)).font(.subheadline).foregroundStyle(.secondary)
@@ -407,7 +418,11 @@ struct NearbyView: View {
             Image(systemName: "chevron.right").font(.caption.bold()).foregroundStyle(.tertiary)
         }
         .padding(18)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .background(NeoDesign.surface, in: RoundedRectangle(cornerRadius: NeoDesign.cornerRadius))
+        .overlay {
+            RoundedRectangle(cornerRadius: NeoDesign.cornerRadius)
+                .stroke(NeoDesign.hairline, lineWidth: 1)
+        }
         .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
         .accessibilityIdentifier("nearby.smartInsight")
     }

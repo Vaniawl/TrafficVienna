@@ -1,16 +1,21 @@
 import SwiftUI
 
 enum NeoDesign {
-    // A single cool accent keeps secondary screens calm and financial-app-like.
-    // The Home hero intentionally retains its richer violet gradient.
-    static let accent = Color(hex: 0x246BFD)
-    static let accentDark = Color(hex: 0x123A8C)
+    static let accent = Color(hex: 0x22B98B)
+    static let accentDark = Color(hex: 0x08775A)
+    static let heroGradient = LinearGradient(
+        colors: [Color(hex: 0x52CDB3), Color(hex: 0x22B86A)],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    static let primaryAction = Color(hex: 0x252525)
+    static let primaryActionText = Color.white
     static let favorite = Color(hex: 0xF5A623)
     static let background = Color(.systemGroupedBackground)
     static let surface = Color(.systemBackground)
     static let subtleSurface = Color(.secondarySystemGroupedBackground)
     static let hairline = Color.primary.opacity(0.07)
-    static let cornerRadius: CGFloat = 22
+    static let cornerRadius: CGFloat = 18
 }
 
 struct NeoHeader: View {
@@ -21,12 +26,13 @@ struct NeoHeader: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
             Text(eyebrow)
-                .font(.caption2.bold())
+                .font(.footnote.bold())
                 .tracking(1.4)
                 .textCase(.uppercase)
                 .foregroundStyle(NeoDesign.accent)
             Text(title)
-                .font(.system(size: 34, weight: .bold, design: .rounded))
+                .font(.largeTitle)
+                .bold()
                 .tracking(-0.6)
             if let subtitle {
                 Text(subtitle).font(.subheadline).foregroundStyle(.secondary)
@@ -82,7 +88,7 @@ extension View {
                             .stroke(NeoDesign.hairline, lineWidth: 1)
                     }
             }
-            .shadow(color: .black.opacity(0.035), radius: 10, y: 4)
+            .shadow(color: .black.opacity(0.025), radius: 8, y: 3)
     }
 
     func neoScreen() -> some View {

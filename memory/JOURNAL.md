@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-21 — Unified mint product identity and focused Home hierarchy
+
+- Replaced the remaining selectable visual presets with one mint, white, and black product identity while preserving legacy preset decoding for existing preferences and exported backups.
+- Removed the Appearance destination, flattened Home and station cards into calm white surfaces, and rebuilt the Home hero around the supplied mint booking reference with one high-contrast black primary action.
+- Added a UI regression assertion that the removed Appearance control stays absent and visually inspected the signed-in Home in the iPhone 17 simulator.
+- Verified the full iPhone 17 CI suite passes with the three pre-existing Xcode-generated localization/scheme edits safely isolated: 180 unit tests plus the UI suite. The unrelated dirty localization catalogs still fail the repository translation validator and were not changed or staged by this task.
+
 ## 2026-07-20 — Calm secondary-screen visual system
 
 - Preserved the existing Home hero while moving secondary screens to a neutral surface system with one cobalt action accent, amber favourites, quieter borders, and consistent 44-point controls.

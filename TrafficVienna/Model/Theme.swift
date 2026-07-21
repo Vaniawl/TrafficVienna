@@ -47,39 +47,20 @@ enum ThemePreset: String, CaseIterable, Identifiable {
     }
 
     var accentColor: Color {
-        switch self {
-        case .indigo: return .indigo
-        case .vienna: return Color(hex: 0xE20917)
-        case .dashboard: return Color(hex: 0x246BFD)
-        case .twilight: return Color(hex: 0x6B4EFF)
-        case .forest: return Color(hex: 0x34A853)
-        case .ocean: return Color(hex: 0x00BFA5)
-        case .rose: return Color(hex: 0xFF4D8C)
-        case .monochrome: return Color(hex: 0x8E8E93)
-        case .amber: return Color(hex: 0xFF9500)
-        case .night: return Color(hex: 0x5E5CE6)
-        }
+        // Legacy values remain decodable for backups, but the product now has
+        // one visual identity instead of user-selectable themes.
+        Color(hex: 0x22B98B)
     }
 
     var colorScheme: ColorScheme? {
-        switch self {
-        case .twilight, .amber, .night: return .dark
-        case .dashboard, .ocean, .rose: return .light
-        case .indigo, .vienna, .forest, .monochrome: return nil
-        }
+        nil
     }
 
     var backgroundStyle: BackgroundStyle {
-        switch self {
-        case .vienna, .dashboard, .ocean, .rose: return .grouped
-        case .indigo, .twilight, .forest, .monochrome, .amber, .night: return .system
-        }
+        .grouped
     }
 
     var cardStyle: CardStyle {
-        switch self {
-        case .vienna, .dashboard, .ocean, .rose: return .elevated
-        case .indigo, .twilight, .forest, .monochrome, .amber, .night: return .flat
-        }
+        .flat
     }
 }

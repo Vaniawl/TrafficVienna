@@ -162,29 +162,7 @@ final class TrafficViennaUITests: XCTestCase {
         XCTAssertEqual(backFromActivities.label, "Account")
         backFromActivities.tap()
 
-        let appearance = app.descendants(matching: .any)["account.appearance"]
-        XCTAssertTrue(appearance.waitForExistence(timeout: 3))
-        appearance.tap()
-        XCTAssertTrue(app.navigationBars["Appearance"].waitForExistence(timeout: 3))
-
-        let nightTheme = app.buttons["appearance.theme.night"]
-        XCTAssertTrue(nightTheme.waitForExistence(timeout: 3))
-        nightTheme.tap()
-        let nightSelected = XCTNSPredicateExpectation(
-            predicate: NSPredicate(format: "value == %@", "Selected"),
-            object: nightTheme
-        )
-        XCTAssertEqual(XCTWaiter.wait(for: [nightSelected], timeout: 3), .completed)
-
-        let viennaTheme = app.buttons["appearance.theme.vienna"]
-        XCTAssertTrue(viennaTheme.waitForExistence(timeout: 3))
-        viennaTheme.tap()
-        let viennaSelected = XCTNSPredicateExpectation(
-            predicate: NSPredicate(format: "value == %@", "Selected"),
-            object: viennaTheme
-        )
-        XCTAssertEqual(XCTWaiter.wait(for: [viennaSelected], timeout: 3), .completed)
-        app.buttons["BackButton"].tap()
+        XCTAssertFalse(app.descendants(matching: .any)["account.appearance"].exists)
 
         let homeSettings = app.descendants(matching: .any)["account.homeSettings"]
         XCTAssertTrue(homeSettings.waitForExistence(timeout: 3))
