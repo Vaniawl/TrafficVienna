@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-22 — Local Jahreskarte wallet
+
+- Added a device-local annual-pass store with holder, masked card number, validity dates, upcoming/active/expired status, persistence, editing, and removal.
+- Added a dedicated neobank-style Jahreskarte screen reachable from both the Home quick actions and Account settings.
+- Made the limitation explicit: the saved card is a renewal reminder, not an official inspection credential or Wiener Linien verification.
+- Included Jahreskarte removal in Clear travel data and added persistence, lifecycle-state, and end-to-end creation coverage.
+
 ## 2026-07-22 — Fair-use API scheduling
 
 - Raised the shared live API request floor from 0.5 to 15 seconds and the decoded response cache from 30 to 60 seconds to match Wiener Linien fair-use guidance.

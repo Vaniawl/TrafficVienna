@@ -139,6 +139,27 @@ final class TrafficViennaUITests: XCTestCase {
         app.buttons["BackButton"].tap()
         XCTAssertTrue(app.descendants(matching: .any)["account.biometricUnlock"].waitForExistence(timeout: 3))
 
+        let annualPass = app.descendants(matching: .any)["account.annualPass"]
+        scrollToMakeHittable(annualPass)
+        annualPass.tap()
+        XCTAssertTrue(app.navigationBars["Jahreskarte"].waitForExistence(timeout: 3))
+        let addAnnualPass = app.buttons["annualPass.add"]
+        XCTAssertTrue(addAnnualPass.waitForExistence(timeout: 3))
+        addAnnualPass.tap()
+        let holder = app.textFields["annualPass.holder"]
+        XCTAssertTrue(holder.waitForExistence(timeout: 3))
+        holder.tap()
+        holder.typeText("Codex Rider")
+        let cardNumber = app.textFields["annualPass.number"]
+        cardNumber.tap()
+        cardNumber.typeText("123456789012")
+        dismissKeyboardIfPresent()
+        let saveAnnualPass = app.buttons["annualPass.save"]
+        XCTAssertTrue(saveAnnualPass.isEnabled)
+        saveAnnualPass.tap()
+        XCTAssertTrue(app.descendants(matching: .any)["annualPass.card"].waitForExistence(timeout: 3))
+        app.buttons["BackButton"].tap()
+
         let reminders = app.descendants(matching: .any)["account.departureReminders"]
         XCTAssertTrue(reminders.waitForExistence(timeout: 3))
         for _ in 0..<3 where !app.buttons["BackButton"].exists {

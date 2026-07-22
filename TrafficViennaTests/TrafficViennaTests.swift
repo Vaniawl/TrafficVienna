@@ -3041,6 +3041,52 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testAnnualPassPersistsMaskedDetailsAndRemoval() throws {
+        let suite = "AnnualPassTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let start = Date(timeIntervalSince1970: 1_700_000_000)
+        let end = Date(timeIntervalSince1970: 1_731_536_000)
+        let store = AnnualPassStore(defaults: defaults)
+
+        store.save(
+            holderName: "  Ivan Dovhosheia  ",
+            cardNumber: " 1234 5678 9012 ",
+            validFrom: start,
+            validUntil: end
+        )
+
+        XCTAssertEqual(store.pass?.holderName, "Ivan Dovhosheia")
+        XCTAssertEqual(store.pass?.maskedCardNumber, "•••• 9012")
+        XCTAssertEqual(AnnualPassStore(defaults: defaults).pass, store.pass)
+
+        store.remove()
+        XCTAssertNil(store.pass)
+        XCTAssertNil(defaults.data(forKey: "annual_pass"))
+    }
+
+    func testAnnualPassStateCoversUpcomingActiveAndExpiredDates() {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let start = Date(timeIntervalSince1970: 1_735_689_600) // 2025-01-01
+        let end = Date(timeIntervalSince1970: 1_767_225_600) // 2026-01-01
+        let pass = AnnualPass(holderName: "Ivan", cardNumber: "1234", validFrom: start, validUntil: end)
+
+        XCTAssertEqual(
+            AnnualPassState.evaluate(pass, on: start.addingTimeInterval(-2 * 86_400), calendar: calendar),
+            .upcoming(days: 2)
+        )
+        XCTAssertEqual(
+            AnnualPassState.evaluate(pass, on: end.addingTimeInterval(-3 * 86_400), calendar: calendar),
+            .active(daysRemaining: 3)
+        )
+        XCTAssertEqual(
+            AnnualPassState.evaluate(pass, on: end.addingTimeInterval(86_400), calendar: calendar),
+            .expired
+        )
+    }
+
+    @MainActor
     func testRemovingAllRoutinesClearsPersistence() {
         let suite = "RoutineResetTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!

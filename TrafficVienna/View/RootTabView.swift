@@ -67,6 +67,7 @@ final class RootTabState: ObservableObject {
     let energyMonitor = EnergyMonitor()
     let themeManager = ThemeManager.shared
     let homePreferences = HomePreferences()
+    let annualPassStore = AnnualPassStore()
     @Published fileprivate var selectedTab: AppTab = .nearby
     @Published var routedStation: Station?
 }
@@ -83,6 +84,7 @@ struct RootTabView: View {
     @ObservedObject private var energyMonitor: EnergyMonitor
     @ObservedObject private var themeManager: ThemeManager
     @ObservedObject private var homePreferences: HomePreferences
+    @ObservedObject private var annualPassStore: AnnualPassStore
     @AppStorage("hasOnboarded") private var hasOnboarded = false
 
     init(state: RootTabState) {
@@ -96,6 +98,7 @@ struct RootTabView: View {
         _energyMonitor = ObservedObject(wrappedValue: state.energyMonitor)
         _themeManager = ObservedObject(wrappedValue: state.themeManager)
         _homePreferences = ObservedObject(wrappedValue: state.homePreferences)
+        _annualPassStore = ObservedObject(wrappedValue: state.annualPassStore)
     }
 
     var body: some View {
@@ -156,6 +159,7 @@ struct RootTabView: View {
             }
             .environmentObject(themeManager)
             .environmentObject(homePreferences)
+            .environmentObject(annualPassStore)
             .environmentObject(favoritesVM)
             .environmentObject(recentSearches)
             .environment(\.isLowDataMode, networkMonitor.isConstrained)

@@ -6,6 +6,7 @@ struct AccountView: View {
     @EnvironmentObject private var routines: CommuteRoutineStore
     @EnvironmentObject private var recentSearches: RecentSearchesStore
     @EnvironmentObject private var appLock: AppLockStore
+    @EnvironmentObject private var annualPassStore: AnnualPassStore
     @Environment(\.dismiss) private var dismiss
     @State private var showingAccountRemoval = false
     @State private var removalError: String?
@@ -76,6 +77,13 @@ struct AccountView: View {
                     } label: {
                         Label("Travel routines", systemImage: "clock.arrow.2.circlepath")
                     }
+
+                    NavigationLink {
+                        AnnualPassView()
+                    } label: {
+                        Label("Jahreskarte", systemImage: "wallet.pass")
+                    }
+                    .accessibilityIdentifier("account.annualPass")
 
                     NavigationLink {
                         DepartureRemindersView()
@@ -252,6 +260,7 @@ struct AccountView: View {
         favoritesVM.clearTravelFavorites()
         routines.removeAll()
         recentSearches.clear()
+        annualPassStore.remove()
         TravelDataResetService().clearAuxiliaryData()
         Task {
             await DepartureReminderScheduler.removeAllScheduled()

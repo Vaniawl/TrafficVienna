@@ -244,7 +244,7 @@ struct NearbyView: View {
             } label: {
                 actionLabel("Map", icon: "map.fill")
             }
-            actionButton("Refresh", icon: "arrow.clockwise") { Task { await vm.load(force: true) } }
+            NavigationLink { AnnualPassView() } label: { actionLabel("Pass", icon: "wallet.pass") }
         }
         .buttonStyle(.plain)
         .dynamicTypeSize(...DynamicTypeSize.xxxLarge)

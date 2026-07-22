@@ -3,6 +3,7 @@ import Foundation
 struct TravelDataResetService {
     static let auxiliaryKeys = [
         "recent_search_ids",
+        "annual_pass",
         "widget_departure",
         "widget_last_updated",
         "widget_last_fetch_attempt",

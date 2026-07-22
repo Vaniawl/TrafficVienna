@@ -1,5 +1,13 @@
 # Architectural Decisions
 
+## 2026-07-22 — Jahreskarte as a local reminder, not a transport credential
+
+**Context:** TrafficVienna has no authenticated Wiener Linien ticketing API, issuer signature, barcode payload, or entitlement to present a digital annual pass during inspection. Treating user-entered data as an official ticket would create a misleading and unsafe promise.
+
+**Decision:** Store one user-entered Jahreskarte locally as travel preference data, display only a masked card number outside the editor, calculate its lifecycle from validity dates, and label the screen as a reminder that cannot verify, renew, or replace the official ticket. Expose it from Home and Account and remove it with the existing Clear travel data action.
+
+**Consequences:** Users get renewal visibility without TrafficVienna claiming ticket validity. The full entered number remains inside the app's local defaults and is intentionally excluded from the current travel-data export; official ticket presentation requires a future documented issuer integration, security review, and migration decision. Removing this feature is a key deletion plus UI removal and does not affect authentication or favourites.
+
 ## 2026-07-20 — Calm secondary-screen palette with capability-aware storage
 
 **Context:** The first Home screen established a strong visual identity, but repeating saturated violet across utility screens made Map, Search, and Station Detail feel noisy. Debug builds also intentionally omit the production App Group for Personal Team provisioning, so repositories cannot assume that shared container exists in every configuration.
