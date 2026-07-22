@@ -3053,16 +3053,46 @@ final class TrafficViennaTests: XCTestCase {
             holderName: "  Ivan Dovhosheia  ",
             cardNumber: " 1234 5678 9012 ",
             validFrom: start,
-            validUntil: end
+            validUntil: end,
+            format: .plastic,
+            category: .jobticket
         )
 
         XCTAssertEqual(store.pass?.holderName, "Ivan Dovhosheia")
         XCTAssertEqual(store.pass?.maskedCardNumber, "•••• 9012")
+        XCTAssertEqual(store.pass?.format, .plastic)
+        XCTAssertEqual(store.pass?.category, .jobticket)
         XCTAssertEqual(AnnualPassStore(defaults: defaults).pass, store.pass)
 
         store.remove()
         XCTAssertNil(store.pass)
         XCTAssertNil(defaults.data(forKey: "annual_pass"))
+    }
+
+    @MainActor
+    func testAnnualPassMigratesLegacyPayloadToSafeDefaults() throws {
+        struct LegacyAnnualPass: Encodable {
+            let holderName: String
+            let cardNumber: String
+            let validFrom: Date
+            let validUntil: Date
+        }
+
+        let suite = "AnnualPassLegacyTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let legacy = LegacyAnnualPass(
+            holderName: "Ivan",
+            cardNumber: "1234567890",
+            validFrom: Date(timeIntervalSince1970: 1_700_000_000),
+            validUntil: Date(timeIntervalSince1970: 1_731_536_000)
+        )
+        defaults.set(try JSONEncoder().encode(legacy), forKey: "annual_pass")
+
+        let migrated = try XCTUnwrap(AnnualPassStore(defaults: defaults).pass)
+
+        XCTAssertEqual(migrated.format, .digital)
+        XCTAssertEqual(migrated.category, .standard)
     }
 
     func testAnnualPassStateCoversUpcomingActiveAndExpiredDates() {

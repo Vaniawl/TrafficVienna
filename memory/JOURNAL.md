@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-22 — Official-companion Jahreskarte details
+
+- Added Digital/Plastic formats and Standard, Youth, Senior, Special, and Jobticket categories to the local Jahreskarte editor and card presentation.
+- Added a dedicated official-ticket action that opens WienMobil, with format-aware guidance for digital tickets and linked plastic cards.
+- Replaced operator-like card branding with an explicit Travel Companion label so the local reminder cannot be mistaken for an inspection credential.
+- Preserved existing saved passes through backward-compatible decoding and added migration/persistence regression coverage.
+
 ## 2026-07-22 — Local Jahreskarte wallet
 
 - Added a device-local annual-pass store with holder, masked card number, validity dates, upcoming/active/expired status, persistence, editing, and removal.
