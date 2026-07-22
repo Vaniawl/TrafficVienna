@@ -99,7 +99,7 @@ struct Provider: AppIntentTimelineProvider {
         let defaults = UserDefaults(suiteName: appGroupID)
         let now = Date()
         let lastAttempt = defaults?.object(forKey: widgetLastFetchAttemptKey) as? Date ?? .distantPast
-        let canFetch = now.timeIntervalSince(lastAttempt) >= 60
+        let canFetch = now.timeIntervalSince(lastAttempt) >= 300
 
         var (items, lastUpdated) = loadCached()
 
@@ -113,7 +113,7 @@ struct Provider: AppIntentTimelineProvider {
         }
 
         let entry = SimpleEntry(date: now, items: items, lastUpdated: lastUpdated)
-        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 1, to: now)!
+        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 5, to: now)!
         return Timeline(entries: [entry], policy: .after(nextUpdate))
     }
 
@@ -163,7 +163,7 @@ struct Provider: AppIntentTimelineProvider {
 
         let fresh = await WidgetBatchLoader.load(
             groups,
-            spacingNanoseconds: 500_000_000
+            spacingNanoseconds: 15_000_000_000
         ) { group in
             do {
                 let response = try await fetchMonitorData(diva: group.diva, includeArea: true)

@@ -10,10 +10,9 @@
 //                     itself only updates every ~15-30s, so this is free).
 //   2. Coalescing   — concurrent requests for the same DIVA share one network
 //                     call instead of firing several.
-//   3. Throttling   — actual network calls are spaced at least `minInterval`
-//                     apart, so a burst of nearby cards can't flood the API.
-//   4. Backoff      — a 316 (rate limited) response is retried with growing
-//                     delays before giving up.
+//   3. Throttling   — actual network calls follow Wiener Linien's 15-second
+//                     fair-use floor, so a burst of cards can't flood the API.
+//   4. Cooldown     — a 316 response pauses every endpoint before new work.
 //   5. Bounded LRU  — only the most recently used station responses stay in
 //                     memory, preventing unbounded growth during long sessions.
 //
@@ -63,6 +62,7 @@ actor MonitorService {
     private let cacheTTL: TimeInterval
     private let minInterval: TimeInterval
     private let maxRetries: Int
+    private let rateLimitCooldown: TimeInterval
     private let cacheCapacity: Int
 
     private struct CacheEntry {
@@ -85,9 +85,10 @@ actor MonitorService {
 
     init(
         network: NetworkManaging = NetworkManager(),
-        cacheTTL: TimeInterval = 30,
-        minInterval: TimeInterval = 0.5,
-        maxRetries: Int = 2,
+        cacheTTL: TimeInterval = 60,
+        minInterval: TimeInterval = 15,
+        maxRetries: Int = 0,
+        rateLimitCooldown: TimeInterval = 60,
         cacheCapacity: Int = 64
     ) {
         precondition(cacheCapacity > 0, "Monitor cache capacity must be positive")
@@ -95,6 +96,7 @@ actor MonitorService {
         self.cacheTTL = cacheTTL
         self.minInterval = minInterval
         self.maxRetries = maxRetries
+        self.rateLimitCooldown = rateLimitCooldown
         self.cacheCapacity = cacheCapacity
     }
 
@@ -232,7 +234,12 @@ actor MonitorService {
         } else {
             task = Task<MonitorResponse, Error> { [self] in
                 try await throttle()
-                return try await network.fetchTrafficInfoList()
+                do {
+                    return try await network.fetchTrafficInfoList()
+                } catch MonitorApiError.rateLimited {
+                    registerRateLimit()
+                    throw MonitorApiError.rateLimited
+                }
             }
             trafficInfoInFlight = InFlightRequest(task: task, waiters: [waiter])
         }
@@ -319,13 +326,16 @@ actor MonitorService {
             do {
                 return try await network.fetchMonitorData(diva: diva, includeArea: true)
             } catch MonitorApiError.rateLimited {
+                registerRateLimit()
                 guard attempt < maxRetries else { throw MonitorApiError.rateLimited }
-                let backoff = pow(2.0, Double(attempt)) * 0.8 // 0.8s, 1.6s, …
-                // Push the shared slot out so other queued calls also wait.
-                nextSlot = Date().addingTimeInterval(backoff)
+                let backoff = max(rateLimitCooldown, pow(2.0, Double(attempt)) * minInterval)
                 try await Task.sleep(nanoseconds: UInt64(backoff * 1_000_000_000))
                 attempt += 1
             }
         }
+    }
+
+    private func registerRateLimit() {
+        nextSlot = max(nextSlot, Date().addingTimeInterval(rateLimitCooldown))
     }
 }

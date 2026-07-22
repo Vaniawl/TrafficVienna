@@ -2277,6 +2277,29 @@ final class TrafficViennaTests: XCTestCase {
         }
     }
 
+    func testRateLimitPausesOtherEndpointsBeforeNextRequest() async throws {
+        let mock = MockNetworkManager(shouldRateLimit: true)
+        let service = MonitorService(
+            network: mock,
+            cacheTTL: 0,
+            minInterval: 0,
+            maxRetries: 0,
+            rateLimitCooldown: 0.05
+        )
+
+        do {
+            _ = try await service.monitor(diva: 1, forceRefresh: true)
+            XCTFail("Expected rate-limit error")
+        } catch is MonitorApiError {}
+
+        mock.shouldRateLimit = false
+        let startedAt = Date()
+        _ = try await service.trafficInfoList(forceRefresh: true)
+
+        XCTAssertGreaterThanOrEqual(Date().timeIntervalSince(startedAt), 0.04)
+        XCTAssertEqual(mock.callCount, 2)
+    }
+
     func testPersistentURLCacheIsReportedAsStale() async throws {
         let storedAt = Date(timeIntervalSince1970: 1_700_000_000)
         let mock = MockNetworkManager(responseSource: .urlCache(storedAt: storedAt))

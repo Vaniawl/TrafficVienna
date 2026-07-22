@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-07-22 — Fair-use API scheduling
+
+- Raised the shared live API request floor from 0.5 to 15 seconds and the decoded response cache from 30 to 60 seconds to match Wiener Linien fair-use guidance.
+- Replaced eager default retries with a shared 60-second cooldown after message code 316, covering both monitor and traffic-info endpoints.
+- Reduced widget network refreshes from every minute to every five minutes and spaced its distinct station requests by 15 seconds.
+- Added regression coverage proving a rate-limit response blocks a different endpoint before it can issue another request.
+
 ## 2026-07-20 — Clear departure actions and wider favourites
 
 - Replaced the mixed capsule/circle departure controls with four equal 54-point action tiles for Remind, Track, Share, and Save; Track carries the primary accent and saved routes use the favourite accent.
