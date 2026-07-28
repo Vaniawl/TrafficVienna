@@ -1377,6 +1377,22 @@
         }
       }
     },
+    "Destination": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ziel"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Розділ"
+          }
+        }
+      }
+    },
     "Device passcode": {
       "localizations": {
         "de": {
@@ -1949,6 +1965,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Обрані станції готові"
+          }
+        }
+      }
+    },
+    "Favourite stops": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lieblingshaltestellen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обрані зупинки"
           }
         }
       }
@@ -2818,6 +2850,22 @@
         }
       }
     },
+    "Nearby departures": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abfahrten in der Nähe"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відправлення поруч"
+          }
+        }
+      }
+    },
     "Nearby now": {
       "localizations": {
         "de": {
@@ -3282,6 +3330,22 @@
         }
       }
     },
+    "Open %@ in Traffic Vienna": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traffic Vienna bei „%@“ öffnen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відкрити %@ у Traffic Vienna"
+          }
+        }
+      }
+    },
     "Open in Maps": {
       "localizations": {
         "de": {
@@ -3310,6 +3374,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Відкрити цю зупинку в Apple Maps"
+          }
+        }
+      }
+    },
+    "Open Traffic Vienna": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traffic Vienna öffnen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відкрити Traffic Vienna"
+          }
+        }
+      }
+    },
+    "Open Traffic Vienna at the part you need.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffnet Traffic Vienna direkt im gewünschten Bereich."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відкрити Traffic Vienna одразу в потрібному розділі."
           }
         }
       }
@@ -4082,6 +4178,22 @@
         }
       }
     },
+    "Search stations": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stationen suchen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Шукати станції"
+          }
+        }
+      }
+    },
     "Search visible stops": {
       "localizations": {
         "de": {
@@ -4254,6 +4366,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Показати всі зупинки"
+          }
+        }
+      }
+    },
+    "Show departures": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abfahrten anzeigen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Показати відправлення"
           }
         }
       }

@@ -1,5 +1,13 @@
 # Architectural Decisions
 
+## 2026-07-28 — Foreground App Intent handoff through the authenticated router
+
+**Context:** High-value app destinations should be available in Siri, Spotlight, Shortcuts, and supported Action button surfaces without duplicating navigation or weakening the device-local authentication boundary. `OpenURLIntent` only supports universal links, while TrafficVienna currently owns a custom URL scheme and has no Associated Domains deployment. A cold system launch can also precede both SwiftUI construction and the off-main station-index build.
+
+**Decision:** Model the three highest-value system destinations as a closed `AppEnum` and expose them through one parameterized `OpenIntent` with iOS 26 foreground execution. Persist only the non-sensitive pending enum value in app-local `UserDefaults`, publish it through `TrafficViennaShortcutRouter`, and forward it into the existing `AppRouter`; never return favourites, departures, identity, or location data to the system action. Keep unresolved routes behind the existing authentication/app-lock UI, and retain station deep links until `StationStore` reports that its index is ready.
+
+**Consequences:** Nearby departures, search, and favourite stops are immediately discoverable with no setup, survive warm and cold intent execution, and retain one navigation source of truth. Invalid persisted values are ignored, app metadata and spoken phrases are localized separately in English, German, and Ukrainian, and the integration adds no dependency, network request, entitlement, or sensitive storage. Universal links remain a future deployment project. Rollback is limited to removing the provider/handoff and its harmless pending defaults key; no data migration or ADR follow-up is required.
+
 ## 2026-07-28 — Evolutionary iOS 26 experience and fetch-time widget projection
 
 **Context:** TrafficVienna already had a stable five-tab MVVM architecture, live-data pipeline, widget extension, and strong Home dashboard. Utility screens still had passive dead-end empty states, dense fixed-size map annotations, non-native tab-bar material, and a widget countdown that could remain visually frozen between five-minute fair-use refreshes. The departure API does not provide licensed A→B routing.

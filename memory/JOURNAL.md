@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-07-28 — App Shortcuts and resilient system navigation
+
+- Added a parameterized `OpenIntent` and three zero-setup App Shortcuts for nearby departures, station search, and favourite stops across Siri, Spotlight, Shortcuts, and supported Action button surfaces.
+- Routed foreground intents through a persisted closed-enum handoff into the existing authenticated `AppRouter`; delayed cold station deep links until the asynchronously built station index is ready.
+- Localized intent metadata and spoken phrases in English, German, and Ukrainian, and extended repository localization validation to cover `AppShortcuts.xcstrings`.
+- Applied Reduce Motion to authentication transitions, symbol effects, map selection, search/list changes, and disruption expansion while preserving the existing Low Power/thermal policy for continuous effects.
+- Verified App Intents metadata extraction and localized resources, a live cold-launch station deep link, a Reduce Motion launch, warning-free Debug and Release builds, repository/localization validation, and all 199 Xcode tests with 0 failures and 0 skips. Performance tests measured 100 indexed searches at a 2.40 ms median and 100 spatial queries at a 7.80 ms median on iPhone 17 Pro Simulator. OpenCode CLI-dependent scripts remain unavailable because `opencode` is not installed.
+
 ## 2026-07-28 — Action-first iOS 26 product experience
 
 - Reworked onboarding, Search, Favourites, Alerts, Map, Nearby controls, and station directions around actionable zero states, native Liquid Glass controls, compact adaptive map markers, transit/walking Apple Maps handoff, and accessibility-aware motion.

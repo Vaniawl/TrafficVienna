@@ -11,6 +11,7 @@ import SwiftUI
 struct DisruptionRow: View {
     let info: TrafficInfo
     @State private var expanded = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var hasLongDescription: Bool {
         (info.description?.count ?? 0) > 90
@@ -54,7 +55,11 @@ struct DisruptionRow: View {
         }
         .contentShape(Rectangle())
         .onTapGesture {
-            if hasLongDescription { withAnimation(.easeInOut(duration: 0.2)) { expanded.toggle() } }
+            if hasLongDescription {
+                withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.2)) {
+                    expanded.toggle()
+                }
+            }
         }
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(hasLongDescription ? .isButton : [])

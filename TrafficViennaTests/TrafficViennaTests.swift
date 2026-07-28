@@ -194,6 +194,52 @@ final class TrafficViennaTests: XCTestCase {
     }
 
     @MainActor
+    func testAppRouterParsesEveryTopLevelDeepLink() {
+        let routes: [(String, AppRouter.Destination)] = [
+            ("nearby", .nearby),
+            ("search", .search),
+            ("map", .map),
+            ("alerts", .alerts),
+            ("favourites", .favourites)
+        ]
+
+        for (path, expected) in routes {
+            let router = AppRouter()
+            router.open(URL(string: "trafficvienna://\(path)")!)
+            XCTAssertEqual(router.destination, expected, "Failed route: \(path)")
+        }
+    }
+
+    @MainActor
+    func testShortcutRouterPersistsAndConsumesColdLaunchDestination() {
+        let suite = "ShortcutRouterTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+
+        let firstRouter = TrafficViennaShortcutRouter(defaults: defaults)
+        firstRouter.request(.search)
+
+        let restoredRouter = TrafficViennaShortcutRouter(defaults: defaults)
+        XCTAssertEqual(restoredRouter.pendingDestination, .search)
+        XCTAssertEqual(restoredRouter.pendingDestination?.appDestination, .search)
+        XCTAssertEqual(restoredRouter.consume(), .search)
+        XCTAssertNil(restoredRouter.pendingDestination)
+        XCTAssertNil(defaults.string(forKey: TrafficViennaShortcutRouter.pendingDestinationKey))
+    }
+
+    @MainActor
+    func testShortcutRouterIgnoresInvalidPersistedDestination() {
+        let suite = "ShortcutRouterInvalidTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        defaults.set("unsupported", forKey: TrafficViennaShortcutRouter.pendingDestinationKey)
+
+        let router = TrafficViennaShortcutRouter(defaults: defaults)
+
+        XCTAssertNil(router.pendingDestination)
+    }
+
+    @MainActor
     func testThemeSelectionPersistsWithInvalidValueFallback() {
         let suite = "ThemeTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!

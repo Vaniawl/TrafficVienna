@@ -11,6 +11,7 @@ struct SearchView: View {
     @EnvironmentObject private var router: AppRouter
     @EnvironmentObject private var recents: RecentSearchesStore
     @EnvironmentObject private var favoritesVM: FavoritesListViewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var query = ""
     @State private var results: [Station] = []
     @State private var isSearching = false
@@ -97,7 +98,7 @@ struct SearchView: View {
                 text: "Try another station name.",
                 actionTitle: "Clear search"
             ) {
-                withAnimation(.snappy) { query = "" }
+                withAnimation(reduceMotion ? nil : .snappy) { query = "" }
             }
         } else {
             HStack { Text("Stations").font(.title3.bold()); Spacer(); Text("\(results.count)").foregroundStyle(.secondary) }
@@ -129,7 +130,9 @@ struct SearchView: View {
 
             if showsRecentRemoval {
                 Button {
-                    withAnimation { recents.remove(station.id) }
+                    withAnimation(reduceMotion ? nil : .snappy) {
+                        recents.remove(station.id)
+                    }
                 } label: {
                     Image(systemName: "xmark")
                         .foregroundStyle(.secondary)

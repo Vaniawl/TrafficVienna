@@ -6,6 +6,7 @@ SwiftUI iOS app for live Vienna public transport departures.
 
 - Neobank-style smart dashboard with nearby live departures.
 - Station search, an adaptive low-clutter map, favourites, personalised service alerts, and commute routines.
+- App Shortcuts for nearby departures, station search, and favourite stops in Siri, Spotlight, Shortcuts, and supported Action button surfaces, with reliable cold-launch routing.
 - Actionable first-run and empty states, native iOS 26 Liquid Glass controls, responsive tab-bar minimisation, motion that respects accessibility settings, and direct Apple Maps transit/walking directions.
 - Responsive device-local email authentication with repeated-attempt cooldown and native Sign in with Apple.
 - Optional device-owner app lock with an immediate privacy shield and configurable unlock timeout.
@@ -14,7 +15,7 @@ SwiftUI iOS app for live Vienna public transport departures.
 - Widget countdowns advance between five-minute network refreshes from each row's actual fetch time; favourite-route synchronization remains immediate and refresh work remains deduplicated and staggered.
 - Indexed station search/spatial queries, off-main batch response processing, throttled API access, bounded and memory-pressure-aware response caching, active-tab polling, Low Data/Low Power/thermal-aware cadence and continuous animations, and stale offline fallback.
 - App and widget privacy manifests with declared UserDefaults reasons and no tracking/data-collection declaration.
-- English, German, and Ukrainian app and widget interfaces, including localized dynamic countdown and freshness text.
+- English, German, and Ukrainian app, widget, and App Shortcut interfaces, including localized Siri phrases, dynamic countdown, and freshness text.
 - Validated English, German, and Ukrainian App Store metadata plus review and screenshot guidance in [`docs/app-store/`](docs/app-store/).
 
 ## Validation

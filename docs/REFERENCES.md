@@ -24,6 +24,13 @@ xcodebuild -scheme TrafficViennaWidgetExtension -project TrafficVienna.xcodeproj
 
 - Bundled station JSON: `TrafficVienna/wienerlinien-ogd-haltestellen.json`
 
+## Apple system integrations
+
+- [App intents](https://developer.apple.com/documentation/appintents/app-intents)
+- [App Shortcuts](https://developer.apple.com/documentation/appintents/app-shortcuts)
+- [OpenIntent](https://developer.apple.com/documentation/appintents/openintent)
+- [AppShortcutsProvider](https://developer.apple.com/documentation/appintents/appshortcutsprovider)
+
 ## Code style
 
 - `nonisolated` on pure DTO structs that cross actor boundaries.

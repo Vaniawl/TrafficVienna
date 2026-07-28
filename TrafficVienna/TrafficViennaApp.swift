@@ -10,10 +10,12 @@ import SwiftUI
 @main
 struct TrafficViennaApp: App {
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @StateObject private var auth = AuthStore()
     @StateObject private var appLock = AppLockStore()
     @StateObject private var router = AppRouter()
     @StateObject private var routines = CommuteRoutineStore()
+    @StateObject private var shortcutRouter = TrafficViennaShortcutRouter.shared
 
     init() {
 #if DEBUG
@@ -34,18 +36,24 @@ struct TrafficViennaApp: App {
             Group {
                 if auth.session == nil {
                     AuthenticationView()
-                        .transition(.opacity)
+                        .transition(reduceMotion ? .identity : .opacity)
                 } else {
                     SignedInSessionView()
-                    .transition(.opacity)
+                        .transition(reduceMotion ? .identity : .opacity)
                 }
             }
-            .animation(.easeInOut, value: auth.session)
+            .animation(reduceMotion ? nil : .easeInOut, value: auth.session)
+            .symbolEffectsRemoved(reduceMotion)
             .environmentObject(auth)
             .environmentObject(appLock)
             .environmentObject(router)
             .environmentObject(routines)
             .onOpenURL(perform: router.open)
+            .onChange(of: shortcutRouter.pendingDestination, initial: true) { _, destination in
+                guard let destination else { return }
+                router.navigate(to: destination.appDestination)
+                shortcutRouter.consume()
+            }
             .task { await auth.validateStoredAppleCredential() }
             .task(id: auth.session) {
                 guard auth.session != nil else {

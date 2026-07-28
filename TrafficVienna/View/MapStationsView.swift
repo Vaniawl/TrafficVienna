@@ -92,6 +92,7 @@ struct MapStationsView: View {
     @ObservedObject var store: StationStore
     @ObservedObject var locationManager: LocationManager
     @ObservedObject var favoritesVM: FavoritesListViewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var position: MapCameraPosition = .automatic
     @State private var selectedID: Int?
@@ -188,7 +189,7 @@ struct MapStationsView: View {
                     .accessibilityIdentifier("map.stopsList")
 
                     Button {
-                        withAnimation(.snappy) {
+                        withAnimation(reduceMotion ? nil : .snappy) {
                             favoritesOnly.toggle()
                             selectedID = nil
                             sheetStation = nil
@@ -254,6 +255,7 @@ private struct MapStationMarker: View {
     let name: String
     let isFavorite: Bool
     let isSelected: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: 4) {
@@ -278,11 +280,13 @@ private struct MapStationMarker: View {
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .glassEffect(.regular, in: .capsule)
-                    .transition(.scale.combined(with: .opacity))
+                    .transition(reduceMotion ? .identity : .scale.combined(with: .opacity))
             }
         }
-        .animation(.snappy, value: isSelected)
+        .animation(reduceMotion ? nil : .snappy, value: isSelected)
         .accessibilityLabel(name)
+        .accessibilityHint("Show departures")
+        .accessibilityAddTraits(.isButton)
     }
 }
 

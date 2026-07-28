@@ -4,7 +4,7 @@
 
 A SwiftUI iOS app for live Wiener Linien (Vienna public transport) departures. The app shows nearby stops, lets users search for any station, view live departure boards grouped by platform, save favourite stations and line/direction pairs, browse network-wide service alerts, explore stations on an adaptive map, hand transit or walking directions to Apple Maps, and track a selected departure on the Lock Screen via Live Activities. Home and Lock Screen widgets show the user's priority favourite routes.
 
-The app also has a device-local authentication gate, a neobank-style dashboard, actionable first-run and zero-data states, native iOS 26 Liquid Glass navigation/control surfaces, commute routines, personalised disruption priority, departure reminders, offline stale-response fallback, and tested deep-link routing foundations.
+The app also has a device-local authentication gate, a neobank-style dashboard, actionable first-run and zero-data states, native iOS 26 Liquid Glass navigation/control surfaces, commute routines, personalised disruption priority, departure reminders, offline stale-response fallback, tested deep-link routing, and zero-setup App Shortcuts for its highest-value destinations.
 
 ### Architecture
 
@@ -15,7 +15,7 @@ The app also has a device-local authentication gate, a neobank-style dashboard, 
 - **Storage**: UserDefaults-based repositories for favourites (FavoriteRoute, FavoriteStation), RecentSearchesStore
 - **Authentication**: `AuthStore`; local email verifier records in Keychain, non-secret session in UserDefaults, and native AuthenticationServices for Apple
 - **Routines**: `CommuteRoutineStore` in the shared App Group
-- **Navigation**: `AppRouter` parses TrafficVienna destinations; the `trafficvienna://` custom scheme is registered in the app Info.plist; station directions use `MKMapItem` and Apple Maps
+- **Navigation**: `AppRouter` is the single in-app destination owner; it parses the registered `trafficvienna://` custom scheme and receives a persisted, closed-enum handoff from `OpenTrafficViennaDestinationIntent`. Cold station links wait for `StationStore` readiness, and all external routes remain behind the authentication/app-lock boundary. Station directions use `MKMapItem` and Apple Maps.
 - **StationStore**: `@Published` + `StationStoring` protocol, loads bundled JSON (`wienerlinien-ogd-haltestellen.json`)
 - **DTOs** (DTO.swift): `MonitorResponse`, `Monitor`, `Lines`, `DepartureTime` — all `nonisolated` + `Sendable`, lenient decoding
 - **Live Activities and widgets**: ActivityKit plus a WidgetKit/AppIntent extension. Widgets support small, medium, large, accessory circular, accessory rectangular, and accessory inline families.
@@ -29,6 +29,7 @@ The app also has a device-local authentication gate, a neobank-style dashboard, 
 - The UI gracefully handles missing location permissions, network errors, rate limiting, and empty states with a useful next action.
 - Map markers remain bounded and reduce in density as the visible region widens.
 - All user-facing strings are localised in English, German, and Ukrainian via string catalogs.
+- Siri/Spotlight/Shortcuts actions open the requested destination after warm or cold launch without bypassing authentication.
 - The widget and app share station-matching logic from `WidgetShared/`.
 
 ## Out of scope

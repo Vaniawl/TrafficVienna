@@ -77,6 +77,7 @@ struct NeoEmptyState: View {
     var tint = NeoDesign.accent
     var actionTitle: LocalizedStringKey?
     var action: (() -> Void)?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: 16) {
@@ -85,7 +86,7 @@ struct NeoEmptyState: View {
                 .foregroundStyle(tint)
                 .frame(width: 64, height: 64)
                 .background(tint.opacity(0.11), in: Circle())
-                .symbolEffect(.breathe, options: .nonRepeating)
+                .symbolEffect(.breathe, options: .nonRepeating, isActive: !reduceMotion)
                 .accessibilityHidden(true)
 
             VStack(spacing: 7) {

@@ -142,19 +142,14 @@ struct RootTabView: View {
             }
             .onReceive(NotificationCenter.default.publisher(for: .init("shortcut"))) { note in
                 guard let type = note.object as? String else { return }
-                withAnimation { state.selectedTab = AppTab(rawValue: type) ?? .nearby }
+                state.selectedTab = AppTab(rawValue: type) ?? .nearby
             }
-            .onChange(of: router.destination) { _, destination in
-                guard let destination else { return }
-                switch destination {
-                case .nearby: state.selectedTab = .nearby
-                case .search: state.selectedTab = .search
-                case .map: state.selectedTab = .map
-                case .alerts: state.selectedTab = .alerts
-                case .favourites: state.selectedTab = .favourites
-                case .station(let id): state.routedStation = store.station(id: id)
-                }
-                router.consume()
+            .onChange(of: router.destination, initial: true) { _, destination in
+                handle(destination)
+            }
+            .onChange(of: store.isReady) { _, isReady in
+                guard isReady else { return }
+                handle(router.destination)
             }
             .onChange(of: favoritesVM.favoriteRoutes, initial: true) { _, routes in
                 disruptionsVM.updateFavoriteRoutes(routes)
@@ -224,6 +219,28 @@ struct RootTabView: View {
             }
         }
         .tabBarMinimizeBehavior(.onScrollDown)
+    }
+
+    private func handle(_ destination: AppRouter.Destination?) {
+        guard let destination else { return }
+        switch destination {
+        case .nearby:
+            state.selectedTab = .nearby
+        case .search:
+            state.selectedTab = .search
+        case .map:
+            state.selectedTab = .map
+        case .alerts:
+            state.selectedTab = .alerts
+        case .favourites:
+            state.selectedTab = .favourites
+        case .station(let id):
+            // A cold deep link can arrive before StationStore finishes its
+            // off-main-thread index build. Keep it pending until lookup is valid.
+            guard store.isReady else { return }
+            state.routedStation = store.station(id: id)
+        }
+        router.consume()
     }
 }
 

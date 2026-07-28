@@ -173,6 +173,7 @@ struct MapStationListView: View {
 private struct MapStationListRow: View {
     let item: MapStationListItem
     @ObservedObject var favoritesVM: FavoritesListViewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         let station = item.station
@@ -205,7 +206,9 @@ private struct MapStationListRow: View {
             .buttonStyle(.plain)
 
             Button {
-                withAnimation(.snappy) { favoritesVM.toggleStation(station) }
+                withAnimation(reduceMotion ? nil : .snappy) {
+                    favoritesVM.toggleStation(station)
+                }
             } label: {
                 Image(systemName: isFavorite ? "star.fill" : "star")
                     .foregroundStyle(isFavorite ? NeoDesign.favorite : .secondary)

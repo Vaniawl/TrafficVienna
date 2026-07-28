@@ -6,6 +6,17 @@ const original = JSON.stringify(catalog);
 const widgetPath = new URL("../TrafficViennaWidget/Localizable.xcstrings", import.meta.url);
 const widgetCatalog = JSON.parse(fs.readFileSync(widgetPath, "utf8"));
 const originalWidget = JSON.stringify(widgetCatalog);
+const shortcutsPath = new URL("../TrafficVienna/AppShortcuts.xcstrings", import.meta.url);
+const shortcutsCatalog = JSON.parse(fs.readFileSync(shortcutsPath, "utf8"));
+const originalShortcuts = JSON.stringify(shortcutsCatalog);
+const requiredShortcutKeys = [
+  "Find a Vienna stop in ${applicationName}",
+  "Open departures in ${applicationName}",
+  "Open my saved stops in ${applicationName}",
+  "Search stations in ${applicationName}",
+  "Show my favourite stops in ${applicationName}",
+  "Show nearby departures in ${applicationName}"
+];
 const requiredWidgetKeys = [
   "Departures",
   "Live departures for your favourite lines.",
@@ -231,7 +242,15 @@ const productExperienceTranslations = {
     "Get to this station": "Zu dieser Station",
     "Continue with turn-by-turn directions in Apple Maps": "Mit Schritt-für-Schritt-Navigation in Apple Karten fortfahren",
     "Transit": "Öffis",
-    "Walk": "Zu Fuß"
+    "Walk": "Zu Fuß",
+    "Destination": "Ziel",
+    "Open Traffic Vienna": "Traffic Vienna öffnen",
+    "Open Traffic Vienna at the part you need.": "Öffnet Traffic Vienna direkt im gewünschten Bereich.",
+    "Open %@ in Traffic Vienna": "Traffic Vienna bei „%@“ öffnen",
+    "Nearby departures": "Abfahrten in der Nähe",
+    "Search stations": "Stationen suchen",
+    "Favourite stops": "Lieblingshaltestellen",
+    "Show departures": "Abfahrten anzeigen"
   },
   uk: {
     "Explore the map": "Переглянути мапу",
@@ -259,7 +278,15 @@ const productExperienceTranslations = {
     "Get to this station": "Дістатися до станції",
     "Continue with turn-by-turn directions in Apple Maps": "Продовжити покрокову навігацію в Apple Maps",
     "Transit": "Транспорт",
-    "Walk": "Пішки"
+    "Walk": "Пішки",
+    "Destination": "Розділ",
+    "Open Traffic Vienna": "Відкрити Traffic Vienna",
+    "Open Traffic Vienna at the part you need.": "Відкрити Traffic Vienna одразу в потрібному розділі.",
+    "Open %@ in Traffic Vienna": "Відкрити %@ у Traffic Vienna",
+    "Nearby departures": "Відправлення поруч",
+    "Search stations": "Шукати станції",
+    "Favourite stops": "Обрані зупинки",
+    "Show departures": "Показати відправлення"
   }
 };
 
@@ -287,6 +314,16 @@ const widgetExperienceTranslations = {
 for (const [language, values] of Object.entries(productExperienceTranslations)) {
   Object.assign(language === "de" ? de : uk, values);
   newEnglish.push(...Object.keys(values));
+}
+for (const key of [
+  "Open nearby departures",
+  "Show the closest stops and their upcoming departures.",
+  "Search Vienna stations",
+  "Open station search in Traffic Vienna.",
+  "Open favourite stops",
+  "Show your saved stops and departures."
+]) {
+  delete catalog.strings[key];
 }
 for (const values of Object.values(widgetExperienceTranslations)) {
   requiredWidgetKeys.push(...Object.keys(values));
@@ -327,15 +364,32 @@ if (incompleteWidget.length) {
   console.error(`Missing widget de/uk localization: ${incompleteWidget.join(", ")}`);
   process.exit(1);
 }
+const incompleteShortcuts = requiredShortcutKeys.filter((key) => {
+  const entry = shortcutsCatalog.strings?.[key];
+  return !entry?.localizations?.de?.stringUnit?.value ||
+    !entry?.localizations?.uk?.stringUnit?.value;
+});
+if (incompleteShortcuts.length) {
+  console.error(`Missing App Shortcut de/uk localization: ${incompleteShortcuts.join(", ")}`);
+  process.exit(1);
+}
 widgetCatalog.strings = Object.fromEntries(
   Object.entries(widgetCatalog.strings).sort(([a], [b]) => a.localeCompare(b))
 );
+shortcutsCatalog.strings = Object.fromEntries(
+  Object.entries(shortcutsCatalog.strings).sort(([a], [b]) => a.localeCompare(b))
+);
 if (process.argv.includes("--check")) {
-  if (original !== JSON.stringify(catalog) || originalWidget !== JSON.stringify(widgetCatalog)) {
+  if (
+    original !== JSON.stringify(catalog) ||
+    originalWidget !== JSON.stringify(widgetCatalog) ||
+    originalShortcuts !== JSON.stringify(shortcutsCatalog)
+  ) {
     console.error("Localizable.xcstrings is stale; run node scripts/update-localizations.mjs");
     process.exit(1);
   }
 } else {
   fs.writeFileSync(path, `${JSON.stringify(catalog, null, 2)}\n`);
   fs.writeFileSync(widgetPath, `${JSON.stringify(widgetCatalog, null, 2)}\n`);
+  fs.writeFileSync(shortcutsPath, `${JSON.stringify(shortcutsCatalog, null, 2)}\n`);
 }
