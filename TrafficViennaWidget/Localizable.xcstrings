@@ -1,9 +1,13 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%@ → %@" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "%@ → %@" } } } },
+    "%@ → %@: %@ min" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "%@ → %@: %@ Min." } } } },
     "%@ min" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "%@ Min." } } } },
     "%lld" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "%lld" } } } },
     "→ %@" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "→ %@" } } } },
+    "Add a favourite departure" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Favorisierte Abfahrt hinzufügen" } } } },
+    "Add a favourite line in the app." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Füge in der App eine Linie zu den Favoriten hinzu." } } } },
     "Departures" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrten" } } } },
     "Live departures for your favourite lines." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Live-Abfahrten für deine bevorzugten Linien." } } } },
     "No favourites yet" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Noch keine Favoriten" } } } },
@@ -11,7 +15,10 @@
     "Refresh Favorites" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Favoriten aktualisieren" } } } },
     "Request the widget to refresh its data." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Fordert das Widget auf, seine Daten zu aktualisieren." } } } },
     "Tap the heart on a line in the app." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Tippe in der App bei einer Linie auf das Herz." } } } },
+    "Traffic Vienna" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Traffic Vienna" } } } },
     "Updated %@" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktualisiert %@" } } } },
+    "Vienna departures" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrten in Wien" } } } },
+    "Your next saved connections" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Deine nächsten gespeicherten Verbindungen" } } } },
     "min" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Min." } } } },
     "now" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "jetzt" } } } },
     "to departure" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "bis zur Abfahrt" } } } }

@@ -1,6 +1,27 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Destination" : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Ziel" } } }
+    },
+    "Favourite stops" : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Lieblingshaltestellen" } } }
+    },
+    "Nearby departures" : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrten in der Nähe" } } }
+    },
+    "Open Traffic Vienna" : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Traffic Vienna öffnen" } } }
+    },
+    "Open Traffic Vienna at the part you need." : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Öffnet Traffic Vienna im gewünschten Bereich." } } }
+    },
+    "Open ${target} in Traffic Vienna" : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "${target} in Traffic Vienna öffnen" } } }
+    },
+    "Search stations" : {
+      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Stationen suchen" } } }
+    },
     "—" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "—" } } } },
     "%lld" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "%lld" } } } },
     "Choose another transport type." : {

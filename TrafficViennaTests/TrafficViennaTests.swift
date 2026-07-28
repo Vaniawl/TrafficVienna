@@ -1,3 +1,4 @@
+import CoreLocation
 import XCTest
 @testable import TrafficVienna
 
@@ -10,6 +11,47 @@ final class TrafficViennaTests: XCTestCase {
 
         XCTAssertEqual(store.loadState, .loaded)
         XCTAssertGreaterThan(store.stations.count, 0)
+    }
+
+    func testIndexedStationSearchMatchesCatalogOrder() {
+        let store = StationStore()
+        let expected = store.stations.filter {
+            $0.name.folding(options: .diacriticInsensitive, locale: .current)
+                .replacing("ß", with: "ss")
+                .lowercased()
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .localizedStandardContains("schotten")
+        }
+
+        XCTAssertEqual(store.stationsSuggestion(matching: "Schotten"), expected)
+    }
+
+    func testIndexedStationSearchFoldsDiacritics() {
+        let store = StationStore()
+
+        XCTAssertTrue(
+            store.stationsSuggestion(matching: "hutteldorf")
+                .contains { $0.name == "Hütteldorf" }
+        )
+        XCTAssertTrue(
+            store.stationsSuggestion(matching: "schonbrunn")
+                .contains { $0.name == "Schönbrunn" }
+        )
+    }
+
+    func testIndexedNearbySearchMatchesFullDistanceScan() {
+        let store = StationStore()
+        let center = CLLocation(latitude: 48.2082, longitude: 16.3738)
+        let radius = 1_500.0
+        let expected = store.stations.filter {
+            CLLocation(latitude: $0.lat, longitude: $0.lon)
+                .distance(from: center) <= radius
+        }
+
+        XCTAssertEqual(
+            Set(store.stations(near: center, radiusInMeters: radius)),
+            Set(expected)
+        )
     }
 
     // MARK: - RouteMatching
@@ -280,11 +322,134 @@ final class TrafficViennaTests: XCTestCase {
     // MARK: - WidgetDepartureData
 
     func testWidgetDepartureDataCodable() {
-        let data = WidgetDepartureData(lineName: "U1", stopName: "Stephansplatz", destination: "Leopoldau", departures: [2, 5, 12])
+        let fetchedAt = Date(timeIntervalSince1970: 1_000)
+        let data = WidgetDepartureData(
+            diva: "60200195",
+            lineName: "U1",
+            stopName: "Stephansplatz",
+            destination: "Leopoldau",
+            departures: [2, 5, 12],
+            fetchedAt: fetchedAt
+        )
         let encoded = try! JSONEncoder().encode(data)
         let decoded = try! JSONDecoder().decode(WidgetDepartureData.self, from: encoded)
         XCTAssertEqual(decoded.lineName, "U1")
+        XCTAssertEqual(decoded.diva, "60200195")
         XCTAssertEqual(decoded.departures, [2, 5, 12])
+        XCTAssertEqual(decoded.fetchedAt, fetchedAt)
+    }
+
+    func testWidgetDepartureDataDecodesLegacyPayload() throws {
+        let legacy = """
+        {
+          "lineName": "U1",
+          "stopName": "Stephansplatz",
+          "destination": "Leopoldau",
+          "departures": [2, 5, 12]
+        }
+        """
+
+        let decoded = try JSONDecoder().decode(
+            WidgetDepartureData.self,
+            from: Data(legacy.utf8)
+        )
+
+        XCTAssertNil(decoded.diva)
+        XCTAssertNil(decoded.fetchedAt)
+        XCTAssertEqual(decoded.departures, [2, 5, 12])
+    }
+
+    func testWidgetCountdownProjectionUsesEachRowsFetchTime() {
+        let now = Date(timeIntervalSince1970: 10_000)
+        let items = [
+            WidgetDepartureData(
+                lineName: "U1",
+                stopName: "Stephansplatz",
+                destination: "Leopoldau",
+                departures: [1, 4, 8],
+                fetchedAt: now.addingTimeInterval(-120)
+            ),
+            WidgetDepartureData(
+                lineName: "U4",
+                stopName: "Schwedenplatz",
+                destination: "Heiligenstadt",
+                departures: [2, 7],
+                fetchedAt: now.addingTimeInterval(-60)
+            ),
+        ]
+
+        let projected = WidgetCountdownProjection.items(
+            items,
+            fallbackUpdatedAt: nil,
+            at: now
+        )
+
+        XCTAssertEqual(projected[0].departures, [2, 6])
+        XCTAssertEqual(projected[1].departures, [1, 6])
+    }
+
+    func testWidgetDataMergePreservesSelectedOrderAndCachedFailures() {
+        let selected = [
+            WidgetRouteKey(lineName: "U4", destination: "Heiligenstadt"),
+            WidgetRouteKey(lineName: "U1", destination: "Leopoldau"),
+        ]
+        let cached = [
+            WidgetDepartureData(
+                lineName: "U4",
+                stopName: "Karlsplatz",
+                destination: "Heiligenstadt",
+                departures: [5]
+            ),
+        ]
+        let fresh = [
+            WidgetDepartureData(
+                lineName: "U1",
+                stopName: "Stephansplatz",
+                destination: "Leopoldau",
+                departures: [2]
+            ),
+        ]
+
+        let merged = WidgetDataMerge.ordered(
+            selected: selected,
+            fresh: fresh,
+            cached: cached
+        )
+
+        XCTAssertEqual(merged.map(\.lineName), ["U4", "U1"])
+        XCTAssertEqual(merged.map(\.departures), [[5], [2]])
+    }
+
+    func testWidgetDataMergeKeepsSameRouteAtDifferentStopsDistinct() {
+        let selected = [
+            WidgetRouteKey(diva: "1", lineName: "U1", destination: "Leopoldau"),
+            WidgetRouteKey(diva: "2", lineName: "U1", destination: "Leopoldau"),
+        ]
+        let fresh = [
+            WidgetDepartureData(
+                diva: "1",
+                lineName: "U1",
+                stopName: "Karlsplatz",
+                destination: "Leopoldau",
+                departures: [2]
+            ),
+            WidgetDepartureData(
+                diva: "2",
+                lineName: "U1",
+                stopName: "Stephansplatz",
+                destination: "Leopoldau",
+                departures: [4]
+            ),
+        ]
+
+        let merged = WidgetDataMerge.ordered(
+            selected: selected,
+            fresh: fresh,
+            cached: []
+        )
+
+        XCTAssertEqual(merged.map(\.stopName), ["Karlsplatz", "Stephansplatz"])
+        XCTAssertEqual(merged.map(\.departures), [[2], [4]])
     }
 
     func testFavoriteRouteOrderIsSharedAndDeterministic() {

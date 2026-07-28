@@ -12,12 +12,14 @@ final class MapStationsViewModel {
     private let fallbackLocation: CLLocation
     private let radius: Double
     private let markerLimit: Int
+    private let minimumMarkerSpacing: CLLocationDistance
 
     init(
         stationStore: StationStoring,
         fallbackLocation: CLLocation? = nil,
         radius: Double = 1_500,
-        markerLimit: Int = 60
+        markerLimit: Int = 36,
+        minimumMarkerSpacing: CLLocationDistance = 120
     ) {
         self.stationStore = stationStore
         self.fallbackLocation = fallbackLocation ?? CLLocation(
@@ -26,6 +28,7 @@ final class MapStationsViewModel {
         )
         self.radius = radius
         self.markerLimit = markerLimit
+        self.minimumMarkerSpacing = minimumMarkerSpacing
     }
 
     func refresh(
@@ -53,7 +56,7 @@ final class MapStationsViewModel {
         }
 
         let center = location ?? fallbackLocation
-        visibleStations = stationStore
+        let candidates = stationStore
             .stations(near: center, radiusInMeters: radius)
             .map { station in
                 (
@@ -65,8 +68,35 @@ final class MapStationsViewModel {
                 )
             }
             .sorted { $0.distance < $1.distance }
-            .prefix(markerLimit)
-            .map(\.station)
+
+        var selected: [
+            (
+                station: Station,
+                location: CLLocation
+            )
+        ] = []
+        selected.reserveCapacity(min(markerLimit, candidates.count))
+
+        for candidate in candidates {
+            guard selected.count < markerLimit else { break }
+            let candidateLocation = CLLocation(
+                latitude: candidate.station.lat,
+                longitude: candidate.station.lon
+            )
+            let isFarEnough = selected.allSatisfy { current in
+                candidateLocation.distance(from: current.location) >= minimumMarkerSpacing
+            }
+            if isFarEnough {
+                selected.append(
+                    (
+                        station: candidate.station,
+                        location: candidateLocation
+                    )
+                )
+            }
+        }
+
+        visibleStations = selected.map(\.station)
         contentState = visibleStations.isEmpty ? .empty : .ready
     }
 

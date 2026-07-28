@@ -37,6 +37,29 @@ final class MapStationsViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.locationStatus, .located)
     }
 
+    func testNearbyMarkersAreThinnedToRemainTappable() {
+        let closelySpaced = [
+            Station(id: 1, diva: 1, name: "A", lat: 48.20820, lon: 16.37380),
+            Station(id: 2, diva: 2, name: "B", lat: 48.20825, lon: 16.37385),
+            Station(id: 3, diva: 3, name: "C", lat: 48.21100, lon: 16.37800),
+        ]
+        let viewModel = MapStationsViewModel(
+            stationStore: StubStationStore(stations: closelySpaced),
+            fallbackLocation: CLLocation(latitude: 48.2082, longitude: 16.3738),
+            radius: 10_000,
+            markerLimit: 60,
+            minimumMarkerSpacing: 120
+        )
+
+        viewModel.refresh(
+            location: nil,
+            authorizationStatus: .notDetermined,
+            locationError: nil
+        )
+
+        XCTAssertEqual(viewModel.visibleStations.map(\.id), [1, 3])
+    }
+
     func testLoadingCatalogueShowsLoadingState() {
         let viewModel = makeViewModel(
             stationStore: StubStationStore(

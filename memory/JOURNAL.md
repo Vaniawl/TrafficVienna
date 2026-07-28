@@ -1,5 +1,21 @@
 # Journal
 
+## 2026-07-28 — System surfaces, widget cadence, and indexed discovery
+
+- Recovered the latest `main` baseline by removing four unreferenced components
+  that did not compile, then added persisted App Intent routing and three App
+  Shortcuts for Nearby, Search, and Favourites with English/German metadata.
+- Expanded departures to small, medium, large, circular, rectangular, and inline
+  widgets. Countdown rows now project locally each minute from their own fetch
+  time, automatic network refresh is five-minute, manual refresh bypasses the
+  throttle once, and partial failures retain correctly ordered cached routes.
+- Added exact-name, bigram, and spatial station indexes plus tappable map-marker
+  thinning. The same 100-query benchmark improved text search from about 184 ms
+  to about 6.05 ms; 100 spatial queries average about 3.70 ms on iPhone 17 Pro Simulator.
+- Clean Debug and Release builds completed with no diagnostics. Full XCTest passed
+  112/112 with no skips; cold intent routing, live Search, Map, Alerts, Favourites,
+  generated shortcut metadata, localisation bundles, and runtime logs were checked.
+
 ## 2026-07-18 — Accessibility-safe Nearby quick access
 
 - Reworked the saved-station quick-access card so decorative symbols keep a fixed

@@ -1,5 +1,52 @@
 # Architectural Decisions
 
+## 2026-07-28 — System navigation uses a persisted typed handoff
+
+**Context:** `RootTabView` listened for an untyped notification that no production
+caller posted. App Intents can launch the process cold, before a SwiftUI observer is
+ready, so an in-memory event alone can be lost.
+
+**Decision:** Represent supported system destinations as an `AppEnum`, persist one
+pending value in standard preferences, and let the root tab owner consume it after
+selecting the matching tab. App Shortcuts invoke one foreground `OpenIntent`; they
+do not bypass onboarding or introduce a second navigation hierarchy.
+
+**Consequences:** Siri, Shortcuts, and Spotlight can reliably open Nearby, Search,
+or Favourites during warm and cold launches. The persisted value contains only a
+closed enum and is removed after use; future destinations must be added explicitly.
+
+## 2026-07-28 — Widget time advances locally between bounded refreshes
+
+**Context:** The widget requested network data every minute even though departure
+countdowns can be derived from an existing response. Partial refresh failure also
+discarded usable rows, and only Home Screen small/medium families were available.
+
+**Decision:** Store a fetch timestamp with each widget row, create five one-minute
+timeline entries by subtracting elapsed whole minutes, and request network data at
+most every five minutes unless the user explicitly taps Refresh. Group routes by
+station and merge fresh rows over cached rows in the user-visible route order.
+
+**Consequences:** Countdown labels remain minute-accurate with fewer API requests,
+partial outages retain truthful cached content, and the same data model supports
+large plus Lock Screen families. Cached payloads remain backward-compatible because
+the added timestamp is optional.
+
+## 2026-07-28 — Station discovery is indexed and map density is bounded
+
+**Context:** Every search keystroke re-normalized all 1,959 station names, exact
+lookup and radius queries scanned the full catalogue, and 60 overlapping map pins
+made central Vienna difficult to use.
+
+**Decision:** Build exact-name, bigram, and fixed spatial-cell indexes when the
+bundled catalogue loads. Preserve catalogue order, verify final substring and
+distance matches, and thin sorted map candidates by a minimum physical separation
+before applying the marker limit.
+
+**Consequences:** Search and nearby queries are substantially faster without
+changing the `StationStoring` boundary or persistence. Map pins remain tappable;
+the complete station catalogue is still available through Search and is never
+deleted by visual thinning.
+
 ## 2026-07-18 — Cross-tab service summaries refresh at the app root
 
 **Context:** The shared `DisruptionsViewModel` drove the tab badge, but its polling

@@ -42,6 +42,13 @@ struct MapStationsView: View {
             MapCompass()
             MapScaleView()
         }
+        .mapStyle(
+            .standard(
+                elevation: .flat,
+                pointsOfInterest: .excludingAll,
+                showsTraffic: false
+            )
+        )
         .overlay {
             MapContentOverlay(
                 state: viewModel.contentState,
