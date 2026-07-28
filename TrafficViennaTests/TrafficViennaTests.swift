@@ -100,6 +100,10 @@ final class TrafficViennaTests: XCTestCase {
             StationDirections.walkingLaunchOptions[MKLaunchOptionsDirectionsModeKey] as? String,
             MKLaunchOptionsDirectionsModeWalking
         )
+        XCTAssertEqual(
+            StationDirections.transitLaunchOptions[MKLaunchOptionsDirectionsModeKey] as? String,
+            MKLaunchOptionsDirectionsModeTransit
+        )
         XCTAssertTrue(StationDirections.isAvailable(for: station))
         XCTAssertFalse(StationDirections.isAvailable(for: Station(
             id: 2, diva: nil, name: "Unresolved", lat: 0, lon: 0
@@ -1780,6 +1784,27 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertNotEqual(first, moved)
     }
 
+    func testMapViewportMarkerLimitReducesClutterAsAreaWidens() {
+        XCTAssertEqual(MapViewportMetrics.markerLimit(for: 500), 60)
+        XCTAssertEqual(MapViewportMetrics.markerLimit(for: 1_200), 42)
+        XCTAssertEqual(MapViewportMetrics.markerLimit(for: 2_200), 30)
+        XCTAssertEqual(MapViewportMetrics.markerLimit(for: 4_500), 22)
+    }
+
+    func testMapViewportRadiusIsBoundedForExtremeZoomLevels() {
+        let veryClose = MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: 48.2082, longitude: 16.3738),
+            span: MKCoordinateSpan(latitudeDelta: 0.00001, longitudeDelta: 0.00001)
+        )
+        let cityWide = MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: 48.2082, longitude: 16.3738),
+            span: MKCoordinateSpan(latitudeDelta: 2, longitudeDelta: 2)
+        )
+
+        XCTAssertEqual(MapViewportMetrics.radius(for: veryClose), 450)
+        XCTAssertEqual(MapViewportMetrics.radius(for: cityWide), 6_000)
+    }
+
     func testMapFavoriteFilterPreservesVisibleStationOrder() {
         let stations = [
             Station(id: 1, diva: 1, name: "First", lat: 48.1, lon: 16.1),
@@ -3234,11 +3259,78 @@ final class TrafficViennaTests: XCTestCase {
     // MARK: - WidgetDepartureData
 
     func testWidgetDepartureDataCodable() {
-        let data = WidgetDepartureData(lineName: "U1", stopName: "Stephansplatz", destination: "Leopoldau", departures: [2, 5, 12])
+        let fetchedAt = Date(timeIntervalSince1970: 100)
+        let data = WidgetDepartureData(
+            lineName: "U1",
+            stopName: "Stephansplatz",
+            destination: "Leopoldau",
+            departures: [2, 5, 12],
+            fetchedAt: fetchedAt
+        )
         let encoded = try! JSONEncoder().encode(data)
         let decoded = try! JSONDecoder().decode(WidgetDepartureData.self, from: encoded)
         XCTAssertEqual(decoded.lineName, "U1")
         XCTAssertEqual(decoded.departures, [2, 5, 12])
+        XCTAssertEqual(decoded.fetchedAt, fetchedAt)
+    }
+
+    func testWidgetDepartureDataDecodesPayloadWithoutFetchedAt() throws {
+        let encoded = Data(
+            #"{"lineName":"U1","stopName":"Stephansplatz","destination":"Leopoldau","departures":[2,5,12]}"#
+                .utf8
+        )
+
+        let decoded = try JSONDecoder().decode(WidgetDepartureData.self, from: encoded)
+
+        XCTAssertNil(decoded.fetchedAt)
+        XCTAssertEqual(decoded.departures, [2, 5, 12])
+    }
+
+    func testWidgetCountdownProjectionAdvancesEachRowFromItsOwnFetchTime() {
+        let reference = Date(timeIntervalSince1970: 1_000)
+        let items = [
+            WidgetDepartureData(
+                lineName: "U1",
+                stopName: "Karlsplatz",
+                destination: "Leopoldau",
+                departures: [1, 4, 9],
+                fetchedAt: reference
+            ),
+            WidgetDepartureData(
+                lineName: "O",
+                stopName: "Praterstern",
+                destination: "Raxstraße",
+                departures: [5, 10],
+                fetchedAt: reference.addingTimeInterval(120)
+            )
+        ]
+
+        let projected = WidgetCountdownProjection.items(
+            items,
+            fallbackUpdatedAt: nil,
+            at: reference.addingTimeInterval(180)
+        )
+
+        XCTAssertEqual(projected[0].departures, [1, 6])
+        XCTAssertEqual(projected[1].departures, [4, 9])
+    }
+
+    func testWidgetCountdownProjectionUsesLegacyFallbackAndDropsDepartedTimes() {
+        let reference = Date(timeIntervalSince1970: 2_000)
+        let legacy = WidgetDepartureData(
+            lineName: "U4",
+            stopName: "Schwedenplatz",
+            destination: "Hütteldorf",
+            departures: [0, 2, 7]
+        )
+
+        let projected = WidgetCountdownProjection.items(
+            [legacy],
+            fallbackUpdatedAt: reference,
+            at: reference.addingTimeInterval(180)
+        )
+
+        XCTAssertEqual(projected[0].departures, [4])
     }
 
     func testWidgetSyncSkipsUnchangedPayloadAndReloadsChangesAndClear() throws {

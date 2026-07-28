@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-07-28 — Action-first iOS 26 product experience
+
+- Reworked onboarding, Search, Favourites, Alerts, Map, Nearby controls, and station directions around actionable zero states, native Liquid Glass controls, compact adaptive map markers, transit/walking Apple Maps handoff, and accessibility-aware motion.
+- Expanded widgets to small, medium, large, and all three Lock Screen accessory families; added per-row fetch timestamps and five minute-by-minute projected entries without increasing the five-minute network refresh cadence.
+- Split the visible-stop list and presentation helpers out of the map screen, fixed stale recent/result row identity, and made DEBUG UI-test state deterministic across favourites, recents, annual pass, and appearance.
+- Added backward-compatibility, projection, map-density, directions, and UI regression coverage; synchronized English, German, and Ukrainian string catalogs and updated product/architecture documentation.
+- Verified warning-free Debug and Release simulator builds, all 196 Xcode tests with 0 failures and 0 skips, localization and repository/OpenCode configuration validators, and `git diff --check`. The two executable OpenCode reliability scripts could not run their CLI-dependent phase because `opencode` is not installed in this environment.
+
 ## 2026-07-22 — Official-companion Jahreskarte details
 
 - Added Digital/Plastic formats and Standard, Youth, Senior, Special, and Jobticket categories to the local Jahreskarte editor and card presentation.

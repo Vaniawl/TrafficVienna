@@ -146,7 +146,8 @@ struct NearbyView: View {
                 Image(systemName: "arrow.clockwise")
                     .font(.system(size: 16, weight: .semibold))
                     .frame(width: 44, height: 44)
-                    .background(Color(.secondarySystemGroupedBackground), in: Circle())
+                    .glassEffect(.regular.interactive(), in: .circle)
+                    .contentTransition(.symbolEffect(.replace))
             }
             .disabled(vm.isRefreshing)
             .accessibilityLabel("Refresh departures")
@@ -232,19 +233,21 @@ struct NearbyView: View {
     }
 
     private var quickActions: some View {
-        HStack(alignment: .top, spacing: 0) {
-            actionButton("Locate", icon: "location.fill") { locationManager.requestLocationIfNeeded() }
-            NavigationLink { SearchView(store: store) } label: { actionLabel("Search", icon: "magnifyingglass") }
-            NavigationLink {
-                MapStationsView(
-                    store: store,
-                    locationManager: locationManager,
-                    favoritesVM: favoritesVM
-                )
-            } label: {
-                actionLabel("Map", icon: "map.fill")
+        GlassEffectContainer(spacing: 18) {
+            HStack(alignment: .top, spacing: 0) {
+                actionButton("Locate", icon: "location.fill") { locationManager.requestLocationIfNeeded() }
+                NavigationLink { SearchView(store: store) } label: { actionLabel("Search", icon: "magnifyingglass") }
+                NavigationLink {
+                    MapStationsView(
+                        store: store,
+                        locationManager: locationManager,
+                        favoritesVM: favoritesVM
+                    )
+                } label: {
+                    actionLabel("Map", icon: "map.fill")
+                }
+                NavigationLink { AnnualPassView() } label: { actionLabel("Pass", icon: "wallet.pass") }
             }
-            NavigationLink { AnnualPassView() } label: { actionLabel("Pass", icon: "wallet.pass") }
         }
         .buttonStyle(.plain)
         .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
@@ -259,7 +262,7 @@ struct NearbyView: View {
             Image(systemName: icon)
                 .font(.system(size: 18, weight: .semibold))
                 .frame(width: 52, height: 52)
-                .background(Color(.secondarySystemGroupedBackground), in: Circle())
+                .glassEffect(.regular.interactive(), in: .circle)
             Text(title).font(.caption).foregroundStyle(.primary)
         }
         .frame(maxWidth: .infinity)

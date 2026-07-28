@@ -199,6 +199,10 @@ final class TrafficViennaUITests: XCTestCase {
 
         let viennaTheme = app.buttons["appearance.theme.vienna"]
         XCTAssertTrue(viennaTheme.waitForExistence(timeout: 3))
+        for _ in 0..<4 {
+            app.scrollViews.firstMatch.swipeDown()
+        }
+        XCTAssertTrue(viennaTheme.isHittable)
         viennaTheme.tap()
         let viennaSelected = XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "value == %@", "Selected"),
@@ -319,17 +323,14 @@ final class TrafficViennaUITests: XCTestCase {
         let favoriteIdentifier = "search.favorite.1085618000"
         let quickFavorite = app.buttons[favoriteIdentifier]
         XCTAssertTrue(quickFavorite.waitForExistence(timeout: 5))
-        if quickFavorite.label == "Remove station from favourites" {
-            quickFavorite.tap()
-            XCTAssertTrue(app.buttons[favoriteIdentifier].waitForExistence(timeout: 3))
-        }
-        for _ in 0..<3 {
-            let addFavorite = app.buttons[favoriteIdentifier]
-            if addFavorite.label == "Remove station from favourites" { break }
-            addFavorite.tap()
-            RunLoop.current.run(until: Date().addingTimeInterval(0.5))
-        }
-        XCTAssertEqual(app.buttons[favoriteIdentifier].label, "Remove station from favourites")
+        XCTAssertFalse(app.buttons["search.removeRecent.1085618000"].exists)
+        XCTAssertEqual(quickFavorite.label, "Add station to favourites")
+        quickFavorite.tap()
+        let saved = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "label == %@", "Remove station from favourites"),
+            object: app.buttons[favoriteIdentifier]
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [saved], timeout: 3), .completed)
 
         dismissKeyboardIfPresent()
         let favouritesTab = tabBar.buttons["Favourites"]

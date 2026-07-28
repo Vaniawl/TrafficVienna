@@ -11,6 +11,7 @@ import SwiftUI
 struct FavoritesView: View {
     @ObservedObject var vm: FavoritesListViewModel
     @ObservedObject var store: StationStore
+    @EnvironmentObject private var router: AppRouter
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.isLowDataMode) private var isLowDataMode
     @Environment(\.isLowPowerMode) private var isLowPowerMode
@@ -22,42 +23,64 @@ struct FavoritesView: View {
     @State private var showClearConfirmation = false
 
     var body: some View {
-        Group {
+        List {
+            NeoHeader(eyebrow: "Your city", title: "Favourites", subtitle: "The departures you care about")
+                .listRowInsets(EdgeInsets(top: 12, leading: 14, bottom: 12, trailing: 14))
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+
             if vm.isLoading && vm.items.isEmpty && vm.stations.isEmpty {
-                ProgressView("Loading…")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let error = vm.errorMessage, vm.items.isEmpty {
-                ContentUnavailableView(
-                    "Couldn't load departures",
-                    systemImage: "wifi.exclamationmark",
-                    description: Text(error)
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("Loading your city…", systemImage: "star.fill")
+                        .font(.headline)
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.secondary.opacity(0.14))
+                        .frame(height: 16)
+                }
+                .neoCard()
+                .redacted(reason: .placeholder)
+                .shimmer()
+                .listRowInsets(EdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 12))
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+            } else if let error = vm.errorMessage, vm.items.isEmpty && vm.stations.isEmpty {
+                NeoEmptyState(
+                    icon: "wifi.exclamationmark",
+                    title: "Couldn't load departures",
+                    message: LocalizedStringKey(error),
+                    tint: .orange,
+                    actionTitle: "Retry",
+                    action: { Task { await vm.loadFavorites(forceRefresh: true) } }
                 )
+                .listRowInsets(EdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 12))
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
             } else if vm.isEmpty {
-                ContentUnavailableView(
-                    "No favourites yet",
-                    systemImage: "star",
-                    description: Text("Star a station, or tap the heart on a line, to save it here.")
+                NeoEmptyState(
+                    icon: "star",
+                    title: "No favourites yet",
+                    message: "Save a station or line once, then see its next departure here and in widgets.",
+                    tint: NeoDesign.favorite,
+                    actionTitle: "Find a station",
+                    action: { router.navigate(to: .search) }
                 )
+                .listRowInsets(EdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 12))
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
             } else {
-                List {
-                    NeoHeader(eyebrow: "Your city", title: "Favourites", subtitle: "The departures you care about")
-                        .listRowInsets(EdgeInsets(top: 12, leading: 14, bottom: 12, trailing: 14))
+                if let staleMessage = vm.staleMessage {
+                    StaleDataBanner(message: staleMessage)
+                        .listRowInsets(EdgeInsets(top: 4, leading: 12, bottom: 8, trailing: 12))
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
-                    if let staleMessage = vm.staleMessage {
-                        StaleDataBanner(message: staleMessage)
-                            .listRowInsets(EdgeInsets(top: 4, leading: 12, bottom: 8, trailing: 12))
-                            .listRowBackground(Color.clear)
-                            .listRowSeparator(.hidden)
-                    }
-                    if !vm.stations.isEmpty { stationsSection }
-                    if !vm.items.isEmpty { linesSection }
-                    if editMode == .active { clearAllSection }
                 }
-                .listStyle(.plain)
-                .scrollContentBackground(.hidden)
+                if !vm.stations.isEmpty { stationsSection }
+                if !vm.items.isEmpty { linesSection }
+                if editMode == .active { clearAllSection }
             }
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
         .neoScreen()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

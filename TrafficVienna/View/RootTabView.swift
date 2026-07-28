@@ -130,10 +130,15 @@ struct RootTabView: View {
             .tint(themeManager.preset.accentColor)
             .preferredColorScheme(themeManager.preset.colorScheme)
             .fullScreenCover(isPresented: Binding(get: { !hasOnboarded }, set: { _ in })) {
-                OnboardingView {
-                    locationManager.requestLocationIfNeeded()
-                    hasOnboarded = true
-                }
+                OnboardingView(
+                    onEnableLocation: {
+                        locationManager.requestLocationIfNeeded()
+                        hasOnboarded = true
+                    },
+                    onContinueWithoutLocation: {
+                        hasOnboarded = true
+                    }
+                )
             }
             .onReceive(NotificationCenter.default.publisher(for: .init("shortcut"))) { note in
                 guard let type = note.object as? String else { return }
@@ -218,8 +223,7 @@ struct RootTabView: View {
                 }
             }
         }
-        .toolbarBackground(.ultraThinMaterial, for: .tabBar)
-        .toolbarBackground(.visible, for: .tabBar)
+        .tabBarMinimizeBehavior(.onScrollDown)
     }
 }
 

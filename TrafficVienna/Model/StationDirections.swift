@@ -18,7 +18,15 @@ enum StationDirections {
         [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeWalking]
     }
 
+    static var transitLaunchOptions: [String: Any] {
+        [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeTransit]
+    }
+
     static func openWalkingDirections(to station: Station) {
         mapItem(for: station).openInMaps(launchOptions: walkingLaunchOptions)
+    }
+
+    static func openTransitDirections(to station: Station) {
+        mapItem(for: station).openInMaps(launchOptions: transitLaunchOptions)
     }
 }

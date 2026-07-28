@@ -1,72 +1,294 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "Departures" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrten" } },
-        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Відправлення" } }
+  "sourceLanguage": "en",
+  "strings": {
+    "Add a favourite departure": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lieblingsabfahrt hinzufügen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Додати обране відправлення"
+          }
+        }
       }
     },
-    "Live departures for your favourite lines." : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Live-Abfahrten deiner Lieblingslinien." } },
-        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Актуальні відправлення обраних ліній." } }
+    "Add a favourite line in the app.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Füge in der App eine Lieblingslinie hinzu."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Додайте обрану лінію в застосунку."
+          }
+        }
       }
     },
-    "min" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Min" } },
-        "uk" : { "stringUnit" : { "state" : "translated", "value" : "хв" } }
+    "Departures": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abfahrten"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відправлення"
+          }
+        }
       }
     },
-    "No favourites yet" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Noch keine Favoriten" } },
-        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Обраного ще немає" } }
+    "Live departures for your favourite lines.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live-Abfahrten deiner Lieblingslinien."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Актуальні відправлення обраних ліній."
+          }
+        }
       }
     },
-    "now" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "jetzt" } },
-        "uk" : { "stringUnit" : { "state" : "translated", "value" : "зараз" } }
+    "min": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Min"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "хв"
+          }
+        }
       }
     },
-    "Refresh" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktualisieren" } },
-        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Оновити" } }
+    "No favourites yet": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noch keine Favoriten"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обраного ще немає"
+          }
+        }
       }
     },
-    "Refresh Favorites" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Favoriten aktualisieren" } },
-        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Оновити обране" } }
+    "now": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "jetzt"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "зараз"
+          }
+        }
       }
     },
-    "Request the widget to refresh its data." : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Fordert das Widget auf, seine Daten zu aktualisieren." } },
-        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Запитує оновлення даних віджета." } }
+    "Refresh": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktualisieren"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оновити"
+          }
+        }
       }
     },
-    "Tap the heart on a line in the app." : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Tippe in der App bei einer Linie auf das Herz." } },
-        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Натисніть серце біля лінії в застосунку." } }
+    "Refresh Favorites": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favoriten aktualisieren"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оновити обране"
+          }
+        }
       }
     },
-    "then %@ min" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "danach %@ Min" } },
-        "uk" : { "stringUnit" : { "state" : "translated", "value" : "далі %@ хв" } }
+    "Request the widget to refresh its data.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fordert das Widget auf, seine Daten zu aktualisieren."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запитує оновлення даних віджета."
+          }
+        }
       }
     },
-    "Updated %@" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktualisiert %@" } },
-        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Оновлено %@" } }
+    "Tap the heart on a line in the app.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe in der App bei einer Linie auf das Herz."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Натисніть серце біля лінії в застосунку."
+          }
+        }
+      }
+    },
+    "Tap to find a line and add it to this widget.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe, um eine Linie zu finden und diesem Widget hinzuzufügen."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Натисніть, щоб знайти лінію та додати її до віджета."
+          }
+        }
+      }
+    },
+    "then %@ min": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "danach %@ Min"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "далі %@ хв"
+          }
+        }
+      }
+    },
+    "to departure": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bis zur Abfahrt"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "до відправлення"
+          }
+        }
+      }
+    },
+    "Traffic Vienna": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traffic Vienna"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traffic Vienna"
+          }
+        }
+      }
+    },
+    "Updated %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktualisiert %@"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оновлено %@"
+          }
+        }
+      }
+    },
+    "Vienna departures": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abfahrten in Wien"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відправлення у Відні"
+          }
+        }
+      }
+    },
+    "Your next saved connections": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine nächsten gespeicherten Verbindungen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ваші найближчі збережені маршрути"
+          }
+        }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

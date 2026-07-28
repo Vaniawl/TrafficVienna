@@ -49,12 +49,21 @@ struct StationDetailView: View {
                 }
                 if StationDirections.isAvailable(for: vm.station) {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            StationDirections.openWalkingDirections(to: vm.station)
+                        Menu {
+                            Button {
+                                StationDirections.openTransitDirections(to: vm.station)
+                            } label: {
+                                Label("Transit directions", systemImage: "tram.fill")
+                            }
+                            Button {
+                                StationDirections.openWalkingDirections(to: vm.station)
+                            } label: {
+                                Label("Walking directions", systemImage: "figure.walk")
+                            }
                         } label: {
-                            Image(systemName: "figure.walk")
+                            Image(systemName: "arrow.triangle.turn.up.right.diamond")
                         }
-                        .accessibilityLabel("Walking directions")
+                        .accessibilityLabel("Directions")
                         .accessibilityIdentifier("station.walkingDirections.toolbar")
                     }
                 }
@@ -142,35 +151,45 @@ struct StationDetailView: View {
             }
 
             if StationDirections.isAvailable(for: vm.station) {
-                Button {
-                    StationDirections.openWalkingDirections(to: vm.station)
-                } label: {
+                VStack(alignment: .leading, spacing: 14) {
                     HStack(spacing: 12) {
-                        Image(systemName: "figure.walk")
+                        Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
                             .font(.body.weight(.semibold))
                             .foregroundStyle(NeoDesign.accent)
                             .frame(width: 36, height: 36)
                             .background(NeoDesign.accent.opacity(0.10), in: RoundedRectangle(cornerRadius: 10))
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Walking directions")
+                            Text("Get to this station")
                                 .font(.headline)
-                            Text("Open this stop in Apple Maps")
+                            Text("Continue with turn-by-turn directions in Apple Maps")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                         Spacer()
-                        Image(systemName: "arrow.up.right")
-                            .font(.caption.bold())
-                            .foregroundStyle(.tertiary)
                     }
-                    .contentShape(Rectangle())
+
+                    HStack(spacing: 10) {
+                        Button {
+                            StationDirections.openTransitDirections(to: vm.station)
+                        } label: {
+                            DirectionActionLabel(title: "Transit", systemImage: "tram.fill")
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("station.transitDirections.card")
+
+                        Button {
+                            StationDirections.openWalkingDirections(to: vm.station)
+                        } label: {
+                            DirectionActionLabel(title: "Walk", systemImage: "figure.walk")
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("station.walkingDirections.card")
+                    }
                 }
-                .buttonStyle(.plain)
                 .neoCard()
                 .listRowInsets(EdgeInsets(top: 4, leading: 12, bottom: 8, trailing: 12))
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
-                .accessibilityIdentifier("station.walkingDirections.card")
             }
 
             if let staleMessage = vm.staleMessage {
@@ -447,6 +466,20 @@ private struct DepartureActionLabel: View {
             in: RoundedRectangle(cornerRadius: 14, style: .continuous)
         )
         .contentShape(Rectangle())
+    }
+}
+
+private struct DirectionActionLabel: View {
+    let title: LocalizedStringKey
+    let systemImage: String
+
+    var body: some View {
+        Label(title, systemImage: systemImage)
+            .font(.subheadline.bold())
+            .foregroundStyle(.primary)
+            .frame(maxWidth: .infinity, minHeight: 46)
+            .glassEffect(.regular.interactive(), in: .capsule)
+            .contentShape(Capsule())
     }
 }
 

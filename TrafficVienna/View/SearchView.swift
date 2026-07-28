@@ -8,6 +8,7 @@ enum RecentStationSelection {
 
 struct SearchView: View {
     @ObservedObject var store: StationStore
+    @EnvironmentObject private var router: AppRouter
     @EnvironmentObject private var recents: RecentSearchesStore
     @EnvironmentObject private var favoritesVM: FavoritesListViewModel
     @State private var query = ""
@@ -60,7 +61,14 @@ struct SearchView: View {
 
     @ViewBuilder private func recentContent(_ recentStations: [Station]) -> some View {
         if recentStations.isEmpty {
-            emptyCard(icon: "magnifyingglass", title: "Find your station", text: "Start typing to see live departures anywhere in Vienna.")
+            emptyCard(
+                icon: "magnifyingglass",
+                title: "Find your station",
+                text: "Start typing to see live departures anywhere in Vienna.",
+                actionTitle: "Explore the map"
+            ) {
+                router.navigate(to: .map)
+            }
         } else {
             HStack {
                 Text("Recent").font(.title3.bold())
@@ -71,6 +79,7 @@ struct SearchView: View {
             }
             ForEach(recentStations) { station in
                 stationCard(station, icon: "clock.arrow.circlepath", showsRecentRemoval: true)
+                    .id("recent-\(station.id)")
             }
         }
     }
@@ -82,10 +91,20 @@ struct SearchView: View {
                 .padding(.vertical, 34)
                 .neoCard()
         } else if results.isEmpty {
-            emptyCard(icon: "tram.fill", title: "No matching stops", text: "Try another station name.")
+            emptyCard(
+                icon: "tram.fill",
+                title: "No matching stops",
+                text: "Try another station name.",
+                actionTitle: "Clear search"
+            ) {
+                withAnimation(.snappy) { query = "" }
+            }
         } else {
             HStack { Text("Stations").font(.title3.bold()); Spacer(); Text("\(results.count)").foregroundStyle(.secondary) }
-            ForEach(results) { station in stationCard(station, icon: "tram.fill") }
+            ForEach(results) { station in
+                stationCard(station, icon: "tram.fill")
+                    .id("result-\(station.id)")
+            }
         }
     }
 
@@ -143,13 +162,20 @@ struct SearchView: View {
         .neoCard()
     }
 
-    private func emptyCard(icon: String, title: LocalizedStringKey, text: LocalizedStringKey) -> some View {
-        VStack(spacing: 14) {
-            NeoIcon(systemName: icon)
-            Text(title).font(.title3.bold())
-            Text(text).font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity).padding(.vertical, 34).neoCard()
+    private func emptyCard(
+        icon: String,
+        title: LocalizedStringKey,
+        text: LocalizedStringKey,
+        actionTitle: LocalizedStringKey? = nil,
+        action: (() -> Void)? = nil
+    ) -> some View {
+        NeoEmptyState(
+            icon: icon,
+            title: title,
+            message: text,
+            actionTitle: actionTitle,
+            action: action
+        )
     }
 }
 

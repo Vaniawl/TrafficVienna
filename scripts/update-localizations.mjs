@@ -5,6 +5,7 @@ const catalog = JSON.parse(fs.readFileSync(path, "utf8"));
 const original = JSON.stringify(catalog);
 const widgetPath = new URL("../TrafficViennaWidget/Localizable.xcstrings", import.meta.url);
 const widgetCatalog = JSON.parse(fs.readFileSync(widgetPath, "utf8"));
+const originalWidget = JSON.stringify(widgetCatalog);
 const requiredWidgetKeys = [
   "Departures",
   "Live departures for your favourite lines.",
@@ -203,6 +204,103 @@ const uk = {
   "updated just now":"щойно оновлено"
 };
 
+const productExperienceTranslations = {
+  de: {
+    "Explore the map": "Karte entdecken",
+    "Clear search": "Suche löschen",
+    "Checking the network…": "Netz wird geprüft…",
+    "Couldn’t check the network": "Netz konnte nicht geprüft werden",
+    "All lines are running normally. Save the lines you use and Traffic Vienna will prioritise changes that affect you.": "Alle Linien fahren normal. Speichere deine Linien, damit Traffic Vienna Änderungen priorisiert, die dich betreffen.",
+    "Review favourites": "Favoriten prüfen",
+    "Loading your city…": "Deine Stadt wird geladen…",
+    "Save a station or line once, then see its next departure here and in widgets.": "Speichere einmal eine Station oder Linie und sieh die nächste Abfahrt hier und in Widgets.",
+    "Find a station": "Station finden",
+    "Vienna, live in your pocket.": "Wien live in deiner Tasche.",
+    "Know what leaves next, save your daily lines, and keep the important part on your Lock Screen.": "Sieh die nächsten Abfahrten, speichere deine täglichen Linien und behalte das Wichtigste auf dem Sperrbildschirm.",
+    "Nearby, instantly": "Sofort in der Nähe",
+    "Live stops and walking-aware departure times around you.": "Live-Haltestellen und Abfahrtszeiten mit Fußweg rund um dich.",
+    "Your daily Vienna": "Dein tägliches Wien",
+    "Favourite lines, smart alerts, routines, and accurate widgets.": "Lieblingslinien, smarte Meldungen, Routinen und genaue Widgets.",
+    "Useful without opening": "Nützlich ohne Öffnen",
+    "Track a departure with Live Activities and Dynamic Island.": "Verfolge eine Abfahrt mit Live-Aktivitäten und Dynamic Island.",
+    "Use my location": "Meinen Standort verwenden",
+    "Continue without location": "Ohne Standort fortfahren",
+    "Location is used only to find nearby stops. You can search and use the map without sharing it. Data: Wiener Linien (Stadt Wien, CC BY).": "Der Standort wird nur verwendet, um Haltestellen in der Nähe zu finden. Suche und Karte funktionieren auch ohne Freigabe. Daten: Wiener Linien (Stadt Wien, CC BY).",
+    "Transit directions": "Öffi-Route",
+    "Directions": "Routen",
+    "Get to this station": "Zu dieser Station",
+    "Continue with turn-by-turn directions in Apple Maps": "Mit Schritt-für-Schritt-Navigation in Apple Karten fortfahren",
+    "Transit": "Öffis",
+    "Walk": "Zu Fuß"
+  },
+  uk: {
+    "Explore the map": "Переглянути мапу",
+    "Clear search": "Очистити пошук",
+    "Checking the network…": "Перевіряємо мережу…",
+    "Couldn’t check the network": "Не вдалося перевірити мережу",
+    "All lines are running normally. Save the lines you use and Traffic Vienna will prioritise changes that affect you.": "Усі лінії працюють нормально. Збережіть потрібні лінії, і Traffic Vienna показуватиме насамперед важливі для вас зміни.",
+    "Review favourites": "Переглянути обране",
+    "Loading your city…": "Завантажуємо ваше місто…",
+    "Save a station or line once, then see its next departure here and in widgets.": "Збережіть станцію або лінію один раз, щоб бачити наступне відправлення тут і у віджетах.",
+    "Find a station": "Знайти станцію",
+    "Vienna, live in your pocket.": "Відень наживо у вашій кишені.",
+    "Know what leaves next, save your daily lines, and keep the important part on your Lock Screen.": "Дізнавайтеся про найближчі відправлення, зберігайте щоденні лінії та бачте головне на екрані блокування.",
+    "Nearby, instantly": "Поруч — миттєво",
+    "Live stops and walking-aware departure times around you.": "Актуальні зупинки й час відправлення з урахуванням пішого маршруту.",
+    "Your daily Vienna": "Ваш щоденний Відень",
+    "Favourite lines, smart alerts, routines, and accurate widgets.": "Обрані лінії, розумні сповіщення, сценарії та точні віджети.",
+    "Useful without opening": "Корисне без відкриття",
+    "Track a departure with Live Activities and Dynamic Island.": "Відстежуйте відправлення через Live Activities і Dynamic Island.",
+    "Use my location": "Використати мою геолокацію",
+    "Continue without location": "Продовжити без геолокації",
+    "Location is used only to find nearby stops. You can search and use the map without sharing it. Data: Wiener Linien (Stadt Wien, CC BY).": "Геолокація потрібна лише для пошуку зупинок поруч. Пошук і мапа працюють без її надання. Дані: Wiener Linien (місто Відень, CC BY).",
+    "Transit directions": "Маршрут транспортом",
+    "Directions": "Маршрути",
+    "Get to this station": "Дістатися до станції",
+    "Continue with turn-by-turn directions in Apple Maps": "Продовжити покрокову навігацію в Apple Maps",
+    "Transit": "Транспорт",
+    "Walk": "Пішки"
+  }
+};
+
+const widgetExperienceTranslations = {
+  de: {
+    "Traffic Vienna": "Traffic Vienna",
+    "to departure": "bis zur Abfahrt",
+    "Add a favourite line in the app.": "Füge in der App eine Lieblingslinie hinzu.",
+    "Add a favourite departure": "Lieblingsabfahrt hinzufügen",
+    "Tap to find a line and add it to this widget.": "Tippe, um eine Linie zu finden und diesem Widget hinzuzufügen.",
+    "Vienna departures": "Abfahrten in Wien",
+    "Your next saved connections": "Deine nächsten gespeicherten Verbindungen"
+  },
+  uk: {
+    "Traffic Vienna": "Traffic Vienna",
+    "to departure": "до відправлення",
+    "Add a favourite line in the app.": "Додайте обрану лінію в застосунку.",
+    "Add a favourite departure": "Додати обране відправлення",
+    "Tap to find a line and add it to this widget.": "Натисніть, щоб знайти лінію та додати її до віджета.",
+    "Vienna departures": "Відправлення у Відні",
+    "Your next saved connections": "Ваші найближчі збережені маршрути"
+  }
+};
+
+for (const [language, values] of Object.entries(productExperienceTranslations)) {
+  Object.assign(language === "de" ? de : uk, values);
+  newEnglish.push(...Object.keys(values));
+}
+for (const values of Object.values(widgetExperienceTranslations)) {
+  requiredWidgetKeys.push(...Object.keys(values));
+}
+for (const [language, values] of Object.entries(widgetExperienceTranslations)) {
+  for (const [key, value] of Object.entries(values)) {
+    widgetCatalog.strings[key] ??= {};
+    widgetCatalog.strings[key].localizations ??= {};
+    widgetCatalog.strings[key].localizations[language] = {
+      stringUnit: { state: "translated", value }
+    };
+  }
+}
+
 for (const key of newEnglish) catalog.strings[key] ??= {};
 for (const [language, values] of Object.entries({ de, uk })) {
   for (const [key, value] of Object.entries(values)) {
@@ -229,11 +327,15 @@ if (incompleteWidget.length) {
   console.error(`Missing widget de/uk localization: ${incompleteWidget.join(", ")}`);
   process.exit(1);
 }
+widgetCatalog.strings = Object.fromEntries(
+  Object.entries(widgetCatalog.strings).sort(([a], [b]) => a.localeCompare(b))
+);
 if (process.argv.includes("--check")) {
-  if (original !== JSON.stringify(catalog)) {
+  if (original !== JSON.stringify(catalog) || originalWidget !== JSON.stringify(widgetCatalog)) {
     console.error("Localizable.xcstrings is stale; run node scripts/update-localizations.mjs");
     process.exit(1);
   }
 } else {
   fs.writeFileSync(path, `${JSON.stringify(catalog, null, 2)}\n`);
+  fs.writeFileSync(widgetPath, `${JSON.stringify(widgetCatalog, null, 2)}\n`);
 }

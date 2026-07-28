@@ -70,6 +70,50 @@ struct StaleDataBanner: View {
     }
 }
 
+struct NeoEmptyState: View {
+    let icon: String
+    let title: LocalizedStringKey
+    let message: LocalizedStringKey
+    var tint = NeoDesign.accent
+    var actionTitle: LocalizedStringKey?
+    var action: (() -> Void)?
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Image(systemName: icon)
+                .font(.system(size: 25, weight: .semibold))
+                .foregroundStyle(tint)
+                .frame(width: 64, height: 64)
+                .background(tint.opacity(0.11), in: Circle())
+                .symbolEffect(.breathe, options: .nonRepeating)
+                .accessibilityHidden(true)
+
+            VStack(spacing: 7) {
+                Text(title)
+                    .font(.title2.bold())
+                Text(message)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            if let actionTitle, let action {
+                Button(actionTitle, action: action)
+                    .font(.headline)
+                    .buttonStyle(.glassProminent)
+                    .tint(tint)
+                    .controlSize(.large)
+                    .padding(.top, 2)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 14)
+        .neoCard(padding: 22)
+        .accessibilityElement(children: .contain)
+    }
+}
+
 extension View {
     func neoCard(padding: CGFloat = 18) -> some View {
         self

@@ -369,6 +369,22 @@
         }
       }
     },
+    "All lines are running normally. Save the lines you use and Traffic Vienna will prioritise changes that affect you.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Linien fahren normal. Speichere deine Linien, damit Traffic Vienna Änderungen priorisiert, die dich betreffen."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Усі лінії працюють нормально. Збережіть потрібні лінії, і Traffic Vienna показуватиме насамперед важливі для вас зміни."
+          }
+        }
+      }
+    },
     "Allow location once and turn every nearby stop into a live departure board.": {
       "localizations": {
         "de": {
@@ -705,6 +721,22 @@
         }
       }
     },
+    "Checking the network…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Netz wird geprüft…"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перевіряємо мережу…"
+          }
+        }
+      }
+    },
     "Choose": {
       "localizations": {
         "de": {
@@ -833,6 +865,22 @@
         }
       }
     },
+    "Clear search": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suche löschen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Очистити пошук"
+          }
+        }
+      }
+    },
     "Clear travel data": {
       "localizations": {
         "de": {
@@ -957,6 +1005,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "Підключаємо ваше місцезнаходження до транспортної мережі Відня."
+          }
+        }
+      }
+    },
+    "Continue with turn-by-turn directions in Apple Maps": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit Schritt-für-Schritt-Navigation in Apple Karten fortfahren"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Продовжити покрокову навігацію в Apple Maps"
+          }
+        }
+      }
+    },
+    "Continue without location": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ohne Standort fortfahren"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Продовжити без геолокації"
+          }
+        }
+      }
+    },
+    "Couldn’t check the network": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Netz konnte nicht geprüft werden"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не вдалося перевірити мережу"
           }
         }
       }
@@ -1293,6 +1389,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Код пристрою"
+          }
+        }
+      }
+    },
+    "Directions": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Routen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Маршрути"
           }
         }
       }
@@ -1745,6 +1857,22 @@
         }
       }
     },
+    "Explore the map": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Karte entdecken"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Переглянути мапу"
+          }
+        }
+      }
+    },
     "Export my data": {
       "localizations": {
         "de": {
@@ -1789,6 +1917,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Face ID, Touch ID або Optic ID перевіряє система. Traffic Vienna ніколи не отримує та не зберігає ваші біометричні дані."
+          }
+        }
+      }
+    },
+    "Favourite lines, smart alerts, routines, and accurate widgets.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lieblingslinien, smarte Meldungen, Routinen und genaue Widgets."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обрані лінії, розумні сповіщення, сценарії та точні віджети."
           }
         }
       }
@@ -1873,6 +2017,22 @@
         }
       }
     },
+    "Find a station": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Station finden"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Знайти станцію"
+          }
+        }
+      }
+    },
     "Find your station": {
       "localizations": {
         "de": {
@@ -1933,6 +2093,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Почати"
+          }
+        }
+      }
+    },
+    "Get to this station": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zu dieser Station"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дістатися до станції"
           }
         }
       }
@@ -2109,6 +2285,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Залишити нагадування"
+          }
+        }
+      }
+    },
+    "Know what leaves next, save your daily lines, and keep the important part on your Lock Screen.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sieh die nächsten Abfahrten, speichere deine täglichen Linien und behalte das Wichtigste auf dem Sperrbildschirm."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дізнавайтеся про найближчі відправлення, зберігайте щоденні лінії та бачте головне на екрані блокування."
           }
         }
       }
@@ -2337,6 +2529,22 @@
         }
       }
     },
+    "Live stops and walking-aware departure times around you.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live-Haltestellen und Abfahrtszeiten mit Fußweg rund um dich."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Актуальні зупинки й час відправлення з урахуванням пішого маршруту."
+          }
+        }
+      }
+    },
     "Live Wiener Linien departures, wherever you are.": {
       "extractionState": "stale",
       "localizations": {
@@ -2350,6 +2558,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Актуальні відправлення Wiener Linien, де б ви не були."
+          }
+        }
+      }
+    },
+    "Loading your city…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Stadt wird geladen…"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Завантажуємо ваше місто…"
           }
         }
       }
@@ -2462,6 +2686,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Геолокацію вимкнено."
+          }
+        }
+      }
+    },
+    "Location is used only to find nearby stops. You can search and use the map without sharing it. Data: Wiener Linien (Stadt Wien, CC BY).": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Standort wird nur verwendet, um Haltestellen in der Nähe zu finden. Suche und Karte funktionieren auch ohne Freigabe. Daten: Wiener Linien (Stadt Wien, CC BY)."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Геолокація потрібна лише для пошуку зупинок поруч. Пошук і мапа працюють без її надання. Дані: Wiener Linien (місто Відень, CC BY)."
           }
         }
       }
@@ -2590,6 +2830,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Зараз поруч"
+          }
+        }
+      }
+    },
+    "Nearby, instantly": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sofort in der Nähe"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поруч — миттєво"
           }
         }
       }
@@ -3570,6 +3826,22 @@
         }
       }
     },
+    "Review favourites": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favoriten prüfen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Переглянути обране"
+          }
+        }
+      }
+    },
     "Rose": {
       "localizations": {
         "de": {
@@ -3646,6 +3918,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Зберегти %@ в обране"
+          }
+        }
+      }
+    },
+    "Save a station or line once, then see its next departure here and in widgets.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speichere einmal eine Station oder Linie und sieh die nächste Abfahrt hier und in Widgets."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Збережіть станцію або лінію один раз, щоб бачити наступне відправлення тут і у віджетах."
           }
         }
       }
@@ -4530,6 +4818,22 @@
         }
       }
     },
+    "Track a departure with Live Activities and Dynamic Island.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verfolge eine Abfahrt mit Live-Aktivitäten und Dynamic Island."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відстежуйте відправлення через Live Activities і Dynamic Island."
+          }
+        }
+      }
+    },
     "Track a live departure to see it on your Lock Screen.": {
       "localizations": {
         "de": {
@@ -4654,6 +4958,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Користувач Traffic Vienna"
+          }
+        }
+      }
+    },
+    "Transit": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffis"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Транспорт"
+          }
+        }
+      }
+    },
+    "Transit directions": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffi-Route"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Маршрут транспортом"
           }
         }
       }
@@ -4930,6 +5266,22 @@
         }
       }
     },
+    "Use my location": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meinen Standort verwenden"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Використати мою геолокацію"
+          }
+        }
+      }
+    },
     "Use your new password the next time you sign in.": {
       "localizations": {
         "de": {
@@ -4958,6 +5310,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Використовується лише за потреби"
+          }
+        }
+      }
+    },
+    "Useful without opening": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nützlich ohne Öffnen"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Корисне без відкриття"
           }
         }
       }
@@ -5058,6 +5426,22 @@
         }
       }
     },
+    "Vienna, live in your pocket.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wien live in deiner Tasche."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відень наживо у вашій кишені."
+          }
+        }
+      }
+    },
     "Visible stops": {
       "localizations": {
         "de": {
@@ -5070,6 +5454,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Видимі зупинки"
+          }
+        }
+      }
+    },
+    "Walk": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zu Fuß"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пішки"
           }
         }
       }
@@ -5230,6 +5630,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ваше місто рухається разом із вами"
+          }
+        }
+      }
+    },
+    "Your daily Vienna": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein tägliches Wien"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ваш щоденний Відень"
           }
         }
       }

@@ -91,7 +91,16 @@ struct Provider: AppIntentTimelineProvider {
         if items.isEmpty {
             return placeholder(in: context)
         } else {
-            return SimpleEntry(date: .now, items: items, lastUpdated: lastUpdated)
+            let now = Date()
+            return SimpleEntry(
+                date: now,
+                items: WidgetCountdownProjection.items(
+                    items,
+                    fallbackUpdatedAt: lastUpdated,
+                    at: now
+                ),
+                lastUpdated: lastUpdated
+            )
         }
     }
 
@@ -112,9 +121,20 @@ struct Provider: AppIntentTimelineProvider {
             }
         }
 
-        let entry = SimpleEntry(date: now, items: items, lastUpdated: lastUpdated)
-        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 5, to: now)!
-        return Timeline(entries: [entry], policy: .after(nextUpdate))
+        let nextUpdate = now.addingTimeInterval(5 * 60)
+        let entries = (0..<5).map { minute in
+            let entryDate = now.addingTimeInterval(TimeInterval(minute * 60))
+            return SimpleEntry(
+                date: entryDate,
+                items: WidgetCountdownProjection.items(
+                    items,
+                    fallbackUpdatedAt: lastUpdated,
+                    at: entryDate
+                ),
+                lastUpdated: lastUpdated
+            )
+        }
+        return Timeline(entries: entries, policy: .after(nextUpdate))
     }
 
     // MARK: - Cache helpers
@@ -197,7 +217,13 @@ struct Provider: AppIntentTimelineProvider {
         let minutes = line.departures.departure.map { $0.departureTime.countdown }
         let top = Array(minutes.prefix(3))
         let stopName = monitors.first?.locationStop.properties.title ?? fav.diva
-        return WidgetDepartureData(lineName: fav.lineName, stopName: stopName, destination: fav.destination, departures: top)
+        return WidgetDepartureData(
+            lineName: fav.lineName,
+            stopName: stopName,
+            destination: fav.destination,
+            departures: top,
+            fetchedAt: .now
+        )
     }
 }
 
@@ -220,30 +246,69 @@ struct TrafficViennaWidgetEntryView: View {
     var entry: Provider.Entry
 
     var body: some View {
-        if entry.items.isEmpty {
-            emptyState
-        } else if family == .systemSmall {
-            smallView
-        } else {
-            mediumView
+        Group {
+            if entry.items.isEmpty {
+                emptyState
+            } else {
+                switch family {
+                case .systemSmall:
+                    smallView
+                case .systemMedium:
+                    mediumView
+                case .systemLarge:
+                    largeView
+                case .accessoryCircular:
+                    accessoryCircularView
+                case .accessoryRectangular:
+                    accessoryRectangularView
+                case .accessoryInline:
+                    accessoryInlineView
+                default:
+                    mediumView
+                }
+            }
         }
+        .widgetURL(widgetURL)
     }
 
     // MARK: Empty
 
+    @ViewBuilder
     private var emptyState: some View {
-        VStack(spacing: 6) {
-            Image(systemName: "star")
-                .font(.title3)
-                .foregroundStyle(.secondary)
-            Text("No favourites yet")
-                .font(.subheadline.weight(.medium))
-            Text("Tap the heart on a line in the app.")
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
+        switch family {
+        case .accessoryCircular:
+            ZStack {
+                AccessoryWidgetBackground()
+                Image(systemName: "star")
+                    .font(.title2)
+                    .widgetAccentable()
+            }
+        case .accessoryRectangular:
+            VStack(alignment: .leading, spacing: 2) {
+                Label("Traffic Vienna", systemImage: "tram.fill")
+                    .font(.headline)
+                    .widgetAccentable()
+                Text("Add a favourite line in the app.")
+                    .font(.caption)
+                    .lineLimit(2)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        case .accessoryInline:
+            Label("Add a favourite departure", systemImage: "star")
+        default:
+            VStack(spacing: 8) {
+                Image(systemName: "star")
+                    .font(.title2)
+                    .foregroundStyle(.secondary)
+                Text("No favourites yet")
+                    .font(.headline)
+                Text("Tap to find a line and add it to this widget.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     // MARK: Small — first favourite, prominent
@@ -267,6 +332,7 @@ struct TrafficViennaWidgetEntryView: View {
                 Text(item.departures.first.map(timeString) ?? "–")
                     .font(.system(size: 34, weight: .semibold))
                     .monospacedDigit()
+                    .contentTransition(.numericText(countsDown: true))
                 if let first = item.departures.first, first > 0 {
                     Text("min").font(.caption).foregroundStyle(.secondary)
                 }
@@ -306,6 +372,128 @@ struct TrafficViennaWidgetEntryView: View {
         }
     }
 
+    // MARK: Large — a glanceable commute board
+
+    private var largeView: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Vienna departures")
+                        .font(.title3.bold())
+                    Text("Your next saved connections")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                refreshButton
+            }
+
+            ForEach(entry.items.prefix(3).indices, id: \.self) { index in
+                largeRow(entry.items[index])
+            }
+
+            Spacer(minLength: 0)
+            updatedLabel
+        }
+    }
+
+    private func largeRow(_ item: WidgetDepartureData) -> some View {
+        VStack(alignment: .leading, spacing: 9) {
+            HStack(spacing: 8) {
+                WidgetLineBadge(line: item.lineName)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(item.destination)
+                        .font(.headline)
+                        .lineLimit(1)
+                    Text(item.stopName)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                Spacer()
+            }
+
+            HStack(spacing: 8) {
+                ForEach(Array(item.departures.prefix(3).enumerated()), id: \.offset) { index, minute in
+                    Text(timeString(minute))
+                        .font(index == 0 ? .title2.bold() : .headline)
+                        .monospacedDigit()
+                        .contentTransition(.numericText(countsDown: true))
+                        .frame(maxWidth: .infinity, minHeight: 38)
+                        .background(
+                            index == 0 ? Color.accentColor.opacity(0.14) : Color.primary.opacity(0.05),
+                            in: RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        )
+                }
+            }
+        }
+        .padding(12)
+        .background(Color.primary.opacity(0.04), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    // MARK: Lock Screen
+
+    private var accessoryCircularView: some View {
+        let item = entry.items[0]
+        return ZStack {
+            AccessoryWidgetBackground()
+            VStack(spacing: 0) {
+                Text(item.lineName)
+                    .font(.caption.bold())
+                    .widgetAccentable()
+                Text(item.departures.first.map(timeString) ?? "–")
+                    .font(.title2.bold())
+                    .monospacedDigit()
+                    .contentTransition(.numericText(countsDown: true))
+                if item.departures.first.map({ $0 > 0 }) == true {
+                    Text("min")
+                        .font(.system(size: 8, weight: .semibold))
+                }
+            }
+        }
+    }
+
+    private var accessoryRectangularView: some View {
+        let item = entry.items[0]
+        return HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("\(item.lineName) → \(item.destination)")
+                    .font(.headline)
+                    .lineLimit(1)
+                    .widgetAccentable()
+                Text(item.stopName)
+                    .font(.caption)
+                    .lineLimit(1)
+                if item.departures.count > 1 {
+                    Text(String(
+                        format: String(localized: "then %@ min"),
+                        locale: .current,
+                        item.departures.dropFirst().prefix(2).map(String.init).joined(separator: ", ")
+                    ))
+                    .font(.caption2)
+                }
+            }
+            Spacer(minLength: 4)
+            VStack(spacing: 0) {
+                Text(item.departures.first.map(timeString) ?? "–")
+                    .font(.title.bold())
+                    .monospacedDigit()
+                    .contentTransition(.numericText(countsDown: true))
+                if item.departures.first.map({ $0 > 0 }) == true {
+                    Text("min").font(.caption2)
+                }
+            }
+        }
+    }
+
+    private var accessoryInlineView: some View {
+        let item = entry.items[0]
+        return Label(
+            "\(item.lineName) → \(item.destination): \(item.departures.first.map(timeString) ?? "–") min",
+            systemImage: "tram.fill"
+        )
+    }
+
     private func row(_ item: WidgetDepartureData) -> some View {
         HStack(spacing: 8) {
             WidgetLineBadge(line: item.lineName)
@@ -317,6 +505,7 @@ struct TrafficViennaWidgetEntryView: View {
                 Text(item.departures.first.map(timeString) ?? "–")
                     .font(.headline)
                     .monospacedDigit()
+                    .contentTransition(.numericText(countsDown: true))
                 if let first = item.departures.first, first > 0 {
                     Text("min").font(.caption2).foregroundStyle(.secondary)
                 }
@@ -355,6 +544,10 @@ struct TrafficViennaWidgetEntryView: View {
         minutes <= 0 ? String(localized: "now") : "\(minutes)"
     }
 
+    private var widgetURL: URL? {
+        URL(string: entry.items.isEmpty ? "trafficvienna://search" : "trafficvienna://favourites")
+    }
+
     private func relativeUpdatedString(since date: Date) -> String {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .short
@@ -377,7 +570,14 @@ struct TrafficViennaWidget: Widget {
         }
         .configurationDisplayName("Departures")
         .description("Live departures for your favourite lines.")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .supportedFamilies([
+            .systemSmall,
+            .systemMedium,
+            .systemLarge,
+            .accessoryCircular,
+            .accessoryRectangular,
+            .accessoryInline
+        ])
     }
 }
 
@@ -455,6 +655,18 @@ private let previewItems = [
 }
 
 #Preview(as: .systemMedium) {
+    TrafficViennaWidget()
+} timeline: {
+    SimpleEntry(date: .now, items: previewItems, lastUpdated: Date())
+}
+
+#Preview(as: .systemLarge) {
+    TrafficViennaWidget()
+} timeline: {
+    SimpleEntry(date: .now, items: previewItems, lastUpdated: Date())
+}
+
+#Preview(as: .accessoryRectangular) {
     TrafficViennaWidget()
 } timeline: {
     SimpleEntry(date: .now, items: previewItems, lastUpdated: Date())

@@ -1,5 +1,13 @@
 # Architectural Decisions
 
+## 2026-07-28 — Evolutionary iOS 26 experience and fetch-time widget projection
+
+**Context:** TrafficVienna already had a stable five-tab MVVM architecture, live-data pipeline, widget extension, and strong Home dashboard. Utility screens still had passive dead-end empty states, dense fixed-size map annotations, non-native tab-bar material, and a widget countdown that could remain visually frozen between five-minute fair-use refreshes. The departure API does not provide licensed A→B routing.
+
+**Decision:** Preserve the existing tab, service, storage, and view-model boundaries while introducing one reusable actionable empty-state component and native Liquid Glass only on navigation and interactive controls. Keep the map query bounded but derive its radius and 22–60 marker budget from the visible region. Add Apple Maps transit and walking handoff instead of inventing in-app routing. Extend widgets to large and Lock Screen families, store an optional per-row fetch timestamp, and project minute-by-minute timeline entries from that timestamp.
+
+**Consequences:** The redesign remains incremental and independently reversible, while first-run, search, favourites, alerts, map, station directions, and widgets now lead to concrete actions. Legacy widget payloads remain decodable through the global timestamp fallback; five projected entries improve countdown accuracy without increasing network frequency. Full in-app routing remains an explicit external-data integration, and future visual changes should continue treating glass as a control/navigation layer rather than content decoration.
+
 ## 2026-07-22 — Jahreskarte as a local reminder, not a transport credential
 
 **Context:** TrafficVienna has no authenticated Wiener Linien ticketing API, issuer signature, barcode payload, or entitlement to present a digital annual pass during inspection. Treating user-entered data as an official ticket would create a misleading and unsafe promise.

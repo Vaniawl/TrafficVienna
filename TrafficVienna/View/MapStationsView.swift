@@ -20,6 +20,47 @@ struct MapCenterKey: Hashable {
     }
 }
 
+struct MapQueryKey: Hashable {
+    let latitudeBucket: Int
+    let longitudeBucket: Int
+    let radiusBucket: Int
+    let limit: Int
+
+    nonisolated init(center: CLLocation, radius: CLLocationDistance, limit: Int) {
+        latitudeBucket = Int((center.coordinate.latitude * 1_000).rounded())
+        longitudeBucket = Int((center.coordinate.longitude * 1_000).rounded())
+        radiusBucket = Int((radius / 250).rounded())
+        self.limit = limit
+    }
+}
+
+enum MapViewportMetrics {
+    static func radius(for region: MKCoordinateRegion) -> CLLocationDistance {
+        let center = CLLocation(
+            latitude: region.center.latitude,
+            longitude: region.center.longitude
+        )
+        let north = CLLocation(
+            latitude: region.center.latitude + region.span.latitudeDelta / 2,
+            longitude: region.center.longitude
+        )
+        let east = CLLocation(
+            latitude: region.center.latitude,
+            longitude: region.center.longitude + region.span.longitudeDelta / 2
+        )
+        return min(max(max(center.distance(from: north), center.distance(from: east)), 450), 6_000)
+    }
+
+    static func markerLimit(for radius: CLLocationDistance) -> Int {
+        switch radius {
+        case ..<900: 60
+        case ..<1_800: 42
+        case ..<3_000: 30
+        default: 22
+        }
+    }
+}
+
 enum MapStationSelection {
     static func nearest(
         in store: StationStore,
@@ -47,98 +88,6 @@ enum MapStationFilter {
     }
 }
 
-enum MapStationListSearch {
-    static func matching(_ stations: [Station], query: String) -> [Station] {
-        let tokens = normalized(query).split(separator: " ")
-        guard !tokens.isEmpty else { return stations }
-
-        return stations.filter { station in
-            let name = normalized(station.name)
-            return tokens.allSatisfy(name.contains)
-        }
-    }
-
-    static func matching(_ items: [MapStationListItem], query: String) -> [MapStationListItem] {
-        let tokens = normalized(query).split(separator: " ")
-        guard !tokens.isEmpty else { return items }
-
-        return items.filter { item in
-            tokens.allSatisfy(item.normalizedName.contains)
-        }
-    }
-
-    static func normalized(_ text: String) -> String {
-        text.folding(
-            options: [.caseInsensitive, .diacriticInsensitive],
-            locale: Locale(identifier: "de_AT")
-        )
-    }
-}
-
-struct MapStationListItem: Identifiable {
-    let station: Station
-    let distance: CLLocationDistance?
-    let normalizedName: String
-    let walkingEstimate: WalkingEstimate?
-
-    init(station: Station, distance: CLLocationDistance?) {
-        self.station = station
-        self.distance = distance
-        self.normalizedName = MapStationListSearch.normalized(station.name)
-        self.walkingEstimate = distance.map(WalkingEstimate.init(distanceMeters:))
-    }
-
-    var id: Int { station.id }
-}
-
-struct MapStationListPresentation {
-    let items: [MapStationListItem]
-    let hasQuery: Bool
-
-    init(items: [MapStationListItem], query: String) {
-        self.items = MapStationListSearch.matching(items, query: query)
-        self.hasQuery = !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-}
-
-struct MapStationListInputKey: Equatable {
-    let stationIDs: [Int]
-    let latitude: Double?
-    let longitude: Double?
-
-    init(stations: [Station], origin: CLLocation?) {
-        stationIDs = stations.map(\.id)
-        latitude = origin?.coordinate.latitude
-        longitude = origin?.coordinate.longitude
-    }
-}
-
-enum MapStationListOrder {
-    static func items(_ stations: [Station], from origin: CLLocation?) -> [MapStationListItem] {
-        guard let origin else {
-            return stations.map { MapStationListItem(station: $0, distance: nil) }
-        }
-
-        return stations.enumerated()
-            .map { offset, station in
-                let location = CLLocation(latitude: station.lat, longitude: station.lon)
-                return (
-                    offset: offset,
-                    item: MapStationListItem(
-                        station: station,
-                        distance: location.distance(from: origin)
-                    )
-                )
-            }
-            .sorted { (($0.item.distance ?? 0), $0.offset) < (($1.item.distance ?? 0), $1.offset) }
-            .map(\.item)
-    }
-
-    static func nearest(_ stations: [Station], to origin: CLLocation?) -> [Station] {
-        items(stations, from: origin).map(\.station)
-    }
-}
-
 struct MapStationsView: View {
     @ObservedObject var store: StationStore
     @ObservedObject var locationManager: LocationManager
@@ -149,16 +98,19 @@ struct MapStationsView: View {
     @State private var sheetStation: Station?
     @State private var stations: [Station] = []
     @State private var markerCenter = CLLocation(latitude: 48.2082, longitude: 16.3738)
+    @State private var markerRadius: CLLocationDistance = 1_500
+    @State private var markerLimit = 42
     @State private var didCenterOnUser = false
     @State private var favoritesOnly = false
     @State private var showsStationList = false
 
     // Vienna city centre, used until a real location is available.
     private static let viennaCenter = CLLocationCoordinate2D(latitude: 48.2082, longitude: 16.3738)
-    private let radius: Double = 1500
-    private let maxMarkers = 60
+    private let initialRadius: CLLocationDistance = 1_500
 
-    private var markerCenterKey: MapCenterKey { MapCenterKey(location: markerCenter) }
+    private var mapQueryKey: MapQueryKey {
+        MapQueryKey(center: markerCenter, radius: markerRadius, limit: markerLimit)
+    }
     private var userLocationKey: MapCenterKey? { locationManager.userLocation.map(MapCenterKey.init) }
     private var filterTitle: LocalizedStringKey {
         favoritesOnly ? "Show all stops" : "Favourites only"
@@ -176,9 +128,17 @@ struct MapStationsView: View {
             UserAnnotation()
             ForEach(visibleStations) { station in
                 let isFavorite = favoriteStationIDs.contains(station.id)
-                Marker(station.name, systemImage: isFavorite ? "star.fill" : "tram.fill",
-                       coordinate: CLLocationCoordinate2D(latitude: station.lat, longitude: station.lon))
-                    .tint(isFavorite ? NeoDesign.favorite : NeoDesign.accent)
+                Annotation(
+                    station.name,
+                    coordinate: CLLocationCoordinate2D(latitude: station.lat, longitude: station.lon),
+                    anchor: .bottom
+                ) {
+                    MapStationMarker(
+                        name: station.name,
+                        isFavorite: isFavorite,
+                        isSelected: selectedID == station.id
+                    )
+                }
                     .tag(station.id)
             }
         }
@@ -191,6 +151,8 @@ struct MapStationsView: View {
                 latitude: context.region.center.latitude,
                 longitude: context.region.center.longitude
             )
+            markerRadius = MapViewportMetrics.radius(for: context.region)
+            markerLimit = MapViewportMetrics.markerLimit(for: markerRadius)
         }
         .safeAreaInset(edge: .top, spacing: 0) {
             HStack(spacing: 10) {
@@ -209,56 +171,48 @@ struct MapStationsView: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 9)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 17, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: 17, style: .continuous)
-                    .stroke(Color.white.opacity(0.45), lineWidth: 1)
-            }
-            .shadow(color: .black.opacity(0.08), radius: 12, y: 5)
+            .glassEffect(.regular, in: .rect(cornerRadius: 17))
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            HStack(spacing: 8) {
-                Button {
-                    showsStationList = true
-                } label: {
-                    Label("Stops list", systemImage: "list.bullet")
-                        .mapPill(isSelected: false)
-                }
-                .buttonStyle(.plain)
-                .accessibilityIdentifier("map.stopsList")
+            GlassEffectContainer(spacing: 10) {
+                HStack(spacing: 10) {
+                    Button {
+                        showsStationList = true
+                    } label: {
+                        Label("Stops list", systemImage: "list.bullet")
+                            .mapPill(isSelected: false)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("map.stopsList")
 
-                Button {
-                    favoritesOnly.toggle()
-                    selectedID = nil
-                    sheetStation = nil
-                } label: {
-                    Label(filterTitle, systemImage: favoritesOnly ? "map" : "star.fill")
-                        .mapPill(isSelected: favoritesOnly)
+                    Button {
+                        withAnimation(.snappy) {
+                            favoritesOnly.toggle()
+                            selectedID = nil
+                            sheetStation = nil
+                        }
+                    } label: {
+                        Label(filterTitle, systemImage: favoritesOnly ? "map" : "star.fill")
+                            .mapPill(isSelected: favoritesOnly)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("map.favouritesFilter")
                 }
-                .buttonStyle(.plain)
-                .accessibilityIdentifier("map.favouritesFilter")
             }
-            .padding(8)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .stroke(Color.white.opacity(0.55), lineWidth: 1)
-            }
-            .shadow(color: .black.opacity(0.12), radius: 16, y: 7)
             .padding(.horizontal, 14)
             .padding(.bottom, 8)
         }
         .navigationTitle("Map")
         .tint(NeoDesign.accent)
         .navigationBarTitleDisplayMode(.inline)
-        .task(id: markerCenterKey) {
+        .task(id: mapQueryKey) {
             stations = MapStationSelection.nearest(
                 in: store,
                 to: markerCenter,
-                radius: radius,
-                limit: maxMarkers
+                radius: markerRadius,
+                limit: markerLimit
             )
         }
         .onChange(of: userLocationKey, initial: true) { _, newKey in
@@ -267,8 +221,8 @@ struct MapStationsView: View {
             markerCenter = location
             position = .region(MKCoordinateRegion(
                 center: location.coordinate,
-                latitudinalMeters: radius * 2,
-                longitudinalMeters: radius * 2
+                latitudinalMeters: initialRadius * 2,
+                longitudinalMeters: initialRadius * 2
             ))
         }
         .onChange(of: selectedID) { _, newValue in
@@ -296,126 +250,40 @@ struct MapStationsView: View {
     }
 }
 
-private struct MapStationListView: View {
-    let stations: [Station]
-    @ObservedObject var favoritesVM: FavoritesListViewModel
-    @Binding var favoritesOnly: Bool
-    let walkingOrigin: CLLocation?
-    @Environment(\.dismiss) private var dismiss
-    @State private var query = ""
-    @State private var orderedItems: [MapStationListItem]
-
-    init(
-        stations: [Station],
-        favoritesVM: FavoritesListViewModel,
-        favoritesOnly: Binding<Bool>,
-        walkingOrigin: CLLocation?
-    ) {
-        self.stations = stations
-        _favoritesVM = ObservedObject(wrappedValue: favoritesVM)
-        _favoritesOnly = favoritesOnly
-        self.walkingOrigin = walkingOrigin
-        _orderedItems = State(initialValue: MapStationListOrder.items(stations, from: walkingOrigin))
-    }
-
-    private var inputKey: MapStationListInputKey {
-        MapStationListInputKey(stations: stations, origin: walkingOrigin)
-    }
+private struct MapStationMarker: View {
+    let name: String
+    let isFavorite: Bool
+    let isSelected: Bool
 
     var body: some View {
-        let presentation = MapStationListPresentation(items: orderedItems, query: query)
+        VStack(spacing: 4) {
+            Image(systemName: isFavorite ? "star.fill" : "tram.fill")
+                .font(.system(size: isSelected ? 15 : 12, weight: .bold))
+                .foregroundStyle(.white)
+                .frame(width: isSelected ? 36 : 28, height: isSelected ? 36 : 28)
+                .background(isFavorite ? NeoDesign.favorite : NeoDesign.accent, in: Circle())
+                .overlay {
+                    Circle().stroke(.white, lineWidth: 2)
+                }
+                .shadow(
+                    color: .black.opacity(isSelected ? 0.22 : 0.12),
+                    radius: isSelected ? 8 : 4,
+                    y: 2
+                )
 
-        NavigationStack {
-            Group {
-                if presentation.items.isEmpty {
-                    ContentUnavailableView {
-                        Label(
-                            presentation.hasQuery
-                                ? "No matching stops"
-                                : favoritesOnly ? "No favourite stops in view" : "No stops in view",
-                            systemImage: presentation.hasQuery ? "magnifyingglass" : favoritesOnly ? "star.slash" : "tram"
-                        )
-                    } description: {
-                        Text(presentation.hasQuery ? "Try another station name." : "Move the map or show all stops.")
-                    } actions: {
-                        if favoritesOnly {
-                            Button("Show all stops") { favoritesOnly = false }
-                                .buttonStyle(.borderedProminent)
-                        }
-                    }
-                } else {
-                    List(presentation.items) { item in
-                        let station = item.station
-                        let isFavorite = favoritesVM.isStationFavorite(id: station.id)
-                        HStack(spacing: 8) {
-                            NavigationLink {
-                                StationDetailView(station: station)
-                            } label: {
-                                HStack(spacing: 14) {
-                                    NeoIcon(
-                                        systemName: isFavorite ? "star.fill" : "tram.fill",
-                                        tint: isFavorite ? NeoDesign.favorite : NeoDesign.accent
-                                    )
-                                    VStack(alignment: .leading, spacing: 3) {
-                                        Text(station.name)
-                                            .font(.headline)
-                                        Text(station.diva == nil ? "Schedule only" : "Live departures")
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                        if let walkingEstimate = item.walkingEstimate {
-                                            Label(walkingEstimate.text, systemImage: "figure.walk")
-                                                .font(.caption2)
-                                                .foregroundStyle(.secondary)
-                                        }
-                                    }
-                                }
-                                .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-
-                            Button {
-                                withAnimation { favoritesVM.toggleStation(station) }
-                            } label: {
-                                Image(systemName: isFavorite ? "star.fill" : "star")
-                                    .foregroundStyle(isFavorite ? NeoDesign.favorite : .secondary)
-                                    .frame(width: 44, height: 44)
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel(
-                                isFavorite
-                                    ? "Remove station from favourites"
-                                    : "Add station to favourites"
-                            )
-                            .accessibilityHint(Text(verbatim: station.name))
-                            .accessibilityIdentifier("map.favorite.\(station.id)")
-                        }
-                        .padding(.vertical, 4)
-                        .accessibilityIdentifier("map.station.\(station.id)")
-                    }
-                    .listStyle(.plain)
-                }
-            }
-            .navigationTitle("Visible stops")
-            .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $query, prompt: "Search visible stops")
-            .autocorrectionDisabled()
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Text("Closest first")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
-                }
+            if isSelected {
+                Text(name)
+                    .font(.caption2.bold())
+                    .lineLimit(1)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .glassEffect(.regular, in: .capsule)
+                    .transition(.scale.combined(with: .opacity))
             }
         }
-        .tint(NeoDesign.accent)
-        .onChange(of: inputKey) { _, _ in
-            orderedItems = MapStationListOrder.items(stations, from: walkingOrigin)
-        }
+        .animation(.snappy, value: isSelected)
+        .accessibilityLabel(name)
     }
-
 }
 
 private extension View {
@@ -423,11 +291,14 @@ private extension View {
         font(.caption.bold())
             .frame(maxWidth: .infinity, minHeight: 42)
             .padding(.horizontal, 10)
-            .background(isSelected ? NeoDesign.accent : Color(.systemBackground).opacity(0.82), in: Capsule())
             .foregroundStyle(isSelected ? .white : .primary)
-            .overlay {
-                Capsule().stroke(isSelected ? Color.clear : NeoDesign.hairline, lineWidth: 1)
-            }
+            .glassEffect(
+                .regular
+                    .tint(isSelected ? NeoDesign.accent : .clear)
+                    .interactive(),
+                in: .capsule
+            )
+            .contentShape(Capsule())
     }
 }
 

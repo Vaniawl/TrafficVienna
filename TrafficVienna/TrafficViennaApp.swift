@@ -18,9 +18,13 @@ struct TrafficViennaApp: App {
     init() {
 #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("-ui-testing-reset") {
+            let defaults = trafficViennaSharedDefaults
             UserDefaults.standard.set(true, forKey: "hasOnboarded")
             UserDefaultsFavoritesRepository().removeAll()
             UserDefaultsFavoriteStationsRepository().removeAll()
+            defaults.removeObject(forKey: "annual_pass")
+            defaults.removeObject(forKey: "recent_search_ids")
+            defaults.removeObject(forKey: "themePreset")
         }
 #endif
     }
