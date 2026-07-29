@@ -59,10 +59,12 @@ A `Go` requires:
 - App Store metadata copy is within Apple’s field limits: subtitles 23/21
   characters, promotional text 129/126, descriptions 1106/1345, and keywords
   80/72 for English/German.
-- Release-readiness PR #10 and stacked product PR #9 are merged. Production
-  `main` is commit `52009857a361e0a3c138c4cbded380034dc48f16`; its push
-  Quality run `30432216226` completed successfully in 8m09s with the pinned
-  OpenCode checks, repository validation, build, tests, and final diff check.
+- Release-readiness PR #10 and stacked product PR #9 are merged at release code
+  integration commit `52009857a361e0a3c138c4cbded380034dc48f16`. That
+  code SHA's push Quality run `30432216226` completed successfully in 8m09s
+  with the pinned OpenCode checks, repository validation, build, tests, and
+  final diff check. Later evidence-only documentation commits do not alter the
+  inspected app sources or binaries.
 - `main` now requires pull requests and a strict successful `validate` check.
   Conversation resolution is required, admin enforcement is enabled, and force
   pushes and branch deletion are disabled.
