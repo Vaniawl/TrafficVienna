@@ -29,8 +29,8 @@ A SwiftUI iOS app for live Wiener Linien (Vienna public transport) departures. T
 
 - Android / watchOS / macOS versions.
 - Real-time vehicle tracking on the map (the API only provides stop-level departure counts).
-- Mandatory accounts or gating live transport data behind login. Optional account
-  access is an active product goal; cross-device favourite sync remains a separate
-  future decision.
+- Accounts or gating live transport data behind login. Identity should return only
+  with a real cross-device feature, complete deletion lifecycle, and approved
+  backend/provider boundary.
 - Ticket purchase or routing between stations.
 - Push notifications (only local Live Activities and widget timelines are used).

@@ -51,7 +51,31 @@ struct DepartureLineRow: View {
     }
 
     private func compactLayout(next: Int?, status: CatchStatus?) -> some View {
-        HStack(spacing: Spacing.sm) {
+        ViewThatFits(in: .horizontal) {
+            horizontalLayout(
+                next: next,
+                status: status,
+                includesFollowUp: showFollowUp
+            )
+
+            if showFollowUp {
+                horizontalLayout(
+                    next: next,
+                    status: status,
+                    includesFollowUp: false
+                )
+            }
+
+            wrappedLayout(next: next, status: status)
+        }
+    }
+
+    private func horizontalLayout(
+        next: Int?,
+        status: CatchStatus?,
+        includesFollowUp: Bool
+    ) -> some View {
+        HStack(spacing: Spacing.xs) {
             LineBadge(line: lineName)
                 .frame(width: badgeColumn, alignment: .center)
 
@@ -59,6 +83,7 @@ struct DepartureLineRow: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
+                .fixedSize(horizontal: true, vertical: false)
 
             Spacer(minLength: 4)
 
@@ -74,10 +99,45 @@ struct DepartureLineRow: View {
             nextTime(next: next, status: status)
                 .frame(width: nextColumn, alignment: .trailing)
 
-            if showFollowUp {
+            if includesFollowUp {
                 followUp
                     .frame(width: followColumn, alignment: .trailing)
             }
+        }
+    }
+
+    private func wrappedLayout(next: Int?, status: CatchStatus?) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
+            HStack(alignment: .firstTextBaseline, spacing: Spacing.xs) {
+                LineBadge(line: lineName)
+                    .frame(width: badgeColumn, alignment: .center)
+
+                Text(destination)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Spacer(minLength: 0)
+
+                if hasDisruption {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                }
+            }
+
+            HStack(alignment: .firstTextBaseline, spacing: Spacing.xs) {
+                glyph(status: status, next: next)
+                    .frame(width: glyphColumn)
+
+                nextTime(next: next, status: status)
+
+                if showFollowUp {
+                    followUp
+                }
+            }
+            .padding(.leading, badgeColumn + Spacing.xs)
         }
     }
 
@@ -87,8 +147,11 @@ struct DepartureLineRow: View {
                 LineBadge(line: lineName)
 
                 Text(destination)
-                    .font(.headline)
+                    .font(.body.weight(.medium))
                     .foregroundStyle(.secondary)
+                    .lineLimit(3)
+                    .minimumScaleFactor(0.8)
+                    .dynamicTypeSize(...DynamicTypeSize.accessibility2)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Spacer(minLength: 0)

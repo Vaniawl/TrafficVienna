@@ -1,5 +1,27 @@
 # Journal
 
+## 2026-07-29 — App Store readiness hardening
+
+- Removed the device-only Sign in with Apple profile surface and entitlement,
+  replaced it with an idempotent legacy Keychain cleanup, added in-app/public
+  privacy policy content, app/widget privacy manifests, export-compliance
+  declaration, complete English/German store metadata, and a physical/TestFlight
+  smoke checklist.
+- Fixed premature destination truncation and maximum Accessibility Dynamic Type
+  disruption/departure layouts. Runtime acceptance covered English and German,
+  optional-location behavior, live data, iPhone 17 Pro Max, iPad Pro 13-inch, and
+  ten localized 1320×2868 App Store screenshots without alpha.
+- All 108 XCTest cases pass with no failures, skips, warnings, or errors. A clean
+  unsigned Release archive contains the expected arm64 app/widget, bundle IDs,
+  version 1.0 (1), iOS 26.0 minimum, icons, encryption flag, and both privacy
+  manifests. Repository and OpenCode static validators pass.
+- Current release verdict remains No-Go: non-interactive Keychain access prevents
+  the final signed archive at widget `codesign`; App Store Connect, the final
+  public privacy URL, processed-build warnings/privacy report, and physical
+  TestFlight system-surface smoke remain externally unverified. Local full CI
+  additionally stops because `opencode` is not installed; protected GitHub CI
+  installs the pinned version and is the handoff authority.
+
 ## 2026-07-29 — Camera-aware map exploration and widget navigation
 
 - Added an explicit “Search this area” map flow after 250 metres of camera

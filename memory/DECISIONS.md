@@ -1,5 +1,25 @@
 # Architectural Decisions
 
+## 2026-07-29 — Release without a non-functional identity surface
+
+**Context:** Optional Sign in with Apple stored only a name/email profile in the
+device Keychain. It did not sync favourites, unlock functionality, or create a
+Traffic Vienna server account. The entitlement blocked a signed archive because
+the installed app profile lacked the capability, while keeping it would also add
+account-deletion and credential-revocation review obligations without product
+value.
+
+**Decision:** Remove the Apple sign-in UI, session model, tests, and entitlement
+from the App Store release. Preserve anonymous access to every transport feature.
+Run one idempotent launch migration that deletes the known legacy Keychain item
+and records completion only after success or an item-not-found result.
+
+**Consequences:** Signing and privacy scope are smaller, onboarding has three
+product-focused steps, and no contact identity is collected. The legacy profile
+deletion is intentionally irreversible but does not affect favourites or widget
+data. Identity can return only with a real cross-device feature, complete deletion
+lifecycle, approved backend/provider boundary, and fresh release/security review.
+
 ## 2026-07-29 — Widget deep links share the system destination vocabulary
 
 **Context:** Widget taps opened the app generically, while App Shortcuts already

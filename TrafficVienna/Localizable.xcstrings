@@ -1,1566 +1,1908 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "Destination" : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Ziel" } } }
-    },
-    "Favourite stops" : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Lieblingshaltestellen" } } }
-    },
-    "Nearby departures" : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrten in der Nähe" } } }
-    },
-    "Open Traffic Vienna" : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Traffic Vienna öffnen" } } }
-    },
-    "Open Traffic Vienna at the part you need." : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Öffnet Traffic Vienna im gewünschten Bereich." } } }
-    },
-    "Open ${target} in Traffic Vienna" : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "${target} in Traffic Vienna öffnen" } } }
-    },
-    "Search stations" : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Stationen suchen" } } }
-    },
-    "—" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "—" } } } },
-    "%lld" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "%lld" } } } },
-    "Choose another transport type." : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Wähle ein anderes Verkehrsmittel." } } }
-    },
-    "Departures unavailable" : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrten nicht verfügbar" } } }
-    },
-    "Departures available" : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrten verfügbar" } } }
-    },
-    "Distance unknown" : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Entfernung unbekannt" } } }
-    },
-    "Enable Live Activities in Settings to track departures on the Lock Screen." : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktiviere Live-Aktivitäten in den Einstellungen, um Abfahrten auf dem Sperrbildschirm zu verfolgen." } } }
-    },
-    "Live Activity" : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Live-Aktivität" } } }
-    },
-    "live" : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "live" } } }
-    },
-    "Loading departures…" : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrten werden geladen…" } } }
-    },
-    "More actions" : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Weitere Aktionen" } } }
-    },
-    "No live data for this station." : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Für diese Station sind keine Live-Daten verfügbar." } } }
-    },
-    "No departures loaded" : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Keine Abfahrten geladen" } } }
-    },
-    "No matching departures" : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Keine passenden Abfahrten" } } }
-    },
-    "Nothing is scheduled right now." : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Derzeit sind keine Abfahrten geplant." } } }
-    },
-    "The Live Activity could not be started. Please try again." : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Die Live-Aktivität konnte nicht gestartet werden. Versuche es erneut." } } }
-    },
-    "Updated %@" : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktualisiert %@" } } }
-    },
-    "Accessibility" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Barrierefreiheit"
-          }
-        }
-      }
-    },
-    "Affected lines" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Betroffene Linien"
-          }
-        }
-      }
-    },
-    "Alert details" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Meldungsdetails"
-          }
-        }
-      }
-    },
-    "Alerts unavailable" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Meldungen nicht verfügbar"
-          }
-        }
-      }
-    },
-    "Alerts: %lld" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Meldungen: %lld"
-          }
-        }
-      }
-    },
-    "All clear" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alles frei"
-          }
-        }
-      }
-    },
-    "Clear filters" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Filter zurücksetzen"
-          }
-        }
-      }
-    },
-    "Loading alerts…" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Meldungen werden geladen…"
-          }
-        }
-      }
-    },
-    "No matching alerts" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Keine passenden Meldungen"
-          }
-        }
-      }
-    },
-    "No alerts in this category" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Keine Meldungen in dieser Kategorie"
-          }
-        }
-      }
-    },
-    "Choose another alert type to see other service information." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wähle einen anderen Meldungstyp, um weitere Verkehrsinformationen zu sehen."
-          }
-        }
-      }
-    },
-    "No connection. Check your internet and try again." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Keine Verbindung. Prüfe deine Internetverbindung und versuche es erneut."
-          }
-        }
-      }
-    },
-    "Not selected" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nicht ausgewählt"
-          }
-        }
-      }
-    },
-    "Search line or alert" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Linie oder Meldung suchen"
-          }
-        }
-      }
-    },
-    "Selected" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ausgewählt"
-          }
-        }
-      }
-    },
-    "Service" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Betrieb"
-          }
-        }
-      }
-    },
-    "Service is busy right now. Please try again in a moment." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der Dienst ist gerade ausgelastet. Versuche es gleich noch einmal."
-          }
-        }
-      }
-    },
-    "Stop changes" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Haltestellenänderungen"
-          }
-        }
-      }
-    },
-    "Try another alert type, line, or search term." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Versuche einen anderen Meldungstyp, eine andere Linie oder einen anderen Suchbegriff."
-          }
-        }
-      }
-    },
-    "About" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Über"
-          }
-        }
-      }
-    },
-    "Account" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Konto"
-          }
-        }
-      }
-    },
-    "Account error" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kontofehler"
-          }
-        }
-      }
-    },
-    "Apple account" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apple-Konto"
-          }
-        }
-      }
-    },
-    "Apple provides a verified identity. Traffic information and local favourites still work without an account." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apple stellt eine verifizierte Identität bereit. Verkehrsinformationen und lokale Favoriten funktionieren weiterhin ohne Konto."
-          }
-        }
-      }
-    },
-    "Apple sign-in could not be completed. Please try again." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die Anmeldung mit Apple konnte nicht abgeschlossen werden. Bitte versuche es erneut."
-          }
-        }
-      }
-    },
-    "Apple sign-in returned an invalid credential." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die Anmeldung mit Apple hat ungültige Anmeldedaten zurückgegeben."
-          }
-        }
-      }
-    },
-    "Close" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Schließen"
-          }
-        }
-      }
-    },
-    "Cancel" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abbrechen"
-          }
-        }
-      }
-    },
-    "Continue with Apple" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mit Apple fortfahren"
-          }
-        }
-      }
-    },
-    "Keep transport essentials fast and private. Signing in is always optional." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Deine wichtigsten Verkehrsinformationen bleiben schnell und privat. Die Anmeldung ist immer optional."
-          }
-        }
-      }
-    },
-    "Enter a stop name to see live departures." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gib einen Haltestellennamen ein, um Echtzeit-Abfahrten zu sehen."
-          }
-        }
-      }
-    },
-    "Live departures" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Echtzeit-Abfahrten"
-          }
-        }
-      }
-    },
-    "Finding your location…" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dein Standort wird ermittelt …"
-          }
-        }
-      }
-    },
-    "Location unavailable" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Standort nicht verfügbar"
+  "sourceLanguage": "en",
+  "strings": {
+    "%lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld"
           }
         }
       }
     },
-    "Loading stops…" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Haltestellen werden geladen …"
+    "About": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Über"
           }
         }
       }
     },
-    "Please try again." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bitte versuche es erneut."
+    "Accessibility": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Barrierefreiheit"
           }
         }
       }
     },
-    "OK" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
+    "Add station to favourites": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Station zu Favoriten hinzufügen"
           }
         }
       }
     },
-    "Secure account storage is unavailable right now." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der sichere Kontospeicher ist derzeit nicht verfügbar."
+    "Add to favourites": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zu Favoriten hinzufügen"
           }
         }
       }
     },
-    "Search unavailable" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suche nicht verfügbar"
+    "Affected lines": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Betroffene Linien"
           }
         }
       }
     },
-    "Map unavailable" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Karte nicht verfügbar"
+    "Alert details": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meldungsdetails"
           }
         }
       }
     },
-    "No stops are available near this location." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In der Nähe dieses Standorts sind keine Haltestellen verfügbar."
+    "Alerts": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Störungen"
           }
         }
       }
     },
-    "No stops in this area" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Keine Haltestellen in diesem Gebiet"
+    "Alerts unavailable": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meldungen nicht verfügbar"
           }
         }
       }
     },
-    "Search Vienna" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wien durchsuchen"
+    "Alerts: %lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meldungen: %lld"
           }
         }
       }
     },
-    "Searching…" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suche läuft …"
+    "All": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle"
           }
         }
       }
     },
-    "Sign out" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abmelden"
+    "All clear": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alles frei"
           }
         }
       }
     },
-    "Sign out of Traffic Vienna?" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Von Traffic Vienna abmelden?"
+    "All lines are running normally.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Linien verkehren planmäßig."
           }
         }
       }
     },
-    "Signed in with Apple" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mit Apple angemeldet"
+    "Allow location": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standort erlauben"
           }
         }
       }
     },
-    "Retry location" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Standort erneut versuchen"
+    "Allow location access in Settings to see stops near you.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erlaube den Standortzugriff in den Einstellungen, um Haltestellen in deiner Nähe zu sehen."
           }
         }
       }
     },
-    "Selected stop" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ausgewählte Haltestelle"
+    "Allow location access to see live departures around you.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erlaube den Standortzugriff, um Live-Abfahrten in deiner Nähe zu sehen."
           }
         }
       }
     },
-    "Exploring this area" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Diesen Bereich erkunden"
+    "Check service alerts and the map before you leave, then adapt in seconds.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prüfe Störungsmeldungen und die Karte, bevor du losfährst, und passe deine Route in Sekunden an."
           }
         }
       }
     },
-    "Search this area" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In diesem Bereich suchen"
+    "Checking service status…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Betriebsstatus wird geprüft…"
           }
         }
       }
     },
-    "Showing this area while location recovers." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dieser Bereich wird angezeigt, während der Standort wiederhergestellt wird."
+    "Choose another alert type to see other service information.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle einen anderen Meldungstyp, um weitere Verkehrsinformationen zu sehen."
           }
         }
       }
     },
-    "Showing Vienna centre" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wien Zentrum wird angezeigt"
+    "Choose another transport type.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle ein anderes Verkehrsmittel."
           }
         }
       }
     },
-    "Showing Vienna centre while location recovers." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wien Zentrum wird angezeigt, während der Standort wiederhergestellt wird."
+    "Clear": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Löschen"
           }
         }
       }
     },
-    "This area stays available. Enable location in Settings for nearby stops." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dieser Bereich bleibt verfügbar. Aktiviere den Standort in den Einstellungen für Haltestellen in deiner Nähe."
+    "Clear filters": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filter zurücksetzen"
           }
         }
       }
     },
-    "Updates stops around the centre of the map" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aktualisiert die Haltestellen rund um die Kartenmitte"
+    "Close": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schließen"
           }
         }
       }
     },
-    "Welcome back" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Willkommen zurück"
+    "Contact": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kontakt"
           }
         }
       }
     },
-    "Your account could not be saved securely." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dein Konto konnte nicht sicher gespeichert werden."
+    "Continue": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weiter"
           }
         }
       }
     },
-    "Your Apple account status could not be checked." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der Status deines Apple-Kontos konnte nicht geprüft werden."
+    "Couldn't load departures. Try again.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abfahrten konnten nicht geladen werden. Versuche es erneut."
           }
         }
       }
     },
-    "Your Apple profile is stored only in this device’s Keychain. No identity token is saved or logged." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dein Apple-Profil wird nur im Schlüsselbund dieses Geräts gespeichert. Es wird kein Identitätstoken gespeichert oder protokolliert."
+    "Data": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daten"
           }
         }
       }
     },
-    "Your Traffic Vienna" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dein Traffic Vienna"
+    "Departure times are provided live by Wiener Linien and may differ from actual service.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abfahrtszeiten werden live von den Wiener Linien bereitgestellt und können vom tatsächlichen Betrieb abweichen."
           }
         }
       }
     },
-    "The stop catalogue could not be loaded." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der Haltestellenkatalog konnte nicht geladen werden."
+    "Departures": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abfahrten"
           }
         }
       }
     },
-    "Try again" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erneut versuchen"
+    "Departures available": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abfahrten verfügbar"
           }
         }
       }
     },
-    "Use my location" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Meinen Standort verwenden"
+    "Departures unavailable": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abfahrten nicht verfügbar"
           }
         }
       }
     },
-    "Use your location to show the closest stops." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verwende deinen Standort, um die nächsten Haltestellen anzuzeigen."
+    "Destination": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ziel"
           }
         }
       }
     },
-    "Vienna centre stays available. Enable location in Settings for nearby stops." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wien Zentrum bleibt verfügbar. Aktiviere den Standort in den Einstellungen für Haltestellen in deiner Nähe."
+    "Distance unknown": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entfernung unbekannt"
           }
         }
       }
     },
-    "View departures" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abfahrten anzeigen"
+    "Done": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fertig"
           }
         }
       }
     },
-    "Add station to favourites" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Station zu Favoriten hinzufügen"
+    "Enable Live Activities in Settings to track departures on the Lock Screen.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktiviere Live-Aktivitäten in den Einstellungen, um Abfahrten auf dem Sperrbildschirm zu verfolgen."
           }
         }
       }
     },
-    "Add to favourites" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zu Favoriten hinzufügen"
+    "Enough time to walk": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Genug Zeit für den Fußweg"
           }
         }
       }
     },
-    "Alerts" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Störungen"
+    "Enter a stop name to see live departures.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gib einen Haltestellennamen ein, um Echtzeit-Abfahrten zu sehen."
           }
         }
       }
     },
-    "All" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alle"
+    "Enter stop name…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haltestellenname eingeben…"
           }
         }
       }
     },
-    "All lines are running normally." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alle Linien verkehren planmäßig."
+    "Exploring this area": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diesen Bereich erkunden"
           }
         }
       }
     },
-    "Allow location" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Standort erlauben" } } } },
-    "Allow location access in Settings to see stops near you." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Erlaube den Standortzugriff in den Einstellungen, um Haltestellen in deiner Nähe zu sehen." } } } },
-    "Allow location access to see live departures around you." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Erlaube den Standortzugriff, um Live-Abfahrten in deiner Nähe zu sehen." } } } },
-    "Clear" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Löschen"
+    "Favourite stops": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lieblingshaltestellen"
           }
         }
       }
     },
-    "Couldn't load departures" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrten konnten nicht geladen werden" } } } },
-    "Couldn’t load departures" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abfahrten konnten nicht geladen werden"
+    "Favourites": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favoriten"
           }
         }
       }
     },
-    "Couldn't load departures. Try again." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrten konnten nicht geladen werden. Versuche es erneut." } } } },
-    "Data" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Daten"
+    "Favourites, recent searches, onboarding state, and widget preferences stay on your device or in the app’s shared widget container.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favoriten, letzte Suchanfragen, der Onboarding-Status und Widget-Einstellungen bleiben auf deinem Gerät oder im gemeinsamen Widget-Container der App."
           }
         }
       }
     },
-    "Data: Wiener Linien (Stadt Wien, CC BY)." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Daten: Wiener Linien (Stadt Wien, CC BY)."
+    "Find stops near you": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haltestellen in deiner Nähe finden"
           }
         }
       }
     },
-    "data.gv.at" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "data.gv.at"
+    "Finding your location…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Standort wird ermittelt …"
           }
         }
       }
     },
-    "Departure times are provided live by Wiener Linien and may differ from actual service." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abfahrtszeiten werden live von den Wiener Linien bereitgestellt und können vom tatsächlichen Betrieb abweichen."
+    "Following departures in %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weitere Abfahrten in %@"
           }
         }
       }
     },
-    "Departures" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abfahrten"
+    "Hurry to catch this departure": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beeile dich, um diese Abfahrt zu erreichen"
           }
         }
       }
     },
-    "Done" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fertig"
+    "If you allow location access, your location is used only on your device to find nearby stops. It is not stored or sent to the transport data provider.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wenn du den Standortzugriff erlaubst, wird dein Standort nur auf deinem Gerät verwendet, um Haltestellen in der Nähe zu finden. Er wird weder gespeichert noch an den Verkehrsdatenanbieter gesendet."
           }
         }
       }
     },
-    "Enter a station name to see live departures." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gib einen Stationsnamen ein, um Live-Abfahrten zu sehen."
+    "Know before you go": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informiert unterwegs"
           }
         }
       }
     },
-    "Enter stop name…" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Haltestellenname eingeben…"
+    "LIVE DEPARTURES": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LIVE-ABFAHRTEN"
           }
         }
       }
     },
-    "Error" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Fehler" } } } },
-    "Favourites" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Favoriten"
+    "Last updated: 29 July 2026": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zuletzt aktualisiert: 29. Juli 2026"
           }
         }
       }
     },
-    "Filter" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Filtern" } } } },
-    "Find stops near you" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Haltestellen in deiner Nähe finden" } } } },
-    "Get started" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los geht’s"
+    "Licence": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lizenz"
           }
         }
       }
     },
-    "Licence" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lizenz"
+    "Line %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linie %@"
           }
         }
       }
     },
-    "Line %@" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Linie %@" } } } },
-    "Line %@ to %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Line %1$@ to %2$@"
+    "Line %@ to %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linie %1$@ nach %2$@"
           }
         },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Linie %1$@ nach %2$@"
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Line %1$@ to %2$@"
           }
         }
       }
     },
-    "Lines" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Linien"
+    "Lines": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linien"
           }
         }
       }
     },
-    "Live departures, wherever you are." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Live-Abfahrten, wo immer du bist." } } } },
-    "Live Wiener Linien departures, wherever you are." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Live-Abfahrten der Wiener Linien, wo immer du bist."
+    "Live": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live"
           }
         }
       }
     },
-    "Loading stations" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Stationen werden geladen" } } } },
-    "Loading..." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Wird geladen..." } } } },
-    "Loading…" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wird geladen…"
+    "Live Activity": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live-Aktivität"
           }
         }
       }
     },
-    "Locating you" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Standort wird ermittelt" } } } },
-    "Locating you…" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Standort wird ermittelt…"
+    "Live departures": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Echtzeit-Abfahrten"
           }
         }
       }
     },
-    "Location access denied" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Standortzugriff verweigert" } } } },
-    "Location is off" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Standort ist deaktiviert" } } } },
-    "Location permission needed" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Standortfreigabe erforderlich" } } } },
-    "Map" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Karte"
+    "Live transport data": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live-Verkehrsdaten"
           }
         }
       }
     },
-    "min" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Min"
+    "Loading alerts…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meldungen werden geladen…"
           }
         }
       }
     },
-    "Nearby" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In der Nähe"
+    "Loading departures…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abfahrten werden geladen…"
           }
         }
       }
     },
-    "Nearby stations" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Stationen in der Nähe" } } } },
-    "No departures" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Keine Abfahrten"
+    "Loading stations": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stationen werden geladen"
           }
         }
       }
     },
-    "No favourites yet" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Noch keine Favoriten"
+    "Loading stops…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haltestellen werden geladen …"
           }
         }
       }
     },
-    "No live data for this stop" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Keine Live-Daten für diese Haltestelle" } } } },
-    "No stops nearby" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Keine Haltestellen in der Nähe" } } } },
-    "Nothing scheduled right now." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Derzeit nichts geplant."
+    "Loading…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird geladen…"
           }
         }
       }
     },
-    "now" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "jetzt"
+    "Locating you…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standort wird ermittelt…"
           }
         }
       }
     },
-    "Offline" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Offline" } } } },
-    "Open in Maps" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "In Karten öffnen" } } } },
-    "Open Settings" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Einstellungen öffnen" } } } },
-    "Provider" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Anbieter"
+    "Location": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standort"
           }
         }
       }
     },
-    "Recent" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zuletzt"
+    "Location is off": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standort ist deaktiviert"
           }
         }
       }
     },
-    "Refresh" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktualisieren" } } } },
-    "Refresh alerts" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Störungen aktualisieren"
+    "Location unavailable": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standort nicht verfügbar"
           }
         }
       }
     },
-    "Refresh departures" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abfahrten aktualisieren"
+    "MADE FOR YOU": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FÜR DICH GEMACHT"
           }
         }
       }
     },
-    "Refreshing departures" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrten werden aktualisiert" } } } },
-    "Remove" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entfernen"
+    "Map": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Karte"
           }
         }
       }
     },
-    "Remove %@ from favourites" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ aus Favoriten entfernen"
+    "Map unavailable": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Karte nicht verfügbar"
           }
         }
       }
     },
-    "Remove favourite" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Favorit entfernen"
+    "More actions": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weitere Aktionen"
           }
         }
       }
     },
-    "Remove station from favourites" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Station aus Favoriten entfernen"
+    "Nearby": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In der Nähe"
           }
         }
       }
     },
-    "Retry" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Erneut versuchen" } } } },
-    "Save %@ to favourites" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ zu Favoriten hinzufügen"
+    "Nearby departures": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abfahrten in der Nähe"
           }
         }
       }
     },
-    "Retry departures" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abfahrten erneut laden"
+    "Nearby stations": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stationen in der Nähe"
           }
         }
       }
     },
-    "Search" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suche"
+    "Next departure": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nächste Abfahrt"
           }
         }
       }
     },
-    "Search for a stop" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nach einer Haltestelle suchen"
+    "Next departure in %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nächste Abfahrt in %@"
           }
         }
       }
     },
-    "Service alerts" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Störungsmeldungen"
+    "Next departure now": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nächste Abfahrt jetzt"
           }
         }
       }
     },
-    "Show less" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Weniger anzeigen"
+    "No account required. Your favourites stay on this device.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kein Konto erforderlich. Deine Favoriten bleiben auf diesem Gerät."
           }
         }
       }
     },
-    "Show more" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mehr anzeigen"
+    "No alerts in this category": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Meldungen in dieser Kategorie"
           }
         }
       }
     },
-    "Showing Vienna centre — enable location to see stops near you." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Wien Zentrum wird angezeigt — aktiviere den Standort für Haltestellen in deiner Nähe." } } } },
-    "Source" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quelle"
+    "No connection": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Verbindung"
           }
         }
       }
     },
-    "Star a station, or tap the heart on a line, to save it here." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Markiere eine Station mit dem Stern oder tippe auf das Herz einer Linie, um sie hier zu speichern."
+    "No connection. Check your internet and try again.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Verbindung. Prüfe deine Internetverbindung und versuche es erneut."
           }
         }
       }
     },
-    "Station %@, %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Station %1$@, %2$@"
+    "No departure time available": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Abfahrtszeit verfügbar"
+          }
+        }
+      }
+    },
+    "No departures": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Abfahrten"
+          }
+        }
+      }
+    },
+    "No departures loaded": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Abfahrten geladen"
+          }
+        }
+      }
+    },
+    "No favourites yet": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noch keine Favoriten"
+          }
+        }
+      }
+    },
+    "No live data for this station.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Für diese Station sind keine Live-Daten verfügbar."
+          }
+        }
+      }
+    },
+    "No live data for this stop": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Live-Daten für diese Haltestelle"
+          }
+        }
+      }
+    },
+    "No matching alerts": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine passenden Meldungen"
+          }
+        }
+      }
+    },
+    "No matching departures": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine passenden Abfahrten"
+          }
+        }
+      }
+    },
+    "No stops are available near this location.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In der Nähe dieses Standorts sind keine Haltestellen verfügbar."
+          }
+        }
+      }
+    },
+    "No stops in this area": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Haltestellen in diesem Gebiet"
+          }
+        }
+      }
+    },
+    "No stops nearby": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Haltestellen in der Nähe"
+          }
+        }
+      }
+    },
+    "Not enough time to walk": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht genug Zeit für den Fußweg"
+          }
+        }
+      }
+    },
+    "Not selected": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht ausgewählt"
+          }
+        }
+      }
+    },
+    "Nothing is scheduled right now.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Derzeit sind keine Abfahrten geplant."
+          }
+        }
+      }
+    },
+    "Offline": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Offline"
+          }
+        }
+      }
+    },
+    "On-device data": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daten auf dem Gerät"
+          }
+        }
+      }
+    },
+    "Online privacy policy": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Online-Datenschutzerklärung"
+          }
+        }
+      }
+    },
+    "Open ${target} in Traffic Vienna": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "${target} in Traffic Vienna öffnen"
+          }
+        }
+      }
+    },
+    "Open Settings": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einstellungen öffnen"
+          }
+        }
+      }
+    },
+    "Open Traffic Vienna": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traffic Vienna öffnen"
+          }
+        }
+      }
+    },
+    "Open Traffic Vienna at the part you need.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffnet Traffic Vienna im gewünschten Bereich."
+          }
+        }
+      }
+    },
+    "Open in Maps": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Karten öffnen"
+          }
+        }
+      }
+    },
+    "Opens alerts": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffnet Störungen"
+          }
+        }
+      }
+    },
+    "Opens favourites": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffnet Favoriten"
+          }
+        }
+      }
+    },
+    "Privacy": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datenschutz"
+          }
+        }
+      }
+    },
+    "Privacy policy": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datenschutzerklärung"
+          }
+        }
+      }
+    },
+    "Provider": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anbieter"
+          }
+        }
+      }
+    },
+    "Quick access": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schnellzugriff"
+          }
+        }
+      }
+    },
+    "Real-time prediction": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Echtzeitprognose"
+          }
+        }
+      }
+    },
+    "Recent": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zuletzt"
+          }
+        }
+      }
+    },
+    "Refresh": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktualisieren"
+          }
+        }
+      }
+    },
+    "Refresh alerts": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Störungen aktualisieren"
+          }
+        }
+      }
+    },
+    "Refresh departures": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abfahrten aktualisieren"
+          }
+        }
+      }
+    },
+    "Refreshing departures": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abfahrten werden aktualisiert"
+          }
+        }
+      }
+    },
+    "Remove": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entfernen"
+          }
+        }
+      }
+    },
+    "Remove favourite": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favorit entfernen"
+          }
+        }
+      }
+    },
+    "Remove station from favourites": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Station aus Favoriten entfernen"
+          }
+        }
+      }
+    },
+    "Retry departures": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abfahrten erneut laden"
+          }
+        }
+      }
+    },
+    "Retry location": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standort erneut versuchen"
+          }
+        }
+      }
+    },
+    "Save stations, follow favourite lines, and keep the next departure on your Lock Screen.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speichere Stationen, folge deinen Lieblingslinien und behalte die nächste Abfahrt auf dem Sperrbildschirm."
+          }
+        }
+      }
+    },
+    "Saved %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespeichert %@"
+          }
+        }
+      }
+    },
+    "Saved data": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespeicherte Daten"
+          }
+        }
+      }
+    },
+    "Saved data from %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespeicherte Daten von %@"
+          }
+        }
+      }
+    },
+    "Saved departures": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespeicherte Abfahrten"
+          }
+        }
+      }
+    },
+    "Search": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suche"
+          }
+        }
+      }
+    },
+    "Search Vienna": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wien durchsuchen"
+          }
+        }
+      }
+    },
+    "Search line or alert": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linie oder Meldung suchen"
+          }
+        }
+      }
+    },
+    "Search stations": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stationen suchen"
+          }
+        }
+      }
+    },
+    "Search this area": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In diesem Bereich suchen"
+          }
+        }
+      }
+    },
+    "Search unavailable": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suche nicht verfügbar"
+          }
+        }
+      }
+    },
+    "Searching…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suche läuft …"
+          }
+        }
+      }
+    },
+    "See nearby stops and real-time departures without digging through timetables.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sieh Haltestellen in deiner Nähe und Echtzeit-Abfahrten, ohne Fahrpläne durchsuchen zu müssen."
+          }
+        }
+      }
+    },
+    "Selected": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausgewählt"
+          }
+        }
+      }
+    },
+    "Selected stop": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausgewählte Haltestelle"
+          }
+        }
+      }
+    },
+    "Service": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Betrieb"
+          }
+        }
+      }
+    },
+    "Service alert": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Störungsmeldung"
+          }
+        }
+      }
+    },
+    "Service alerts": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Störungsmeldungen"
+          }
+        }
+      }
+    },
+    "Service alerts: %lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Störungsmeldungen: %lld"
+          }
+        }
+      }
+    },
+    "Service is busy right now. Please try again in a moment.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Dienst ist gerade ausgelastet. Versuche es gleich noch einmal."
+          }
+        }
+      }
+    },
+    "Service status": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Betriebsstatus"
+          }
+        }
+      }
+    },
+    "Showing Vienna centre": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wien Zentrum wird angezeigt"
+          }
+        }
+      }
+    },
+    "Showing Vienna centre while location recovers.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wien Zentrum wird angezeigt, während der Standort wiederhergestellt wird."
+          }
+        }
+      }
+    },
+    "Showing saved data from the last successful update.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespeicherte Daten der letzten erfolgreichen Aktualisierung werden angezeigt."
+          }
+        }
+      }
+    },
+    "Showing saved data.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespeicherte Daten werden angezeigt."
+          }
+        }
+      }
+    },
+    "Showing this area while location recovers.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Bereich wird angezeigt, während der Standort wiederhergestellt wird."
+          }
+        }
+      }
+    },
+    "Source": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quelle"
+          }
+        }
+      }
+    },
+    "Star a station, or tap the heart on a line, to save it here.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markiere eine Station mit dem Stern oder tippe auf das Herz einer Linie, um sie hier zu speichern."
+          }
+        }
+      }
+    },
+    "Start exploring": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jetzt entdecken"
+          }
+        }
+      }
+    },
+    "Station %@, %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Station %1$@, %2$@"
           }
         },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Station %1$@, %2$@"
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Station %1$@, %2$@"
           }
         }
       }
     },
-    "Stations" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stationen"
+    "Stations": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stationen"
           }
         }
       }
     },
-    "There are no stations within 500 meters." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Im Umkreis von 500 Metern gibt es keine Stationen." } } } },
-    "Track on Lock Screen" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Am Sperrbildschirm verfolgen"
+    "Stop changes": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haltestellenänderungen"
           }
         }
       }
     },
-    "Traffic Vienna" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Traffic Vienna"
+    "Summary": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zusammenfassung"
           }
         }
       }
     },
-    "updated %lldh ago" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "vor %lld h aktualisiert"
+    "Support and privacy questions": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Support- und Datenschutzfragen"
           }
         }
       }
     },
-    "updated %lldm ago" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "vor %lld min aktualisiert"
+    "TRAVEL SMARTER": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CLEVER UNTERWEGS"
           }
         }
       }
     },
-    "updated %llds ago" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "vor %lld s aktualisiert"
+    "The Live Activity could not be started. Please try again.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Live-Aktivität konnte nicht gestartet werden. Versuche es erneut."
           }
         }
       }
     },
-    "updated just now" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "gerade aktualisiert"
+    "The stop catalogue could not be loaded.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Haltestellenkatalog konnte nicht geladen werden."
           }
         }
       }
     },
-    "Version %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Version %@"
+    "There are no stations within 500 meters.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Im Umkreis von 500 Metern gibt es keine Stationen."
           }
         }
       }
     },
-    "Check service alerts and the map before you leave, then adapt in seconds." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Prüfe Störungsmeldungen und die Karte, bevor du losfährst, und passe deine Route in Sekunden an."
+    "This area stays available. Enable location in Settings for nearby stops.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Bereich bleibt verfügbar. Aktiviere den Standort in den Einstellungen für Haltestellen in deiner Nähe."
           }
         }
       }
     },
-    "Continue" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Weiter"
+    "To refresh departures and alerts, the app sends station or route identifiers to Wiener Linien over HTTPS. Wiener Linien receives technical connection data, such as an IP address, under its own privacy terms. Traffic Vienna does not operate a backend or receive those server logs.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zum Aktualisieren von Abfahrten und Meldungen sendet die App Haltestellen- oder Linienkennungen über HTTPS an die Wiener Linien. Die Wiener Linien erhalten dabei technische Verbindungsdaten wie eine IP-Adresse gemäß ihren eigenen Datenschutzbestimmungen. Traffic Vienna betreibt kein Backend und erhält diese Serverprotokolle nicht."
           }
         }
       }
     },
-    "Know before you go" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Informiert unterwegs"
+    "Track on Lock Screen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Am Sperrbildschirm verfolgen"
           }
         }
       }
     },
-    "LIVE DEPARTURES" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "LIVE-ABFAHRTEN"
+    "Traffic Vienna": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traffic Vienna"
           }
         }
       }
     },
-    "MADE FOR YOU" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "FÜR DICH GEMACHT"
+    "Traffic Vienna does not require an account and does not use advertising, analytics, or tracking.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traffic Vienna benötigt kein Konto und verwendet weder Werbung noch Analysen oder Tracking."
           }
         }
       }
     },
-    "No account required. Your favourites stay on this device." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kein Konto erforderlich. Deine Favoriten bleiben auf diesem Gerät."
+    "Try again": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erneut versuchen"
           }
         }
       }
     },
-    "No connection" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Keine Verbindung"
+    "Try another alert type, line, or search term.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versuche einen anderen Meldungstyp, eine andere Linie oder einen anderen Suchbegriff."
           }
         }
       }
     },
-    "Quick access" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Schnellzugriff"
+    "Updated %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktualisiert %@"
           }
         }
       }
     },
-    "Save stations, follow favourite lines, and keep the next departure on your Lock Screen." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Speichere Stationen, folge deinen Lieblingslinien und behalte die nächste Abfahrt auf dem Sperrbildschirm."
+    "Updates stops around the centre of the map": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktualisiert die Haltestellen rund um die Kartenmitte"
           }
         }
       }
     },
-    "Saved %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gespeichert %@"
+    "Use my location": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meinen Standort verwenden"
           }
         }
       }
     },
-    "Saved data" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gespeicherte Daten"
+    "Use your location to show the closest stops.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verwende deinen Standort, um die nächsten Haltestellen anzuzeigen."
           }
         }
       }
     },
-    "Saved data from %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gespeicherte Daten von %@"
+    "Version %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %@"
           }
         }
       }
     },
-    "Saved departures" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gespeicherte Abfahrten"
+    "Vienna at a glance": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wien auf einen Blick"
           }
         }
       }
     },
-    "See nearby stops and real-time departures without digging through timetables." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sieh Haltestellen in deiner Nähe und Echtzeit-Abfahrten, ohne Fahrpläne durchsuchen zu müssen."
+    "Vienna centre stays available. Enable location in Settings for nearby stops.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wien Zentrum bleibt verfügbar. Aktiviere den Standort in den Einstellungen für Haltestellen in deiner Nähe."
           }
         }
       }
     },
-    "Showing saved data from the last successful update." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gespeicherte Daten der letzten erfolgreichen Aktualisierung werden angezeigt."
+    "View departures": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abfahrten anzeigen"
           }
         }
       }
     },
-    "Showing saved data." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gespeicherte Daten werden angezeigt."
+    "View favourites": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Favoriten anzeigen"
           }
         }
       }
     },
-    "TRAVEL SMARTER" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "CLEVER UNTERWEGS"
+    "Walking approximately %lld minutes": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ungefähr %lld Minuten zu Fuß"
           }
         }
       }
     },
-    "Vienna at a glance" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wien auf einen Blick"
+    "Walking approximately %lld minutes, %@ away": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ungefähr %lld Minuten zu Fuß, %@ entfernt"
           }
         }
       }
     },
-    "Your commute, one tap away" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dein Arbeitsweg mit einem Tipp"
+    "Walking distance": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gehzeit"
           }
         }
       }
     },
-    "Enough time to walk" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Genug Zeit für den Fußweg" } } } },
-    "Following departures in %@" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Weitere Abfahrten in %@" } } } },
-    "Hurry to catch this departure" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Beeile dich, um diese Abfahrt zu erreichen" } } } },
-    "Checking service status…" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Betriebsstatus wird geprüft…" } } } },
-    "Live" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Live" } } } },
-    "Next departure" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Nächste Abfahrt" } } } },
-    "Next departure in %@" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Nächste Abfahrt in %@" } } } },
-    "Next departure now" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Nächste Abfahrt jetzt" } } } },
-    "No departure time available" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Keine Abfahrtszeit verfügbar" } } } },
-    "Not enough time to walk" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Nicht genug Zeit für den Fußweg" } } } },
-    "Opens alerts" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Öffnet Störungen" } } } },
-    "Opens favourites" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Öffnet Favoriten" } } } },
-    "Real-time prediction" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Echtzeitprognose" } } } },
-    "Service alerts: %lld" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Störungsmeldungen: %lld" } } } },
-    "Service alert" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Störungsmeldung" } } } },
-    "Service status" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Betriebsstatus" } } } },
-    "Apple" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Apple" } } } },
-    "Continue without account" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Ohne Konto fortfahren" } } } },
-    "Continue your way" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Entscheide, wie du fortfährst" } } } },
-    "OPTIONAL ACCOUNT" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "OPTIONALES KONTO" } } } },
-    "Start exploring" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Jetzt entdecken" } } } },
-    "Use a verified Apple profile, or continue with every transport feature without an account." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Verwende ein verifiziertes Apple-Profil oder nutze alle Verkehrsfunktionen ohne Konto weiter." } } } },
-    "View favourites" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Favoriten anzeigen" } } } },
-    "You can change your account choice later in Favourites." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Du kannst deine Kontoauswahl später in Favoriten ändern." } } } },
-    "Walking approximately %lld minutes" : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Ungefähr %lld Minuten zu Fuß" } } }
+    "You can remove favourites and recent searches in the app. Deleting the app removes its local app and widget data.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du kannst Favoriten und letzte Suchanfragen in der App entfernen. Beim Löschen der App werden ihre lokalen App- und Widget-Daten entfernt."
+          }
+        }
+      }
     },
-    "Walking approximately %lld minutes, %@ away" : {
-      "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Ungefähr %lld Minuten zu Fuß, %@ entfernt" } } }
+    "Your choices": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Möglichkeiten"
+          }
+        }
+      }
     },
-    "Walking distance" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Gehzeit" } } } }
+    "Your commute, one tap away": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Arbeitsweg mit einem Tipp"
+          }
+        }
+      }
+    },
+    "data.gv.at": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "data.gv.at"
+          }
+        }
+      }
+    },
+    "live": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "live"
+          }
+        }
+      }
+    },
+    "min": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Min"
+          }
+        }
+      }
+    },
+    "now": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "jetzt"
+          }
+        }
+      }
+    },
+    "updated %lldh ago": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vor %lld h aktualisiert"
+          }
+        }
+      }
+    },
+    "updated %lldm ago": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vor %lld min aktualisiert"
+          }
+        }
+      }
+    },
+    "updated %llds ago": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vor %lld s aktualisiert"
+          }
+        }
+      }
+    },
+    "updated just now": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gerade aktualisiert"
+          }
+        }
+      }
+    },
+    "—": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "—"
+          }
+        }
+      }
+    }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }
