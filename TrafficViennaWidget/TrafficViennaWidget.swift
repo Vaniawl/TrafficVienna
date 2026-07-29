@@ -560,6 +560,7 @@ struct TrafficViennaWidget: Widget {
         AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
             TrafficViennaWidgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
+                .widgetURL(TrafficViennaDestination.favourites.deepLinkURL)
         }
         .configurationDisplayName("Departures")
         .description("Live departures for your favourite lines.")

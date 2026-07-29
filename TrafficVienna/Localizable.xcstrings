@@ -559,6 +559,36 @@
         }
       }
     },
+    "Exploring this area" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diesen Bereich erkunden"
+          }
+        }
+      }
+    },
+    "Search this area" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In diesem Bereich suchen"
+          }
+        }
+      }
+    },
+    "Showing this area while location recovers." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Bereich wird angezeigt, während der Standort wiederhergestellt wird."
+          }
+        }
+      }
+    },
     "Showing Vienna centre" : {
       "localizations" : {
         "de" : {
@@ -575,6 +605,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wien Zentrum wird angezeigt, während der Standort wiederhergestellt wird."
+          }
+        }
+      }
+    },
+    "This area stays available. Enable location in Settings for nearby stops." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Bereich bleibt verfügbar. Aktiviere den Standort in den Einstellungen für Haltestellen in deiner Nähe."
+          }
+        }
+      }
+    },
+    "Updates stops around the centre of the map" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktualisiert die Haltestellen rund um die Kartenmitte"
           }
         }
       }

@@ -1,5 +1,22 @@
 # Journal
 
+## 2026-07-29 — Camera-aware map exploration and widget navigation
+
+- Added an explicit “Search this area” map flow after 250 metres of camera
+  movement. Explored centres remain transient, permission messaging stays truthful,
+  and the local indexed station projection remains bounded and spatially thinned.
+- Interactive testing exposed a MapKit layout feedback loop when the camera action
+  changed the map safe area. Moving camera-driven surfaces to a non-resizing overlay
+  reduced the reproduced post-action process load from about 70% to 0–0.2% CPU.
+- Added one validated shared destination vocabulary and custom URL boundary so the
+  favourites widget opens the matching tab on warm and cold launches. Unknown,
+  parameterised, credentialed, and non-app URLs are rejected without navigation.
+- Debug and Release Simulator builds completed with no diagnostics; all 116 XCTest
+  cases passed. The built Info.plist, launch-screen dictionary, URL registration,
+  English/German extraction coverage, runtime routing, and map interaction were
+  verified. Repository/OpenCode validation passed; standalone reliability reached
+  its OpenCode CLI fixture and stopped because that CLI is not installed locally.
+
 ## 2026-07-28 — System surfaces, widget cadence, and indexed discovery
 
 - Recovered the latest `main` baseline by removing four unreferenced components

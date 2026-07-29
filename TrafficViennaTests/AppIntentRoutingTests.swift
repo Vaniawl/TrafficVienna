@@ -35,4 +35,32 @@ final class AppIntentRoutingTests: XCTestCase {
         XCTAssertNil(router.pendingDestination)
         XCTAssertNil(defaults.string(forKey: TrafficViennaShortcutRouter.pendingDestinationKey))
     }
+
+    func testSupportedDeepLinksRoundTripAndRoute() throws {
+        let router = TrafficViennaShortcutRouter(defaults: defaults)
+
+        for destination in TrafficViennaDestination.allCases {
+            let url = try XCTUnwrap(destination.deepLinkURL)
+            XCTAssertEqual(TrafficViennaDestination(deepLinkURL: url), destination)
+            XCTAssertTrue(router.handle(deepLinkURL: url))
+            XCTAssertEqual(router.consume(), destination)
+        }
+    }
+
+    func testDeepLinkRejectsUnknownOrParameterizedRoutes() throws {
+        let router = TrafficViennaShortcutRouter(defaults: defaults)
+        let rejectedURLs = [
+            "https://favourites",
+            "trafficvienna://alerts",
+            "trafficvienna://favourites/extra",
+            "trafficvienna://favourites?delete=true",
+            "trafficvienna://user:password@favourites",
+        ]
+
+        for value in rejectedURLs {
+            let url = try XCTUnwrap(URL(string: value))
+            XCTAssertFalse(router.handle(deepLinkURL: url), value)
+            XCTAssertNil(router.pendingDestination)
+        }
+    }
 }

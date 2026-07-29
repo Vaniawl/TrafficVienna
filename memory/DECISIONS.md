@@ -1,5 +1,39 @@
 # Architectural Decisions
 
+## 2026-07-29 — Widget deep links share the system destination vocabulary
+
+**Context:** Widget taps opened the app generically, while App Shortcuts already
+used a persisted typed destination handoff. Adding a second widget-only router
+would let external entry points disagree and malformed custom URLs could become an
+unvalidated navigation boundary.
+
+**Decision:** Keep Nearby, Search, and Favourites in one shared, Sendable destination
+value used by both app and widget targets. Register the `trafficvienna` URL scheme,
+accept only a known host with no path, credentials, query, port, or fragment, then
+hand the validated destination to the existing persisted root router. The favourites
+widget opens Favourites and onboarding remains authoritative.
+
+**Consequences:** Warm and cold widget launches use the same tab ownership as Siri,
+Shortcuts, and Spotlight. The URL boundary cannot trigger arbitrary actions or carry
+user data; adding another external destination requires an explicit enum case.
+
+## 2026-07-29 — Map exploration is explicit and does not resize the viewport
+
+**Context:** The map projected stations only around the initial location or Vienna
+fallback, so panning could leave stale markers. A camera-driven button placed in a
+safe-area inset also changed the map frame, retriggered camera updates, and produced
+a measured high-CPU layout feedback loop.
+
+**Decision:** Offer “Search this area” after the user moves the camera at least
+250 metres from the last search centre. Keep the explored centre transient and
+separate from location-permission state. Present camera-driven controls as overlays
+so appearing or disappearing UI never changes MapKit's viewport geometry.
+
+**Consequences:** People control when marker results change, explored areas remain
+truthfully labelled, and location is still neither persisted nor logged. Camera
+search and permission behavior stay independently testable; interactive Simulator
+acceptance guards the MapKit layout boundary.
+
 ## 2026-07-28 — System navigation uses a persisted typed handoff
 
 **Context:** `RootTabView` listened for an untyped notification that no production

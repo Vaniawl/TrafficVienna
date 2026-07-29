@@ -7,6 +7,7 @@ final class MapStationsViewModel {
     private(set) var contentState: MapContentState = .loading
     private(set) var locationStatus: MapLocationStatus = .permissionNeeded
     private(set) var visibleStations: [Station] = []
+    private(set) var searchCenter: CLLocation?
 
     private let stationStore: StationStoring
     private let fallbackLocation: CLLocation
@@ -34,7 +35,8 @@ final class MapStationsViewModel {
     func refresh(
         location: CLLocation?,
         authorizationStatus: CLAuthorizationStatus,
-        locationError: String?
+        locationError: String?,
+        mapCenter: CLLocation? = nil
     ) {
         locationStatus = Self.locationStatus(
             location: location,
@@ -45,17 +47,20 @@ final class MapStationsViewModel {
         switch stationStore.loadState {
         case .loading:
             visibleStations = []
+            searchCenter = nil
             contentState = .loading
             return
         case .failed:
             visibleStations = []
+            searchCenter = nil
             contentState = .unavailable
             return
         case .loaded:
             break
         }
 
-        let center = location ?? fallbackLocation
+        let center = mapCenter ?? location ?? fallbackLocation
+        searchCenter = center
         let candidates = stationStore
             .stations(near: center, radiusInMeters: radius)
             .map { station in
@@ -103,14 +108,31 @@ final class MapStationsViewModel {
     func retry(
         location: CLLocation?,
         authorizationStatus: CLAuthorizationStatus,
-        locationError: String?
+        locationError: String?,
+        mapCenter: CLLocation? = nil
     ) {
         stationStore.reload()
         refresh(
             location: location,
             authorizationStatus: authorizationStatus,
-            locationError: locationError
+            locationError: locationError,
+            mapCenter: mapCenter
         )
+    }
+
+    func shouldOfferSearch(
+        at cameraCenter: CLLocation,
+        minimumMovement: CLLocationDistance = 250
+    ) -> Bool {
+        switch contentState {
+        case .ready, .empty:
+            break
+        case .loading, .unavailable:
+            return false
+        }
+
+        guard let searchCenter else { return false }
+        return cameraCenter.distance(from: searchCenter) >= minimumMovement
     }
 
     private static func locationStatus(

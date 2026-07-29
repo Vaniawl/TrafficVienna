@@ -90,6 +90,9 @@ struct RootTabView: View {
             }
         }
         .animation(Motion.standard(reduceMotion: reduceMotion), value: hasOnboarded)
+        .onOpenURL { url in
+            shortcutRouter.handle(deepLinkURL: url)
+        }
     }
 
     private func showFavourites() {

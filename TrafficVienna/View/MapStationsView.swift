@@ -7,6 +7,9 @@ struct MapStationsView: View {
     @State private var viewModel: MapStationsViewModel
     @State private var position: MapCameraPosition = .automatic
     @State private var selectedStation: Station?
+    @State private var pendingCameraCenter: CLLocation?
+    @State private var exploredCenter: CLLocation?
+    @State private var searchFeedback = 0
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.openURL) private var openURL
 
@@ -55,13 +58,38 @@ struct MapStationsView: View {
                 retry: retryCatalog
             )
         }
-        .safeAreaInset(edge: .top) {
-            if viewModel.locationStatus != .located {
-                MapLocationBannerView(
-                    status: viewModel.locationStatus,
-                    requestLocation: locationManager.requestLocationIfNeeded,
-                    openSettings: openSettings
-                )
+        .onMapCameraChange(frequency: .onEnd) { context in
+            pendingCameraCenter = CLLocation(
+                latitude: context.region.center.latitude,
+                longitude: context.region.center.longitude
+            )
+        }
+        // Camera-driven controls must not resize the map. A changing safe-area
+        // inset feeds back into MapKit's camera centre and can cause layout churn.
+        .overlay(alignment: .top) {
+            if canSearchThisArea || viewModel.locationStatus != .located {
+                VStack(spacing: Spacing.sm) {
+                    if canSearchThisArea {
+                        Button(
+                            "Search this area",
+                            systemImage: "magnifyingglass",
+                            action: searchThisArea
+                        )
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.regular)
+                        .accessibilityHint("Updates stops around the centre of the map")
+                        .transition(Motion.stateTransition(reduceMotion: reduceMotion))
+                    }
+
+                    if viewModel.locationStatus != .located {
+                        MapLocationBannerView(
+                            status: viewModel.locationStatus,
+                            isExploringArea: exploredCenter != nil,
+                            requestLocation: locationManager.requestLocationIfNeeded,
+                            openSettings: openSettings
+                        )
+                    }
+                }
                 .padding(.horizontal, Spacing.md)
                 .padding(.top, Spacing.xs)
             }
@@ -78,7 +106,9 @@ struct MapStationsView: View {
             }
         }
         .sensoryFeedback(.selection, trigger: selectedStation?.id)
+        .sensoryFeedback(.impact(weight: .light), trigger: searchFeedback)
         .animation(Motion.quick(reduceMotion: reduceMotion), value: selectedStation)
+        .animation(Motion.quick(reduceMotion: reduceMotion), value: canSearchThisArea)
         .navigationTitle("Map")
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(for: Station.self) { station in
@@ -99,11 +129,21 @@ struct MapStationsView: View {
         )
     }
 
+    private var canSearchThisArea: Bool {
+        guard position.positionedByUser,
+              let pendingCameraCenter
+        else {
+            return false
+        }
+        return viewModel.shouldOfferSearch(at: pendingCameraCenter)
+    }
+
     private func refresh() {
         viewModel.refresh(
             location: locationManager.userLocation,
             authorizationStatus: locationManager.authorizationStatus,
-            locationError: locationManager.errorMessage
+            locationError: locationManager.errorMessage,
+            mapCenter: exploredCenter
         )
 
         if let selectedStation,
@@ -116,8 +156,17 @@ struct MapStationsView: View {
         viewModel.retry(
             location: locationManager.userLocation,
             authorizationStatus: locationManager.authorizationStatus,
-            locationError: locationManager.errorMessage
+            locationError: locationManager.errorMessage,
+            mapCenter: exploredCenter
         )
+    }
+
+    private func searchThisArea() {
+        guard let pendingCameraCenter else { return }
+        exploredCenter = pendingCameraCenter
+        selectedStation = nil
+        refresh()
+        searchFeedback += 1
     }
 
     private func clearSelection() {
