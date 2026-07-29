@@ -1,5 +1,22 @@
 # Architectural Decisions
 
+## 2026-07-29 — Protected main is the release integration boundary
+
+**Context:** Quality CI covered pull requests and `main` pushes, but the default
+branch itself was unprotected. A maintainer or automation error could therefore
+bypass the exact Xcode validation used as App Store evidence, rewrite release
+history, or delete the branch.
+
+**Decision:** Require pull requests and a strict successful `validate` check for
+`main`, require conversation resolution, enforce the policy for administrators,
+and disable force pushes and branch deletion. Keep the required approval count
+at zero while the repository has one maintainer; CI and the PR boundary remain
+mandatory without creating an impossible self-approval requirement.
+
+**Consequences:** Every future release commit must be tested against the latest
+`main` before merge, and the production branch cannot be rewritten. Adding
+maintainers should trigger a follow-up decision to require independent approval.
+
 ## 2026-07-29 — Release without a non-functional identity surface
 
 **Context:** Optional Sign in with Apple stored only a name/email profile in the

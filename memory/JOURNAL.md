@@ -1,5 +1,23 @@
 # Journal
 
+## 2026-07-29 — Protected App Store release integration
+
+- Merged release-readiness PR #10 into the stacked product branch, waited for
+  Quality run `30431672501`, then merged PR #9 into `main`. Exact production
+  commit `52009857a361e0a3c138c4cbded380034dc48f16` passed its independent push
+  Quality run `30432216226` in 8m09s.
+- Confirmed the public raw and rendered `main/PRIVACY.md` URLs both return HTTP
+  200, closing the production privacy-URL gate.
+- Protected `main` with pull requests, strict required `validate`, resolved
+  conversations, and admin enforcement. Force pushes and branch deletion are
+  disabled; a zero-review PR requirement preserves the repository's current
+  single-maintainer workflow without allowing direct pushes.
+- GitHub contains no release secrets, variables, or environments. Isolated
+  temporary-Keychain tests confirmed automatic provisioning cannot replace the
+  inaccessible login private key without also losing the locally stored Xcode
+  account. Both empty temporary Keychains were removed and the user search list
+  was restored to the login Keychain only.
+
 ## 2026-07-29 — App Store distribution access audit
 
 - Re-ran the signed generic archive with Xcode open and automatic provisioning.
