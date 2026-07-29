@@ -59,17 +59,21 @@ A `Go` requires:
 - App Store metadata copy is within Apple’s field limits: subtitles 23/21
   characters, promotional text 129/126, descriptions 1106/1345, and keywords
   80/72 for English/German.
-- Draft PR #10 runs the protected GitHub Quality workflow. Run `30426734694`
+- Draft PR #10 runs the protected GitHub Quality workflow. Run `30427322143`
   completed successfully with `actions/checkout@v6` and
   `actions/setup-node@v6`, including the pinned OpenCode checks, repository
   validation, build, tests, and final diff check, with no annotations.
+- A fresh unsigned archive also reaches Xcode's App Store validation workflow
+  through `AppStoreValidationOptions.plist`. Xcode resolves the actual team ID
+  `KZNP8PH94C`, then stops before validation because no local Xcode account has
+  App Store Connect access for that team.
 
 ## Blocking evidence still required
 
 | Gate | Current evidence | Required proof |
 | --- | --- | --- |
 | Distribution signing | The old Sign in with Apple profile mismatch is gone. Both signed archive and connected-device Release build select the expected identity/profiles and reach widget signing, but the login Keychain rejects non-interactive private-key access with `errSecInternalComponent`. | Grant `codesign` access to the private key in an interactive trusted session, then produce and inspect one clean signed archive. |
-| App Store Connect | No browser/account session is available, so no app record or agreement state has been inspected or changed. | Confirm bundle ID registration, app record, agreements, roles, version/build uniqueness, privacy answers, age rating, categories, availability, and review contact. |
+| App Store Connect | Xcode provisioning access works for team `KZNP8PH94C`, but its distribution logs report no local account with App Store Connect access for that team. No browser or API-key session is available. | Authenticate an App Store Connect account or API key for the team, then confirm bundle ID registration, app record, agreements, roles, version/build uniqueness, privacy answers, age rating, categories, availability, and review contact. |
 | Public privacy URL | Support and Wiener Linien links return HTTP 200. The proposed `main/PRIVACY.md` URL returns HTTP 404 until this branch is merged. | Confirm the final privacy URL returns HTTP 200 before attaching it to the App Store version. |
 | Store assets | Metadata and ten technically valid localized 6.9-inch screenshots are prepared locally. | Attach them to the App Store version and verify the final locale/order in App Store Connect. |
 | System-surface acceptance | Simulator coverage cannot prove production Apple signing, physical-device location, widget refresh, Dynamic Island, or Live Activity behavior. | Install a signed/TestFlight build on a supported physical device and complete the release smoke path. |
@@ -90,10 +94,16 @@ xcodebuild -scheme TrafficVienna -project TrafficVienna.xcodeproj \
   -configuration Release -destination 'generic/platform=iOS' \
   -archivePath /tmp/TrafficVienna-signed.xcarchive \
   -allowProvisioningUpdates archive
+
+xcodebuild -exportArchive \
+  -archivePath /tmp/TrafficVienna-signed.xcarchive \
+  -exportPath /tmp/TrafficVienna-validation \
+  -exportOptionsPlist docs/release/AppStoreValidationOptions.plist \
+  -allowProvisioningUpdates
 ```
 
-The final command must succeed in the trusted signing session before this
-checklist can move to `Go`.
+The final two commands must succeed in a trusted signing and App Store Connect
+session before this checklist can move to `Go`.
 
 ## Rollback
 

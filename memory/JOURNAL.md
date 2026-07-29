@@ -1,5 +1,22 @@
 # Journal
 
+## 2026-07-29 — App Store distribution access audit
+
+- Re-ran the signed generic archive with Xcode open and automatic provisioning.
+  Compilation, bundle identifiers, development identity, and both provisioning
+  profiles resolve correctly; widget signing still stops at
+  `errSecInternalComponent`.
+- Confirmed the certificate's organizational unit, project build settings, and
+  profiles all use team ID `KZNP8PH94C`. The separate identifier shown in the
+  certificate common name is not the Developer Team ID.
+- Added a repeatable App Store validation export configuration. Xcode accepts the
+  archive and configuration, but distribution stops before Apple validation
+  because no local Xcode account has App Store Connect access for the team.
+- A narrowly targeted attempt to add the standard `codesign` key partitions
+  correctly requested the login Keychain password and was cancelled without
+  changing the key. No browser session, App Store Connect API key, or stored CLI
+  credential is available to substitute for the missing authenticated account.
+
 ## 2026-07-29 — Supported GitHub Actions runtime
 
 - Updated the Quality workflow from `actions/checkout@v4` and
