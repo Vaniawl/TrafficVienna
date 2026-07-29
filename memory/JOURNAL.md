@@ -11,7 +11,8 @@
   pinned global OpenCode CLI and has no project npm install step.
 - Rollback is the two-line major-tag revert plus removal of the v6-only cache
   input. Protected Quality CI is the compatibility authority for the hosted
-  runner, repository validators, Xcode build, and 108-test suite.
+  runner, repository validators, Xcode build, and 108-test suite. Run
+  `30426734694` passed the complete workflow in 9m13s with no annotations.
 
 ## 2026-07-29 — App Store readiness hardening
 

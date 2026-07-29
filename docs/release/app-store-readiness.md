@@ -59,9 +59,10 @@ A `Go` requires:
 - App Store metadata copy is within Apple’s field limits: subtitles 23/21
   characters, promotional text 129/126, descriptions 1106/1345, and keywords
   80/72 for English/German.
-- Draft PR #10 runs the protected GitHub Quality workflow. Run `30425339864`
-  completed successfully, including the pinned OpenCode checks, repository
-  validation, build, tests, and final diff check.
+- Draft PR #10 runs the protected GitHub Quality workflow. Run `30426734694`
+  completed successfully with `actions/checkout@v6` and
+  `actions/setup-node@v6`, including the pinned OpenCode checks, repository
+  validation, build, tests, and final diff check, with no annotations.
 
 ## Blocking evidence still required
 
