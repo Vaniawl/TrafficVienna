@@ -1,6 +1,6 @@
 import Foundation
 
-nonisolated struct FavoriteRoute: Codable, Hashable, Comparable {
+nonisolated struct FavoriteRoute: Codable, Hashable, Comparable, Sendable {
     let diva: String
     let lineName: String
     let destination: String

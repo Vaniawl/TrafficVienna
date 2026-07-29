@@ -1,0 +1,66 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Find a Vienna stop in ${applicationName}" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finde eine Wiener Haltestelle in ${applicationName}"
+          }
+        }
+      }
+    },
+    "Open departures in ${applicationName}" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffne Abfahrten in ${applicationName}"
+          }
+        }
+      }
+    },
+    "Open my saved stops in ${applicationName}" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffne meine gespeicherten Haltestellen in ${applicationName}"
+          }
+        }
+      }
+    },
+    "Search stations in ${applicationName}" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suche Stationen in ${applicationName}"
+          }
+        }
+      }
+    },
+    "Show my favourite stops in ${applicationName}" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeige meine Lieblingshaltestellen in ${applicationName}"
+          }
+        }
+      }
+    },
+    "Show nearby departures in ${applicationName}" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeige Abfahrten in der Nähe mit ${applicationName}"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

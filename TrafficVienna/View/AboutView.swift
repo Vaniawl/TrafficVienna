@@ -54,6 +54,20 @@ struct AboutView: View {
                     }
                 }
 
+                Section("Privacy") {
+                    NavigationLink("Privacy policy") {
+                        PrivacyPolicyView()
+                    }
+
+                    if let privacyURL = URL(
+                        string: "https://github.com/Vaniawl/TrafficVienna/blob/main/PRIVACY.md"
+                    ) {
+                        Link(destination: privacyURL) {
+                            Label("Online privacy policy", systemImage: "safari")
+                        }
+                    }
+                }
+
                 Section {
                     Text("Departure times are provided live by Wiener Linien and may differ from actual service.")
                         .font(.footnote)

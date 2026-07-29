@@ -6,6 +6,7 @@ struct RootTabView: View {
     @State private var favoritesVM = FavoritesListViewModel()
     @State private var disruptionsVM = DisruptionsViewModel()
     @StateObject private var networkMonitor = NetworkMonitor()
+    @StateObject private var shortcutRouter = TrafficViennaShortcutRouter.shared
     @AppStorage("hasOnboarded") private var hasOnboarded = false
     @State private var selectedTab: AppTab = .nearby
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -62,11 +63,10 @@ struct RootTabView: View {
                     Motion.quick(reduceMotion: reduceMotion),
                     value: networkMonitor.isConnected
                 )
-                .onReceive(NotificationCenter.default.publisher(for: .init("shortcut"))) { note in
-                    guard let type = note.object as? String else { return }
-                    withAnimation(Motion.quick(reduceMotion: reduceMotion)) {
-                        selectedTab = AppTab(rawValue: type) ?? .nearby
-                    }
+                .onChange(of: shortcutRouter.pendingDestination, initial: true) { _, destination in
+                    guard let destination else { return }
+                    select(destination.appTab)
+                    shortcutRouter.consume()
                 }
                 .onReceive(NotificationCenter.default.publisher(for: .favoriteStationsDidChange)) { _ in
                     favoritesVM.loadStations()
@@ -90,17 +90,22 @@ struct RootTabView: View {
             }
         }
         .animation(Motion.standard(reduceMotion: reduceMotion), value: hasOnboarded)
-    }
-
-    private func showFavourites() {
-        withAnimation(Motion.quick(reduceMotion: reduceMotion)) {
-            selectedTab = .favourites
+        .onOpenURL { url in
+            shortcutRouter.handle(deepLinkURL: url)
         }
     }
 
+    private func showFavourites() {
+        select(.favourites)
+    }
+
     private func showAlerts() {
+        select(.alerts)
+    }
+
+    private func select(_ tab: AppTab) {
         withAnimation(Motion.quick(reduceMotion: reduceMotion)) {
-            selectedTab = .alerts
+            selectedTab = tab
         }
     }
 

@@ -37,6 +37,78 @@ final class MapStationsViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.locationStatus, .located)
     }
 
+    func testExplicitMapCenterOverridesCurrentLocationWithoutChangingPermissionStatus() {
+        let viewModel = makeViewModel(
+            stationStore: StubStationStore(stations: sampleStations)
+        )
+        let currentLocation = CLLocation(latitude: 48.2181, longitude: 16.3915)
+        let exploredLocation = CLLocation(latitude: 48.2003, longitude: 16.3695)
+
+        viewModel.refresh(
+            location: currentLocation,
+            authorizationStatus: .authorizedWhenInUse,
+            locationError: nil,
+            mapCenter: exploredLocation
+        )
+
+        XCTAssertEqual(viewModel.visibleStations.first?.id, 3)
+        XCTAssertEqual(viewModel.locationStatus, .located)
+        XCTAssertEqual(
+            viewModel.searchCenter?.coordinate.latitude,
+            exploredLocation.coordinate.latitude
+        )
+        XCTAssertEqual(
+            viewModel.searchCenter?.coordinate.longitude,
+            exploredLocation.coordinate.longitude
+        )
+    }
+
+    func testSearchAreaOfferRequiresMeaningfulCameraMovement() {
+        let viewModel = makeViewModel(
+            stationStore: StubStationStore(stations: sampleStations)
+        )
+        let center = CLLocation(latitude: 48.2082, longitude: 16.3738)
+        viewModel.refresh(
+            location: center,
+            authorizationStatus: .authorizedWhenInUse,
+            locationError: nil
+        )
+
+        XCTAssertFalse(
+            viewModel.shouldOfferSearch(
+                at: CLLocation(latitude: 48.2085, longitude: 16.3738)
+            )
+        )
+        XCTAssertTrue(
+            viewModel.shouldOfferSearch(
+                at: CLLocation(latitude: 48.2120, longitude: 16.3738)
+            )
+        )
+    }
+
+    func testNearbyMarkersAreThinnedToRemainTappable() {
+        let closelySpaced = [
+            Station(id: 1, diva: 1, name: "A", lat: 48.20820, lon: 16.37380),
+            Station(id: 2, diva: 2, name: "B", lat: 48.20825, lon: 16.37385),
+            Station(id: 3, diva: 3, name: "C", lat: 48.21100, lon: 16.37800),
+        ]
+        let viewModel = MapStationsViewModel(
+            stationStore: StubStationStore(stations: closelySpaced),
+            fallbackLocation: CLLocation(latitude: 48.2082, longitude: 16.3738),
+            radius: 10_000,
+            markerLimit: 60,
+            minimumMarkerSpacing: 120
+        )
+
+        viewModel.refresh(
+            location: nil,
+            authorizationStatus: .notDetermined,
+            locationError: nil
+        )
+
+        XCTAssertEqual(viewModel.visibleStations.map(\.id), [1, 3])
+    }
+
     func testLoadingCatalogueShowsLoadingState() {
         let viewModel = makeViewModel(
             stationStore: StubStationStore(

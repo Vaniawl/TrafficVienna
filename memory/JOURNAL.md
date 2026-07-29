@@ -1,5 +1,96 @@
 # Journal
 
+## 2026-07-29 — App Store distribution access audit
+
+- Re-ran the signed generic archive with Xcode open and automatic provisioning.
+  Compilation, bundle identifiers, development identity, and both provisioning
+  profiles resolve correctly; widget signing still stops at
+  `errSecInternalComponent`.
+- Confirmed the certificate's organizational unit, project build settings, and
+  profiles all use team ID `KZNP8PH94C`. The separate identifier shown in the
+  certificate common name is not the Developer Team ID.
+- Added a repeatable App Store validation export configuration. Xcode accepts the
+  archive and configuration, but distribution stops before Apple validation
+  because no local Xcode account has App Store Connect access for the team.
+- A narrowly targeted attempt to add the standard `codesign` key partitions
+  correctly requested the login Keychain password and was cancelled without
+  changing the key. No browser session, App Store Connect API key, or stored CLI
+  credential is available to substitute for the missing authenticated account.
+
+## 2026-07-29 — Supported GitHub Actions runtime
+
+- Updated the Quality workflow from `actions/checkout@v4` and
+  `actions/setup-node@v4` to their supported v6 majors after GitHub-hosted CI
+  warned that the Node 20 action runtime was deprecated and being force-run on
+  Node 24.
+- Preserved the explicit Node.js 22 tool version and disabled setup-node's new
+  automatic package-manager caching because this workflow installs only the
+  pinned global OpenCode CLI and has no project npm install step.
+- Rollback is the two-line major-tag revert plus removal of the v6-only cache
+  input. Protected Quality CI is the compatibility authority for the hosted
+  runner, repository validators, Xcode build, and 108-test suite. Run
+  `30426734694` passed the complete workflow in 9m13s with no annotations.
+
+## 2026-07-29 — App Store readiness hardening
+
+- Removed the device-only Sign in with Apple profile surface and entitlement,
+  replaced it with an idempotent legacy Keychain cleanup, added in-app/public
+  privacy policy content, app/widget privacy manifests, export-compliance
+  declaration, complete English/German store metadata, and a physical/TestFlight
+  smoke checklist.
+- Fixed premature destination truncation and maximum Accessibility Dynamic Type
+  disruption/departure layouts. Runtime acceptance covered English and German,
+  optional-location behavior, live data, iPhone 17 Pro Max, iPad Pro 13-inch, and
+  ten localized 1320×2868 App Store screenshots without alpha.
+- All 108 XCTest cases pass with no failures, skips, warnings, or errors. A clean
+  unsigned Release archive contains the expected arm64 app/widget, bundle IDs,
+  version 1.0 (1), iOS 26.0 minimum, icons, encryption flag, and both privacy
+  manifests. Repository and OpenCode static validators pass.
+- Current release verdict remains No-Go: non-interactive Keychain access prevents
+  the final signed archive at widget `codesign`; App Store Connect, the final
+  public privacy URL, processed-build warnings/privacy report, and physical
+  TestFlight system-surface smoke remain externally unverified. Local full CI
+  stops because `opencode` is not installed; protected GitHub Quality installs the
+  pinned version and passed its complete 10-minute workflow on draft PR #10.
+- A connected iPhone18,2 on iOS 26.5.2 was detected and targeted with a Release
+  device build. Compilation and profile selection succeeded, then widget signing
+  reproduced the same `errSecInternalComponent`, confirming the remaining device
+  gate is private-key consent rather than source, SDK, device, or provisioning
+  compatibility.
+
+## 2026-07-29 — Camera-aware map exploration and widget navigation
+
+- Added an explicit “Search this area” map flow after 250 metres of camera
+  movement. Explored centres remain transient, permission messaging stays truthful,
+  and the local indexed station projection remains bounded and spatially thinned.
+- Interactive testing exposed a MapKit layout feedback loop when the camera action
+  changed the map safe area. Moving camera-driven surfaces to a non-resizing overlay
+  reduced the reproduced post-action process load from about 70% to 0–0.2% CPU.
+- Added one validated shared destination vocabulary and custom URL boundary so the
+  favourites widget opens the matching tab on warm and cold launches. Unknown,
+  parameterised, credentialed, and non-app URLs are rejected without navigation.
+- Debug and Release Simulator builds completed with no diagnostics; all 116 XCTest
+  cases passed. The built Info.plist, launch-screen dictionary, URL registration,
+  English/German extraction coverage, runtime routing, and map interaction were
+  verified. Repository/OpenCode validation passed; standalone reliability reached
+  its OpenCode CLI fixture and stopped because that CLI is not installed locally.
+
+## 2026-07-28 — System surfaces, widget cadence, and indexed discovery
+
+- Recovered the latest `main` baseline by removing four unreferenced components
+  that did not compile, then added persisted App Intent routing and three App
+  Shortcuts for Nearby, Search, and Favourites with English/German metadata.
+- Expanded departures to small, medium, large, circular, rectangular, and inline
+  widgets. Countdown rows now project locally each minute from their own fetch
+  time, automatic network refresh is five-minute, manual refresh bypasses the
+  throttle once, and partial failures retain correctly ordered cached routes.
+- Added exact-name, bigram, and spatial station indexes plus tappable map-marker
+  thinning. The same 100-query benchmark improved text search from about 184 ms
+  to about 6.05 ms; 100 spatial queries average about 3.70 ms on iPhone 17 Pro Simulator.
+- Clean Debug and Release builds completed with no diagnostics. Full XCTest passed
+  112/112 with no skips; cold intent routing, live Search, Map, Alerts, Favourites,
+  generated shortcut metadata, localisation bundles, and runtime logs were checked.
+
 ## 2026-07-18 — Accessibility-safe Nearby quick access
 
 - Reworked the saved-station quick-access card so decorative symbols keep a fixed

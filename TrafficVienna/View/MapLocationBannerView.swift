@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MapLocationBannerView: View {
     let status: MapLocationStatus
+    let isExploringArea: Bool
     let requestLocation: () -> Void
     let openSettings: () -> Void
 
@@ -9,8 +10,13 @@ struct MapLocationBannerView: View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             switch status {
             case .permissionNeeded:
-                Label("Showing Vienna centre", systemImage: "location")
-                    .font(.headline)
+                if isExploringArea {
+                    Label("Exploring this area", systemImage: "map")
+                        .font(.headline)
+                } else {
+                    Label("Showing Vienna centre", systemImage: "location")
+                        .font(.headline)
+                }
                 Text("Use your location to show the closest stops.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -25,9 +31,15 @@ struct MapLocationBannerView: View {
             case .permissionDenied:
                 Label("Location is off", systemImage: "location.slash")
                     .font(.headline)
-                Text("Vienna centre stays available. Enable location in Settings for nearby stops.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                if isExploringArea {
+                    Text("This area stays available. Enable location in Settings for nearby stops.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text("Vienna centre stays available. Enable location in Settings for nearby stops.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
                 Button("Open Settings", systemImage: "gear", action: openSettings)
                     .buttonStyle(.bordered)
                     .controlSize(.large)
@@ -42,9 +54,15 @@ struct MapLocationBannerView: View {
             case .fallback:
                 Label("Location unavailable", systemImage: "location.slash.fill")
                     .font(.headline)
-                Text("Showing Vienna centre while location recovers.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                if isExploringArea {
+                    Text("Showing this area while location recovers.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text("Showing Vienna centre while location recovers.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
                 Button("Retry location", systemImage: "arrow.clockwise", action: requestLocation)
                     .buttonStyle(.bordered)
                     .controlSize(.large)

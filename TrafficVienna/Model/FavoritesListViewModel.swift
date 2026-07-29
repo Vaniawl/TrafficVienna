@@ -167,15 +167,18 @@ final class FavoritesListViewModel {
     }
 
     private func syncWidget() {
+        let fetchedAt = Date.now
         let widgetItems = items
             .filter { $0.state != .unavailable }
             .prefix(3)
             .map { favorite in
                 WidgetDepartureData(
+                    diva: favorite.route.diva,
                     lineName: favorite.route.lineName,
                     stopName: favorite.stopName,
                     destination: favorite.route.destination,
-                    departures: favorite.departures.prefix(3).map(\.countdown)
+                    departures: favorite.departures.prefix(3).map(\.liveMinutes),
+                    fetchedAt: fetchedAt
                 )
             }
         widgetSync.save(Array(widgetItems))

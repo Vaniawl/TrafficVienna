@@ -4,7 +4,6 @@ enum OnboardingStep: Int, CaseIterable, Identifiable {
     case departures
     case disruptions
     case personal
-    case account
 
     var id: Self { self }
 
@@ -12,8 +11,7 @@ enum OnboardingStep: Int, CaseIterable, Identifiable {
         switch self {
         case .departures: .disruptions
         case .disruptions: .personal
-        case .personal: .account
-        case .account: nil
+        case .personal: nil
         }
     }
 
@@ -22,7 +20,6 @@ enum OnboardingStep: Int, CaseIterable, Identifiable {
         case .departures: "tram.fill"
         case .disruptions: "exclamationmark.triangle.fill"
         case .personal: "star.fill"
-        case .account: "person.crop.circle.badge.checkmark"
         }
     }
 
@@ -31,7 +28,6 @@ enum OnboardingStep: Int, CaseIterable, Identifiable {
         case .departures: "LIVE DEPARTURES"
         case .disruptions: "TRAVEL SMARTER"
         case .personal: "MADE FOR YOU"
-        case .account: "OPTIONAL ACCOUNT"
         }
     }
 
@@ -40,7 +36,6 @@ enum OnboardingStep: Int, CaseIterable, Identifiable {
         case .departures: "Vienna at a glance"
         case .disruptions: "Know before you go"
         case .personal: "Your commute, one tap away"
-        case .account: "Continue your way"
         }
     }
 
@@ -49,7 +44,6 @@ enum OnboardingStep: Int, CaseIterable, Identifiable {
         case .departures: "See nearby stops and real-time departures without digging through timetables."
         case .disruptions: "Check service alerts and the map before you leave, then adapt in seconds."
         case .personal: "Save stations, follow favourite lines, and keep the next departure on your Lock Screen."
-        case .account: "Use a verified Apple profile, or continue with every transport feature without an account."
         }
     }
 }

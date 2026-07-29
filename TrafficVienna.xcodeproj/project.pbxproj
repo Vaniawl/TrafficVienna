@@ -53,6 +53,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AFD100012F00000100000001 /* Exceptions for "TrafficVienna" folder in "TrafficVienna" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = AF8F2D672EBDE79300E69513 /* TrafficVienna */;
+		};
 		AF0D9F012ED5CA0E005FD8FB /* Exceptions for "TrafficVienna" folder in "TrafficViennaWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -61,6 +68,7 @@
 				WidgetShared/FavoriteRoute.swift,
 				WidgetShared/LineColors.swift,
 				WidgetShared/RouteMatching.swift,
+				WidgetShared/TrafficViennaDestination.swift,
 				WidgetShared/WidgetSharedModel.swift,
 			);
 			target = AF8A82AA2ED30A1C00286504 /* TrafficViennaWidgetExtension */;
@@ -91,6 +99,7 @@
 		AF8F2D6A2EBDE79300E69513 /* TrafficVienna */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
+				AFD100012F00000100000001 /* Exceptions for "TrafficVienna" folder in "TrafficVienna" target */,
 				AF0D9F012ED5CA0E005FD8FB /* Exceptions for "TrafficVienna" folder in "TrafficViennaWidgetExtension" target */,
 			);
 			path = TrafficVienna;
@@ -388,7 +397,7 @@
 				DEVELOPMENT_TEAM = KZNP8PH94C;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TrafficViennaWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = TrafficViennaWidget;
+				INFOPLIST_KEY_CFBundleDisplayName = "Traffic Vienna";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -419,7 +428,7 @@
 				DEVELOPMENT_TEAM = KZNP8PH94C;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TrafficViennaWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = TrafficViennaWidget;
+				INFOPLIST_KEY_CFBundleDisplayName = "Traffic Vienna";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -491,7 +500,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -548,7 +557,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -569,11 +578,12 @@
 				DEVELOPMENT_TEAM = KZNP8PH94C;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TrafficVienna/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Traffic Vienna";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Traffic Vienna uses your location to show nearby stops. The app does not store it.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -604,11 +614,12 @@
 				DEVELOPMENT_TEAM = KZNP8PH94C;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TrafficVienna/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Traffic Vienna";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Traffic Vienna uses your location to show nearby stops. The app does not store it.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
