@@ -19,8 +19,8 @@
   the final signed archive at widget `codesign`; App Store Connect, the final
   public privacy URL, processed-build warnings/privacy report, and physical
   TestFlight system-surface smoke remain externally unverified. Local full CI
-  additionally stops because `opencode` is not installed; protected GitHub CI
-  installs the pinned version and is the handoff authority.
+  stops because `opencode` is not installed; protected GitHub Quality installs the
+  pinned version and passed its complete 10-minute workflow on draft PR #10.
 
 ## 2026-07-29 — Camera-aware map exploration and widget navigation
 

@@ -55,6 +55,9 @@ A `Go` requires:
 - App Store metadata copy is within Apple’s field limits: subtitles 23/21
   characters, promotional text 129/126, descriptions 1106/1345, and keywords
   80/72 for English/German.
+- Draft PR #10 runs the protected GitHub Quality workflow. Run `30425339864`
+  completed successfully, including the pinned OpenCode checks, repository
+  validation, build, tests, and final diff check.
 
 ## Blocking evidence still required
 
@@ -66,7 +69,6 @@ A `Go` requires:
 | Store assets | Metadata and ten technically valid localized 6.9-inch screenshots are prepared locally. | Attach them to the App Store version and verify the final locale/order in App Store Connect. |
 | System-surface acceptance | Simulator coverage cannot prove production Apple signing, physical-device location, widget refresh, Dynamic Island, or Live Activity behavior. | Install a signed/TestFlight build on a supported physical device and complete the release smoke path. |
 | Apple processing | No build has been uploaded. | Upload only after explicit release approval; wait for processing, inspect warnings/privacy report, then run internal TestFlight smoke. |
-| Protected CI | The parent product branch passed Quality CI before this release slice; local repository validation and final branch CI are recorded separately. | Push this release branch as a draft PR and require the protected Quality workflow to pass on its final commit. |
 
 ## Repeatable evidence commands
 
