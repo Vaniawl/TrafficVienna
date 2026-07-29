@@ -49,6 +49,10 @@ A `Go` requires:
 - iPhone 17 Pro Max and iPad Pro 13-inch runtime builds complete without
   diagnostics. English, German, location-denied, live-data, Favourites, and
   maximum Accessibility Dynamic Type paths were exercised.
+- Xcode detects an available physical `iPhone18,2` on iOS 26.5.2. A Release
+  device build selects the expected development identity and widget provisioning
+  profile, compiles successfully to the signing phase, and reproduces the same
+  non-interactive Keychain error at widget `codesign`.
 - Ten localized 6.9-inch screenshots are prepared at 1320×2868 JPEG with no
   alpha: Nearby, Station Detail, Map, Alerts, and Favourites in both `en-US`
   and `de-AT`.
@@ -63,7 +67,7 @@ A `Go` requires:
 
 | Gate | Current evidence | Required proof |
 | --- | --- | --- |
-| Distribution signing | The old Sign in with Apple profile mismatch is gone. The signed archive selects the expected app/widget profiles and reaches widget signing, but the login Keychain rejects non-interactive private-key access with `errSecInternalComponent`. | Unlock the signing Keychain in an interactive trusted session, then produce and inspect one clean signed archive. |
+| Distribution signing | The old Sign in with Apple profile mismatch is gone. Both signed archive and connected-device Release build select the expected identity/profiles and reach widget signing, but the login Keychain rejects non-interactive private-key access with `errSecInternalComponent`. | Grant `codesign` access to the private key in an interactive trusted session, then produce and inspect one clean signed archive. |
 | App Store Connect | No browser/account session is available, so no app record or agreement state has been inspected or changed. | Confirm bundle ID registration, app record, agreements, roles, version/build uniqueness, privacy answers, age rating, categories, availability, and review contact. |
 | Public privacy URL | Support and Wiener Linien links return HTTP 200. The proposed `main/PRIVACY.md` URL returns HTTP 404 until this branch is merged. | Confirm the final privacy URL returns HTTP 200 before attaching it to the App Store version. |
 | Store assets | Metadata and ten technically valid localized 6.9-inch screenshots are prepared locally. | Attach them to the App Store version and verify the final locale/order in App Store Connect. |

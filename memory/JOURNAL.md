@@ -1,5 +1,18 @@
 # Journal
 
+## 2026-07-29 — Supported GitHub Actions runtime
+
+- Updated the Quality workflow from `actions/checkout@v4` and
+  `actions/setup-node@v4` to their supported v6 majors after GitHub-hosted CI
+  warned that the Node 20 action runtime was deprecated and being force-run on
+  Node 24.
+- Preserved the explicit Node.js 22 tool version and disabled setup-node's new
+  automatic package-manager caching because this workflow installs only the
+  pinned global OpenCode CLI and has no project npm install step.
+- Rollback is the two-line major-tag revert plus removal of the v6-only cache
+  input. Protected Quality CI is the compatibility authority for the hosted
+  runner, repository validators, Xcode build, and 108-test suite.
+
 ## 2026-07-29 — App Store readiness hardening
 
 - Removed the device-only Sign in with Apple profile surface and entitlement,
@@ -21,6 +34,11 @@
   TestFlight system-surface smoke remain externally unverified. Local full CI
   stops because `opencode` is not installed; protected GitHub Quality installs the
   pinned version and passed its complete 10-minute workflow on draft PR #10.
+- A connected iPhone18,2 on iOS 26.5.2 was detected and targeted with a Release
+  device build. Compilation and profile selection succeeded, then widget signing
+  reproduced the same `errSecInternalComponent`, confirming the remaining device
+  gate is private-key consent rather than source, SDK, device, or provisioning
+  compatibility.
 
 ## 2026-07-29 — Camera-aware map exploration and widget navigation
 
