@@ -10,7 +10,7 @@ import SwiftUI
 
 struct FavoritesView: View {
     @Bindable var viewModel: FavoritesListViewModel
-    @State private var showAccount = false
+    @State private var showAbout = false
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     var body: some View {
@@ -35,7 +35,9 @@ struct FavoritesView: View {
         .navigationTitle("Favourites")
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Button("Account", systemImage: "person.crop.circle", action: showAccountView)
+                Button("About", systemImage: "info.circle") {
+                    showAbout = true
+                }
                     .labelStyle(.iconOnly)
             }
             if !viewModel.stations.isEmpty {
@@ -45,7 +47,7 @@ struct FavoritesView: View {
         .navigationDestination(for: Station.self) { station in
             StationDetailView(station: station)
         }
-        .sheet(isPresented: $showAccount) { AccountView() }
+        .sheet(isPresented: $showAbout) { AboutView() }
         .refreshable {
             viewModel.loadStations()
             await viewModel.loadFavorites(forceRefresh: true)
@@ -113,9 +115,6 @@ struct FavoritesView: View {
         }
     }
 
-    private func showAccountView() {
-        showAccount = true
-    }
 }
 
 #Preview {

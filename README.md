@@ -19,7 +19,7 @@ alerts, favourites, widgets, and Live Activities in one privacy-conscious app.
 ## Requirements
 
 - Xcode 26
-- iOS 26 simulator or device
+- iOS 26.0 simulator or device
 
 ## Build and test
 
@@ -39,4 +39,6 @@ xcodebuild \
 
 The app reads the bundled Wiener Linien station catalogue and fetches live
 departure and disruption data from the official Wiener Linien realtime API.
-Location remains in memory and anonymous use does not require an account.
+Location remains in memory and the app does not require an account. See the
+[privacy policy](PRIVACY.md), [App Store readiness evidence](docs/release/app-store-readiness.md),
+and [TestFlight smoke checklist](docs/release/testflight-smoke-checklist.md).

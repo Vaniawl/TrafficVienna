@@ -11,11 +11,11 @@ final class OnboardingStepTests: XCTestCase {
             step = current.next
         }
 
-        XCTAssertEqual(steps, [.departures, .disruptions, .personal, .account])
+        XCTAssertEqual(steps, [.departures, .disruptions, .personal])
         XCTAssertEqual(steps, OnboardingStep.allCases)
     }
 
-    func testOptionalAccountIsTheFinalStep() {
-        XCTAssertNil(OnboardingStep.account.next)
+    func testPersonalisationIsTheFinalStep() {
+        XCTAssertNil(OnboardingStep.personal.next)
     }
 }
