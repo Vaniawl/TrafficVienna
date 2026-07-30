@@ -14,9 +14,16 @@ struct StationDeparturesList: View {
 
             if !viewModel.trafficInfos.isEmpty {
                 Section("Service alerts") {
-                    ForEach(viewModel.trafficInfos) { info in
+                    if viewModel.trafficInfos.count == 1,
+                       let info = viewModel.trafficInfos.first {
                         NavigationLink(value: info) {
                             DisruptionRow(info: info)
+                        }
+                    } else {
+                        NavigationLink {
+                            StationAlertsView(infos: viewModel.trafficInfos)
+                        } label: {
+                            StationAlertsSummaryRow(infos: viewModel.trafficInfos)
                         }
                     }
                 }
@@ -45,15 +52,17 @@ struct StationDeparturesList: View {
                     }
                 }
             }
-        }
-        .listStyle(.insetGrouped)
-        .safeAreaInset(edge: .bottom) {
+
             if let lastUpdated = viewModel.lastUpdated {
                 StationFreshnessBar(
                     lastUpdated: lastUpdated,
                     isStale: viewModel.refreshErrorMessage != nil
                 )
+                .frame(maxWidth: .infinity, alignment: .center)
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
             }
         }
+        .listStyle(.insetGrouped)
     }
 }

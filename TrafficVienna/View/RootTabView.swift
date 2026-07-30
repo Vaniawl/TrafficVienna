@@ -15,7 +15,7 @@ struct RootTabView: View {
         Group {
             if hasOnboarded {
                 TabView(selection: $selectedTab) {
-                    Tab("Nearby", systemImage: "location.fill", value: .nearby) {
+                    Tab("Home", systemImage: "location.fill", value: .nearby) {
                         NavigationStack {
                             NearbyView(
                                 store: store,
@@ -28,15 +28,13 @@ struct RootTabView: View {
                         }
                     }
 
-                    Tab("Search", systemImage: "magnifyingglass", value: .search) {
+                    Tab("Discover", systemImage: "magnifyingglass", value: .search) {
                         NavigationStack {
-                            SearchView(store: store)
-                        }
-                    }
-
-                    Tab("Map", systemImage: "map.fill", value: .map) {
-                        NavigationStack {
-                            MapStationsView(store: store, locationManager: locationManager)
+                            SearchView(
+                                store: store,
+                                locationManager: locationManager,
+                                favoritesViewModel: favoritesVM
+                            )
                         }
                     }
 
@@ -45,11 +43,15 @@ struct RootTabView: View {
                             DisruptionsView(viewModel: disruptionsVM)
                         }
                     }
-                    .badge(disruptionsVM.activeServiceCount)
+                    .badge(disruptionsVM.badgeCount)
 
-                    Tab("Favourites", systemImage: "star.fill", value: .favourites) {
+                    Tab("Saved", systemImage: "star.fill", value: .favourites) {
                         NavigationStack {
-                            FavoritesView(viewModel: favoritesVM)
+                            FavoritesView(
+                                viewModel: favoritesVM,
+                                store: store,
+                                onDiscover: showDiscover
+                            )
                         }
                     }
                 }
@@ -73,6 +75,9 @@ struct RootTabView: View {
                 }
                 .onReceive(NotificationCenter.default.publisher(for: .favoriteRoutesDidChange)) { _ in
                     Task { await favoritesVM.loadFavorites() }
+                }
+                .onChange(of: favoritesVM.items.map(\.route), initial: true) { _, routes in
+                    disruptionsVM.updateRelevantLines(Set(routes.map(\.lineName)))
                 }
                 .task {
                     await refreshFavouritesContinuously()
@@ -101,6 +106,10 @@ struct RootTabView: View {
 
     private func showAlerts() {
         select(.alerts)
+    }
+
+    private func showDiscover() {
+        select(.search)
     }
 
     private func select(_ tab: AppTab) {

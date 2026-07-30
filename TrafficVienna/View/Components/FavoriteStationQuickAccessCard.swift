@@ -5,7 +5,7 @@ struct FavoriteStationQuickAccessCard: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.sm) {
+        HStack(spacing: Spacing.md) {
             if !dynamicTypeSize.isAccessibilitySize {
                 Image(systemName: "star.fill")
                     .font(.system(size: 17, weight: .semibold))
@@ -15,34 +15,25 @@ struct FavoriteStationQuickAccessCard: View {
                     .accessibilityHidden(true)
             }
 
-            Text(station.name)
-                .font(dynamicTypeSize.isAccessibilitySize ? .body : .headline)
-                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 1 : 2)
-                .minimumScaleFactor(dynamicTypeSize.isAccessibilitySize ? 0.7 : 1)
-                .fixedSize(horizontal: false, vertical: true)
+            VStack(alignment: .leading, spacing: Spacing.xxs) {
+                Text(station.name)
+                    .font(.headline)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
 
-            if !dynamicTypeSize.isAccessibilitySize {
-                Spacer(minLength: Spacing.xs)
+                Text("View departures")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             }
 
-            Label {
-                Group {
-                    if dynamicTypeSize.isAccessibilitySize {
-                        Text("Departures")
-                    } else {
-                        Text("View departures")
-                    }
-                }
-                .font(.subheadline)
-            } icon: {
-                Image(systemName: "arrow.right")
-                    .font(.system(size: 14, weight: .semibold))
-            }
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
-                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: Spacing.xs)
+
+            Image(systemName: "chevron.right")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(.tertiary)
+                .accessibilityHidden(true)
         }
-        .frame(maxWidth: .infinity, minHeight: 132, alignment: .topLeading)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Spacing.md)
         .background(DesignColor.cardBackground, in: .rect(cornerRadius: CornerRadius.lg))
         .overlay {

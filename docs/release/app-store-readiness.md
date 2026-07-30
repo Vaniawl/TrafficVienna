@@ -1,6 +1,6 @@
 # App Store readiness
 
-Status date: 29 July 2026
+Status date: 30 July 2026
 
 Current verdict: **No-Go** until every blocking item below has observed evidence.
 This file is intentionally stricter than a successful Simulator build.
@@ -44,8 +44,10 @@ A `Go` requires:
 - The account-only Apple identity surface and entitlement were removed because
   they provided no cross-device feature and prevented the installed profile from
   archiving. A one-time migration deletes the legacy device-only Keychain item.
-- All 108 XCTest cases pass with zero failures or skips. The cleanup migration is
-  covered for success, missing-item, and retry-after-failure paths.
+- All 117 XCTest cases pass with zero failures or skips, including two XCUITest
+  journeys through the four-tab shell, Discover map entry, alert filters, Saved,
+  and search-to-station navigation. The cleanup migration is covered for success,
+  missing-item, and retry-after-failure paths.
 - iPhone 17 Pro Max and iPad Pro 13-inch runtime builds complete without
   diagnostics. English, German, location-denied, live-data, Favourites, and
   maximum Accessibility Dynamic Type paths were exercised.
@@ -53,11 +55,15 @@ A `Go` requires:
   device build selects the expected development identity and widget provisioning
   profile, compiles successfully to the signing phase, and reproduces the same
   non-interactive Keychain error at widget `codesign`.
-- Ten localized 6.9-inch screenshots are prepared at 1320×2868 JPEG with no
-  alpha: Nearby, Station Detail, Map, Alerts, and Favourites in both `en-US`
+- Ten current localized 6.9-inch screenshots are prepared at 1320×2868 JPEG with
+  no alpha: Home, Station Detail, Discover Map, Alerts, and Saved in both `en-US`
   and `de-AT`.
+- One-shot coalesced location requests replace continuous tracking. The redesigned
+  station detail reaches a settled UI state; eight idle Debug Simulator process
+  samples measured 0.0% CPU after removing its repeating pulse and 30-second
+  refresh cadence.
 - App Store metadata copy is within Apple’s field limits: subtitles 23/21
-  characters, promotional text 129/126, descriptions 1106/1345, and keywords
+  characters, promotional text 129/126, descriptions 1125/1355, and keywords
   80/72 for English/German.
 - Release-readiness PR #10 and stacked product PR #9 are merged at release code
   integration commit `52009857a361e0a3c138c4cbded380034dc48f16`. That

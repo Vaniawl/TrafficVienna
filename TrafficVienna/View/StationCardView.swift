@@ -75,7 +75,7 @@ struct StationCardView: View {
                         Text(updatedText(updatedAt))
                             .font(.caption)
                             .foregroundStyle(.tertiary)
-                            .accessibilityLabel("Updated \(RelativeTime.updated(since: updatedAt))")
+                            .accessibilityLabel(Text(RelativeTime.updated(since: updatedAt)))
                     }
                 }
             }

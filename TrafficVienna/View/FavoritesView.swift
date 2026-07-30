@@ -10,36 +10,49 @@ import SwiftUI
 
 struct FavoritesView: View {
     @Bindable var viewModel: FavoritesListViewModel
-    @State private var showAbout = false
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @ObservedObject var store: StationStore
+    let onDiscover: () -> Void
 
     var body: some View {
-        Group {
-            if viewModel.isLoading && viewModel.items.isEmpty && viewModel.stations.isEmpty {
-                ProgressView("Loading…")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.isEmpty {
-                ContentUnavailableView(
-                    "No favourites yet",
-                    systemImage: "star",
-                    description: Text("Star a station, or tap the heart on a line, to save it here.")
-                )
-            } else {
-                List {
-                    if !viewModel.stations.isEmpty { stationsSection }
-                    if !viewModel.items.isEmpty { linesSection }
+        List {
+            if let featuredDeparture = viewModel.featuredDeparture {
+                Section("My commute") {
+                    if let station = station(diva: featuredDeparture.route.diva) {
+                        NavigationLink(value: station) {
+                            SavedCommuteRow(item: featuredDeparture)
+                        }
+                    } else {
+                        SavedCommuteRow(item: featuredDeparture)
+                    }
                 }
-                .listStyle(.insetGrouped)
+            }
+
+            if !viewModel.stations.isEmpty { stationsSection }
+            if !viewModel.items.isEmpty { linesSection }
+        }
+        .listStyle(.insetGrouped)
+        .overlay {
+            if viewModel.isLoading && viewModel.isEmpty {
+                ProgressView("Loading saved stops…")
+                    .controlSize(.large)
+            } else if viewModel.isEmpty {
+                ContentUnavailableView {
+                    Label("Nothing saved yet", systemImage: "star")
+                } description: {
+                    Text("Save stops and lines to build your personal commute dashboard.")
+                } actions: {
+                    Button("Find a stop", systemImage: "magnifyingglass", action: onDiscover)
+                        .buttonStyle(.borderedProminent)
+                }
             }
         }
-        .navigationTitle("Favourites")
+        .navigationTitle("Saved")
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button("About", systemImage: "info.circle") {
-                    showAbout = true
-                }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Find a stop", systemImage: "plus", action: onDiscover)
                     .labelStyle(.iconOnly)
             }
+
             if !viewModel.stations.isEmpty {
                 ToolbarItem(placement: .topBarTrailing) { EditButton() }
             }
@@ -47,7 +60,6 @@ struct FavoritesView: View {
         .navigationDestination(for: Station.self) { station in
             StationDetailView(station: station)
         }
-        .sheet(isPresented: $showAbout) { AboutView() }
         .refreshable {
             viewModel.loadStations()
             await viewModel.loadFavorites(forceRefresh: true)
@@ -56,18 +68,12 @@ struct FavoritesView: View {
     }
 
     private var stationsSection: some View {
-        Section("Stations") {
+        Section("Saved stops") {
             ForEach(viewModel.stations) { station in
-                NavigationLink(value: Station(
-                    id: station.id,
-                    diva: station.diva,
-                    name: station.name,
-                    lat: 0,
-                    lon: 0
-                )) {
+                NavigationLink(value: resolvedStation(station)) {
                     HStack(spacing: Spacing.sm) {
                         Image(systemName: "tram.fill")
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.appAccent)
                         Text(station.name)
                             .font(.body)
                     }
@@ -82,28 +88,27 @@ struct FavoritesView: View {
     }
 
     private var linesSection: some View {
-        Section("Lines") {
+        Section("Saved lines") {
             ForEach(viewModel.items) { item in
-                VStack(alignment: .leading, spacing: Spacing.xs) {
-                    DepartureLineRow(
-                        lineName: item.route.lineName,
-                        destination: item.route.destination,
-                        minutes: item.departures.map { $0.liveMinutes },
-                        nextIsLive: item.departures.first?.isRealtime ?? false
-                    )
-
-                    if item.state == .unavailable {
-                        Button("Retry departures", systemImage: "arrow.clockwise") {
-                            Task { await viewModel.refresh(item.route) }
+                Group {
+                    if let station = station(diva: item.route.diva),
+                       item.state != .unavailable {
+                        NavigationLink(value: station) {
+                            savedLineContent(item)
                         }
-                        .font(.footnote)
-                    } else if item.state == .cached {
-                        Label("Saved departures", systemImage: "clock.badge.exclamationmark")
-                            .font(.footnote)
-                            .foregroundStyle(.orange)
+                    } else {
+                        savedLineContent(item)
                     }
                 }
                 .padding(.vertical, Spacing.xs)
+                .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                    if item.state == .unavailable {
+                        Button("Retry", systemImage: "arrow.clockwise") {
+                            Task { await viewModel.refresh(item.route) }
+                        }
+                        .tint(.appAccent)
+                    }
+                }
                 .swipeActions(edge: .trailing) {
                     Button(role: .destructive) {
                         viewModel.remove(item.route)
@@ -115,8 +120,83 @@ struct FavoritesView: View {
         }
     }
 
+    private func resolvedStation(_ favorite: FavoriteStation) -> Station {
+        store.stations.first { $0.id == favorite.id }
+            ?? Station(
+                id: favorite.id,
+                diva: favorite.diva,
+                name: favorite.name,
+                lat: 0,
+                lon: 0
+            )
+    }
+
+    private func station(diva: String) -> Station? {
+        store.stations.first { $0.diva.map(String.init) == diva }
+    }
+
+    private func savedLineContent(_ item: FavoriteWithDeparture) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
+            DepartureLineRow(
+                lineName: item.route.lineName,
+                destination: item.route.destination,
+                minutes: item.departures.map { $0.liveMinutes },
+                nextIsLive: item.departures.first?.isRealtime ?? false
+            )
+
+            if item.state == .unavailable {
+                Label("Departures unavailable · swipe to retry", systemImage: "wifi.exclamationmark")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            } else if item.state == .cached {
+                Label("Saved departures", systemImage: "clock.badge.exclamationmark")
+                    .font(.footnote)
+                    .foregroundStyle(.orange)
+            }
+        }
+    }
 }
 
 #Preview {
-    NavigationStack { FavoritesView(viewModel: FavoritesListViewModel()) }
+    NavigationStack {
+        FavoritesView(
+            viewModel: FavoritesListViewModel(),
+            store: StationStore(),
+            onDiscover: {}
+        )
+    }
+}
+
+private struct SavedCommuteRow: View {
+    let item: FeaturedDeparture
+
+    var body: some View {
+        HStack(spacing: Spacing.md) {
+            LineBadge(line: item.route.lineName)
+
+            VStack(alignment: .leading, spacing: Spacing.xxs) {
+                Text(item.route.destination)
+                    .font(.headline)
+                Text(item.stopName)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer(minLength: Spacing.xs)
+
+            VStack(alignment: .trailing, spacing: Spacing.none) {
+                Text(item.departure.liveMinutes <= 0 ? "now" : "\(item.departure.liveMinutes)")
+                    .font(.title2.weight(.semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(.appAccent)
+                if item.departure.liveMinutes > 0 {
+                    Text("min")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .padding(.vertical, Spacing.xs)
+        .accessibilityElement(children: .combine)
+    }
 }

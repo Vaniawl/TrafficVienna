@@ -4,6 +4,11 @@ import Observation
 @MainActor
 @Observable
 final class MapStationsViewModel {
+    static let viennaCenter = CLLocation(
+        latitude: 48.2082,
+        longitude: 16.3738
+    )
+
     private(set) var contentState: MapContentState = .loading
     private(set) var locationStatus: MapLocationStatus = .permissionNeeded
     private(set) var visibleStations: [Station] = []
@@ -23,10 +28,7 @@ final class MapStationsViewModel {
         minimumMarkerSpacing: CLLocationDistance = 120
     ) {
         self.stationStore = stationStore
-        self.fallbackLocation = fallbackLocation ?? CLLocation(
-            latitude: 48.2082,
-            longitude: 16.3738
-        )
+        self.fallbackLocation = fallbackLocation ?? Self.viennaCenter
         self.radius = radius
         self.markerLimit = markerLimit
         self.minimumMarkerSpacing = minimumMarkerSpacing

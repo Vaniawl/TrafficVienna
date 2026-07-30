@@ -14,21 +14,46 @@ struct StationDepartureRow: View {
                 nextIsLive: group.isLive
             )
 
-            Menu("More actions", systemImage: "ellipsis.circle") {
-                Button("Track on Lock Screen", systemImage: "bell.badge") {
-                    viewModel.startTracking(group)
-                }
-
-                Button(
-                    viewModel.isFavorite(group) ? "Remove favourite" : "Add to favourites",
-                    systemImage: viewModel.isFavorite(group) ? "heart.slash" : "heart"
-                ) {
-                    viewModel.toggleFavorite(group)
-                }
+            Button {
+                viewModel.startTracking(group)
+            } label: {
+                Image(
+                    systemName: viewModel.trackedDepartureID == group.id
+                        ? "bell.fill"
+                        : "bell.badge"
+                )
+                .foregroundStyle(
+                    viewModel.trackedDepartureID == group.id
+                        ? Color.appAccent
+                        : Color.secondary
+                )
             }
-            .labelStyle(.iconOnly)
             .frame(minWidth: 44, minHeight: 44)
+            .accessibilityLabel("Track \(group.line) to \(group.destination) on the Lock Screen")
         }
         .padding(.vertical, Spacing.xs)
+        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+            Button {
+                viewModel.toggleFavorite(group)
+            } label: {
+                Label(
+                    viewModel.isFavorite(group) ? "Remove favourite" : "Add to favourites",
+                    systemImage: viewModel.isFavorite(group) ? "heart.slash" : "heart"
+                )
+            }
+            .tint(viewModel.isFavorite(group) ? .gray : .pink)
+        }
+        .contextMenu {
+            Button("Track on Lock Screen", systemImage: "bell.badge") {
+                viewModel.startTracking(group)
+            }
+
+            Button(
+                viewModel.isFavorite(group) ? "Remove favourite" : "Add to favourites",
+                systemImage: viewModel.isFavorite(group) ? "heart.slash" : "heart"
+            ) {
+                viewModel.toggleFavorite(group)
+            }
+        }
     }
 }

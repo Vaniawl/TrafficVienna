@@ -1,5 +1,25 @@
 # Architectural Decisions
 
+## 2026-07-30 — Journey-first shell keeps external routes compatible
+
+**Context:** Five equal tabs made nearby departures, search, and map compete for
+attention, while network-wide alerts were noisy for people who cared about only
+their saved lines. Continuous location updates and repeating station-detail
+animation also spent runtime resources without improving the next action.
+
+**Decision:** Use four top-level journeys: Home, Discover, Alerts, and Saved.
+Discover owns search and map; the existing Nearby, Search, and Favourites external
+destination enum remains stable and maps to Home, Discover, and Saved. Personalise
+Alerts in memory from saved route line names, with an explicit All Vienna scope.
+Request location once per user or refresh action and coalesce overlapping requests.
+Keep station detail live through bounded 60-second refreshes, not repeating visual
+animation. Add an XCUITest target for the public journeys.
+
+**Consequences:** The shell has a clearer information hierarchy without breaking
+widgets, deep links, Siri, Shortcuts, or Spotlight. Alert personalisation adds no
+new persistence, account, endpoint, or privacy category. Map and location recovery
+remain explicit, and the new end-to-end tests make navigation ownership observable.
+
 ## 2026-07-29 — Protected main is the release integration boundary
 
 **Context:** Quality CI covered pull requests and `main` pushes, but the default

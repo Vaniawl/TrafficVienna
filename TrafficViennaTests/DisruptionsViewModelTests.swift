@@ -36,7 +36,36 @@ final class DisruptionsViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.selectedKind, .service)
         XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["service"])
         XCTAssertEqual(viewModel.activeServiceCount, 1)
+        XCTAssertEqual(viewModel.badgeCount, 1)
         XCTAssertEqual(viewModel.dashboardStatus, .alerts(count: 1, isSaved: false))
+    }
+
+    func testSavedLinesPersonalizeDefaultAlertScopeAndBadge() async {
+        let viewModel = makeLoadedViewModel()
+        viewModel.updateRelevantLines(["U3"])
+
+        await viewModel.load()
+
+        XCTAssertEqual(viewModel.selectedScope, .relevant)
+        XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["service"])
+        XCTAssertEqual(viewModel.badgeCount, 1)
+
+        viewModel.updateRelevantLines(["U1"])
+
+        XCTAssertTrue(viewModel.filteredInfos.isEmpty)
+        XCTAssertEqual(viewModel.badgeCount, 0)
+        XCTAssertEqual(viewModel.dashboardStatus, .allClear(isSaved: false))
+    }
+
+    func testAllViennaScopeShowsAlertsOutsideSavedLines() async {
+        let viewModel = makeLoadedViewModel()
+        viewModel.updateRelevantLines(["U1"])
+        await viewModel.load()
+
+        viewModel.selectScope(.all)
+
+        XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["service"])
+        XCTAssertEqual(viewModel.filterSummary, "All Vienna · Service")
     }
 
     func testEmptySuccessfulFeedShowsAllClearDashboardStatus() async {
