@@ -2,49 +2,51 @@ import SwiftUI
 
 struct FavoriteNextDepartureCard: View {
     let item: FeaturedDeparture
-    let action: () -> Void
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
-        Button(action: action) {
-            VStack(alignment: .leading, spacing: Spacing.md) {
-                header
+        VStack(alignment: .leading, spacing: Spacing.md) {
+            header
 
-                Group {
-                    if dynamicTypeSize.isAccessibilitySize {
-                        VStack(alignment: .leading, spacing: Spacing.md) {
-                            route
-                            time
-                        }
-                    } else {
-                        HStack(alignment: .center, spacing: Spacing.md) {
-                            route
-                            Spacer(minLength: Spacing.sm)
-                            time
-                        }
+            Group {
+                if dynamicTypeSize.isAccessibilitySize {
+                    VStack(alignment: .leading, spacing: Spacing.md) {
+                        route
+                        time
+                    }
+                } else {
+                    HStack(alignment: .center, spacing: Spacing.md) {
+                        route
+                        Spacer(minLength: Spacing.sm)
+                        time
                     }
                 }
-
-                Label(item.stopName, systemImage: "mappin.and.ellipse")
-                    .font(.subheadline)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                Label("View favourites", systemImage: "arrow.right")
-                    .font(.subheadline)
-                    .bold()
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(Spacing.lg)
-            .foregroundStyle(DesignColor.inverseText)
-            .background(DesignColor.brandGradient, in: .rect(cornerRadius: CornerRadius.xl))
-            .contentShape(.rect(cornerRadius: CornerRadius.xl))
+
+            Label(item.stopName, systemImage: "mappin.and.ellipse")
+                .font(.subheadline)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Label("View departures", systemImage: "arrow.right")
+                .font(.subheadline)
+                .bold()
         }
-        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(Spacing.md)
+        .foregroundStyle(DesignColor.inverseText)
+        .background(DesignColor.brandGradient, in: .rect(cornerRadius: CornerRadius.lg))
+        .contentShape(.rect(cornerRadius: CornerRadius.lg))
+        .shadow(
+            color: Shadow.sm.color,
+            radius: Shadow.sm.radius,
+            x: Shadow.sm.x,
+            y: Shadow.sm.y
+        )
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(accessibilityLabel))
-        .accessibilityHint(Text("Opens favourites"))
-        .accessibilityInputLabels([Text("Next departure"), Text("View favourites")])
+        .accessibilityHint(Text("Opens live departures"))
+        .accessibilityInputLabels([Text("Next departure"), Text("View departures")])
     }
 
     private var header: some View {
@@ -173,8 +175,7 @@ struct FavoriteNextDepartureCard: View {
             stopName: "Stephansplatz",
             departure: DepartureInfo(countdown: 3, planned: "", real: nil, isRealtime: true),
             state: .available
-        ),
-        action: {}
+        )
     )
     .padding()
     .background(DesignColor.background)

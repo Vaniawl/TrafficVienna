@@ -12,10 +12,12 @@ import CoreLocation
 import MapKit
 
 struct NearbyView: View {
+    @ObservedObject private var store: StationStore
     @State private var vm: NearbyViewModel
     @ObservedObject private var locationManager: LocationManager
     @Bindable private var favoritesViewModel: FavoritesListViewModel
     @Bindable private var disruptionsViewModel: DisruptionsViewModel
+    @State private var isShowingAbout = false
     @Environment(\.openURL) private var openURL
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -30,6 +32,7 @@ struct NearbyView: View {
         onShowFavourites: @escaping () -> Void,
         onShowAlerts: @escaping () -> Void
     ) {
+        _store = ObservedObject(wrappedValue: store)
         _vm = State(initialValue: NearbyViewModel(store: store, location: locationManager))
         _locationManager = ObservedObject(wrappedValue: locationManager)
         _favoritesViewModel = Bindable(wrappedValue: favoritesViewModel)
@@ -40,29 +43,32 @@ struct NearbyView: View {
 
     var body: some View {
         stationList
-        .navigationTitle("Nearby")
+        .navigationTitle("Home")
         .toolbar {
-            if vm.hasLocation && !vm.items.isEmpty {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        Task { await vm.load(force: true) }
-                    } label: {
-                        if vm.isRefreshing {
-                            ProgressView().controlSize(.small)
-                                .accessibilityLabel("Refreshing departures")
-                        } else {
-                            Image(systemName: "arrow.clockwise")
-                        }
-                    }
-                    .disabled(vm.isRefreshing)
-                    .accessibilityLabel("Refresh departures")
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("About Traffic Vienna", systemImage: "info.circle") {
+                    isShowingAbout = true
                 }
+                .labelStyle(.iconOnly)
             }
         }
+        .sheet(isPresented: $isShowingAbout) {
+            AboutView()
+        }
         .task {
+            locationManager.requestLocationIfNeeded()
+        }
+        .task(id: locationRefreshKey) {
+            await vm.load(force: false)
+
+            guard vm.hasLocation else { return }
             while !Task.isCancelled {
+                do {
+                    try await Task.sleep(for: .seconds(60))
+                } catch {
+                    break
+                }
                 await vm.load(force: false)
-                try? await Task.sleep(for: .seconds(vm.items.isEmpty ? 5 : 60))
             }
         }
         .background(DesignColor.background)
@@ -72,15 +78,13 @@ struct NearbyView: View {
         ScrollView {
             LazyVStack(spacing: Spacing.md) {
                 if let featuredDeparture = favoritesViewModel.featuredDeparture {
-                    FavoriteNextDepartureCard(
-                        item: featuredDeparture,
-                        action: onShowFavourites
-                    )
+                    featuredDepartureLink(featuredDeparture)
                     .transition(Motion.stateTransition(reduceMotion: reduceMotion))
                 }
 
                 ServiceStatusCard(
                     status: disruptionsViewModel.dashboardStatus,
+                    isPersonalized: disruptionsViewModel.hasRelevantLines,
                     action: onShowAlerts
                 )
                 .transition(Motion.stateTransition(reduceMotion: reduceMotion))
@@ -93,6 +97,10 @@ struct NearbyView: View {
                     FavoriteStationsQuickAccessView(stations: favoritesViewModel.stations)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
+
+                Text("Around you")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
                 switch dashboardState {
                 case .locationDenied:
@@ -122,8 +130,8 @@ struct NearbyView: View {
                 case .noStations:
                     NearbyStatusCard(
                         icon: "tram.fill",
-                        title: "No stops nearby",
-                        message: "There are no stations within 500 meters.",
+                        title: "No stops around you",
+                        message: "There are no Vienna stops within 500 meters of your location.",
                         actionTitle: "Refresh",
                         action: refresh
                     )
@@ -173,7 +181,10 @@ struct NearbyView: View {
             .padding(.horizontal, horizontalSizeClass == .regular ? Spacing.xxxl : Spacing.md)
             .padding(.vertical, Spacing.sm)
         }
-        .refreshable { await vm.load(force: true) }
+        .refreshable {
+            locationManager.requestLocationIfNeeded()
+            await vm.load(force: true)
+        }
         .animation(
             Motion.standard(reduceMotion: reduceMotion),
             value: favoritesViewModel.featuredDeparture?.id
@@ -188,6 +199,32 @@ struct NearbyView: View {
             hasLocation: vm.hasLocation,
             hasStations: !vm.items.isEmpty
         )
+    }
+
+    private var locationRefreshKey: String {
+        guard let location = locationManager.userLocation else {
+            return "no-location-\(locationManager.authorizationStatus.rawValue)"
+        }
+        return "\(location.coordinate.latitude),\(location.coordinate.longitude)"
+    }
+
+    @ViewBuilder
+    private func featuredDepartureLink(_ item: FeaturedDeparture) -> some View {
+        if let station = store.stations.first(where: {
+            $0.diva.map(String.init) == item.route.diva
+        }) {
+            NavigationLink {
+                StationDetailView(station: station)
+            } label: {
+                FavoriteNextDepartureCard(item: item)
+            }
+            .buttonStyle(.plain)
+        } else {
+            Button(action: onShowFavourites) {
+                FavoriteNextDepartureCard(item: item)
+            }
+            .buttonStyle(.plain)
+        }
     }
 
     private func stationShareText(_ station: Station) -> String {
@@ -208,6 +245,7 @@ struct NearbyView: View {
     }
 
     private func refresh() {
+        locationManager.requestLocationIfNeeded()
         Task { await vm.load(force: true) }
     }
 

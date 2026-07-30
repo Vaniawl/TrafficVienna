@@ -1,5 +1,35 @@
 # Journal
 
+## 2026-07-30 — Journey-first product polish and runtime hardening
+
+- Replaced the five-tab shell with four user journeys: Home, Discover, Alerts,
+  and Saved. Search and map now share Discover while existing Nearby, Search,
+  and Favourites system destinations remain backward-compatible.
+- Reworked Home and Saved into compact commute dashboards, personalised Alerts
+  from saved line names with an explicit All Vienna scope, added map recovery,
+  compact station service-alert navigation, direct Lock Screen tracking actions,
+  and complete English/German copy.
+- Replaced continuous location tracking with coalesced one-shot requests. A
+  regression-first debug pass fixed temporary/empty Core Location callback retry
+  paths and prevented location-driven SwiftUI task restarts from becoming an
+  implicit request loop.
+- Removed the repeating station pulse and 30-second detail refresh cadence.
+  Station detail and Home each measured 0.0% CPU across eight settled Debug
+  Simulator samples; visible boards use bounded 60-second refreshes.
+- Added a first-class XCUITest target and end-to-end coverage for the four tabs,
+  Discover map entry, alert filters, Saved, and search-to-station navigation.
+  All 117 XCTest cases pass with no failures, skips, warnings, or errors.
+- Regenerated and visually inspected all ten `en-US`/`de-AT` App Store
+  screenshots at 1320×2868 JPEG without alpha. A final unsigned arm64 Release
+  archive packages the expected app/widget IDs, version 1.0 (1), privacy
+  manifests, iOS 26.0 minimum, and encryption declaration.
+- Security review found no new findings, dependencies, endpoints, entitlements,
+  secrets, or persisted personal data. Repository and OpenCode static validators
+  pass; the local OpenCode runtime validator remains unavailable because the
+  `opencode` CLI is not installed. App Store submission remains No-Go only for
+  the documented signing, App Store Connect, processed-build, and physical
+  TestFlight evidence gates.
+
 ## 2026-07-29 — Protected App Store release integration
 
 - Merged release-readiness PR #10 into the stacked product branch, waited for

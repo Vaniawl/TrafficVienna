@@ -7,7 +7,7 @@ struct FavoriteStationsQuickAccessView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
-            Text("Quick access")
+            Text("Saved stops")
                 .font(.headline)
 
             ScrollView(.horizontal) {

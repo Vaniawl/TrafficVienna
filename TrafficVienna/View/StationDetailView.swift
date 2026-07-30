@@ -39,7 +39,7 @@ struct StationDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(for: TrafficInfo.self, destination: DisruptionDetailView.init)
         .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button(
                     viewModel.isStationFavorited
                         ? "Remove station from favourites"
@@ -49,10 +49,6 @@ struct StationDetailView: View {
                 )
                 .labelStyle(.iconOnly)
                 .foregroundStyle(viewModel.isStationFavorited ? .yellow : .secondary)
-
-                Button("Refresh departures", systemImage: "arrow.clockwise", action: refresh)
-                    .labelStyle(.iconOnly)
-                    .disabled(viewModel.isLoadingRequest)
             }
         }
         .alert(item: $viewModel.notice) { notice in
@@ -67,7 +63,7 @@ struct StationDetailView: View {
             await viewModel.load()
             while !Task.isCancelled {
                 do {
-                    try await Task.sleep(for: .seconds(30))
+                    try await Task.sleep(for: .seconds(60))
                 } catch {
                     break
                 }
@@ -78,10 +74,6 @@ struct StationDetailView: View {
             await viewModel.load(forceRefresh: true)
         }
         .background(DesignColor.background)
-    }
-
-    private func refresh() {
-        Task { await viewModel.load(forceRefresh: true) }
     }
 
     private func retry() {

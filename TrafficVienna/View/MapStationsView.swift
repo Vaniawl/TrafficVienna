@@ -55,7 +55,8 @@ struct MapStationsView: View {
         .overlay {
             MapContentOverlay(
                 state: viewModel.contentState,
-                retry: retryCatalog
+                retry: retryCatalog,
+                showVienna: showVienna
             )
         }
         .onMapCameraChange(frequency: .onEnd) { context in
@@ -165,6 +166,24 @@ struct MapStationsView: View {
         guard let pendingCameraCenter else { return }
         exploredCenter = pendingCameraCenter
         selectedStation = nil
+        refresh()
+        searchFeedback += 1
+    }
+
+    private func showVienna() {
+        let center = MapStationsViewModel.viennaCenter
+        exploredCenter = center
+        pendingCameraCenter = center
+        selectedStation = nil
+        position = .region(
+            MKCoordinateRegion(
+                center: center.coordinate,
+                span: MKCoordinateSpan(
+                    latitudeDelta: 0.08,
+                    longitudeDelta: 0.08
+                )
+            )
+        )
         refresh()
         searchFeedback += 1
     }
