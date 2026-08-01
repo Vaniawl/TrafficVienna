@@ -97,6 +97,17 @@ final class FavoritesListViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.featuredDeparture?.route.lineName, "U4")
         XCTAssertEqual(viewModel.featuredDeparture?.departure.liveMinutes, 3)
         XCTAssertEqual(viewModel.featuredDeparture?.stopName, "Test")
+        XCTAssertTrue(viewModel.shouldShowFeaturedDeparture)
+    }
+
+    func testSingleSavedRouteDoesNotDuplicateTheFeaturedDeparture() async {
+        let routes = StubFavoritesRepository(routes: [route("U1", "Leopoldau")])
+        let viewModel = makeViewModel(favoritesRepo: routes)
+
+        await viewModel.loadFavorites()
+
+        XCTAssertNotNil(viewModel.featuredDeparture)
+        XCTAssertFalse(viewModel.shouldShowFeaturedDeparture)
     }
 
     func testFeaturedDepartureIgnoresUnavailableRoutesAndMissingDepartures() async {

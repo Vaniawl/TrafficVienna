@@ -31,6 +31,10 @@ final class FavoritesListViewModel {
         items.isEmpty && stations.isEmpty
     }
 
+    var shouldShowFeaturedDeparture: Bool {
+        items.count > 1 && featuredDeparture != nil
+    }
+
     func loadStations() {
         stations = stationsRepo.all()
     }

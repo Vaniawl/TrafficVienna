@@ -4,17 +4,24 @@ struct OnboardingView: View {
     let onGetStarted: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var step: OnboardingStep = .departures
 
     var body: some View {
         VStack(spacing: 0) {
-            TabView(selection: $step) {
-                ForEach(OnboardingStep.allCases) { step in
-                    OnboardingPageView(step: step)
-                        .tag(step)
+            if dynamicTypeSize.isAccessibilitySize {
+                OnboardingPageView(step: step)
+                    .id(step)
+                    .transition(Motion.stateTransition(reduceMotion: reduceMotion))
+            } else {
+                TabView(selection: $step) {
+                    ForEach(OnboardingStep.allCases) { step in
+                        OnboardingPageView(step: step)
+                            .tag(step)
+                    }
                 }
+                .tabViewStyle(.page(indexDisplayMode: .always))
             }
-            .tabViewStyle(.page(indexDisplayMode: .always))
 
             VStack(spacing: Spacing.sm) {
                 Button(action: advance) {
@@ -29,8 +36,8 @@ struct OnboardingView: View {
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
-            .padding(.horizontal, Spacing.xl)
-            .padding(.bottom, Spacing.xl)
+            .padding(.horizontal, dynamicTypeSize.isAccessibilitySize ? Spacing.md : Spacing.xl)
+            .padding(.bottom, dynamicTypeSize.isAccessibilitySize ? Spacing.md : Spacing.xl)
         }
         .background(DesignColor.background)
         .sensoryFeedback(.selection, trigger: step)
