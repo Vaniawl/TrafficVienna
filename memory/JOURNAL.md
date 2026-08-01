@@ -1,5 +1,18 @@
 # Journal
 
+## 2026-08-01 — User-view Dynamic Type and Saved clarity pass
+
+- Walked onboarding, Home, Discover, Map, Alerts, Saved, and Station Detail as a
+  user in Simulator at standard and maximum Accessibility Dynamic Type. Fixed the
+  reproduced narrow-column and clipped-action layouts in onboarding, the Discover
+  map entry, the Alerts filter summary, and the Saved commute highlight.
+- A single saved route now appears once in Saved instead of being duplicated as
+  both My commute and Saved lines. Multiple-route commute highlights remain and
+  use a dedicated accessibility-size vertical composition.
+- Repository validators, the exact iPhone 17 build, and all 118 XCTest/XCUITest
+  cases pass with no failures or skips. The standalone OpenCode permission matcher
+  remains unavailable locally because the `opencode` CLI is not installed.
+
 ## 2026-07-30 — Journey-first product polish and runtime hardening
 
 - Replaced the five-tab shell with four user journeys: Home, Discover, Alerts,

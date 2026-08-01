@@ -174,25 +174,45 @@ struct SearchView: View {
 }
 
 private struct DiscoverMapRow: View {
-    var body: some View {
-        HStack(spacing: Spacing.md) {
-            Image(systemName: "map.fill")
-                .font(.title3)
-                .foregroundStyle(.appAccent)
-                .frame(width: 44, height: 44)
-                .background(DesignColor.brand.opacity(0.12), in: Circle())
-                .accessibilityHidden(true)
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
-            VStack(alignment: .leading, spacing: Spacing.xxs) {
-                Text("Explore the map")
-                    .font(.headline)
-                Text("Browse stops anywhere in Vienna")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+    var body: some View {
+        Group {
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: Spacing.md) {
+                    icon
+                    copy
+                }
+            } else {
+                HStack(spacing: Spacing.md) {
+                    icon
+                    copy
+                }
             }
         }
         .padding(.vertical, Spacing.xs)
         .accessibilityElement(children: .combine)
+    }
+
+    private var icon: some View {
+        Image(systemName: "map.fill")
+            .font(.system(size: 20, weight: .semibold))
+            .foregroundStyle(.appAccent)
+            .frame(width: 44, height: 44)
+            .background(DesignColor.brand.opacity(0.12), in: Circle())
+            .accessibilityHidden(true)
+    }
+
+    private var copy: some View {
+        VStack(alignment: .leading, spacing: Spacing.xxs) {
+            Text("Explore the map")
+                .font(.headline)
+                .fixedSize(horizontal: false, vertical: true)
+            Text("Browse stops anywhere in Vienna")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
     }
 }
 

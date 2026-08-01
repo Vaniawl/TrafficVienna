@@ -15,7 +15,8 @@ struct FavoritesView: View {
 
     var body: some View {
         List {
-            if let featuredDeparture = viewModel.featuredDeparture {
+            if viewModel.shouldShowFeaturedDeparture,
+               let featuredDeparture = viewModel.featuredDeparture {
                 Section("My commute") {
                     if let station = station(diva: featuredDeparture.route.diva) {
                         NavigationLink(value: station) {
@@ -169,34 +170,66 @@ struct FavoritesView: View {
 
 private struct SavedCommuteRow: View {
     let item: FeaturedDeparture
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
-        HStack(spacing: Spacing.md) {
-            LineBadge(line: item.route.lineName)
-
-            VStack(alignment: .leading, spacing: Spacing.xxs) {
-                Text(item.route.destination)
-                    .font(.headline)
-                Text(item.stopName)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer(minLength: Spacing.xs)
-
-            VStack(alignment: .trailing, spacing: Spacing.none) {
-                Text(item.departure.liveMinutes <= 0 ? "now" : "\(item.departure.liveMinutes)")
-                    .font(.title2.weight(.semibold))
-                    .monospacedDigit()
-                    .foregroundStyle(.appAccent)
-                if item.departure.liveMinutes > 0 {
-                    Text("min")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+        Group {
+            if dynamicTypeSize.isAccessibilitySize {
+                accessibilityLayout
+            } else {
+                compactLayout
             }
         }
         .padding(.vertical, Spacing.xs)
         .accessibilityElement(children: .combine)
+    }
+
+    private var compactLayout: some View {
+        HStack(spacing: Spacing.md) {
+            LineBadge(line: item.route.lineName)
+
+            routeDescription
+
+            Spacer(minLength: Spacing.xs)
+
+            countdown(alignment: .trailing)
+        }
+    }
+
+    private var accessibilityLayout: some View {
+        VStack(alignment: .leading, spacing: Spacing.md) {
+            HStack(alignment: .top, spacing: Spacing.sm) {
+                LineBadge(line: item.route.lineName)
+                routeDescription
+            }
+
+            countdown(alignment: .leading)
+        }
+    }
+
+    private var routeDescription: some View {
+        VStack(alignment: .leading, spacing: Spacing.xxs) {
+            Text(item.route.destination)
+                .font(.headline)
+                .fixedSize(horizontal: false, vertical: true)
+            Text(item.stopName)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private func countdown(alignment: HorizontalAlignment) -> some View {
+        VStack(alignment: alignment, spacing: Spacing.none) {
+            Text(item.departure.liveMinutes <= 0 ? "now" : "\(item.departure.liveMinutes)")
+                .font(.title2.weight(.semibold))
+                .monospacedDigit()
+                .foregroundStyle(.appAccent)
+            if item.departure.liveMinutes > 0 {
+                Text("min")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
     }
 }

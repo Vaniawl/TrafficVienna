@@ -2,19 +2,27 @@ import SwiftUI
 
 struct DisruptionFilterBar: View {
     @Bindable var viewModel: DisruptionsViewModel
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
-        HStack(spacing: Spacing.md) {
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: Spacing.md))
+            : AnyLayout(HStackLayout(spacing: Spacing.md))
+
+        layout {
             VStack(alignment: .leading, spacing: Spacing.xxs) {
                 Text(viewModel.filterSummary)
                     .font(.headline)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Text("Alerts: \(viewModel.filteredInfos.count)")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
 
-            Spacer(minLength: Spacing.xs)
+            if !dynamicTypeSize.isAccessibilitySize {
+                Spacer(minLength: Spacing.xs)
+            }
 
             Menu {
                 Section("Show") {
@@ -83,6 +91,10 @@ struct DisruptionFilterBar: View {
                 Label("Filters", systemImage: "line.3.horizontal.decrease")
             }
             .buttonStyle(.bordered)
+            .frame(
+                maxWidth: dynamicTypeSize.isAccessibilitySize ? .infinity : nil,
+                alignment: .leading
+            )
             .accessibilityIdentifier("alerts.filters")
         }
         .padding(.vertical, Spacing.xs)
