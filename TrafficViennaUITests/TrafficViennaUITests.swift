@@ -46,7 +46,7 @@ final class TrafficViennaUITests: XCTestCase {
     }
 
     func testSearchOpensTheSelectedStation() {
-        openStephansplatz()
+        openStation(named: "Stephansplatz")
 
         XCTAssertTrue(
             app.navigationBars["Stephansplatz"].waitForExistence(timeout: 5)
@@ -55,7 +55,7 @@ final class TrafficViennaUITests: XCTestCase {
     }
 
     func testLiveActivityCanBeStartedAndStoppedFromDepartureOptions() {
-        openStephansplatz()
+        openStation(named: "Schwedenplatz")
 
         let options = app.buttons.matching(
             NSPredicate(format: "label BEGINSWITH 'Departure options for'")
@@ -88,13 +88,13 @@ final class TrafficViennaUITests: XCTestCase {
         )
     }
 
-    private func openStephansplatz() {
+    private func openStation(named stationName: String) {
         app.tabBars.firstMatch.buttons["Discover"].tap()
 
         let searchField = app.searchFields["Stop name"]
         XCTAssertTrue(searchField.waitForExistence(timeout: 3))
         searchField.tap()
-        searchField.typeText("Stephansplatz")
+        searchField.typeText(stationName)
 
         let result = app.buttons.matching(
             NSPredicate(format: "identifier BEGINSWITH 'search.station.'")
@@ -102,8 +102,8 @@ final class TrafficViennaUITests: XCTestCase {
         XCTAssertTrue(result.waitForExistence(timeout: 5))
         result.tap()
         XCTAssertTrue(
-            app.navigationBars["Stephansplatz"].waitForExistence(timeout: 5)
-                || app.navigationBars["Stephansplatz U"].waitForExistence(timeout: 5)
+            app.navigationBars[stationName].waitForExistence(timeout: 5)
+                || app.navigationBars["\(stationName) U"].waitForExistence(timeout: 5)
         )
     }
 }

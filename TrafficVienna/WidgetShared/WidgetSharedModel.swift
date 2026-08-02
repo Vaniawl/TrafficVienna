@@ -151,6 +151,32 @@ nonisolated enum WidgetSnapshotPolicy {
     }
 }
 
+nonisolated enum WidgetRefreshThrottle {
+    static func attemptKey(
+        baseKey: String,
+        routes: [FavoriteRoute]
+    ) -> String {
+        let canonicalSelection = Set(routes.map(\.stableID))
+            .sorted()
+            .joined(separator: ";")
+        let encodedSelection = Data(canonicalSelection.utf8).base64EncodedString()
+        return "\(baseKey).\(encodedSelection)"
+    }
+
+    static func shouldFetch(
+        routes: [FavoriteRoute],
+        lastAttempt: Date?,
+        refreshRequestedAt: Date?,
+        now: Date,
+        minimumInterval: TimeInterval = 300
+    ) -> Bool {
+        guard !routes.isEmpty else { return false }
+        let lastAttempt = lastAttempt ?? .distantPast
+        let hasManualRefresh = refreshRequestedAt.map { $0 > lastAttempt } ?? false
+        return hasManualRefresh || now.timeIntervalSince(lastAttempt) >= minimumInterval
+    }
+}
+
 nonisolated enum WidgetTimelineSchedule {
     static func entryDates(
         now: Date,

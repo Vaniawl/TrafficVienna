@@ -1,5 +1,29 @@
 # Architectural Decisions
 
+## 2026-08-03 — Widget refresh budgets are scoped by route selection
+
+**Context:** Every widget timeline used one App Group timestamp for the most
+recent network attempt. A timeline for one configured route therefore consumed
+the shared five-minute budget before another widget instance with a different
+route could perform its first fetch. The second instance could remain empty or
+stale even though its own selection had not been requested. An empty selection
+also recorded an attempt and could advance the global cache timestamp.
+
+**Decision:** Derive the attempt key from the canonical sorted set of selected
+route stable IDs and evaluate the refresh policy through one shared pure helper.
+Selections with the same routes share a budget regardless of display order;
+different selections remain independent. Keep the manual-refresh timestamp
+global so one explicit refresh request is observed by every scoped timeline, and
+never fetch or record an attempt for an empty selection.
+
+**Consequences:** One widget configuration cannot suppress another
+configuration's initial fetch, while equivalent configurations still avoid
+duplicate work. The old global attempt timestamp is deliberately ignored, so an
+upgrade may perform one additional safe fetch per active selection; no eager
+migration or cleanup is required. Existing cached departures, route storage,
+endpoint, entitlement, dependency, localization, copy, and layout remain
+unchanged. Rollback is a normal revert; stale scoped timestamps are harmless.
+
 ## 2026-08-02 — ActivityKit effects are serialized per Activity ID
 
 **Context:** `LiveActivityController` owned its timer bookkeeping on the main

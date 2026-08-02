@@ -116,19 +116,26 @@ struct Provider: AppIntentTimelineProvider {
     func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
         let defaults = UserDefaults(suiteName: appGroupID)
         let now = Date.now
-        let lastAttempt = defaults?.object(forKey: widgetLastFetchAttemptKey) as? Date ?? .distantPast
-        let refreshRequestedAt = defaults?.object(forKey: widgetRefreshRequestedKey) as? Date
-        let hasManualRefresh = refreshRequestedAt.map { $0 > lastAttempt } ?? false
-        let canFetch = hasManualRefresh || now.timeIntervalSince(lastAttempt) >= 300
-
         let routes = selectedRoutes(
             for: configuration,
             family: context.family
         )
+        let scopedAttemptKey = WidgetRefreshThrottle.attemptKey(
+            baseKey: widgetLastFetchAttemptKey,
+            routes: routes
+        )
+        let lastAttempt = defaults?.object(forKey: scopedAttemptKey) as? Date
+        let refreshRequestedAt = defaults?.object(forKey: widgetRefreshRequestedKey) as? Date
+        let canFetch = WidgetRefreshThrottle.shouldFetch(
+            routes: routes,
+            lastAttempt: lastAttempt,
+            refreshRequestedAt: refreshRequestedAt,
+            now: now
+        )
         var (cached, lastUpdated) = loadCached()
 
         if canFetch {
-            defaults?.set(now, forKey: widgetLastFetchAttemptKey)
+            defaults?.set(now, forKey: scopedAttemptKey)
             if let refresh = await fetchFavoritesData(
                 routes: routes,
                 cached: cached

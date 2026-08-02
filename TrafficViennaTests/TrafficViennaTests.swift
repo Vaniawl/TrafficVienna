@@ -638,6 +638,96 @@ final class TrafficViennaTests: XCTestCase {
         )
     }
 
+    func testWidgetRefreshThrottleScopesRecentAttemptsToSelectedRoutes() {
+        let now = Date(timeIntervalSince1970: 10_000)
+        let u1 = FavoriteRoute(
+            diva: "60200123",
+            lineName: "U1",
+            destination: "Leopoldau"
+        )
+        let u4 = FavoriteRoute(
+            diva: "60200644",
+            lineName: "U4",
+            destination: "Heiligenstadt"
+        )
+        let u1Key = WidgetRefreshThrottle.attemptKey(
+            baseKey: "widget_last_fetch_attempt",
+            routes: [u1]
+        )
+        let u4Key = WidgetRefreshThrottle.attemptKey(
+            baseKey: "widget_last_fetch_attempt",
+            routes: [u4]
+        )
+
+        XCTAssertNotEqual(u1Key, u4Key)
+        XCTAssertFalse(
+            WidgetRefreshThrottle.shouldFetch(
+                routes: [u1],
+                lastAttempt: now.addingTimeInterval(-60),
+                refreshRequestedAt: nil,
+                now: now
+            )
+        )
+        XCTAssertTrue(
+            WidgetRefreshThrottle.shouldFetch(
+                routes: [u4],
+                lastAttempt: nil,
+                refreshRequestedAt: nil,
+                now: now
+            )
+        )
+    }
+
+    func testWidgetRefreshThrottleSharesScopeAcrossRouteOrdering() {
+        let u1 = FavoriteRoute(
+            diva: "60200123",
+            lineName: "U1",
+            destination: "Leopoldau"
+        )
+        let u4 = FavoriteRoute(
+            diva: "60200644",
+            lineName: "U4",
+            destination: "Heiligenstadt"
+        )
+
+        XCTAssertEqual(
+            WidgetRefreshThrottle.attemptKey(
+                baseKey: "widget_last_fetch_attempt",
+                routes: [u1, u4]
+            ),
+            WidgetRefreshThrottle.attemptKey(
+                baseKey: "widget_last_fetch_attempt",
+                routes: [u4, u1, u4]
+            )
+        )
+    }
+
+    func testWidgetRefreshThrottleSkipsEmptySelectionsAndHonoursManualRefresh() {
+        let now = Date(timeIntervalSince1970: 10_000)
+        let route = FavoriteRoute(
+            diva: "60200123",
+            lineName: "U1",
+            destination: "Leopoldau"
+        )
+
+        XCTAssertFalse(
+            WidgetRefreshThrottle.shouldFetch(
+                routes: [],
+                lastAttempt: nil,
+                refreshRequestedAt: now,
+                now: now
+            )
+        )
+        XCTAssertTrue(
+            WidgetRefreshThrottle.shouldFetch(
+                routes: [route],
+                lastAttempt: now.addingTimeInterval(-60),
+                refreshRequestedAt: now,
+                now: now
+            )
+        )
+    }
+
     func testWidgetDataMergePreservesSelectedOrderAndCachedFailures() {
         let selected = [
             WidgetRouteKey(lineName: "U4", destination: "Heiligenstadt"),

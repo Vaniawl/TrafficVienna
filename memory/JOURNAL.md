@@ -1,5 +1,25 @@
 # Journal
 
+## 2026-08-03 — Widget refresh throttles stay configuration-scoped
+
+- Reproduced that the widget's single five-minute attempt timestamp let one
+  selected-route configuration suppress a different widget's first fetch. The
+  new regression failed before the shared selection-scoped policy existed.
+- Timeline attempts now use a deterministic key derived from the canonical route
+  set. Equivalent orderings share a budget, different selections stay
+  independent, manual refresh still bypasses a recent attempt, and an empty
+  selection neither fetches nor advances cache freshness.
+- Full validation also exposed a time-dependent UI-test assumption: the live
+  Stephansplatz feed truthfully had no overnight departures. The Live Activity
+  journey now uses 24-hour Schwedenplatz while the independent Stephansplatz
+  search and cold-notification journeys remain unchanged.
+- The focused widget suite passes 57/57, the hardened Live Activity journey
+  passes, and the authoritative iPhone 17 `.xcresult` reports 183/183 with zero
+  failures or skips. Exact build, Xcode Analyze, localization extraction,
+  repository/OpenCode validators, scoped security, and whitespace checks pass.
+  The local OpenCode fixture reaches only the known missing global CLI boundary;
+  a fresh 368×800 Home Screen widget screenshot was captured and inspected.
+
 ## 2026-08-03 — Saved retries cannot be overwritten by polling
 
 - Reproduced a Saved race in which a targeted forced retry ran beside a background

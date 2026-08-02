@@ -44,7 +44,7 @@ A `Go` requires:
 - The account-only Apple identity surface and entitlement were removed because
   they provided no cross-device feature and prevented the installed profile from
   archiving. A one-time migration deletes the legacy device-only Keychain item.
-- All 180 tests pass with zero failures or skips, including four XCUITest
+- All 183 tests pass with zero failures or skips, including four XCUITest
   journeys through the four-tab shell, Discover map entry, alert filters, Saved,
   and search-to-station navigation. Local reminder planning/decoding, idempotent
   route replacement and legacy cleanup, notification denial recovery, Live
@@ -72,7 +72,10 @@ A `Go` requires:
   Widget freshness coverage separates countdown projection time from transport
   source time, uses the oldest source across visible mixed rows, persists that
   value through App Group sync, and proves both legacy-payload reads and rollback
-  decoding of the optional field.
+  decoding of the optional field. Widget fetch throttling is keyed by the
+  canonical selected-route set, so a recent request for one configuration cannot
+  suppress another configuration's initial fetch; empty selections do not claim
+  refresh budget, and manual refresh still bypasses a recent scoped attempt.
 - iPhone 17 Pro Max and iPad Pro 13-inch runtime builds complete without
   diagnostics. English, German, location-denied, live-data, Favourites, and
   maximum Accessibility Dynamic Type paths were exercised.

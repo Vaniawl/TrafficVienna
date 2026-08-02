@@ -6,7 +6,7 @@
 - Stack: native SwiftUI iOS application, widget extension, XCTest, and XCUITest.
 - Current phase: continued reliability improvements on the existing draft PR.
 - Product shell: Home, Discover, Alerts, and Saved; accounts are out of scope.
-- Verified tests: 180/180 pass on iPhone 17 Simulator (176 model/service tests
+- Verified tests: 183/183 pass on iPhone 17 Simulator (179 model/service tests
   and 4 UI tests), with zero failures or skips. App and widget build successfully.
 - Verified visual coverage: four journeys and key secondary surfaces were
   exercised on iPhone 17; Home, Station Detail, and reminder management were
@@ -40,7 +40,10 @@
   and clears local tracking when the system ends a session independently.
   Reminder management now has one MainActor-owned state model: overlapping system
   snapshots coalesce, deletion/cancel-all revisions reject older snapshots, and
-  cancelled loads cannot publish late state or restore removed reminders.
+  cancelled loads cannot publish late state or restore removed reminders. Widget
+  fetch throttling is scoped to the canonical selected-route set, so refreshing
+  one widget configuration cannot suppress another configuration's first fetch;
+  empty configurations do not consume the throttle or advance cache freshness.
 - Verified quality: Xcode static analysis passes; compiler output contains 236 app
   and 26 widget Localizable source keys, all covered by the committed 267/31-key
   catalogues with 0 missing or empty German values. Both repository structural
@@ -61,9 +64,13 @@
 - Home Screen widget acceptance reproduced a legacy stale payload reporting only
   about two minutes since its projection anchor, then verified the corrected
   medium widget reporting the roughly 23-minute source age while its departure
-  countdown continued updating.
+  countdown continued updating. A fresh small-widget render also confirms that
+  an empty selection shows the truthful `No favourites yet` state without
+  placeholder content or clipping.
 - Focused iPhone 17 UI acceptance opened Stephansplatz, started Lock Screen
   tracking, observed the stop action, and stopped the Live Activity successfully.
+  Automated overnight coverage now performs the same start/stop journey at the
+  24-hour Schwedenplatz hub instead of depending on Stephansplatz service hours.
   Current 368×800 screenshots also confirm reminder management and the Saved
   commute/line hierarchy after their respective state-ownership refactors.
 - External release gates: distribution signing, App Store Connect processed build,

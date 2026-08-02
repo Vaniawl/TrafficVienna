@@ -14,7 +14,7 @@
 - [x] **REQ-TV-005 — Performance.** Requests remain coalesced/cancellable and
   formatter creation was removed from the widget body. Settled iPad Simulator
   sampling measured 0.0% CPU in five observations.
-- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 180 tests, static
+- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 183 tests, static
   analysis, localisation extraction, repository validators, and diff checks
   pass. Hosted Quality run `30769227036` installed the pinned OpenCode CLI and
   completed the previously published full `scripts/ci.sh` wrapper successfully;
@@ -70,6 +70,12 @@
 - [x] Give reminder management one MainActor state owner, serialize overlapping
   system snapshots, and fence delete/cancel-all so an older snapshot cannot
   restore a removed reminder.
+- [x] Scope widget fetch throttling to the canonical selected-route set so one
+  widget configuration cannot suppress another configuration's first refresh,
+  while empty configurations consume no refresh budget.
+- [x] Keep the Live Activity UI journey meaningful overnight by using the
+  24-hour Schwedenplatz hub while retaining independent Stephansplatz search and
+  notification-routing coverage.
 - [x] Move relative-time formatting out of the widget render body.
 - [x] Let reminder destinations/stops grow at accessibility Dynamic Type sizes.
 - [x] Add focused regression coverage for each behavioral change.
@@ -89,10 +95,11 @@
 - [x] Reproduce the stale-widget freshness defect with a legacy App Group payload
   and capture Home Screen screenshots proving that the corrected widget reports
   source age without breaking its live countdown.
+- [x] Capture and inspect the current empty-selection small widget on iPhone 17.
 
 ## Final validation and handoff
 
-- [x] Full iPhone 17 build and test suite: 176 model/service + 4 UI tests.
+- [x] Full iPhone 17 build and test suite: 179 model/service + 4 UI tests.
 - [x] Static analyzer and repository/OpenCode structural validators.
 - [x] English/German compiler-extraction catalogue comparison.
 - [x] `git diff --check`, security scan, and changed-file review.
