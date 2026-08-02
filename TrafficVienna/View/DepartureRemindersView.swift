@@ -5,27 +5,25 @@ struct DepartureRemindersView: View {
     @Environment(\.openURL) private var openURL
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @State private var permission: DepartureReminderPermission = .notDetermined
-    @State private var reminders: [ScheduledDepartureReminder] = []
-    @State private var isLoading = true
+    @State private var viewModel: DepartureRemindersViewModel
     @State private var isShowingCancelAll = false
 
-    private let client: DepartureReminderClient
-
     init(client: DepartureReminderClient = .live) {
-        self.client = client
+        _viewModel = State(
+            initialValue: DepartureRemindersViewModel(client: client)
+        )
     }
 
     var body: some View {
         List {
             permissionSection
 
-            if isLoading {
+            if viewModel.isLoading {
                 Section {
                     ProgressView("Loading reminders…")
                         .frame(maxWidth: .infinity, alignment: .center)
                 }
-            } else if reminders.isEmpty {
+            } else if viewModel.reminders.isEmpty {
                 Section {
                     ContentUnavailableView(
                         "No departure reminders",
@@ -37,7 +35,7 @@ struct DepartureRemindersView: View {
                 }
             } else {
                 Section("Scheduled") {
-                    ForEach(reminders) { reminder in
+                    ForEach(viewModel.reminders) { reminder in
                         reminderRow(reminder)
                     }
                     .onDelete(perform: cancel)
@@ -47,7 +45,7 @@ struct DepartureRemindersView: View {
         .navigationTitle("Departure reminders")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            if !reminders.isEmpty {
+            if !viewModel.reminders.isEmpty {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Cancel all", role: .destructive) {
                         isShowingCancelAll = true
@@ -62,18 +60,17 @@ struct DepartureRemindersView: View {
         ) {
             Button("Cancel all reminders", role: .destructive) {
                 Task {
-                    await client.cancelAll()
-                    reminders = []
+                    await viewModel.cancelAll()
                 }
             }
             Button("Keep reminders", role: .cancel) {}
         } message: {
             Text("This removes every pending departure reminder from this device.")
         }
-        .task { await load() }
+        .task { await viewModel.load() }
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
-            Task { await load() }
+            Task { await viewModel.load() }
         }
     }
 
@@ -86,7 +83,7 @@ struct DepartureRemindersView: View {
                 Label("Permission", systemImage: permissionIcon)
             }
 
-            if permission == .disabled {
+            if viewModel.permission == .disabled {
                 Button("Open notification settings", systemImage: "gear") {
                     openSettings()
                 }
@@ -125,7 +122,7 @@ struct DepartureRemindersView: View {
     }
 
     private var permissionTitle: LocalizedStringKey {
-        switch permission {
+        switch viewModel.permission {
         case .notDetermined:
             "Not requested"
         case .enabled:
@@ -136,7 +133,7 @@ struct DepartureRemindersView: View {
     }
 
     private var permissionIcon: String {
-        switch permission {
+        switch viewModel.permission {
         case .notDetermined:
             "bell"
         case .enabled:
@@ -147,7 +144,7 @@ struct DepartureRemindersView: View {
     }
 
     private var permissionColor: Color {
-        switch permission {
+        switch viewModel.permission {
         case .notDetermined:
             .secondary
         case .enabled:
@@ -157,18 +154,8 @@ struct DepartureRemindersView: View {
         }
     }
 
-    private func load() async {
-        async let loadedPermission = client.permission()
-        async let loadedReminders = client.scheduled()
-        permission = await loadedPermission
-        reminders = await loadedReminders
-        isLoading = false
-    }
-
     private func cancel(at offsets: IndexSet) {
-        let identifiers = offsets.map { reminders[$0].id }
-        reminders.remove(atOffsets: offsets)
-        identifiers.forEach(client.cancel)
+        viewModel.cancel(at: offsets)
     }
 
     private func openSettings() {

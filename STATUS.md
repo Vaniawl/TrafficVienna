@@ -6,7 +6,7 @@
 - Stack: native SwiftUI iOS application, widget extension, XCTest, and XCUITest.
 - Current phase: continued reliability improvements on the existing draft PR.
 - Product shell: Home, Discover, Alerts, and Saved; accounts are out of scope.
-- Verified tests: 172/172 pass on iPhone 17 Simulator (168 model/service tests
+- Verified tests: 177/177 pass on iPhone 17 Simulator (173 model/service tests
   and 4 UI tests), with zero failures or skips. App and widget build successfully.
 - Verified visual coverage: four journeys and key secondary surfaces were
   exercised on iPhone 17; Home, Station Detail, and reminder management were
@@ -37,15 +37,18 @@
   immediately: later updates and restoration ignore it, while Station Detail
   retains explicit stop intent until ActivityKit stops reporting the old session
   and clears local tracking when the system ends a session independently.
-- Verified quality: Xcode static analysis passes; app extraction reports 267
-  keys with 0 missing catalogue/German values and widget extraction reports 31
-  with 0 missing catalogue/German values. Both repository structural validators,
-  `git diff --check`, and the scoped secret/new-endpoint scan pass.
+  Reminder management now has one MainActor-owned state model: overlapping system
+  snapshots coalesce, deletion/cancel-all revisions reject older snapshots, and
+  cancelled loads cannot publish late state or restore removed reminders.
+- Verified quality: Xcode static analysis passes; compiler output contains 236 app
+  and 26 widget Localizable source keys, all covered by the committed 267/31-key
+  catalogues with 0 missing or empty German values. Both repository structural
+  validators, `git diff --check`, and the scoped secret/new-endpoint scan pass.
 - Infrastructure limitation: `bash scripts/ci.sh` reaches the permission matcher
   and exits 127 because the required global `opencode` CLI is not installed.
   The reliability script's Python and timeout fixtures pass before the same
-  missing-tool boundary. Hosted Quality run `30767362201` supplied the pinned
-  CLI and passed the previously published complete wrapper.
+  missing-tool boundary. Hosted Quality run `30768267220` supplied the pinned
+  CLI and passed the previously published complete wrapper at `80f48df6`.
 - Handoff: draft PR #15 tracks `codex/system-surfaces-readiness` against protected
   `main`; each published update must pass its protected validation.
 - The current slice passes its local gates; protected CI remains the publication
@@ -60,8 +63,8 @@
   countdown continued updating.
 - Focused iPhone 17 UI acceptance opened Stephansplatz, started Lock Screen
   tracking, observed the stop action, and stopped the Live Activity successfully.
-  This reliability slice changes no layout or copy, so the existing inspected
-  screenshots remain representative.
+  The current 368×800 reminder-management screenshot also confirms the unchanged
+  permission and empty-state layout after the state-ownership refactor.
 - External release gates: distribution signing, App Store Connect processed build,
   and signed physical-device TestFlight acceptance are not provided by Simulator
   evidence.

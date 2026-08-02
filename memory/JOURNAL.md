@@ -1,5 +1,23 @@
 # Journal
 
+## 2026-08-02 — Reminder deletion survives stale system snapshots
+
+- Reproduced a reminder-management race: a system `scheduled()` snapshot started
+  before a swipe delete could finish later and restore the removed row. The
+  deterministic regression failed before the fix and now passes.
+- Added an injectable MainActor `DepartureRemindersViewModel` that serializes
+  overlapping reloads, queues one follow-up, fences reminder snapshots by
+  destructive revision, clears cancel-all optimistically, and reconciles after
+  system removal without publishing cancelled work.
+- Five regressions cover exact system-ID cancellation, stale delete, overlapping
+  reloads, task cancellation, and cancel-all reconciliation. The adjacent reminder
+  suites pass 14/14; the authoritative iPhone 17 `.xcresult` reports 177/177 with
+  zero failures or skips.
+- Exact build, Xcode Analyze, compiler/catalogue localisation comparison,
+  repository/OpenCode validators, scoped security review, and whitespace checks
+  pass. No endpoint, persistence, permission, entitlement, dependency, copy, or
+  layout changed. A fresh 368×800 reminder-management screenshot was inspected.
+
 ## 2026-08-02 — Live Activity stop survives refresh races
 
 - Reproduced a second lifecycle race: stopping Lock Screen tracking during an
