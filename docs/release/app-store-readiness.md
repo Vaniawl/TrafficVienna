@@ -44,7 +44,7 @@ A `Go` requires:
 - The account-only Apple identity surface and entitlement were removed because
   they provided no cross-device feature and prevented the installed profile from
   archiving. A one-time migration deletes the legacy device-only Keychain item.
-- All 163 XCTest cases pass with zero failures or skips, including four XCUITest
+- All 167 XCTest cases pass with zero failures or skips, including four XCUITest
   journeys through the four-tab shell, Discover map entry, alert filters, Saved,
   and search-to-station navigation. Local reminder planning/decoding, idempotent
   route replacement and legacy cleanup, notification denial recovery, Live
@@ -67,6 +67,10 @@ A `Go` requires:
   coverage proves that external Home, Discover, and Saved destinations clear only
   their target stack, notification routing replaces Discover with one resolved
   station, and ordinary tab changes preserve their paths.
+  Widget freshness coverage separates countdown projection time from transport
+  source time, uses the oldest source across visible mixed rows, persists that
+  value through App Group sync, and proves both legacy-payload reads and rollback
+  decoding of the optional field.
 - iPhone 17 Pro Max and iPad Pro 13-inch runtime builds complete without
   diagnostics. English, German, location-denied, live-data, Favourites, and
   maximum Accessibility Dynamic Type paths were exercised.
@@ -86,6 +90,11 @@ A `Go` requires:
   dark mode, a circular Lock Screen widget, and the Lock Screen Live Activity.
   Countdown boundary scheduling, adaptive one-route layouts, and unclipped
   freshness labels were observed; physical/TestFlight acceptance remains a gate.
+- A controlled Home Screen fixture reproduced legacy cached departures reporting
+  only the recent projection age, then verified that the corrected medium widget
+  reported the roughly 23-minute transport-source age while its countdown kept
+  updating. This is Simulator evidence only; production background refresh still
+  remains in the physical/TestFlight gate.
 - One-shot coalesced location requests replace continuous tracking. The redesigned
   station detail reaches a settled UI state; eight idle Debug Simulator process
   samples measured 0.0% CPU after removing its repeating pulse and 30-second

@@ -1,5 +1,22 @@
 # Journal
 
+## 2026-08-02 — Widget freshness reflects the transport source
+
+- Reproduced a stale-data defect: Saved projected cached countdowns at the current
+  time and the widget reused that projection anchor as freshness, so old transport
+  data could appear newly updated.
+- Added an optional per-row `dataUpdatedAt` while retaining `fetchedAt` strictly as
+  the countdown projection anchor. App sync carries MonitorService source time;
+  the widget displays the oldest source across visible live/cached rows.
+- Backward and rollback decoding, mixed rows, App Group persistence, and cached
+  Saved sync have deterministic regressions. The authoritative iPhone 17 result
+  reports 167/167 passing with zero failures or skips; exact build, Xcode Analyze,
+  repository/OpenCode validators, security review, and diff checks pass.
+- Home Screen fixtures captured the legacy view reporting about two minutes and
+  the corrected medium widget reporting about 23 minutes while its countdown
+  remained live. No endpoint, key, entitlement, dependency, localization, copy,
+  or layout changed; rollback is a normal revert with no migration.
+
 ## 2026-08-02 — External destinations replace stale target navigation
 
 - Reproduced a warm-routing defect: opening `trafficvienna://search` while

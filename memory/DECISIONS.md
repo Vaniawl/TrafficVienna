@@ -1,5 +1,26 @@
 # Architectural Decisions
 
+## 2026-08-02 — Widget projection time is not source freshness
+
+**Context:** Saved converts MonitorService snapshots into current countdown
+minutes before App Group sync. The widget previously used the new sync time for
+both countdown projection and its Updated label, so a stale fallback could be
+presented as freshly sourced. Reusing the old source time as the projection anchor
+would instead subtract the cache age twice.
+
+**Decision:** Keep `fetchedAt` as the per-row countdown projection anchor and add
+an optional `dataUpdatedAt` for transport-source freshness. App sync propagates
+the MonitorService snapshot time; direct widget network results set both to the
+same captured instant. The displayed timestamp is the oldest source across all
+visible rows. Legacy rows use their projection anchor, then the existing global
+fallback when a row has no timestamp.
+
+**Consequences:** Mixed cached/live content cannot hide its oldest source, while
+countdowns remain correctly projected. Existing payloads decode because the new
+field is optional, and legacy decoders ignore it, so no eager migration or new
+App Group key is required. No endpoint, entitlement, dependency, localization,
+copy, or layout changes. Rollback is a normal revert.
+
 ## 2026-08-02 — External destinations reset only their owned navigation stack
 
 **Context:** Root external routing selected a tab, but Home and Saved stacks were

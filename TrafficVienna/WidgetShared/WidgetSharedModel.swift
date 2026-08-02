@@ -13,7 +13,10 @@ nonisolated struct WidgetDepartureData: Codable, Equatable, Sendable {
     let stopName: String
     let destination: String
     let departures: [Int]
+    /// Anchor used to project countdowns between timeline entries.
     let fetchedAt: Date?
+    /// Actual freshness of the underlying transport response.
+    let dataUpdatedAt: Date?
 
     init(
         diva: String? = nil,
@@ -21,7 +24,8 @@ nonisolated struct WidgetDepartureData: Codable, Equatable, Sendable {
         stopName: String,
         destination: String,
         departures: [Int],
-        fetchedAt: Date? = nil
+        fetchedAt: Date? = nil,
+        dataUpdatedAt: Date? = nil
     ) {
         self.diva = diva
         self.lineName = lineName
@@ -29,6 +33,7 @@ nonisolated struct WidgetDepartureData: Codable, Equatable, Sendable {
         self.destination = destination
         self.departures = departures
         self.fetchedAt = fetchedAt
+        self.dataUpdatedAt = dataUpdatedAt
     }
 }
 
@@ -99,13 +104,27 @@ nonisolated enum WidgetCountdownProjection {
                 stopName: item.stopName,
                 destination: item.destination,
                 departures: departures,
-                fetchedAt: item.fetchedAt
+                fetchedAt: item.fetchedAt,
+                dataUpdatedAt: item.dataUpdatedAt
             )
         }
     }
 }
 
 nonisolated enum WidgetFreshness {
+    static func displayedUpdatedAt(
+        items: [WidgetDepartureData],
+        fallback: Date?
+    ) -> Date? {
+        let rowDates = items.compactMap { item in
+            item.dataUpdatedAt ?? item.fetchedAt
+        }
+        guard rowDates.count == items.count else {
+            return fallback
+        }
+        return rowDates.min()
+    }
+
     static func elapsedWholeMinutes(
         since lastUpdated: Date,
         at entryDate: Date

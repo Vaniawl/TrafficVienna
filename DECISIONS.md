@@ -1,5 +1,21 @@
 # Decisions
 
+## 2026-08-02 - Widget projection time is not source freshness
+
+Widget rows persist two compatible timestamps with separate ownership. `fetchedAt`
+is the anchor for projecting minute countdowns between WidgetKit entries;
+`dataUpdatedAt` is the MonitorService or widget-network source time shown to the
+user. The optional source field preserves decoding of existing App Group payloads,
+and older widget binaries ignore it while continuing to use `fetchedAt`.
+
+For multiple visible rows, freshness is the oldest available per-row source so a
+single cached route cannot be hidden behind newer data. A legacy row falls back to
+its projection anchor, then to the existing global timestamp only when required.
+No eager migration or new App Group key is needed. App and widget producers both
+write the projection anchor, current network responses also write source time,
+and app sync propagates the MonitorService snapshot time. Rollback is a normal
+revert; the additional JSON field is safely ignored.
+
 ## 2026-08-02 - External destinations reset only their owned navigation stack
 
 Each top-level tab owns a bound `NavigationPath` at the root. Ordinary tab

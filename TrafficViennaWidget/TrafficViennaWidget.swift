@@ -105,7 +105,7 @@ struct Provider: AppIntentTimelineProvider {
                     fallbackUpdatedAt: lastUpdated,
                     at: now
                 ),
-                lastUpdated: displayedUpdatedAt(
+                lastUpdated: WidgetFreshness.displayedUpdatedAt(
                     items: items,
                     fallback: lastUpdated
                 )
@@ -142,7 +142,7 @@ struct Provider: AppIntentTimelineProvider {
         }
 
         let items = selectedItems(routes: routes, cached: cached)
-        let displayDate = displayedUpdatedAt(
+        let displayDate = WidgetFreshness.displayedUpdatedAt(
             items: items,
             fallback: lastUpdated
         )
@@ -257,17 +257,6 @@ struct Provider: AppIntentTimelineProvider {
         } + refreshed
     }
 
-    private func displayedUpdatedAt(
-        items: [WidgetDepartureData],
-        fallback: Date?
-    ) -> Date? {
-        let rowDates = items.compactMap(\.fetchedAt)
-        guard rowDates.count == items.count else {
-            return fallback
-        }
-        return rowDates.min()
-    }
-
     // MARK: - Fetch during timeline generation
     private func fetchFavoritesData(
         routes: [FavoriteRoute],
@@ -335,13 +324,15 @@ struct Provider: AppIntentTimelineProvider {
         let minutes = line.departures.departure.map { $0.departureTime.countdown }
         let top = Array(minutes.prefix(3))
         let stopName = monitors.first?.locationStop?.properties.title ?? fav.diva
+        let fetchedAt = Date.now
         return WidgetDepartureData(
             diva: fav.diva,
             lineName: fav.lineName,
             stopName: stopName,
             destination: fav.destination,
             departures: top,
-            fetchedAt: .now
+            fetchedAt: fetchedAt,
+            dataUpdatedAt: fetchedAt
         )
     }
 }

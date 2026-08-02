@@ -349,13 +349,15 @@ final class TrafficViennaTests: XCTestCase {
 
     func testWidgetDepartureDataCodable() {
         let fetchedAt = Date(timeIntervalSince1970: 1_000)
+        let dataUpdatedAt = fetchedAt.addingTimeInterval(-30)
         let data = WidgetDepartureData(
             diva: "60200195",
             lineName: "U1",
             stopName: "Stephansplatz",
             destination: "Leopoldau",
             departures: [2, 5, 12],
-            fetchedAt: fetchedAt
+            fetchedAt: fetchedAt,
+            dataUpdatedAt: dataUpdatedAt
         )
         let encoded = try! JSONEncoder().encode(data)
         let decoded = try! JSONDecoder().decode(WidgetDepartureData.self, from: encoded)
@@ -363,6 +365,7 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(decoded.diva, "60200195")
         XCTAssertEqual(decoded.departures, [2, 5, 12])
         XCTAssertEqual(decoded.fetchedAt, fetchedAt)
+        XCTAssertEqual(decoded.dataUpdatedAt, dataUpdatedAt)
     }
 
     func testWidgetDepartureDataDecodesLegacyPayload() throws {
@@ -382,18 +385,53 @@ final class TrafficViennaTests: XCTestCase {
 
         XCTAssertNil(decoded.diva)
         XCTAssertNil(decoded.fetchedAt)
+        XCTAssertNil(decoded.dataUpdatedAt)
         XCTAssertEqual(decoded.departures, [2, 5, 12])
+    }
+
+    func testLegacyWidgetDecoderIgnoresNewSourceFreshnessField() throws {
+        struct LegacyWidgetDepartureData: Decodable {
+            let lineName: String
+            let stopName: String
+            let destination: String
+            let departures: [Int]
+            let fetchedAt: Date?
+        }
+
+        let projectionAnchor = Date(timeIntervalSince1970: 2_000)
+        let encoded = try JSONEncoder().encode(
+            WidgetDepartureData(
+                lineName: "U1",
+                stopName: "Stephansplatz",
+                destination: "Leopoldau",
+                departures: [2, 5, 12],
+                fetchedAt: projectionAnchor,
+                dataUpdatedAt: projectionAnchor.addingTimeInterval(-300)
+            )
+        )
+        let decoded = try JSONDecoder().decode(
+            LegacyWidgetDepartureData.self,
+            from: encoded
+        )
+
+        XCTAssertEqual(decoded.lineName, "U1")
+        XCTAssertEqual(decoded.stopName, "Stephansplatz")
+        XCTAssertEqual(decoded.destination, "Leopoldau")
+        XCTAssertEqual(decoded.departures, [2, 5, 12])
+        XCTAssertEqual(decoded.fetchedAt, projectionAnchor)
     }
 
     func testWidgetCountdownProjectionUsesEachRowsFetchTime() {
         let now = Date(timeIntervalSince1970: 10_000)
+        let sourceUpdatedAt = now.addingTimeInterval(-300)
         let items = [
             WidgetDepartureData(
                 lineName: "U1",
                 stopName: "Stephansplatz",
                 destination: "Leopoldau",
                 departures: [1, 4, 8],
-                fetchedAt: now.addingTimeInterval(-120)
+                fetchedAt: now.addingTimeInterval(-120),
+                dataUpdatedAt: sourceUpdatedAt
             ),
             WidgetDepartureData(
                 lineName: "U4",
@@ -412,6 +450,7 @@ final class TrafficViennaTests: XCTestCase {
 
         XCTAssertEqual(projected[0].departures, [2, 6])
         XCTAssertEqual(projected[1].departures, [1, 6])
+        XCTAssertEqual(projected[0].dataUpdatedAt, sourceUpdatedAt)
     }
 
     func testWidgetFreshnessClampsFutureSourceDateAndUsesWholeMinutes() {
@@ -431,6 +470,95 @@ final class TrafficViennaTests: XCTestCase {
             ),
             2
         )
+    }
+
+    func testWidgetFreshnessDoesNotTreatProjectionAnchorAsSourceRefresh() {
+        let sourceUpdatedAt = Date(timeIntervalSince1970: 1_000)
+        let projectionAnchor = sourceUpdatedAt.addingTimeInterval(300)
+        let item = WidgetDepartureData(
+            lineName: "U1",
+            stopName: "Stephansplatz",
+            destination: "Leopoldau",
+            departures: [2, 7],
+            fetchedAt: projectionAnchor,
+            dataUpdatedAt: sourceUpdatedAt
+        )
+
+        XCTAssertEqual(
+            WidgetFreshness.displayedUpdatedAt(
+                items: [item],
+                fallback: sourceUpdatedAt
+            ),
+            sourceUpdatedAt
+        )
+    }
+
+    func testWidgetFreshnessUsesOldestSourceAcrossVisibleRows() {
+        let projectionAnchor = Date(timeIntervalSince1970: 2_000)
+        let oldestUpdate = projectionAnchor.addingTimeInterval(-300)
+        let newerUpdate = projectionAnchor.addingTimeInterval(-60)
+        let items = [
+            WidgetDepartureData(
+                lineName: "U1",
+                stopName: "Stephansplatz",
+                destination: "Leopoldau",
+                departures: [2],
+                fetchedAt: projectionAnchor,
+                dataUpdatedAt: newerUpdate
+            ),
+            WidgetDepartureData(
+                lineName: "U4",
+                stopName: "Schwedenplatz",
+                destination: "Heiligenstadt",
+                departures: [3],
+                fetchedAt: projectionAnchor,
+                dataUpdatedAt: oldestUpdate
+            ),
+        ]
+
+        XCTAssertEqual(
+            WidgetFreshness.displayedUpdatedAt(
+                items: items,
+                fallback: nil
+            ),
+            oldestUpdate
+        )
+    }
+
+    func testWidgetSyncPersistsOldestSourceFreshness() throws {
+        let suiteName = "TrafficViennaTests.WidgetSync.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defaults.removePersistentDomain(forName: suiteName)
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let projectionAnchor = Date(timeIntervalSince1970: 2_000)
+        let oldestUpdate = projectionAnchor.addingTimeInterval(-300)
+        let manager = WidgetSyncManager(
+            appGroupID: suiteName,
+            widgetKind: "TrafficViennaTests"
+        )
+        manager.save([
+            WidgetDepartureData(
+                lineName: "U1",
+                stopName: "Stephansplatz",
+                destination: "Leopoldau",
+                departures: [2],
+                fetchedAt: projectionAnchor,
+                dataUpdatedAt: oldestUpdate
+            ),
+        ])
+
+        XCTAssertEqual(
+            defaults.object(forKey: "widget_last_updated") as? Date,
+            oldestUpdate
+        )
+        let encoded = try XCTUnwrap(defaults.data(forKey: "widget_departure"))
+        let decoded = try JSONDecoder().decode(
+            [WidgetDepartureData].self,
+            from: encoded
+        )
+        XCTAssertEqual(decoded.first?.fetchedAt, projectionAnchor)
+        XCTAssertEqual(decoded.first?.dataUpdatedAt, oldestUpdate)
     }
 
     func testWidgetSnapshotUsesPlaceholderForEmptyGalleryPreview() {

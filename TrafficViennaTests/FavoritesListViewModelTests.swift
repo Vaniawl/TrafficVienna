@@ -68,9 +68,14 @@ final class FavoritesListViewModelTests: XCTestCase {
 
     func testCachedRouteIsLabelledAndRemainsEligibleForWidget() async {
         let favorite = route("U1", "Leopoldau")
+        let sourceUpdatedAt = Date(timeIntervalSince1970: 1_000)
         let widget = StubWidgetSync()
         let viewModel = FavoritesListViewModel(
-            service: StubMonitorProvider(result: .success(response(countdown: 5)), isStale: true),
+            service: StubMonitorProvider(
+                result: .success(response(countdown: 5)),
+                isStale: true,
+                updatedAt: sourceUpdatedAt
+            ),
             favoritesRepo: StubFavoritesRepository(routes: [favorite]),
             stationsRepo: StubFavoriteStationsRepository(),
             widgetSync: widget
@@ -80,6 +85,8 @@ final class FavoritesListViewModelTests: XCTestCase {
 
         XCTAssertEqual(viewModel.items.first?.state, .cached)
         XCTAssertEqual(widget.lastSaved.first?.lineName, "U1")
+        XCTAssertEqual(widget.lastSaved.first?.dataUpdatedAt, sourceUpdatedAt)
+        XCTAssertNotEqual(widget.lastSaved.first?.fetchedAt, sourceUpdatedAt)
     }
 
     func testRouteChangeDuringLoadSkipsStaleCommitAndRunsFollowUpPass() async {
@@ -259,10 +266,16 @@ private actor StubMonitorProvider: MonitorProviding {
     private var result: Result<MonitorResponse, Error>
     private(set) var forceRefreshValues: [Bool] = []
     private let isStale: Bool
+    private let updatedAt: Date
 
-    init(result: Result<MonitorResponse, Error>, isStale: Bool = false) {
+    init(
+        result: Result<MonitorResponse, Error>,
+        isStale: Bool = false,
+        updatedAt: Date = .now
+    ) {
         self.result = result
         self.isStale = isStale
+        self.updatedAt = updatedAt
     }
     func setResult(_ result: Result<MonitorResponse, Error>) { self.result = result }
     func monitor(diva: Int, forceRefresh: Bool) async throws -> MonitorResponse {
@@ -272,7 +285,7 @@ private actor StubMonitorProvider: MonitorProviding {
     func monitorSnapshot(diva: Int, forceRefresh: Bool) async throws -> MonitorSnapshot {
         MonitorSnapshot(
             response: try await monitor(diva: diva, forceRefresh: forceRefresh),
-            updatedAt: .now,
+            updatedAt: updatedAt,
             isStale: isStale
         )
     }

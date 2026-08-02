@@ -155,7 +155,8 @@ final class FavoritesListViewModel {
                 route: favorite,
                 stopName: snapshot.response.data.monitors.first?.locationStop.properties.title ?? "",
                 departures: departures,
-                state: snapshot.isStale ? .cached : .available
+                state: snapshot.isStale ? .cached : .available,
+                updatedAt: snapshot.updatedAt
             )
         } catch {
             return unavailableItem(for: favorite)
@@ -163,7 +164,13 @@ final class FavoritesListViewModel {
     }
 
     private func unavailableItem(for route: FavoriteRoute) -> FavoriteWithDeparture {
-        FavoriteWithDeparture(route: route, stopName: "", departures: [], state: .unavailable)
+        FavoriteWithDeparture(
+            route: route,
+            stopName: "",
+            departures: [],
+            state: .unavailable,
+            updatedAt: nil
+        )
     }
 
     private func updateFeaturedDeparture() {
@@ -192,7 +199,7 @@ final class FavoritesListViewModel {
     }
 
     private func syncWidget() {
-        let fetchedAt = Date.now
+        let projectionAnchor = Date.now
         let widgetItems = items
             .filter { $0.state != .unavailable }
             .prefix(3)
@@ -203,7 +210,8 @@ final class FavoritesListViewModel {
                     stopName: favorite.stopName,
                     destination: favorite.route.destination,
                     departures: favorite.departures.prefix(3).map(\.liveMinutes),
-                    fetchedAt: fetchedAt
+                    fetchedAt: projectionAnchor,
+                    dataUpdatedAt: favorite.updatedAt
                 )
             }
         widgetSync.save(Array(widgetItems))
