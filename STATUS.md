@@ -6,7 +6,7 @@
 - Stack: native SwiftUI iOS application, widget extension, XCTest, and XCUITest.
 - Current phase: continued reliability improvements on the existing draft PR.
 - Product shell: Home, Discover, Alerts, and Saved; accounts are out of scope.
-- Verified tests: 141/141 pass on iPhone 17 Simulator (137 model/service tests
+- Verified tests: 144/144 pass on iPhone 17 Simulator (140 model/service tests
   and 4 UI tests), with zero failures or skips. App and widget build successfully.
 - Verified visual coverage: four journeys and key secondary surfaces were
   exercised on iPhone 17; Home, Station Detail, and reminder management were
@@ -16,7 +16,8 @@
   were addressed by restoring ActivityKit ownership, blocking new system
   countdowns from stale data, revalidating reminder timing after permission,
   removing body-time formatter allocation, improving reminder row reflow, and
-  making repeated reminders for one route idempotent.
+  making repeated reminders for one route idempotent. Location authorization is
+  now authoritative over cached coordinates and Map projection.
 - Verified quality: Xcode static analysis passes; app extraction reports 267
   keys with 0 missing catalogue/German values and widget extraction reports 31
   with 0 missing catalogue/German values. Both repository structural validators,

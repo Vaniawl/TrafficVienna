@@ -64,16 +64,21 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     }
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        authorizationStatus = manager.authorizationStatus
+        let status = self.manager.authorizationStatus
+        authorizationStatus = status
         
-        switch manager.authorizationStatus {
+        switch status {
         case .authorizedWhenInUse, .authorizedAlways:
             requestCurrentLocation()
         case .denied, .restricted:
-            isRequestInFlight = false
+            clearLocation()
             errorMessage = "Location access denied"
-        default:
-            break
+        case .notDetermined:
+            clearLocation()
+            errorMessage = nil
+        @unknown default:
+            clearLocation()
+            errorMessage = nil
         }
     }
     
@@ -81,6 +86,10 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
                          didUpdateLocations locations: [CLLocation]) {
         if isPreview { return }
         isRequestInFlight = false
+        guard isLocationAuthorized else {
+            userLocation = nil
+            return
+        }
         guard let loc = locations.last else { return }
         userLocation = loc
         errorMessage = nil
@@ -103,5 +112,21 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
         isRequestInFlight = true
         errorMessage = nil
         manager.requestLocation()
+    }
+
+    private func clearLocation() {
+        isRequestInFlight = false
+        userLocation = nil
+    }
+
+    private var isLocationAuthorized: Bool {
+        switch manager.authorizationStatus {
+        case .authorizedAlways, .authorizedWhenInUse:
+            true
+        case .notDetermined, .denied, .restricted:
+            false
+        @unknown default:
+            false
+        }
     }
 }

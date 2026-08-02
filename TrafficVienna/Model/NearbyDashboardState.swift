@@ -17,7 +17,7 @@ enum NearbyDashboardState: Equatable {
             self = .locationDenied
         case .notDetermined:
             self = .permissionRequired
-        default:
+        case .authorizedAlways, .authorizedWhenInUse:
             if !hasLocation {
                 self = .locating
             } else if hasStations {
@@ -25,6 +25,8 @@ enum NearbyDashboardState: Equatable {
             } else {
                 self = .noStations
             }
+        @unknown default:
+            self = .locationDenied
         }
     }
 }

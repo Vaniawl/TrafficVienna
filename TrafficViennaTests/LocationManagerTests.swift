@@ -71,13 +71,69 @@ final class LocationManagerTests: XCTestCase {
 
         XCTAssertEqual(service.requestLocationCount, 2)
     }
+
+    func testRevokedAuthorizationClearsCachedLocationAndAllowsFutureRequest() {
+        let service = LocationServiceSpy(authorizationStatus: .authorizedWhenInUse)
+        let locationManager = LocationManager(manager: service)
+        locationManager.requestLocationIfNeeded()
+        locationManager.locationManager(
+            CLLocationManager(),
+            didUpdateLocations: [
+                CLLocation(latitude: 48.2082, longitude: 16.3738),
+            ]
+        )
+
+        service.authorizationStatus = .denied
+        locationManager.locationManagerDidChangeAuthorization(
+            CLLocationManager()
+        )
+
+        XCTAssertEqual(locationManager.authorizationStatus, .denied)
+        XCTAssertNil(locationManager.userLocation)
+        XCTAssertNotNil(locationManager.errorMessage)
+
+        locationManager.locationManager(
+            CLLocationManager(),
+            didUpdateLocations: [
+                CLLocation(latitude: 48.2181, longitude: 16.3915),
+            ]
+        )
+        XCTAssertNil(locationManager.userLocation)
+
+        service.authorizationStatus = .authorizedWhenInUse
+        locationManager.locationManagerDidChangeAuthorization(
+            CLLocationManager()
+        )
+
+        XCTAssertEqual(service.requestLocationCount, 2)
+    }
+
+    func testResetAuthorizationClearsCachedLocationWithoutDenialError() {
+        let service = LocationServiceSpy(authorizationStatus: .authorizedWhenInUse)
+        let locationManager = LocationManager(manager: service)
+        locationManager.locationManager(
+            CLLocationManager(),
+            didUpdateLocations: [
+                CLLocation(latitude: 48.2082, longitude: 16.3738),
+            ]
+        )
+
+        service.authorizationStatus = .notDetermined
+        locationManager.locationManagerDidChangeAuthorization(
+            CLLocationManager()
+        )
+
+        XCTAssertEqual(locationManager.authorizationStatus, .notDetermined)
+        XCTAssertNil(locationManager.userLocation)
+        XCTAssertNil(locationManager.errorMessage)
+    }
 }
 
 @MainActor
 private final class LocationServiceSpy: LocationManaging {
     weak var delegate: (any CLLocationManagerDelegate)?
     var desiredAccuracy = kCLLocationAccuracyThreeKilometers
-    let authorizationStatus: CLAuthorizationStatus
+    var authorizationStatus: CLAuthorizationStatus
     private(set) var authorizationRequestCount = 0
     private(set) var requestLocationCount = 0
 

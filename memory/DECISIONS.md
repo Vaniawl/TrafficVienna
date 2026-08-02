@@ -1,5 +1,25 @@
 # Architectural Decisions
 
+## 2026-08-02 — Location authorization owns coordinate lifetime
+
+**Context:** Location is intentionally memory-only, but `LocationManager` retained
+its last precise coordinate when permission changed to denied or restricted. Map
+also treated any non-nil coordinate as located before checking authorization, so a
+stale value could hide permission recovery and continue influencing station
+projection after access was revoked.
+
+**Decision:** Treat `.authorizedWhenInUse` and `.authorizedAlways` as the only
+states permitted to retain or consume the device coordinate. Clear the cached
+location and release any in-flight one-shot request when authorization is revoked,
+reset, or unknown. Map independently validates authorization before using a
+coordinate for status, projection, or user annotation; a user-chosen exploration
+centre remains valid because it is not device-location data.
+
+**Consequences:** Revoking permission immediately returns Home and Map to truthful
+permission/fallback behavior and removes the precise coordinate from app memory.
+Reauthorization can start a fresh one-shot request. No persistence, logging,
+network, entitlement, or dependency boundary changes.
+
 ## 2026-08-02 — System countdowns require current departures
 
 **Context:** Station Detail can display an in-memory stale snapshot after a

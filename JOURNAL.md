@@ -1,5 +1,21 @@
 # Journal
 
+## 2026-08-02 - Location revocation privacy hardening
+
+- Made Core Location authorization authoritative over cached coordinates. A
+  denied, restricted, reset, or unknown status now clears the in-memory precise
+  location and resets any one-shot request in flight.
+- Hardened Map independently: unauthorized coordinates cannot mark the user as
+  located, drive nearby-marker projection, or render the user annotation. An
+  explicit user-explored map centre remains usable without location permission.
+- Added two LocationManager regressions and one stale-coordinate Map regression.
+  The focused location/map/dashboard set passes 22/22; the authoritative final
+  `.xcresult` reports 144/144 tests passing with zero failures or skips, and Xcode
+  static analysis succeeds.
+- No coordinate persistence, logging, endpoint, entitlement, dependency, or new
+  localization key was introduced. Manual permission-toggle inspection remains
+  outside this slice because no Simulator was already booted.
+
 ## 2026-08-02 - Idempotent departure reminders
 
 - Replaced per-tap UUID notification identifiers with a stable identifier for one

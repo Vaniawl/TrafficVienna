@@ -40,8 +40,12 @@ final class MapStationsViewModel {
         locationError: String?,
         mapCenter: CLLocation? = nil
     ) {
+        let authorizedLocation = Self.authorizedLocation(
+            location,
+            authorizationStatus: authorizationStatus
+        )
         locationStatus = Self.locationStatus(
-            location: location,
+            location: authorizedLocation,
             authorizationStatus: authorizationStatus,
             hasError: locationError != nil
         )
@@ -61,7 +65,7 @@ final class MapStationsViewModel {
             break
         }
 
-        let center = mapCenter ?? location ?? fallbackLocation
+        let center = mapCenter ?? authorizedLocation ?? fallbackLocation
         searchCenter = center
         let candidates = stationStore
             .stations(near: center, radiusInMeters: radius)
@@ -142,19 +146,32 @@ final class MapStationsViewModel {
         authorizationStatus: CLAuthorizationStatus,
         hasError: Bool
     ) -> MapLocationStatus {
-        if location != nil {
-            return .located
-        }
-
         switch authorizationStatus {
         case .notDetermined:
             return .permissionNeeded
         case .denied, .restricted:
             return .permissionDenied
         case .authorizedAlways, .authorizedWhenInUse:
+            if location != nil {
+                return .located
+            }
             return hasError ? .fallback : .locating
         @unknown default:
             return .fallback
+        }
+    }
+
+    private static func authorizedLocation(
+        _ location: CLLocation?,
+        authorizationStatus: CLAuthorizationStatus
+    ) -> CLLocation? {
+        switch authorizationStatus {
+        case .authorizedAlways, .authorizedWhenInUse:
+            location
+        case .notDetermined, .denied, .restricted:
+            nil
+        @unknown default:
+            nil
         }
     }
 }

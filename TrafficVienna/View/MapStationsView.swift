@@ -23,7 +23,7 @@ struct MapStationsView: View {
 
     var body: some View {
         Map(position: $position, selection: $selectedStation) {
-            if locationManager.userLocation != nil {
+            if canShowUserLocation {
                 UserAnnotation()
             }
 
@@ -137,6 +137,18 @@ struct MapStationsView: View {
             return false
         }
         return viewModel.shouldOfferSearch(at: pendingCameraCenter)
+    }
+
+    private var canShowUserLocation: Bool {
+        guard locationManager.userLocation != nil else { return false }
+        switch locationManager.authorizationStatus {
+        case .authorizedAlways, .authorizedWhenInUse:
+            return true
+        case .notDetermined, .denied, .restricted:
+            return false
+        @unknown default:
+            return false
+        }
     }
 
     private func refresh() {
