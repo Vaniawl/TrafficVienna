@@ -30,6 +30,9 @@
 - Published reviewed commit `09879b46` on
   `codex/system-surfaces-readiness` and opened draft PR #15 against protected
   `main`. No merge, ready-for-review, release, or deployment action was taken.
+- Hosted Quality run `30736703774` installed the pinned OpenCode CLI and passed
+  the complete protected `scripts/ci.sh` gate in 12m56s, closing the local
+  missing-CLI validation gap for the published change set.
 
 ## 2026-07-30 — Final visual, widget, and release-evidence pass
 

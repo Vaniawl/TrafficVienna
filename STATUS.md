@@ -1,6 +1,6 @@
 # Status
 
-- Status: CONTINUE
+- Status: COMPLETE
 - Workspace: `/Users/ivandovhosheia/Swift/TrafficVienna`
 - Branch: `codex/system-surfaces-readiness`
 - Stack: native SwiftUI iOS application, widget extension, XCTest, and XCUITest.
@@ -23,11 +23,12 @@
 - Infrastructure limitation: `bash scripts/ci.sh` reaches the permission matcher
   and exits 127 because the required global `opencode` CLI is not installed.
   The reliability script's Python and timeout fixtures pass before the same
-  missing-tool boundary; available repository, Xcode, and diff gates pass.
+  missing-tool boundary. Hosted Quality run `30736703774` supplied the pinned
+  CLI and passed the complete wrapper in 12m56s.
 - Handoff: commit `09879b46` is pushed on
   `codex/system-surfaces-readiness`; draft PR #15 targets protected `main`.
-- Remaining local work: none. Rerun the unavailable OpenCode permission matcher
-  when its global CLI is installed; do not merge or release without approval.
+- Remaining audit work: none. The PR stays draft; do not merge or release without
+  explicit approval.
 - External release gates: distribution signing, App Store Connect processed build,
   and signed physical-device TestFlight acceptance are not provided by Simulator
   evidence.

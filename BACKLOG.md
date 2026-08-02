@@ -14,10 +14,10 @@
 - [x] **REQ-TV-005 — Performance.** Requests remain coalesced/cancellable and
   formatter creation was removed from the widget body. Settled iPad Simulator
   sampling measured 0.0% CPU in five observations.
-- [ ] **REQ-TV-006 — Validation evidence.** App/widget build, 137 tests, static
+- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 137 tests, static
   analysis, localisation extraction, repository validators, and diff checks
-  pass. The OpenCode reliability/CI wrappers reach their permission matcher but
-  cannot complete because the global `opencode` dependency is not installed.
+  pass. Hosted Quality run `30736703774` installed the pinned OpenCode CLI and
+  completed the full `scripts/ci.sh` wrapper successfully.
 - [x] **REQ-TV-007 — Review-ready state.** Architecture/security findings and
   documentation are resolved; commit `09879b46` is published in draft PR #15.
 - [x] **REQ-TV-008 — Truthful system surfaces.** Reminders are local and
@@ -57,8 +57,9 @@
 - [x] English/German compiler-extraction catalogue comparison.
 - [x] `git diff --check`, security scan, and changed-file review.
 - [x] Synchronize `STATUS.md`, root/memory journals, and architectural decisions.
-- [ ] Install/provide the global `opencode` CLI and rerun `bash scripts/ci.sh`;
-  the wrapper currently stops at `tests/opencode-permission-matcher.sh`.
+- [x] Run `bash scripts/ci.sh` with the required OpenCode runtime: hosted
+  Quality run `30736703774` passed in 12m56s. The local host still lacks that
+  global CLI, so local wrapper attempts stop at the permission matcher.
 - [x] Commit reviewed paths, push `codex/system-surfaces-readiness`, and open
   draft PR #15.
 
