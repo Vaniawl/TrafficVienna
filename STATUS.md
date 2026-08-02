@@ -6,7 +6,7 @@
 - Stack: native SwiftUI iOS application, widget extension, XCTest, and XCUITest.
 - Current phase: continued reliability improvements on the existing draft PR.
 - Product shell: Home, Discover, Alerts, and Saved; accounts are out of scope.
-- Verified tests: 167/167 pass on iPhone 17 Simulator (163 model/service tests
+- Verified tests: 169/169 pass on iPhone 17 Simulator (165 model/service tests
   and 4 UI tests), with zero failures or skips. App and widget build successfully.
 - Verified visual coverage: four journeys and key secondary surfaces were
   exercised on iPhone 17; Home, Station Detail, and reminder management were
@@ -31,6 +31,9 @@
   preserve the user's current stacks. Widget countdown projection now keeps a
   separate per-route source timestamp, so cached Saved departures cannot be
   presented as newly refreshed; mixed rows display the oldest visible source.
+  ActivityKit updates and ends now share a per-Activity operation chain, so a
+  refresh, replacement, automatic expiry, and user stop preserve submission order
+  without serializing unrelated activities.
 - Verified quality: Xcode static analysis passes; app extraction reports 267
   keys with 0 missing catalogue/German values and widget extraction reports 31
   with 0 missing catalogue/German values. Both repository structural validators,
@@ -38,7 +41,7 @@
 - Infrastructure limitation: `bash scripts/ci.sh` reaches the permission matcher
   and exits 127 because the required global `opencode` CLI is not installed.
   The reliability script's Python and timeout fixtures pass before the same
-  missing-tool boundary. Hosted Quality run `30764256748` supplied the pinned
+  missing-tool boundary. Hosted Quality run `30766189888` supplied the pinned
   CLI and passed the previously published complete wrapper.
 - Handoff: draft PR #15 tracks `codex/system-surfaces-readiness` against protected
   `main`; each published update must pass its protected validation.
@@ -52,6 +55,10 @@
   about two minutes since its projection anchor, then verified the corrected
   medium widget reporting the roughly 23-minute source age while its departure
   countdown continued updating.
+- Focused iPhone 17 UI acceptance opened Stephansplatz, started Lock Screen
+  tracking, observed the stop action, and stopped the Live Activity successfully.
+  This reliability slice changes no layout or copy, so the existing inspected
+  screenshots remain representative.
 - External release gates: distribution signing, App Store Connect processed build,
   and signed physical-device TestFlight acceptance are not provided by Simulator
   evidence.

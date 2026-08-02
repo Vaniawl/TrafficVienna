@@ -1,5 +1,25 @@
 # Architectural Decisions
 
+## 2026-08-02 — ActivityKit effects are serialized per Activity ID
+
+**Context:** `LiveActivityController` owned its timer bookkeeping on the main
+actor but launched every ActivityKit `update` and `end` in an independent
+unstructured task. Swift concurrency does not guarantee that those tasks reach
+the system in call order. A refresh that updates a tracked departure and a quick
+user stop could therefore overlap or complete out of order.
+
+**Decision:** Route every ActivityKit mutation through one MainActor-owned
+operation chain keyed by the system Activity ID. A new operation awaits only the
+previous operation for the same ID. Different IDs remain independent, and a
+generation token removes a completed chain without deleting a newer successor.
+Automatic expiry uses the same boundary as refresh, replacement, and user stop.
+
+**Consequences:** System updates and ends preserve application submission order
+without globally serializing ActivityKit or moving lifecycle work outside the
+existing controller. A slow system operation delays only later work for that same
+activity. No endpoint, persisted state, permission, entitlement, dependency,
+localization, copy, or UI changes; rollback is a normal revert with no migration.
+
 ## 2026-08-02 — Widget projection time is not source freshness
 
 **Context:** Saved converts MonitorService snapshots into current countdown

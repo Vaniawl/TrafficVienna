@@ -1,5 +1,21 @@
 # Journal
 
+## 2026-08-02 — Live Activity effects preserve user-action order
+
+- Reproduced that a second ActivityKit operation for one activity could begin
+  while its predecessor was suspended, so a quick refresh/stop sequence had no
+  ordering guarantee.
+- Added a MainActor-owned per-activity operation chain. Updates and ends for one
+  Activity ID now execute in submission order, while unrelated activities remain
+  independent and completed chains are released.
+- The deterministic regression first failed with the second operation starting
+  early. Both ordering/isolation tests now pass; the adjacent Activity/Station
+  Detail slice passes 76/76 and the focused UI start/stop journey passes.
+- The authoritative iPhone 17 result reports 169/169 with zero failures or skips;
+  exact build, Xcode Analyze, scoped security review, and diff checks pass. No UI,
+  endpoint, persistence, permission, entitlement, dependency, or copy changed,
+  so the existing inspected screenshots remain representative.
+
 ## 2026-08-02 — Widget freshness reflects the transport source
 
 - Reproduced a stale-data defect: Saved projected cached countdowns at the current

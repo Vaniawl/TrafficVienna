@@ -4,6 +4,7 @@ import ActivityKit
 @MainActor
 enum LiveActivityController {
     private static var endTasks: [String: Task<Void, Never>] = [:]
+    private static let operations = LiveActivityOperationQueue()
 
     static var isAvailable: Bool {
         ActivityAuthorizationInfo().areActivitiesEnabled
@@ -27,7 +28,9 @@ enum LiveActivityController {
         )
 
         if let matching = matchingActivity(line: line, destination: destination, stop: stop) {
-            Task { await matching.update(content) }
+            operations.enqueue(for: matching.id) {
+                await matching.update(content)
+            }
             scheduleEnd(for: matching, content: content)
             return
         }
@@ -35,8 +38,8 @@ enum LiveActivityController {
         let previousActivities = Activity<DepartureActivityAttributes>.activities
         let activity = try Activity.request(attributes: attributes, content: content)
 
-        Task {
-            for previous in previousActivities {
+        for previous in previousActivities {
+            operations.enqueue(for: previous.id) {
                 await previous.end(nil, dismissalPolicy: .immediate)
             }
         }
@@ -59,10 +62,10 @@ enum LiveActivityController {
             )
         )
         let matching = matchingActivity(line: line, destination: destination, stop: stop)
-        Task {
-            await matching?.update(content)
-        }
         if let matching {
+            operations.enqueue(for: matching.id) {
+                await matching.update(content)
+            }
             scheduleEnd(for: matching, content: content)
         }
     }
@@ -84,8 +87,8 @@ enum LiveActivityController {
             endTasks[$0.id]?.cancel()
             endTasks[$0.id] = nil
         }
-        Task {
-            for activity in activities {
+        for activity in activities {
+            operations.enqueue(for: activity.id) {
                 await activity.end(nil, dismissalPolicy: .immediate)
             }
         }
@@ -100,7 +103,7 @@ enum LiveActivityController {
             ) {
                 endTasks[activity.id]?.cancel()
                 endTasks[activity.id] = nil
-                Task {
+                operations.enqueue(for: activity.id) {
                     await activity.end(
                         activity.content,
                         dismissalPolicy: .immediate
@@ -141,7 +144,9 @@ enum LiveActivityController {
                 return
             }
             guard !Task.isCancelled else { return }
-            await activity.end(content, dismissalPolicy: .immediate)
+            operations.enqueue(for: activity.id) {
+                await activity.end(content, dismissalPolicy: .immediate)
+            }
             endTasks[activity.id] = nil
         }
     }
