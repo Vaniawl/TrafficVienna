@@ -205,6 +205,70 @@ final class StationDetailViewModelTests: XCTestCase {
         XCTAssertEqual(starter.stopCount, 1)
     }
 
+    func testStopDuringRefreshCannotRestorePendingSystemActivity() async {
+        let activeID = StationDepartureID(
+            line: "U1",
+            destination: "Leopoldau"
+        )
+        let starter = DetailLiveActivityStarter(
+            isAvailable: true,
+            activeDepartureID: activeID
+        )
+        let monitor = ControlledDetailMonitorProvider(
+            results: [
+                .success(responseWithMergedU1()),
+                .success(responseWithMergedU1()),
+            ]
+        )
+        let viewModel = StationDetailViewModel(
+            station: Station(id: 1, diva: 123, name: "Test", lat: 0, lon: 0),
+            service: monitor,
+            favoritesRepo: DetailRoutesRepository(),
+            stationsRepo: DetailStationsRepository(),
+            liveActivityStarter: starter,
+            reminderClient: .test
+        )
+        let initialLoad = Task { await viewModel.load() }
+        await monitor.waitUntilCallCount(1)
+        await monitor.releaseCall(1)
+        await initialLoad.value
+        guard let group = viewModel.groups.first else {
+            return XCTFail("Missing group")
+        }
+        XCTAssertEqual(starter.updateCount, 1)
+
+        let refresh = Task { await viewModel.load(forceRefresh: true) }
+        await monitor.waitUntilCallCount(2)
+        viewModel.startTracking(group)
+        await monitor.releaseCall(2)
+        await refresh.value
+
+        XCTAssertNil(viewModel.trackedDepartureID)
+        XCTAssertEqual(starter.stopCount, 1)
+        XCTAssertEqual(starter.updateCount, 1)
+    }
+
+    func testRefreshClearsTrackingAfterSystemActivityEnds() async {
+        let activeID = StationDepartureID(
+            line: "U1",
+            destination: "Leopoldau"
+        )
+        let starter = DetailLiveActivityStarter(
+            isAvailable: true,
+            activeDepartureID: activeID
+        )
+        let viewModel = makeViewModel(liveActivityStarter: starter)
+        await viewModel.load()
+        XCTAssertEqual(viewModel.trackedDepartureID, activeID)
+        XCTAssertEqual(starter.updateCount, 1)
+
+        starter.activeDepartureID = nil
+        await viewModel.load(forceRefresh: true)
+
+        XCTAssertNil(viewModel.trackedDepartureID)
+        XCTAssertEqual(starter.updateCount, 1)
+    }
+
     func testReloadUpdatesTrackedLiveActivity() async {
         let starter = DetailLiveActivityStarter(isAvailable: true)
         let viewModel = makeViewModel(liveActivityStarter: starter)
@@ -552,10 +616,11 @@ private final class DetailStationsRepository: FavoriteStationsStoring, @unchecke
 private final class DetailLiveActivityStarter: LiveActivityStarting {
     let isAvailable: Bool
     let shouldThrow: Bool
-    let activeDepartureID: StationDepartureID?
+    var activeDepartureID: StationDepartureID?
     var startedLine: String?
     var updatedLine: String?
     var updatedMinutes: Int?
+    var updateCount = 0
     var stopCount = 0
     init(
         isAvailable: Bool,
@@ -569,8 +634,13 @@ private final class DetailLiveActivityStarter: LiveActivityStarting {
     func start(line: String, destination: String, stop: String, minutes: Int, isLive: Bool) throws {
         if shouldThrow { throw DetailTestError.failed }
         startedLine = line
+        activeDepartureID = StationDepartureID(
+            line: line,
+            destination: destination
+        )
     }
     func update(line: String, destination: String, stop: String, minutes: Int, isLive: Bool) {
+        updateCount += 1
         updatedLine = line
         updatedMinutes = minutes
     }

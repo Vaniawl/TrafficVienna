@@ -14,9 +14,9 @@
 - [x] **REQ-TV-005 — Performance.** Requests remain coalesced/cancellable and
   formatter creation was removed from the widget body. Settled iPad Simulator
   sampling measured 0.0% CPU in five observations.
-- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 169 tests, static
+- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 172 tests, static
   analysis, localisation extraction, repository validators, and diff checks
-  pass. Hosted Quality run `30766189888` installed the pinned OpenCode CLI and
+  pass. Hosted Quality run `30767362201` installed the pinned OpenCode CLI and
   completed the previously published full `scripts/ci.sh` wrapper successfully;
   every new published commit still requires its own protected run.
 - [x] **REQ-TV-007 — Review-ready state.** Architecture/security findings and
@@ -61,6 +61,9 @@
 - [x] Serialize ActivityKit updates and ends per system Activity ID so refresh,
   replacement, expiry, and user stop preserve submission order without blocking
   unrelated activities.
+- [x] Make ActivityKit end terminal from submission: reject later updates and
+  restoration for an ending Activity ID, preserve explicit Station Detail stop
+  intent across an in-flight refresh, and clear local tracking after a system end.
 - [x] Move relative-time formatting out of the widget render body.
 - [x] Let reminder destinations/stops grow at accessibility Dynamic Type sizes.
 - [x] Add focused regression coverage for each behavioral change.
@@ -83,13 +86,13 @@
 
 ## Final validation and handoff
 
-- [x] Full iPhone 17 build and test suite: 165 model/service + 4 UI tests.
+- [x] Full iPhone 17 build and test suite: 168 model/service + 4 UI tests.
 - [x] Static analyzer and repository/OpenCode structural validators.
 - [x] English/German compiler-extraction catalogue comparison.
 - [x] `git diff --check`, security scan, and changed-file review.
 - [x] Synchronize `STATUS.md`, root/memory journals, and architectural decisions.
 - [x] Run `bash scripts/ci.sh` with the required OpenCode runtime: hosted
-  Quality run `30766189888` passed the previously published baseline.
+  Quality run `30767362201` passed the previously published baseline.
   The local host still lacks that global CLI, so local wrapper attempts stop at
   the permission matcher and protected CI remains authoritative after publication.
 - [x] Commit reviewed paths, push `codex/system-surfaces-readiness`, and open

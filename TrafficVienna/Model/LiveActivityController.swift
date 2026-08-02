@@ -39,9 +39,7 @@ enum LiveActivityController {
         let activity = try Activity.request(attributes: attributes, content: content)
 
         for previous in previousActivities {
-            operations.enqueue(for: previous.id) {
-                await previous.end(nil, dismissalPolicy: .immediate)
-            }
+            end(previous)
         }
         previousActivities.forEach {
             endTasks[$0.id]?.cancel()
@@ -72,7 +70,10 @@ enum LiveActivityController {
 
     static func activeDepartureID(for stop: String) -> StationDepartureID? {
         Activity<DepartureActivityAttributes>.activities
-            .first(where: { $0.attributes.stopName == stop })
+            .first {
+                $0.attributes.stopName == stop &&
+                    !operations.isEnding(activityID: $0.id)
+            }
             .map {
                 StationDepartureID(
                     line: $0.attributes.line,
@@ -88,9 +89,7 @@ enum LiveActivityController {
             endTasks[$0.id] = nil
         }
         for activity in activities {
-            operations.enqueue(for: activity.id) {
-                await activity.end(nil, dismissalPolicy: .immediate)
-            }
+            end(activity)
         }
     }
 
@@ -103,12 +102,7 @@ enum LiveActivityController {
             ) {
                 endTasks[activity.id]?.cancel()
                 endTasks[activity.id] = nil
-                operations.enqueue(for: activity.id) {
-                    await activity.end(
-                        activity.content,
-                        dismissalPolicy: .immediate
-                    )
-                }
+                end(activity, content: activity.content)
             } else {
                 scheduleEnd(for: activity, content: activity.content)
             }
@@ -121,9 +115,19 @@ enum LiveActivityController {
         stop: String
     ) -> Activity<DepartureActivityAttributes>? {
         Activity<DepartureActivityAttributes>.activities.first { activity in
-            activity.attributes.line == line &&
+            !operations.isEnding(activityID: activity.id) &&
+                activity.attributes.line == line &&
                 activity.attributes.destination == destination &&
                 activity.attributes.stopName == stop
+        }
+    }
+
+    private static func end(
+        _ activity: Activity<DepartureActivityAttributes>,
+        content: ActivityContent<DepartureActivityAttributes.ContentState>? = nil
+    ) {
+        operations.enqueueEnd(for: activity.id) {
+            await activity.end(content, dismissalPolicy: .immediate)
         }
     }
 
@@ -144,9 +148,7 @@ enum LiveActivityController {
                 return
             }
             guard !Task.isCancelled else { return }
-            operations.enqueue(for: activity.id) {
-                await activity.end(content, dismissalPolicy: .immediate)
-            }
+            end(activity, content: content)
             endTasks[activity.id] = nil
         }
     }

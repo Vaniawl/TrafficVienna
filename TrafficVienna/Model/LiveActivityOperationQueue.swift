@@ -8,10 +8,42 @@ final class LiveActivityOperationQueue {
     }
 
     private var operations: [String: PendingOperation] = [:]
+    private var endingActivityIDs: Set<String> = []
     private var nextGeneration = 0
+
+    func isEnding(activityID: String) -> Bool {
+        endingActivityIDs.contains(activityID)
+    }
 
     @discardableResult
     func enqueue(
+        for activityID: String,
+        operation: @escaping @MainActor @Sendable () async -> Void
+    ) -> Task<Void, Never> {
+        guard !isEnding(activityID: activityID) else {
+            return operations[activityID]?.task ?? Task {}
+        }
+        return enqueueUnchecked(for: activityID, operation: operation)
+    }
+
+    @discardableResult
+    func enqueueEnd(
+        for activityID: String,
+        operation: @escaping @MainActor @Sendable () async -> Void
+    ) -> Task<Void, Never> {
+        guard !isEnding(activityID: activityID) else {
+            return operations[activityID]?.task ?? Task {}
+        }
+        endingActivityIDs.insert(activityID)
+        let task = enqueueUnchecked(for: activityID, operation: operation)
+        Task { @MainActor [weak self] in
+            await task.value
+            self?.endingActivityIDs.remove(activityID)
+        }
+        return task
+    }
+
+    private func enqueueUnchecked(
         for activityID: String,
         operation: @escaping @MainActor @Sendable () async -> Void
     ) -> Task<Void, Never> {

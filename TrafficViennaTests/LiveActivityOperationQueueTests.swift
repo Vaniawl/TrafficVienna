@@ -63,6 +63,44 @@ final class LiveActivityOperationQueueTests: XCTestCase {
         await gate.open()
         await first.value
     }
+
+    func testEndingActivityRejectsLaterUpdatesUntilEndCompletes() async {
+        let queue = LiveActivityOperationQueue()
+        let gate = AsyncGate()
+        var events: [String] = []
+
+        let update = queue.enqueue(for: "activity") {
+            events.append("update started")
+            await gate.wait()
+            events.append("update finished")
+        }
+        while events.isEmpty {
+            await Task.yield()
+        }
+
+        let end = queue.enqueueEnd(for: "activity") {
+            events.append("ended")
+        }
+        let rejectedUpdate = queue.enqueue(for: "activity") {
+            events.append("late update")
+        }
+
+        XCTAssertTrue(queue.isEnding(activityID: "activity"))
+
+        await gate.open()
+        await update.value
+        await end.value
+        await rejectedUpdate.value
+
+        XCTAssertEqual(
+            events,
+            ["update started", "update finished", "ended"]
+        )
+
+        while queue.isEnding(activityID: "activity") {
+            await Task.yield()
+        }
+    }
 }
 
 private actor AsyncGate {

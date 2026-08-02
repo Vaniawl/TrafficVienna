@@ -6,7 +6,7 @@
 - Stack: native SwiftUI iOS application, widget extension, XCTest, and XCUITest.
 - Current phase: continued reliability improvements on the existing draft PR.
 - Product shell: Home, Discover, Alerts, and Saved; accounts are out of scope.
-- Verified tests: 169/169 pass on iPhone 17 Simulator (165 model/service tests
+- Verified tests: 172/172 pass on iPhone 17 Simulator (168 model/service tests
   and 4 UI tests), with zero failures or skips. App and widget build successfully.
 - Verified visual coverage: four journeys and key secondary surfaces were
   exercised on iPhone 17; Home, Station Detail, and reminder management were
@@ -33,7 +33,10 @@
   presented as newly refreshed; mixed rows display the oldest visible source.
   ActivityKit updates and ends now share a per-Activity operation chain, so a
   refresh, replacement, automatic expiry, and user stop preserve submission order
-  without serializing unrelated activities.
+  without serializing unrelated activities. An end marks its Activity ID terminal
+  immediately: later updates and restoration ignore it, while Station Detail
+  retains explicit stop intent until ActivityKit stops reporting the old session
+  and clears local tracking when the system ends a session independently.
 - Verified quality: Xcode static analysis passes; app extraction reports 267
   keys with 0 missing catalogue/German values and widget extraction reports 31
   with 0 missing catalogue/German values. Both repository structural validators,
@@ -41,7 +44,7 @@
 - Infrastructure limitation: `bash scripts/ci.sh` reaches the permission matcher
   and exits 127 because the required global `opencode` CLI is not installed.
   The reliability script's Python and timeout fixtures pass before the same
-  missing-tool boundary. Hosted Quality run `30766189888` supplied the pinned
+  missing-tool boundary. Hosted Quality run `30767362201` supplied the pinned
   CLI and passed the previously published complete wrapper.
 - Handoff: draft PR #15 tracks `codex/system-surfaces-readiness` against protected
   `main`; each published update must pass its protected validation.

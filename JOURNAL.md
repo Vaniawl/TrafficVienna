@@ -1,5 +1,25 @@
 # Journal
 
+## 2026-08-02 - Live Activity stop survives refresh races
+
+- Reproduced a second lifecycle race: stopping Lock Screen tracking during an
+  in-flight Station Detail refresh cleared local state, but ActivityKit could
+  still report the pending session, so the completed refresh restored it and
+  submitted another update. The deterministic regression first failed with a
+  restored departure ID and two updates instead of one.
+- An end now marks its Activity ID terminal before asynchronous system work
+  begins. Later updates, matching, and restoration ignore that ID. Station Detail
+  also preserves explicit stop intent until system state changes, and now clears
+  local tracking when ActivityKit ends a session independently.
+- Three regressions cover stop-during-refresh, system-ended reconciliation, and
+  update rejection behind a queued end. The focused suites pass 26/26, the UI
+  start/stop journey passes, and the full iPhone 17 result is 172/172 with zero
+  failures or skips.
+- Exact build, Xcode Analyze, localisation extraction, repository/OpenCode
+  validators, scoped security review, and diff checks pass. No UI, copy,
+  endpoint, persistence, permission, entitlement, or dependency changed, so the
+  existing inspected screenshots remain representative.
+
 ## 2026-08-02 - Live Activity effects preserve user-action order
 
 - Reproduced that a second ActivityKit operation for one activity could begin

@@ -18,6 +18,7 @@ final class StationDetailViewModel {
 
     private var allGroups: [StationDepartureGroup] = []
     private var isForceRefreshQueued = false
+    private var explicitlyStoppedDepartureID: StationDepartureID?
     private var favoriteRoutes: Set<FavoriteRoute>
     private let service: MonitorProviding
     private let favoritesRepo: FavoritesRepository
@@ -80,6 +81,7 @@ final class StationDetailViewModel {
 
     func startTracking(_ group: StationDepartureGroup) {
         if trackedDepartureID == group.id {
+            explicitlyStoppedDepartureID = group.id
             liveActivityStarter.stopAll()
             trackedDepartureID = nil
             return
@@ -103,6 +105,7 @@ final class StationDetailViewModel {
                 minutes: group.minutes.first ?? 0,
                 isLive: group.isLive
             )
+            explicitlyStoppedDepartureID = nil
             trackedDepartureID = group.id
         } catch {
             notice = StationDetailNotice(
@@ -203,18 +206,23 @@ final class StationDetailViewModel {
     }
 
     private func updateTrackedActivity() {
-        if trackedDepartureID == nil,
-           let activeID = liveActivityStarter.activeDepartureID(for: station.name),
-           allGroups.contains(where: { $0.id == activeID }) {
-            trackedDepartureID = activeID
+        let activeID = liveActivityStarter.activeDepartureID(for: station.name)
+
+        if let explicitlyStoppedDepartureID {
+            guard activeID != explicitlyStoppedDepartureID else {
+                return
+            }
+            self.explicitlyStoppedDepartureID = nil
         }
 
-        guard let trackedDepartureID,
-              let group = allGroups.first(where: { $0.id == trackedDepartureID })
+        guard let activeID,
+              let group = allGroups.first(where: { $0.id == activeID })
         else {
+            trackedDepartureID = nil
             return
         }
 
+        trackedDepartureID = activeID
         liveActivityStarter.update(
             line: group.line,
             destination: group.destination,
