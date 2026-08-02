@@ -1,5 +1,23 @@
 # Journal
 
+## 2026-08-02 — Nearby refresh follows the latest location
+
+- Found that Nearby allowed its 60-second task, location-key restart, and manual
+  refresh to fetch concurrently. An overlapping force refresh could join the
+  service's older in-flight request, a cancelled owner could mark retained data
+  failed, and its replacement location task had no explicit ownership handoff.
+- `NearbyViewModel` now keeps one MainActor-owned chain, captures location per
+  pass, queues the latest location with the strongest force intent, suppresses an
+  obsolete pass, and wakes surviving callers to take ownership after cancellation.
+- Three deterministic regressions first reproduced the failures and now pass;
+  the focused Nearby suite passes 5/5, the adjacent location/dashboard slice
+  passes 17/17, and the authoritative full `.xcresult` reports 157/157 with zero
+  failures or skips. Exact build, Xcode analysis, repository/OpenCode validators,
+  scoped security review, and `git diff --check` pass.
+- No endpoint, protocol, cache, storage, permission, entitlement, dependency,
+  localization, copy, or layout changed. Existing screenshots remain
+  representative because the slice changes only transient refresh ownership.
+
 ## 2026-08-02 — Manual refresh survives active polling
 
 - Found that Station Detail and Alerts returned from every overlapping load, so

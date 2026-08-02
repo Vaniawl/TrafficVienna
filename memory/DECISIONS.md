@@ -1,5 +1,32 @@
 # Architectural Decisions
 
+## 2026-08-02 — Nearby refresh ownership follows the latest location
+
+**Context:** Nearby can be loaded by a 60-second screen task, a new task when the
+location key changes, and pull-to-refresh. The view model previously let those
+calls run concurrently. Because the service coalesces a request for the same stop,
+an overlapping forced refresh could reuse the older normal fetch instead of
+guaranteeing a cache-bypassing pass. SwiftUI also cancels the former location task
+when its key changes, so a simple queued bit owned only by that task would discard
+the replacement request and leave the new location waiting for the next poll.
+
+**Decision:** Keep one MainActor-owned cooperative load chain in
+`NearbyViewModel`. Capture the location at the start of each pass, coalesce a
+same-location normal request, and otherwise queue the latest location while OR-ing
+all force-refresh intent. Stop publishing from a pass as soon as a newer request
+is queued. Overlapping callers await the merged chain. If SwiftUI cancels the
+current owner, resume those waiters as unfulfilled so a surviving caller captures
+the current location and becomes the next owner. Treat cancellation as lifecycle
+control, never as a station failure, and do not move work into an unstructured or
+detached task.
+
+**Consequences:** Nearby issues at most one monitor request at a time, manual
+refresh intent reaches one sequential follow-up, and a superseded location cannot
+overwrite the current list. Ownership still follows SwiftUI cancellation, while
+the handoff occurs after the active service await unwinds. No protocol, endpoint,
+cache, persistence, permission, dependency, localization, or migration changes.
+Rollback is a normal revert.
+
 ## 2026-08-02 — Manual refresh intent survives background polling
 
 **Context:** Station Detail polls every 60 seconds and Alerts every 120 seconds,
