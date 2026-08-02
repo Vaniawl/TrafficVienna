@@ -14,7 +14,7 @@
 - [x] **REQ-TV-005 — Performance.** Requests remain coalesced/cancellable and
   formatter creation was removed from the widget body. Settled iPad Simulator
   sampling measured 0.0% CPU in five observations.
-- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 157 tests, static
+- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 163 tests, static
   analysis, localisation extraction, repository validators, and diff checks
   pass. Hosted Quality run `30761690349` installed the pinned OpenCode CLI and
   completed the previously published full `scripts/ci.sh` wrapper successfully;
@@ -51,6 +51,10 @@
 - [x] Serialize Nearby refresh ownership, preserve a queued manual force refresh,
   and hand the latest location request to a surviving caller when SwiftUI cancels
   the previous location task.
+- [x] Give every tab an owned navigation path so warm Siri, Shortcuts, widget, and
+  deep-link destinations reset only their target stack; notification routing
+  replaces Discover with the requested station while ordinary tab changes retain
+  navigation history.
 - [x] Move relative-time formatting out of the widget render body.
 - [x] Let reminder destinations/stops grow at accessibility Dynamic Type sizes.
 - [x] Add focused regression coverage for each behavioral change.
@@ -65,10 +69,12 @@
 - [x] Inspect adaptive Home layout on a 13-inch iPad Simulator.
 - [x] Capture final Home, Station Detail, reminder-management, accessibility, and
   iPad screenshots.
+- [x] Reproduce the warm external-route stack defect and capture inspected
+  before/after iPhone 17 screenshots proving the Discover-root reset.
 
 ## Final validation and handoff
 
-- [x] Full iPhone 17 build and test suite: 153 model/service + 4 UI tests.
+- [x] Full iPhone 17 build and test suite: 159 model/service + 4 UI tests.
 - [x] Static analyzer and repository/OpenCode structural validators.
 - [x] English/German compiler-extraction catalogue comparison.
 - [x] `git diff --check`, security scan, and changed-file review.

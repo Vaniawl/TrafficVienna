@@ -6,7 +6,7 @@
 - Stack: native SwiftUI iOS application, widget extension, XCTest, and XCUITest.
 - Current phase: continued reliability improvements on the existing draft PR.
 - Product shell: Home, Discover, Alerts, and Saved; accounts are out of scope.
-- Verified tests: 157/157 pass on iPhone 17 Simulator (153 model/service tests
+- Verified tests: 163/163 pass on iPhone 17 Simulator (159 model/service tests
   and 4 UI tests), with zero failures or skips. App and widget build successfully.
 - Verified visual coverage: four journeys and key secondary surfaces were
   exercised on iPhone 17; Home, Station Detail, and reminder management were
@@ -25,7 +25,10 @@
   polling, suppress the obsolete pass, and discard queued work on cancellation.
   Nearby now serializes refresh ownership, carries the strongest force intent to
   the latest captured location, and lets a surviving caller take ownership when
-  SwiftUI cancels the former location task.
+  SwiftUI cancels the former location task. Root navigation now owns one path per
+  tab: external destinations reset only their target path, while a notification
+  replaces Discover with exactly the requested station and ordinary tab changes
+  preserve the user's current stacks.
 - Verified quality: Xcode static analysis passes; app extraction reports 267
   keys with 0 missing catalogue/German values and widget extraction reports 31
   with 0 missing catalogue/German values. Both repository structural validators,
@@ -40,6 +43,9 @@
 - The current slice passes its local gates; protected CI remains the publication
   authority. Broader product improvement remains active; do not merge or release
   without explicit approval.
+- Warm-link Simulator acceptance reproduced the stale Stephansplatz detail and
+  verified that `trafficvienna://search` now returns to the Discover root; paired
+  before/after screenshots were inspected at 368×800.
 - External release gates: distribution signing, App Store Connect processed build,
   and signed physical-device TestFlight acceptance are not provided by Simulator
   evidence.

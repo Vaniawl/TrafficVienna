@@ -46,6 +46,9 @@ struct NearbyView: View {
     var body: some View {
         stationList
         .navigationTitle("Home")
+        .navigationDestination(for: Station.self) { station in
+            StationDetailView(station: station)
+        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("About Traffic Vienna", systemImage: "info.circle") {
@@ -140,9 +143,7 @@ struct NearbyView: View {
                     }
 
                     ForEach(vm.items) { item in
-                        NavigationLink {
-                            StationDetailView(station: item.station)
-                        } label: {
+                        NavigationLink(value: item.station) {
                             StationCardView(
                                 station: item.station,
                                 distance: item.distance,
@@ -212,9 +213,7 @@ struct NearbyView: View {
         if let station = store.stations.first(where: {
             $0.diva.map(String.init) == item.route.diva
         }) {
-            NavigationLink {
-                StationDetailView(station: station)
-            } label: {
+            NavigationLink(value: station) {
                 FavoriteNextDepartureCard(item: item)
             }
             .buttonStyle(.plain)

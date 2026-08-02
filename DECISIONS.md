@@ -1,5 +1,20 @@
 # Decisions
 
+## 2026-08-02 - External destinations reset only their owned navigation stack
+
+Each top-level tab owns a bound `NavigationPath` at the root. Ordinary tab
+selection changes only the selected tab and preserves every path. An external
+Home, Discover, or Saved destination clears its target path before selection,
+without discarding navigation history in unrelated tabs. A notification station
+route replaces the Discover path with exactly the resolved station, or the
+Discover root when the station is unavailable.
+
+Value-based links represent all root-relevant Home and Discover pushes in those
+paths. This keeps Siri, Shortcuts, widgets, deep links, and local notifications
+deterministic during warm and cold launch without adding a global coordinator or
+changing the validated URL grammar. Path state remains transient and rollback is
+a normal revert with no migration.
+
 ## 2026-08-02 - System countdowns require current departures
 
 Departure reminders and new Live Activities may start only from a successful

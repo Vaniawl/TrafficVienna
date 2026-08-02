@@ -13,17 +13,15 @@ struct FavoriteStationsQuickAccessView: View {
             ScrollView(.horizontal) {
                 LazyHStack(spacing: Spacing.sm) {
                     ForEach(stations) { station in
-                        NavigationLink {
-                            StationDetailView(
-                                station: Station(
-                                    id: station.id,
-                                    diva: station.diva,
-                                    name: station.name,
-                                    lat: 0,
-                                    lon: 0
-                                )
+                        NavigationLink(
+                            value: Station(
+                                id: station.id,
+                                diva: station.diva,
+                                name: station.name,
+                                lat: 0,
+                                lon: 0
                             )
-                        } label: {
+                        ) {
                             FavoriteStationQuickAccessCard(station: station)
                         }
                         .buttonStyle(.plain)

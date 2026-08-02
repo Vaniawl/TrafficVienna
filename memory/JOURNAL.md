@@ -1,5 +1,24 @@
 # Journal
 
+## 2026-08-02 — External destinations replace stale target navigation
+
+- Reproduced a warm-routing defect: opening `trafficvienna://search` while
+  Stephansplatz detail was visible selected Discover but left the old detail
+  stack on screen.
+- Root navigation now owns a typed `NavigationPath` for every tab. External Home,
+  Discover, and Saved destinations clear only the target stack; a reminder
+  notification replaces Discover with one resolved station. Ordinary tab
+  selection preserves all paths.
+- Converted Home station links and Discover Map entry to value navigation so the
+  root can reliably reset those stacks. Six deterministic state regressions pass,
+  the focused routing slice passes 11/11, and the authoritative `.xcresult`
+  reports 163/163 with zero failures or skips.
+- Exact build, Xcode analysis, repository/OpenCode validators, scoped security
+  review, and `git diff --check` pass. Inspected 368×800 before/after iPhone 17
+  screenshots prove the warm Search route now lands on the Discover root.
+- No URL grammar, endpoint, persistence key, entitlement, dependency,
+  localization, copy, or layout changed.
+
 ## 2026-08-02 — Nearby refresh follows the latest location
 
 - Found that Nearby allowed its 60-second task, location-key restart, and manual

@@ -1,5 +1,27 @@
 # Architectural Decisions
 
+## 2026-08-02 — External destinations reset only their owned navigation stack
+
+**Context:** Root external routing selected a tab, but Home and Saved stacks were
+unbound and Discover's destination-style pushes were not represented in its
+bound path. A warm Siri, Shortcuts, widget, deep-link, or notification route could
+therefore select the correct tab while leaving a stale Station Detail or Map on
+screen. Clearing every tab would fix the symptom but destroy unrelated user
+navigation history.
+
+**Decision:** Own one `NavigationPath` per tab in a testable root state. Ordinary
+tab selection changes only `selectedTab`. An external Home, Discover, or Saved
+destination resets only its target path before selection. A notification station
+route replaces Discover with exactly one resolved station, or the Discover root
+when no current station matches. Use value-based links for Home station pushes and
+the Discover Map entry so root-relevant navigation is represented in those paths.
+
+**Consequences:** Warm and cold system entry reaches a deterministic root or
+station without invalidating unrelated tab history or adding a shared navigation
+coordinator. URL validation, stored router keys, persistence, endpoints,
+permissions, entitlements, dependencies, copy, and layout are unchanged. Path
+state is transient; rollback is a normal revert and needs no migration.
+
 ## 2026-08-02 — Nearby refresh ownership follows the latest location
 
 **Context:** Nearby can be loaded by a 60-second screen task, a new task when the

@@ -31,12 +31,7 @@ struct SearchView: View {
         List {
             if viewModel.query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 Section("Explore") {
-                    NavigationLink {
-                        MapStationsView(
-                            store: store,
-                            locationManager: locationManager
-                        )
-                    } label: {
+                    NavigationLink(value: DiscoverNavigationDestination.map) {
                         DiscoverMapRow()
                     }
                     .accessibilityIdentifier("discover.map")
@@ -111,12 +106,7 @@ struct SearchView: View {
         .navigationTitle("Discover")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                NavigationLink {
-                    MapStationsView(
-                        store: store,
-                        locationManager: locationManager
-                    )
-                } label: {
+                NavigationLink(value: DiscoverNavigationDestination.map) {
                     Label("Open map", systemImage: "map.fill")
                 }
                 .labelStyle(.iconOnly)
@@ -128,6 +118,12 @@ struct SearchView: View {
                 .onAppear {
                     viewModel.record(station)
                 }
+        }
+        .navigationDestination(for: DiscoverNavigationDestination.self) { _ in
+            MapStationsView(
+                store: store,
+                locationManager: locationManager
+            )
         }
         .searchable(
             text: $viewModel.query,
@@ -171,6 +167,10 @@ struct SearchView: View {
             await viewModel.retry()
         }
     }
+}
+
+private enum DiscoverNavigationDestination: Hashable {
+    case map
 }
 
 private struct DiscoverMapRow: View {
