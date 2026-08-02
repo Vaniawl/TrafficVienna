@@ -14,12 +14,12 @@
 - [x] **REQ-TV-005 — Performance.** Requests remain coalesced/cancellable and
   formatter creation was removed from the widget body. Settled iPad Simulator
   sampling measured 0.0% CPU in five observations.
-- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 137 tests, static
+- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 141 tests, static
   analysis, localisation extraction, repository validators, and diff checks
   pass. Hosted Quality run `30736703774` installed the pinned OpenCode CLI and
   completed the full `scripts/ci.sh` wrapper successfully.
 - [x] **REQ-TV-007 — Review-ready state.** Architecture/security findings and
-  documentation are resolved; commit `09879b46` is published in draft PR #15.
+  documentation are resolved; the reviewed branch is maintained in draft PR #15.
 - [x] **REQ-TV-008 — Truthful system surfaces.** Reminders are local and
   user-created, stale data cannot start a new countdown, permission delay is
   revalidated, and ActivityKit state is restored across model recreation.
@@ -35,6 +35,8 @@
 - [x] Revalidate a reminder after the notification permission prompt so a
   now-expired plan is rejected.
 - [x] Replace raw unexpected reminder errors with safe localised feedback.
+- [x] Coalesce repeated reminders for the same station, line, and destination,
+  while removing matching legacy duplicates without touching other routes.
 - [x] Move relative-time formatting out of the widget render body.
 - [x] Let reminder destinations/stops grow at accessibility Dynamic Type sizes.
 - [x] Add focused regression coverage for each behavioral change.
@@ -52,7 +54,7 @@
 
 ## Final validation and handoff
 
-- [x] Full iPhone 17 build and test suite: 133 model/service + 4 UI tests.
+- [x] Full iPhone 17 build and test suite: 137 model/service + 4 UI tests.
 - [x] Static analyzer and repository/OpenCode structural validators.
 - [x] English/German compiler-extraction catalogue comparison.
 - [x] `git diff --check`, security scan, and changed-file review.

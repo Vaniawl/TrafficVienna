@@ -168,7 +168,13 @@ nonisolated enum SystemDepartureReminderScheduler {
             UserInfoKey.departureDate: plan.departureDate.timeIntervalSince1970,
         ]
 
-        let identifier = "\(identifierPrefix)\(UUID().uuidString)"
+        let identifier = identifier(for: request)
+        let legacyIdentifiers = replacementIdentifiers(
+            in: await center.pendingNotificationRequests(),
+            matching: request
+        )
+        .filter { $0 != identifier }
+
         let delay = max(1, plan.fireDate.timeIntervalSinceNow)
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
         try await center.add(
@@ -178,6 +184,11 @@ nonisolated enum SystemDepartureReminderScheduler {
                 trigger: trigger
             )
         )
+        if !legacyIdentifiers.isEmpty {
+            center.removePendingNotificationRequests(
+                withIdentifiers: legacyIdentifiers
+            )
+        }
 
         return ScheduledDepartureReminder(
             id: identifier,
@@ -248,6 +259,36 @@ nonisolated enum SystemDepartureReminderScheduler {
         identifier.hasPrefix(identifierPrefix)
     }
 
+    static func identifier(
+        for request: DepartureReminderRequest
+    ) -> String {
+        let routeComponents = [
+            String(request.stationID),
+            request.line,
+            request.destination,
+        ]
+        .map { Data($0.utf8).base64EncodedString() }
+        .joined(separator: ".")
+        return "\(identifierPrefix)route.\(routeComponents)"
+    }
+
+    static func replacementIdentifiers(
+        in requests: [UNNotificationRequest],
+        matching reminder: DepartureReminderRequest
+    ) -> [String] {
+        requests.compactMap { request in
+            guard isDepartureReminder(identifier: request.identifier),
+                  stationID(from: request.content.userInfo) == reminder.stationID,
+                  request.content.userInfo[UserInfoKey.line] as? String == reminder.line,
+                  request.content.userInfo[UserInfoKey.destination] as? String
+                    == reminder.destination
+            else {
+                return nil
+            }
+            return request.identifier
+        }
+    }
+
     private static func permission(
         from status: UNAuthorizationStatus
     ) -> DepartureReminderPermission {
@@ -273,5 +314,12 @@ nonisolated enum SystemDepartureReminderScheduler {
             return trigger.nextTriggerDate()
         }
         return nil
+    }
+
+    private static func stationID(
+        from userInfo: [AnyHashable: Any]
+    ) -> Int? {
+        (userInfo[UserInfoKey.stationID] as? NSNumber)?.intValue
+            ?? userInfo[UserInfoKey.stationID] as? Int
     }
 }

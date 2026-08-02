@@ -1,5 +1,19 @@
 # Journal
 
+## 2026-08-02 — Idempotent departure reminders
+
+- Replaced per-tap UUID notification identifiers with a deterministic identifier
+  scoped to station, line, and destination. Repeated scheduling now replaces one
+  pending route reminder instead of creating duplicates.
+- Added compatibility cleanup for matching legacy UUID reminders without touching
+  other routes, and covered stable identity, route separation, and cleanup with
+  three focused regressions.
+- Focused reminder tests pass 9/9. The authoritative full `.xcresult` reports
+  141/141 tests passing on iPhone 17 with zero failures or skips; Xcode static
+  analysis, repository/OpenCode validators, scoped scan, and diff checks pass.
+- Interactive duplicate inspection remains pending because no Simulator was
+  booted and the debugger workflow does not boot one without explicit user input.
+
 ## 2026-08-02 — Full product audit and system-countdown hardening
 
 - Audited architecture, SwiftUI performance, accessibility, localisation,
@@ -12,8 +26,8 @@
   replaced unexpected system errors with safe localized feedback, moved
   relative-time rendering out of the widget body, and let reminder rows reflow
   at accessibility Dynamic Type sizes.
-- Added focused regressions and German values. Final iPhone 17 evidence is
-  137/137 passing tests (133 model/service + 4 UI), successful app/widget build,
+- Added focused regressions and German values. The iPhone 17 suite at that
+  checkpoint passed without failures or skips, with successful app/widget build
   and successful Xcode static analysis.
 - Simulator inspection covered Home, Discover, Map, Alerts, Saved, About,
   reminder management, Station Detail, context/failure feedback, light/dark,
