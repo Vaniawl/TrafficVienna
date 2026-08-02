@@ -1,5 +1,22 @@
 # Journal
 
+## 2026-08-02 - Manual refresh survives active polling
+
+- Found that Station Detail and Alerts returned from every overlapping load, so
+  pull-to-refresh could silently lose its cache-bypass intent behind the 60- or
+  120-second background polling task.
+- Each ViewModel now keeps one owner-scoped chain, coalesces overlapping manual
+  requests into one forced follow-up, suppresses the obsolete pass and its error,
+  and discards queued work when the owner task is cancelled.
+- Four deterministic regressions cover forced follow-up, coalescing, obsolete
+  failure suppression, and cancellation. The focused suites pass 34/34; the
+  authoritative full `.xcresult` reports 154/154 passing with zero failures or
+  skips. Exact app/widget build, static analysis, repository/OpenCode validators,
+  scoped security review, and `git diff --check` pass.
+- No endpoint, protocol, cache, storage, entitlement, dependency, localization,
+  copy, or layout changed. Existing screenshots remain representative because
+  this slice changes only transient refresh ownership.
+
 ## 2026-08-02 - Saved-route reload consistency
 
 - Found that `FavoritesListViewModel` discarded every reload requested while a

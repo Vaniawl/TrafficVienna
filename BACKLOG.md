@@ -14,7 +14,7 @@
 - [x] **REQ-TV-005 — Performance.** Requests remain coalesced/cancellable and
   formatter creation was removed from the widget body. Settled iPad Simulator
   sampling measured 0.0% CPU in five observations.
-- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 150 tests, static
+- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 154 tests, static
   analysis, localisation extraction, repository validators, and diff checks
   pass. Hosted Quality run `30759655528` installed the pinned OpenCode CLI and
   completed the previously published full `scripts/ci.sh` wrapper successfully;
@@ -45,6 +45,9 @@
 - [x] Coalesce Saved reloads that overlap an in-flight request, preserve a queued
   forced refresh, and prevent an obsolete route snapshot from reaching UI or the
   widget after the repository changes.
+- [x] Preserve manual force-refresh intent when Station Detail or Alerts polling
+  is already active, suppress the obsolete pass, and drop queued work on
+  cancellation.
 - [x] Move relative-time formatting out of the widget render body.
 - [x] Let reminder destinations/stops grow at accessibility Dynamic Type sizes.
 - [x] Add focused regression coverage for each behavioral change.
@@ -62,7 +65,7 @@
 
 ## Final validation and handoff
 
-- [x] Full iPhone 17 build and test suite: 146 model/service + 4 UI tests.
+- [x] Full iPhone 17 build and test suite: 150 model/service + 4 UI tests.
 - [x] Static analyzer and repository/OpenCode structural validators.
 - [x] English/German compiler-extraction catalogue comparison.
 - [x] `git diff --check`, security scan, and changed-file review.

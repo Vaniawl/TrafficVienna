@@ -1,5 +1,25 @@
 # Architectural Decisions
 
+## 2026-08-02 — Manual refresh intent survives background polling
+
+**Context:** Station Detail polls every 60 seconds and Alerts every 120 seconds,
+while both screens also expose a forced pull-to-refresh. Each ViewModel previously
+returned immediately from any load requested during an active pass, so a user
+refresh could be acknowledged by the gesture without ever bypassing the cache.
+
+**Decision:** Keep one MainActor-owned load chain inside each existing ViewModel.
+An overlapping non-forced load remains coalesced away; any overlapping forced load
+sets one follow-up bit, and repeated requests cannot create parallel calls. Do not
+publish a response or failure from a pass when that forced follow-up is pending.
+If the owner task is cancelled, clear the bit and do not start or publish queued
+work.
+
+**Consequences:** Pull-to-refresh reaches the service with `forceRefresh = true`
+even when polling won the race, without introducing a shared coordinator, new
+protocol, endpoint, cache, persistence, or background task. The original task owns
+the follow-up and cancellation lifecycle. Rollback is a normal revert and requires
+no migration.
+
 ## 2026-08-02 — Saved-route reloads preserve the newest repository state
 
 **Context:** Saved routes refresh sequentially while the root receives repository

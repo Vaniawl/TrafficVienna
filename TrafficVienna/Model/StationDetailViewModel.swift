@@ -17,6 +17,7 @@ final class StationDetailViewModel {
     var notice: StationDetailNotice?
 
     private var allGroups: [StationDepartureGroup] = []
+    private var isForceRefreshQueued = false
     private var favoriteRoutes: Set<FavoriteRoute>
     private let service: MonitorProviding
     private let favoritesRepo: FavoritesRepository
@@ -146,11 +147,28 @@ final class StationDetailViewModel {
     }
 
     func load(forceRefresh: Bool = false) async {
-        guard !isLoadingRequest else { return }
+        guard !isLoadingRequest else {
+            isForceRefreshQueued = isForceRefreshQueued || forceRefresh
+            return
+        }
         isLoadingRequest = true
+        defer {
+            isForceRefreshQueued = false
+            isLoadingRequest = false
+        }
+
+        var nextForceRefresh: Bool? = forceRefresh
+        while let currentForceRefresh = nextForceRefresh {
+            isForceRefreshQueued = false
+            await loadPass(forceRefresh: currentForceRefresh)
+            guard !Task.isCancelled else { return }
+            nextForceRefresh = isForceRefreshQueued ? true : nil
+        }
+    }
+
+    private func loadPass(forceRefresh: Bool) async {
         refreshErrorMessage = nil
         if lastUpdated == nil { state = .loading }
-        defer { isLoadingRequest = false }
 
         guard let diva = station.diva else {
             state = .failed(String(localized: "No live data for this station."))
@@ -160,6 +178,7 @@ final class StationDetailViewModel {
         do {
             let snapshot = try await service.monitorSnapshot(diva: diva, forceRefresh: forceRefresh)
             guard !Task.isCancelled else { return }
+            guard !isForceRefreshQueued else { return }
             let response = snapshot.response
             trafficInfos = response.data.trafficInfos ?? []
             allGroups = Self.departureGroups(from: response)
@@ -171,6 +190,8 @@ final class StationDetailViewModel {
             state = allGroups.isEmpty ? .empty : .loaded
             updateTrackedActivity()
         } catch {
+            guard !Task.isCancelled else { return }
+            guard !isForceRefreshQueued else { return }
             if allGroups.isEmpty {
                 isShowingStaleData = false
                 state = .failed(error.monitorDisplayMessage)

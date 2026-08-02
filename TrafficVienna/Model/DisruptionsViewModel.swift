@@ -15,6 +15,7 @@ final class DisruptionsViewModel {
     var categoryFilter: LineCategory?
     var lineFilter = ""
 
+    private var isForceRefreshQueued = false
     private let service: TrafficInfoProviding
 
     init(service: TrafficInfoProviding = MonitorService.shared) {
@@ -129,20 +130,36 @@ final class DisruptionsViewModel {
     }
 
     func load(force: Bool = false) async {
-        guard !isLoadingRequest else { return }
+        guard !isLoadingRequest else {
+            isForceRefreshQueued = isForceRefreshQueued || force
+            return
+        }
         isLoadingRequest = true
+        defer {
+            isForceRefreshQueued = false
+            isLoadingRequest = false
+        }
+
+        var nextForceRefresh: Bool? = force
+        while let currentForceRefresh = nextForceRefresh {
+            isForceRefreshQueued = false
+            await loadPass(force: currentForceRefresh)
+            guard !Task.isCancelled else { return }
+            nextForceRefresh = isForceRefreshQueued ? true : nil
+        }
+    }
+
+    private func loadPass(force: Bool) async {
         if infos.isEmpty {
             state = .loading
             isShowingSavedData = false
         }
         refreshErrorMessage = nil
-        defer {
-            isLoadingRequest = false
-        }
 
         do {
             let snapshot = try await service.trafficInfoSnapshot(forceRefresh: force)
             guard !Task.isCancelled else { return }
+            guard !isForceRefreshQueued else { return }
             infos = Self.normalized(snapshot.infos)
             isShowingSavedData = snapshot.isStale
             if snapshot.isStale {
@@ -150,6 +167,8 @@ final class DisruptionsViewModel {
             }
             state = .loaded
         } catch {
+            guard !Task.isCancelled else { return }
+            guard !isForceRefreshQueued else { return }
             let message = error.monitorDisplayMessage
             if infos.isEmpty {
                 state = .failed(message)

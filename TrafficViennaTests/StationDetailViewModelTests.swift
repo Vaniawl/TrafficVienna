@@ -74,6 +74,69 @@ final class StationDetailViewModelTests: XCTestCase {
         XCTAssertFalse(viewModel.isLoadingRequest)
     }
 
+    func testQueuedManualRefreshRunsAfterBackgroundLoadAndSuppressesItsFailure() async {
+        let monitor = ControlledDetailMonitorProvider(
+            results: [
+                .failure(DetailTestError.failed),
+                .success(responseWithMergedU1()),
+            ]
+        )
+        let viewModel = StationDetailViewModel(
+            station: Station(id: 1, diva: 123, name: "Test", lat: 0, lon: 0),
+            service: monitor,
+            favoritesRepo: DetailRoutesRepository(),
+            stationsRepo: DetailStationsRepository(),
+            liveActivityStarter: DetailLiveActivityStarter(isAvailable: true),
+            reminderClient: .test
+        )
+        let backgroundLoad = Task { await viewModel.load() }
+        await monitor.waitUntilCallCount(1)
+
+        await viewModel.load(forceRefresh: true)
+        await viewModel.load()
+        await monitor.releaseCall(1)
+        await monitor.releaseCall(2)
+        await backgroundLoad.value
+
+        let forceRefreshValues = await monitor.forceRefreshValues
+        XCTAssertEqual(forceRefreshValues, [false, true])
+        XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertEqual(viewModel.groups.first?.minutes, [2, 5, 8])
+        XCTAssertNil(viewModel.refreshErrorMessage)
+        XCTAssertFalse(viewModel.isLoadingRequest)
+    }
+
+    func testCancellationDropsQueuedStationDetailRefresh() async {
+        let monitor = ControlledDetailMonitorProvider(
+            results: [
+                .success(responseWithMergedU1()),
+                .success(responseWithMergedU1()),
+            ]
+        )
+        let viewModel = StationDetailViewModel(
+            station: Station(id: 1, diva: 123, name: "Test", lat: 0, lon: 0),
+            service: monitor,
+            favoritesRepo: DetailRoutesRepository(),
+            stationsRepo: DetailStationsRepository(),
+            liveActivityStarter: DetailLiveActivityStarter(isAvailable: true),
+            reminderClient: .test
+        )
+        let backgroundLoad = Task { await viewModel.load() }
+        await monitor.waitUntilCallCount(1)
+        await viewModel.load(forceRefresh: true)
+
+        backgroundLoad.cancel()
+        await monitor.releaseCall(1)
+        await monitor.releaseCall(2)
+        await backgroundLoad.value
+
+        let forceRefreshValues = await monitor.forceRefreshValues
+        XCTAssertEqual(forceRefreshValues, [false])
+        XCTAssertNil(viewModel.lastUpdated)
+        XCTAssertTrue(viewModel.groups.isEmpty)
+        XCTAssertFalse(viewModel.isLoadingRequest)
+    }
+
     func testStaleSnapshotKeepsOriginalTimestampAndShowsSavedDataNotice() async {
         let updatedAt = Date(timeIntervalSince1970: 1_700_000_000)
         let monitor = DetailMonitorProvider(
@@ -394,6 +457,66 @@ private actor DetailMonitorProvider: MonitorProviding {
             updatedAt: updatedAt,
             isStale: isStale
         )
+    }
+}
+
+private actor ControlledDetailMonitorProvider: MonitorProviding {
+    private let results: [Result<MonitorResponse, Error>]
+    private var recordedForceRefreshValues: [Bool] = []
+    private var callCountWaiters: [(count: Int, continuation: CheckedContinuation<Void, Never>)] = []
+    private var releaseWaiters: [Int: CheckedContinuation<Void, Never>] = [:]
+    private var releasedCalls: Set<Int> = []
+
+    init(results: [Result<MonitorResponse, Error>]) {
+        self.results = results
+    }
+
+    var forceRefreshValues: [Bool] {
+        recordedForceRefreshValues
+    }
+
+    func waitUntilCallCount(_ count: Int) async {
+        guard recordedForceRefreshValues.count < count else { return }
+        await withCheckedContinuation { continuation in
+            callCountWaiters.append((count, continuation))
+        }
+    }
+
+    func releaseCall(_ call: Int) {
+        if let continuation = releaseWaiters.removeValue(forKey: call) {
+            continuation.resume()
+        } else {
+            releasedCalls.insert(call)
+        }
+    }
+
+    func monitor(diva: Int, forceRefresh: Bool) async throws -> MonitorResponse {
+        try await monitorSnapshot(diva: diva, forceRefresh: forceRefresh).response
+    }
+
+    func monitorSnapshot(diva: Int, forceRefresh: Bool) async throws -> MonitorSnapshot {
+        let call = recordedForceRefreshValues.count + 1
+        recordedForceRefreshValues.append(forceRefresh)
+        resumeCallCountWaiters()
+
+        if releasedCalls.remove(call) == nil {
+            await withCheckedContinuation { continuation in
+                releaseWaiters[call] = continuation
+            }
+        }
+
+        let result = results[min(call - 1, results.count - 1)]
+        return MonitorSnapshot(
+            response: try result.get(),
+            updatedAt: Date(timeIntervalSince1970: TimeInterval(call)),
+            isStale: false
+        )
+    }
+
+    private func resumeCallCountWaiters() {
+        let ready = callCountWaiters.filter { $0.count <= recordedForceRefreshValues.count }
+        callCountWaiters.removeAll { $0.count <= recordedForceRefreshValues.count }
+        ready.forEach { $0.continuation.resume() }
     }
 }
 
