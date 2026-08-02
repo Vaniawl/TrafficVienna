@@ -6,7 +6,7 @@
 - Stack: native SwiftUI iOS application, widget extension, XCTest, and XCUITest.
 - Current phase: continued reliability improvements on the existing draft PR.
 - Product shell: Home, Discover, Alerts, and Saved; accounts are out of scope.
-- Verified tests: 144/144 pass on iPhone 17 Simulator (140 model/service tests
+- Verified tests: 147/147 pass on iPhone 17 Simulator (143 model/service tests
   and 4 UI tests), with zero failures or skips. App and widget build successfully.
 - Verified visual coverage: four journeys and key secondary surfaces were
   exercised on iPhone 17; Home, Station Detail, and reminder management were
@@ -17,7 +17,8 @@
   countdowns from stale data, revalidating reminder timing after permission,
   removing body-time formatter allocation, improving reminder row reflow, and
   making repeated reminders for one route idempotent. Location authorization is
-  now authoritative over cached coordinates and Map projection.
+  now authoritative over cached coordinates and Map projection. Widget samples
+  are confined to Gallery previews and cannot appear in an empty runtime snapshot.
 - Verified quality: Xcode static analysis passes; app extraction reports 267
   keys with 0 missing catalogue/German values and widget extraction reports 31
   with 0 missing catalogue/German values. Both repository structural validators,
@@ -25,8 +26,8 @@
 - Infrastructure limitation: `bash scripts/ci.sh` reaches the permission matcher
   and exits 127 because the required global `opencode` CLI is not installed.
   The reliability script's Python and timeout fixtures pass before the same
-  missing-tool boundary. Hosted Quality run `30736703774` supplied the pinned
-  CLI and passed the complete wrapper in 12m56s.
+  missing-tool boundary. Hosted Quality run `30758920980` supplied the pinned
+  CLI and passed the complete wrapper in 8m41s.
 - Handoff: draft PR #15 tracks `codex/system-surfaces-readiness` against protected
   `main`; each published update must pass its protected validation.
 - The current slice passes its local gates; protected CI remains the publication

@@ -83,9 +83,20 @@ struct Provider: AppIntentTimelineProvider {
         )
         let (cached, lastUpdated) = loadCached()
         let items = selectedItems(routes: routes, cached: cached)
-        if items.isEmpty {
+
+        switch WidgetSnapshotPolicy.content(
+            hasItems: !items.isEmpty,
+            isPreview: context.isPreview
+        ) {
+        case .placeholder:
             return placeholder(in: context)
-        } else {
+        case .empty:
+            return SimpleEntry(
+                date: .now,
+                items: [],
+                lastUpdated: nil
+            )
+        case .items:
             let now = Date.now
             return SimpleEntry(
                 date: now,

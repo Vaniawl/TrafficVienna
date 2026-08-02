@@ -433,6 +433,43 @@ final class TrafficViennaTests: XCTestCase {
         )
     }
 
+    func testWidgetSnapshotUsesPlaceholderForEmptyGalleryPreview() {
+        XCTAssertEqual(
+            WidgetSnapshotPolicy.content(
+                hasItems: false,
+                isPreview: true
+            ),
+            .placeholder
+        )
+    }
+
+    func testWidgetSnapshotUsesEmptyStateForEmptyRuntimeSnapshot() {
+        XCTAssertEqual(
+            WidgetSnapshotPolicy.content(
+                hasItems: false,
+                isPreview: false
+            ),
+            .empty
+        )
+    }
+
+    func testWidgetSnapshotPrefersRealItemsInPreviewAndRuntime() {
+        XCTAssertEqual(
+            WidgetSnapshotPolicy.content(
+                hasItems: true,
+                isPreview: true
+            ),
+            .items
+        )
+        XCTAssertEqual(
+            WidgetSnapshotPolicy.content(
+                hasItems: true,
+                isPreview: false
+            ),
+            .items
+        )
+    }
+
     func testWidgetTimelineScheduleIncludesVisibleDepartureBoundaries() {
         let now = Date(timeIntervalSince1970: 10_000)
         let refreshDate = now.addingTimeInterval(300)

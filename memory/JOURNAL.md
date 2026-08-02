@@ -1,5 +1,19 @@
 # Journal
 
+## 2026-08-02 — Truthful empty widget snapshots
+
+- Found that the App Intent timeline provider returned sample U1/O departures for
+  any empty snapshot, not only a Widget Gallery preview. A runtime widget with no
+  real selected or cached items could therefore briefly present fabricated data.
+- Added one shared preview/runtime policy used by the widget provider: real items
+  take precedence, an empty Gallery preview may use examples, and an empty runtime
+  snapshot uses the existing empty state.
+- Three focused policy regressions pass 3/3. The authoritative full `.xcresult`
+  reports 147/147 tests passing with zero failures or skips, and Xcode static
+  analysis succeeds.
+- No network, cache format, App Group key, entitlement, dependency, localization,
+  or populated-widget layout changed; existing widget screenshots remain valid.
+
 ## 2026-08-02 — Location revocation privacy hardening
 
 - Made location authorization authoritative over the cached in-memory coordinate:

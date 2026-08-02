@@ -1,5 +1,21 @@
 # Journal
 
+## 2026-08-02 - Truthful empty widget snapshots
+
+- Found that `Provider.snapshot` reused its sample U1/O placeholder whenever no
+  selected cached item existed, including ordinary non-preview snapshots. A newly
+  added or empty widget could therefore briefly display example departures as if
+  they were real.
+- Added a shared `WidgetSnapshotPolicy`: real items always win, sample departures
+  are allowed only for an empty Widget Gallery preview, and an empty runtime
+  snapshot renders the widget's existing empty state.
+- Added three focused regressions covering preview, runtime-empty, and real-item
+  precedence. They pass 3/3; the authoritative full `.xcresult` reports 147/147
+  tests passing with zero failures or skips, and Xcode static analysis succeeds.
+- No endpoint, cache format, App Group key, entitlement, dependency, localization,
+  or populated-widget layout changed. The existing widget screenshots remain
+  representative; this slice changes only the transient empty snapshot path.
+
 ## 2026-08-02 - Location revocation privacy hardening
 
 - Made Core Location authorization authoritative over cached coordinates. A

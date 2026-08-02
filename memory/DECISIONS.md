@@ -1,5 +1,22 @@
 # Architectural Decisions
 
+## 2026-08-02 — Widget examples stay inside Gallery previews
+
+**Context:** WidgetKit uses `placeholder` for gallery presentation, but the
+timeline provider also returned that sample entry from every empty `snapshot`.
+Outside the gallery, a widget with no selected or cached route could briefly show
+example U1/O departures that were not user data or a live response.
+
+**Decision:** Resolve empty snapshot presentation through a shared, testable
+policy. Real selected items always take precedence. Only an empty snapshot whose
+WidgetKit context explicitly reports `isPreview` may use example departures; an
+empty runtime snapshot must use the existing empty widget state.
+
+**Consequences:** Gallery previews remain informative without allowing fabricated
+departures to escape into a runtime surface. App and widget targets compile the
+same policy, and the change adds no storage, cache migration, network, entitlement,
+dependency, localization, or populated-layout boundary.
+
 ## 2026-08-02 — Location authorization owns coordinate lifetime
 
 **Context:** Location is intentionally memory-only, but `LocationManager` retained

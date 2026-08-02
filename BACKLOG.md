@@ -14,9 +14,9 @@
 - [x] **REQ-TV-005 — Performance.** Requests remain coalesced/cancellable and
   formatter creation was removed from the widget body. Settled iPad Simulator
   sampling measured 0.0% CPU in five observations.
-- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 144 tests, static
+- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 147 tests, static
   analysis, localisation extraction, repository validators, and diff checks
-  pass. Hosted Quality run `30736703774` installed the pinned OpenCode CLI and
+  pass. Hosted Quality run `30758920980` installed the pinned OpenCode CLI and
   completed the full `scripts/ci.sh` wrapper successfully.
 - [x] **REQ-TV-007 — Review-ready state.** Architecture/security findings and
   documentation are resolved; the reviewed branch is maintained in draft PR #15.
@@ -39,6 +39,8 @@
   while removing matching legacy duplicates without touching other routes.
 - [x] Clear precise coordinates when location authorization is revoked or reset,
   and make Map ignore stale coordinates whenever permission is not authorized.
+- [x] Restrict sample widget departures to Widget Gallery previews; an empty
+  runtime snapshot now renders the existing truthful empty state.
 - [x] Move relative-time formatting out of the widget render body.
 - [x] Let reminder destinations/stops grow at accessibility Dynamic Type sizes.
 - [x] Add focused regression coverage for each behavioral change.
@@ -56,13 +58,13 @@
 
 ## Final validation and handoff
 
-- [x] Full iPhone 17 build and test suite: 140 model/service + 4 UI tests.
+- [x] Full iPhone 17 build and test suite: 143 model/service + 4 UI tests.
 - [x] Static analyzer and repository/OpenCode structural validators.
 - [x] English/German compiler-extraction catalogue comparison.
 - [x] `git diff --check`, security scan, and changed-file review.
 - [x] Synchronize `STATUS.md`, root/memory journals, and architectural decisions.
 - [x] Run `bash scripts/ci.sh` with the required OpenCode runtime: hosted
-  Quality run `30736703774` passed in 12m56s. The local host still lacks that
+  Quality run `30758920980` passed in 8m41s. The local host still lacks that
   global CLI, so local wrapper attempts stop at the permission matcher.
 - [x] Commit reviewed paths, push `codex/system-surfaces-readiness`, and open
   draft PR #15.

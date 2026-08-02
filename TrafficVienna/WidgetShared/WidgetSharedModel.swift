@@ -114,6 +114,24 @@ nonisolated enum WidgetFreshness {
     }
 }
 
+nonisolated enum WidgetSnapshotContent: Equatable, Sendable {
+    case placeholder
+    case empty
+    case items
+}
+
+nonisolated enum WidgetSnapshotPolicy {
+    static func content(
+        hasItems: Bool,
+        isPreview: Bool
+    ) -> WidgetSnapshotContent {
+        if hasItems {
+            return .items
+        }
+        return isPreview ? .placeholder : .empty
+    }
+}
+
 nonisolated enum WidgetTimelineSchedule {
     static func entryDates(
         now: Date,

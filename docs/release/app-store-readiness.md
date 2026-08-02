@@ -1,6 +1,6 @@
 # App Store readiness
 
-Status date: 30 July 2026
+Status date: 2 August 2026
 
 Current verdict: **No-Go** until every blocking item below has observed evidence.
 This file is intentionally stricter than a successful Simulator build.
@@ -44,7 +44,7 @@ A `Go` requires:
 - The account-only Apple identity surface and entitlement were removed because
   they provided no cross-device feature and prevented the installed profile from
   archiving. A one-time migration deletes the legacy device-only Keychain item.
-- All 144 XCTest cases pass with zero failures or skips, including four XCUITest
+- All 147 XCTest cases pass with zero failures or skips, including four XCUITest
   journeys through the four-tab shell, Discover map entry, alert filters, Saved,
   and search-to-station navigation. Local reminder planning/decoding, idempotent
   route replacement and legacy cleanup, notification denial recovery, Live
@@ -52,6 +52,8 @@ A `Go` requires:
   countdown prevention, permission-prompt expiry, and ActivityKit state
   restoration have regression coverage. Location revocation/reset clears cached
   precise coordinates, and Map ignores stale coordinates without authorization.
+  Widget snapshot policy keeps example departures inside Gallery previews and
+  uses the real empty state when a runtime snapshot has no selected or cached data.
 - iPhone 17 Pro Max and iPad Pro 13-inch runtime builds complete without
   diagnostics. English, German, location-denied, live-data, Favourites, and
   maximum Accessibility Dynamic Type paths were exercised.
