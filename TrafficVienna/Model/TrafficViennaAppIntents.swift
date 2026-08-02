@@ -29,8 +29,10 @@ extension TrafficViennaDestination {
 final class TrafficViennaShortcutRouter: ObservableObject {
     static let shared = TrafficViennaShortcutRouter()
     static let pendingDestinationKey = "pending_shortcut_destination"
+    static let pendingStationIDKey = "pending_station_id"
 
     @Published private(set) var pendingDestination: TrafficViennaDestination?
+    @Published private(set) var pendingStationID: Int?
 
     private let defaults: UserDefaults
 
@@ -38,11 +40,27 @@ final class TrafficViennaShortcutRouter: ObservableObject {
         self.defaults = defaults
         pendingDestination = defaults.string(forKey: Self.pendingDestinationKey)
             .flatMap(TrafficViennaDestination.init(rawValue:))
+        if defaults.object(forKey: Self.pendingStationIDKey) != nil {
+            pendingStationID = defaults.integer(
+                forKey: Self.pendingStationIDKey
+            )
+        } else {
+            pendingStationID = nil
+        }
     }
 
     func request(_ destination: TrafficViennaDestination) {
+        defaults.removeObject(forKey: Self.pendingStationIDKey)
+        pendingStationID = nil
         defaults.set(destination.rawValue, forKey: Self.pendingDestinationKey)
         pendingDestination = destination
+    }
+
+    func requestStation(id: Int) {
+        defaults.removeObject(forKey: Self.pendingDestinationKey)
+        pendingDestination = nil
+        defaults.set(id, forKey: Self.pendingStationIDKey)
+        pendingStationID = id
     }
 
     @discardableResult
@@ -51,6 +69,14 @@ final class TrafficViennaShortcutRouter: ObservableObject {
         defaults.removeObject(forKey: Self.pendingDestinationKey)
         pendingDestination = nil
         return destination
+    }
+
+    @discardableResult
+    func consumeStation() -> Int? {
+        let stationID = pendingStationID
+        defaults.removeObject(forKey: Self.pendingStationIDKey)
+        pendingStationID = nil
+        return stationID
     }
 
     @discardableResult

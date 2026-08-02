@@ -20,3 +20,27 @@ struct DepartureActivityAttributes: ActivityAttributes {
     var destination: String
     var stopName: String
 }
+
+nonisolated enum DepartureActivityLifecycle {
+    static let gracePeriod: TimeInterval = 120
+
+    static func departureDate(
+        minutes: Int,
+        now: Date = .now
+    ) -> Date {
+        now.addingTimeInterval(TimeInterval(max(0, minutes) * 60))
+    }
+
+    static func automaticEndDate(
+        departureDate: Date
+    ) -> Date {
+        departureDate.addingTimeInterval(gracePeriod)
+    }
+
+    static func isExpired(
+        departureDate: Date,
+        now: Date = .now
+    ) -> Bool {
+        automaticEndDate(departureDate: departureDate) <= now
+    }
+}

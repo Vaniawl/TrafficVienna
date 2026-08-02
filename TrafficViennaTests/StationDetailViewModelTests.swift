@@ -129,6 +129,49 @@ final class StationDetailViewModelTests: XCTestCase {
         XCTAssertEqual(starter.startedLine, "U1")
     }
 
+    func testSelectingTrackedDepartureAgainStopsLiveActivity() async {
+        let starter = DetailLiveActivityStarter(isAvailable: true)
+        let viewModel = makeViewModel(liveActivityStarter: starter)
+        await viewModel.load()
+        guard let group = viewModel.groups.first else { return XCTFail("Missing group") }
+
+        viewModel.startTracking(group)
+        viewModel.startTracking(group)
+
+        XCTAssertNil(viewModel.trackedDepartureID)
+        XCTAssertEqual(starter.stopCount, 1)
+    }
+
+    func testReloadUpdatesTrackedLiveActivity() async {
+        let starter = DetailLiveActivityStarter(isAvailable: true)
+        let viewModel = makeViewModel(liveActivityStarter: starter)
+        await viewModel.load()
+        guard let group = viewModel.groups.first else { return XCTFail("Missing group") }
+        viewModel.startTracking(group)
+
+        await viewModel.load(forceRefresh: true)
+
+        XCTAssertEqual(starter.updatedLine, "U1")
+        XCTAssertEqual(starter.updatedMinutes, 2)
+    }
+
+    func testLoadRestoresMatchingLiveActivityFromSystemState() async {
+        let activeID = StationDepartureID(
+            line: "U1",
+            destination: "Leopoldau"
+        )
+        let starter = DetailLiveActivityStarter(
+            isAvailable: true,
+            activeDepartureID: activeID
+        )
+        let viewModel = makeViewModel(liveActivityStarter: starter)
+
+        await viewModel.load()
+
+        XCTAssertEqual(viewModel.trackedDepartureID, activeID)
+        XCTAssertEqual(starter.updatedLine, "U1")
+    }
+
     func testFailedLiveActivityStartShowsUserNotice() async {
         let starter = DetailLiveActivityStarter(isAvailable: true, shouldThrow: true)
         let viewModel = makeViewModel(liveActivityStarter: starter)
@@ -141,6 +184,141 @@ final class StationDetailViewModelTests: XCTestCase {
         XCTAssertNil(viewModel.trackedDepartureID)
     }
 
+    func testSchedulingReminderShowsConfirmation() async {
+        let fireDate = Date(timeIntervalSince1970: 1_800_000_000)
+        let client = DepartureReminderClient(
+            permission: { .enabled },
+            schedule: { request in
+                ScheduledDepartureReminder(
+                    id: "departure.test",
+                    line: request.line,
+                    destination: request.destination,
+                    stop: request.stop,
+                    fireDate: fireDate,
+                    departureDate: fireDate.addingTimeInterval(180)
+                )
+            },
+            scheduled: { [] },
+            cancel: { _ in },
+            cancelAll: {}
+        )
+        let viewModel = makeViewModel(reminderClient: client)
+        await viewModel.load()
+        guard let group = viewModel.groups.first else { return XCTFail("Missing group") }
+
+        await viewModel.scheduleReminder(group)
+
+        XCTAssertEqual(viewModel.notice?.title, String(localized: "Reminder set"))
+        XCTAssertEqual(viewModel.notice?.offersSettings, false)
+    }
+
+    func testDeniedReminderOffersNotificationSettings() async {
+        let client = DepartureReminderClient(
+            permission: { .disabled },
+            schedule: { _ in throw DepartureReminderError.notificationsDisabled },
+            scheduled: { [] },
+            cancel: { _ in },
+            cancelAll: {}
+        )
+        let viewModel = makeViewModel(reminderClient: client)
+        await viewModel.load()
+        guard let group = viewModel.groups.first else { return XCTFail("Missing group") }
+
+        await viewModel.scheduleReminder(group)
+
+        XCTAssertEqual(viewModel.notice?.title, String(localized: "Departure reminder"))
+        XCTAssertEqual(viewModel.notice?.offersSettings, true)
+    }
+
+    func testUnexpectedReminderFailureUsesSafeUserMessage() async {
+        let client = DepartureReminderClient(
+            permission: { .enabled },
+            schedule: { _ in throw DetailTestError.failed },
+            scheduled: { [] },
+            cancel: { _ in },
+            cancelAll: {}
+        )
+        let viewModel = makeViewModel(reminderClient: client)
+        await viewModel.load()
+        guard let group = viewModel.groups.first else {
+            return XCTFail("Missing group")
+        }
+
+        await viewModel.scheduleReminder(group)
+
+        XCTAssertEqual(
+            viewModel.notice?.message,
+            String(localized: "The reminder could not be scheduled. Please try again.")
+        )
+    }
+
+    func testStaleDeparturesCannotStartReminderOrLiveActivity() async {
+        let starter = DetailLiveActivityStarter(isAvailable: true)
+        let recorder = ReminderInvocationRecorder()
+        let client = DepartureReminderClient(
+            permission: { .enabled },
+            schedule: { _ in
+                await recorder.recordCall()
+                throw DepartureReminderError.departureTooSoon
+            },
+            scheduled: { [] },
+            cancel: { _ in },
+            cancelAll: {}
+        )
+        let monitor = DetailMonitorProvider(
+            result: .success(responseWithMergedU1()),
+            isStale: true
+        )
+        let viewModel = makeViewModel(
+            service: monitor,
+            liveActivityStarter: starter,
+            reminderClient: client
+        )
+        await viewModel.load()
+        guard let group = viewModel.groups.first else {
+            return XCTFail("Missing group")
+        }
+
+        await viewModel.scheduleReminder(group)
+        viewModel.startTracking(group)
+
+        let reminderWasScheduled = await recorder.wasCalled
+        XCTAssertFalse(reminderWasScheduled)
+        XCTAssertNil(starter.startedLine)
+        XCTAssertEqual(
+            viewModel.notice?.title,
+            String(localized: "Live departures required")
+        )
+    }
+
+    func testStaleDeparturesStillAllowExistingActivityToStop() async {
+        let activeID = StationDepartureID(
+            line: "U1",
+            destination: "Leopoldau"
+        )
+        let starter = DetailLiveActivityStarter(
+            isAvailable: true,
+            activeDepartureID: activeID
+        )
+        let monitor = DetailMonitorProvider(
+            result: .success(responseWithMergedU1()),
+            isStale: true
+        )
+        let viewModel = makeViewModel(
+            service: monitor,
+            liveActivityStarter: starter
+        )
+        await viewModel.load()
+        guard let group = viewModel.groups.first else {
+            return XCTFail("Missing group")
+        }
+
+        viewModel.startTracking(group)
+
+        XCTAssertNil(viewModel.trackedDepartureID)
+        XCTAssertEqual(starter.stopCount, 1)
+    }
+
     private func makeViewModel(
         station: Station = Station(id: 1, diva: 123, name: "Test", lat: 0, lon: 0),
         response: MonitorResponse? = nil,
@@ -148,7 +326,8 @@ final class StationDetailViewModelTests: XCTestCase {
         service: DetailMonitorProvider? = nil,
         favoritesRepo: DetailRoutesRepository = DetailRoutesRepository(),
         stationsRepo: DetailStationsRepository = DetailStationsRepository(),
-        liveActivityStarter: DetailLiveActivityStarter? = nil
+        liveActivityStarter: DetailLiveActivityStarter? = nil,
+        reminderClient: DepartureReminderClient = .test
     ) -> StationDetailViewModel {
         let resolvedResult = result ?? .success(response ?? responseWithMergedU1())
         return StationDetailViewModel(
@@ -156,7 +335,8 @@ final class StationDetailViewModelTests: XCTestCase {
             service: service ?? DetailMonitorProvider(result: resolvedResult),
             favoritesRepo: favoritesRepo,
             stationsRepo: stationsRepo,
-            liveActivityStarter: liveActivityStarter ?? DetailLiveActivityStarter(isAvailable: true)
+            liveActivityStarter: liveActivityStarter ?? DetailLiveActivityStarter(isAvailable: true),
+            reminderClient: reminderClient
         )
     }
 
@@ -249,13 +429,50 @@ private final class DetailStationsRepository: FavoriteStationsStoring, @unchecke
 private final class DetailLiveActivityStarter: LiveActivityStarting {
     let isAvailable: Bool
     let shouldThrow: Bool
+    let activeDepartureID: StationDepartureID?
     var startedLine: String?
-    init(isAvailable: Bool, shouldThrow: Bool = false) {
+    var updatedLine: String?
+    var updatedMinutes: Int?
+    var stopCount = 0
+    init(
+        isAvailable: Bool,
+        shouldThrow: Bool = false,
+        activeDepartureID: StationDepartureID? = nil
+    ) {
         self.isAvailable = isAvailable
         self.shouldThrow = shouldThrow
+        self.activeDepartureID = activeDepartureID
     }
     func start(line: String, destination: String, stop: String, minutes: Int, isLive: Bool) throws {
         if shouldThrow { throw DetailTestError.failed }
         startedLine = line
     }
+    func update(line: String, destination: String, stop: String, minutes: Int, isLive: Bool) {
+        updatedLine = line
+        updatedMinutes = minutes
+    }
+    func activeDepartureID(for stop: String) -> StationDepartureID? {
+        activeDepartureID
+    }
+    func stopAll() {
+        stopCount += 1
+    }
+}
+
+private actor ReminderInvocationRecorder {
+    private(set) var wasCalled = false
+
+    func recordCall() {
+        wasCalled = true
+    }
+}
+
+private extension DepartureReminderClient {
+    nonisolated static let test = DepartureReminderClient(
+        permission: { .notDetermined },
+        schedule: { _ in throw DepartureReminderError.departureTooSoon },
+        scheduled: { [] },
+        cancel: { _ in },
+        cancelAll: {}
+    )
 }

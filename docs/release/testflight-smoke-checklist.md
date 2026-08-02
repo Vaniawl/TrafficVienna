@@ -29,10 +29,18 @@ device model, OS version, build number, tester, date, and result for every item.
 
 - Add small, medium, and large Home Screen widgets.
 - Add at least one supported Lock Screen widget.
-- Confirm a saved route appears, countdowns advance, and manual refresh works.
+- Edit each widget, select saved routes, and confirm the configured selection is
+  preserved after a reboot.
+- Confirm one-route medium/large layouts use their available space, countdowns
+  advance without minute-by-minute timeline entries, and manual refresh works.
 - Tap the widget from a terminated app and confirm Saved opens.
+- Choose **Remind me** on a departure. Confirm notification permission is asked
+  only in that context, the pending reminder appears under About → Departure
+  reminders, tapping the notification opens that station in Discover, and
+  cancel/cancel-all work.
 - Start a Live Activity from a departure; confirm Lock Screen and Dynamic Island
-  presentation, then end it.
+  presentation, refreshed departure time, manual stop, and automatic end shortly
+  after departure.
 - Run Nearby, Search, and Favourites App Shortcuts from Shortcuts or Spotlight;
   confirm they land on Home, Discover, and Saved respectively.
 

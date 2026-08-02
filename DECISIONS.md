@@ -1,5 +1,17 @@
 # Decisions
 
+## 2026-08-02 - System countdowns require current departures
+
+Departure reminders and new Live Activities may start only from a successful
+current Station Detail snapshot. A stale fallback remains readable, but the app
+asks the user to refresh before creating a new system countdown. Stopping an
+already active Live Activity remains available during stale-data fallback.
+
+ActivityKit is authoritative for active tracking across view-model recreation:
+Station Detail restores the matching system activity identity before updating it.
+Reminder plans are revalidated after a potentially long notification permission
+prompt so an expired plan cannot be scheduled as an immediate misleading alert.
+
 ## 2026-07-18 - Map derives bounded markers and keeps location ephemeral
 
 Map rendering consumes a bounded, distance-sorted station projection from an

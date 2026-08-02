@@ -2,7 +2,7 @@
 
 ## What we're building
 
-A SwiftUI iOS app for live Wiener Linien (Vienna public transport) departures. The app shows nearby stops, lets users search for any station, view live departure boards grouped by platform, save favourite stations and line/direction pairs, browse network-wide service alerts, explore stations on a map, and track a selected departure on the Lock Screen via Live Activities. A home-screen widget shows departures for the user's favourite station.
+A SwiftUI iOS app for live Wiener Linien (Vienna public transport) departures. The app shows nearby stops, lets users search for any station, view live departure boards grouped by platform, save favourite stations and line/direction pairs, browse network-wide service alerts, explore stations on a map, schedule local departure reminders, and track a selected departure on the Lock Screen via Live Activities. Configurable Home Screen and Lock Screen widgets show departures for selected favourite routes.
 
 ### Architecture
 
@@ -18,7 +18,10 @@ A SwiftUI iOS app for live Wiener Linien (Vienna public transport) departures. T
 - **Storage**: UserDefaults-based repositories for favourites (FavoriteRoute, FavoriteStation), RecentSearchesStore
 - **StationStore**: `@Published` + `StationStoring` protocol, loads bundled JSON (`wienerlinien-ogd-haltestellen.json`)
 - **DTOs** (DTO.swift): `MonitorResponse`, `Monitor`, `Lines`, `DepartureTime` — all `nonisolated` + `Sendable`, lenient decoding
-- **Live Activities**: via ActivityKit (LiveActivityController) + WidgetExtension with AppIntent
+- **System surfaces**: local departure notifications via UserNotifications;
+  ActivityKit tracking with explicit update/end lifecycle; configurable Home
+  Screen and Lock Screen widgets via WidgetKit + App Intents. Notification taps
+  use the persisted typed router to open the matching station in Discover.
 - **Shared logic** in `WidgetShared/`: RouteMatching, LineColors, DepartureActivityAttributes
 - **Concurrency**: async/await throughout feature services; Combine is limited to
   the small system-facing wrappers above.
@@ -30,7 +33,9 @@ A SwiftUI iOS app for live Wiener Linien (Vienna public transport) departures. T
 
 - The app loads quickly, with cached responses and coalesced network requests staying well within Wiener Linien's rate limit.
 - Visible departure boards refresh every 60 seconds without flicker or redundant
-  API calls; widgets project minute countdowns locally between bounded refreshes.
+  API calls; widgets use system-rendered dynamic countdown dates between bounded
+  five-minute refresh opportunities, plus boundary entries that promptly remove
+  departed rows.
 - Core Location requests are one-shot and coalesced rather than continuously
   tracking the user.
 - The UI gracefully handles missing location permissions, network errors, rate limiting, and empty states.
@@ -45,4 +50,6 @@ A SwiftUI iOS app for live Wiener Linien (Vienna public transport) departures. T
   with a real cross-device feature, complete deletion lifecycle, and approved
   backend/provider boundary.
 - Ticket purchase or routing between stations.
-- Push notifications (only local Live Activities and widget timelines are used).
+- Remote push notifications for network disruptions. They require an owned
+  backend and APNs provider; the app intentionally supports only user-created
+  local departure reminders without claiming remote delivery.

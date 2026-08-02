@@ -1,5 +1,79 @@
 # Journal
 
+## 2026-08-02 — Full product audit and system-countdown hardening
+
+- Audited architecture, SwiftUI performance, accessibility, localisation,
+  privacy/security, system surfaces, tests, release evidence, and active
+  documentation. No Blocking architecture or security finding remains.
+- Restored Station Detail's matching ActivityKit identity across model
+  recreation; stale departures can no longer start a new reminder or Live
+  Activity, while an existing Activity can still be stopped.
+- Revalidated reminder schedulability after notification permission returns,
+  replaced unexpected system errors with safe localized feedback, moved
+  relative-time rendering out of the widget body, and let reminder rows reflow
+  at accessibility Dynamic Type sizes.
+- Added focused regressions and German values. Final iPhone 17 evidence is
+  137/137 passing tests (133 model/service + 4 UI), successful app/widget build,
+  and successful Xcode static analysis.
+- Simulator inspection covered Home, Discover, Map, Alerts, Saved, About,
+  reminder management, Station Detail, context/failure feedback, light/dark,
+  accessibility Dynamic Type, and a supplementary 13-inch iPad layout. Five
+  settled iPad process samples measured 0.0% CPU.
+- Compiler extraction reports 267 app and 31 widget keys with zero missing
+  catalogue keys or German values. Repository/OpenCode structural validators,
+  scoped security/new-endpoint scan, and `git diff --check` pass.
+- The reliability script's Python/timeout fixtures pass, then it and the full CI
+  wrapper exit 127 because their global `opencode` permission-matcher dependency
+  is not installed. Available constituent gates were run separately. App Store
+  submission remains gated by signed
+  distribution, App Store Connect processing, and physical TestFlight evidence.
+
+## 2026-07-30 — Final visual, widget, and release-evidence pass
+
+- Inspected every prepared English/German App Store screenshot and the six widget
+  families. Reduced the default map projection from 36 markers at 120-metre
+  spacing to 24 at 160 metres, then recaptured both localized Map screenshots at
+  1320×2868. All ten JPEGs remain alpha-free and visually readable.
+- Exercised real small, medium, and large Home Screen widgets in Simulator light
+  mode, large in dark mode, a circular Lock Screen widget, and a Lock Screen Live
+  Activity. Tightened freshness contrast/copy, added circular and inline previews,
+  and verified the one-route adaptive layouts do not clip.
+- Fixed departure countdowns lingering at `0:00` by adding bounded timeline
+  entries at visible departure boundaries and one minute afterward, while
+  retaining the five-minute network refresh budget. Added deterministic
+  regression coverage for that schedule.
+- The exact iPhone 17 build passes, all 133 XCTest cases pass with no failures or
+  skips, both repository validators pass, and a fresh unsigned arm64 Release
+  archive contains the app, widget, privacy manifests, version 1.0, and build 1.
+  App Store submission remains No-Go only for the documented signing,
+  App Store Connect, processed-build, and physical TestFlight evidence gates.
+
+## 2026-07-30 — System-surface readiness and local departure reminders
+
+- Added user-created local departure reminders with contextual notification
+  permission, on-device scheduling, delivered/pending cleanup, an About management
+  screen, cancellation, Settings recovery, English/German copy, and privacy/store
+  documentation. No APNs entitlement, backend, remote push claim, account, or new
+  network destination was introduced.
+- Persisted the reminder's station ID and extended the typed root router so a
+  notification opens the matching Station Detail in Discover during warm or cold
+  launch. External navigation now dismisses an open About sheet instead of changing
+  tabs invisibly underneath it.
+- Made widgets configurable through a saved-route AppEntity collection with
+  family-specific limits. Replaced minute-by-minute entries with system-rendered
+  countdown dates and a five-minute refresh budget, preserved per-row freshness,
+  and added adaptive one-route medium/large layouts.
+- Added explicit Live Activity update, replacement, stop, launch cleanup, and
+  automatic end lifecycle. UI coverage starts and stops a real Simulator activity;
+  unit coverage verifies refresh behavior and the two-minute post-departure policy.
+- Simulator acceptance observed the contextual notification prompt, scheduled
+  reminder manager, delivered Lock Screen notification, adaptive medium widget,
+  Edit Widget route surface, widget-to-Saved deep link, modal dismissal, and direct
+  cold reminder routing. A final screenshot audit also replaced the ambiguous
+  `Updated in 0 sec.` widget label with clamped minute-level freshness copy. The
+  exact iPhone 17 suite passes 132/132 with no failures or skips; repository
+  validation and a fresh unsigned arm64 Release archive pass.
+
 ## 2026-07-30 — Journey-first product polish and runtime hardening
 
 - Replaced the five-tab shell with four user journeys: Home, Discover, Alerts,

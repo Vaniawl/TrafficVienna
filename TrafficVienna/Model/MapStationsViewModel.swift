@@ -24,8 +24,8 @@ final class MapStationsViewModel {
         stationStore: StationStoring,
         fallbackLocation: CLLocation? = nil,
         radius: Double = 1_500,
-        markerLimit: Int = 36,
-        minimumMarkerSpacing: CLLocationDistance = 120
+        markerLimit: Int = 24,
+        minimumMarkerSpacing: CLLocationDistance = 160
     ) {
         self.stationStore = stationStore
         self.fallbackLocation = fallbackLocation ?? Self.viennaCenter

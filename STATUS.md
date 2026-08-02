@@ -2,82 +2,29 @@
 
 - Status: CONTINUE
 - Workspace: `/Users/ivandovhosheia/Swift/TrafficVienna`
-- Stack: native SwiftUI iOS application and widget extension.
-- Current phase: unified design/onboarding, native Apple account, Search, Map,
-  Alerts, Favourites, Station Detail, and secondary-surface implementation slices
-  complete; continue visual inspection, remaining resilience work, and email
-  account integration.
-- Verified: app and widget build successfully on iPhone 17 simulator with zero
-  warnings; the restored test target runs 95 passing XCTest cases.
-- Verified CI: repository/OpenCode/reliability checks, build, tests, and diff
-  validation completed with `[ci] OK`.
-- Verified visually: the new onboarding renders correctly in system light and
-  dark appearances and respects Reduce Motion in source.
-- Verified Nearby dashboard: saved stations remain visible and navigable before
-  location permission and when location is unavailable; the location state is a
-  separate card rather than a full-screen gate. Adaptive view-aligned quick-access
-  cards pass five state regressions plus fresh iPhone 17 light/dark rendering.
-- Verified security: native Apple profile data is minimised, device-only Keychain
-  protected, never logged, and revoked/transferred credential states clear it.
-  Runtime Apple revocation notifications now clear the session immediately.
-- Verified Search: explicit state machine, cancellable debounce, retry, recent
-  persistence, value navigation, and German strings pass focused tests and full
-  CI. Interactive visual acceptance remains open because macOS is locked.
-- Verified Map: bounded sorted markers, catalogue retry, Vienna fallback,
-  permission/error states, selection navigation, ephemeral location handling,
-  and localized permission rationale pass focused tests and build inspection.
-  Interactive visual acceptance remains open because macOS is locked.
-- Verified Alerts: the live feed is categorised and deduplicated, service alerts
-  drive the badge, searchable line/type filters and details are explicit, and
-  loading/empty/failure/refresh states pass focused tests. Security review found
-  no unresolved Blocking or Important issue; interactive visual acceptance is open.
-- Verified Favourites: saved stations and routes keep their existing repositories;
-  reorder/remove, stable order, route failure/retry, force refresh, cancellation,
-  and widget filtering pass focused tests. Interactive visual acceptance is open.
-- Verified Station Detail: deterministic merged departures, filters, stale refresh,
-  alert navigation, favourites, and Live Activity feedback pass focused tests;
-  station visits no longer overwrite the favourites widget. Visual acceptance is open.
-- Verified secondary surfaces: onboarding/About use shared adaptive tokens and
-  Dynamic Type; onboarding ends with a real optional Apple action, restored-profile
-  confirmation, or explicit anonymous continuation before location permission.
-  Favourite-route ordering is shared by app and widget, the widget shows decoded
-  station names, and app/widget German catalogues are complete.
-  Interactive acceptance is open because macOS remains locked.
-- Verified onboarding account boundary: the final step reuses `AccountSession`,
-  keeps cancellation silent, shows recoverable failure, never stores auth tokens,
-  and never gates transport use. Eleven account lifecycle tests plus two onboarding
-  sequence tests pass; security review found no Critical/High/Important issue.
-- Verified network lifecycle: alert requests are coalesced, throttled, retried
-  with bounded shared backoff, and fall back to in-memory stale data; cancelled
-  journey tasks cannot publish late responses. Freshness snapshots preserve the
-  real successful-update time and label saved data in Station Detail, Alerts,
-  Nearby, and Favourites. Deterministic timing regressions and full CI pass.
-- Verified localisation source audit: app and widget compiler extraction has no
-  missing catalogue key or German value; new hero symbols scale with Dynamic Type,
-  distance speech is locale-aware, and saved-data status is not color-only. Shared
-  departure rows switch from fixed columns to a flexible accessibility-size layout
-  and announce localized time, live, alert, and walking-feasibility context as one
-  VoiceOver element.
-  Interactive accessibility-size and VoiceOver acceptance remains open while the
-  macOS host is locked.
-- Verified dependency injection: every journey model now accepts narrow test
-  boundaries; Nearby uses modern observable state and its station/location/monitor
-  behaviour passes focused mocks without persisting or logging coordinates.
-- Verified refactoring audit: repository-wide references proved the legacy stop-ID
-  monitor request unreachable, so it was removed from production and test protocol
-  conformers; active DIVA/traffic-info behaviour still passes full CI.
-- Verified motion source audit: one shared motion system now coordinates onboarding,
-  screen-state, map-card, offline, shimmer, live-pulse, and countdown transitions;
-  Reduce Motion disables movement, scale, pulse, shimmer, and numeric rolling.
-  Interactive timing acceptance remains open while the macOS host is locked.
-- Recommended provider: Firebase Authentication, based on its documented native
-  Apple flow, passwordless email links, provider linking, and authenticated
-  client-side user deletion. The decision packet is in
-  `docs/account-auth-provider-evaluation.md`; adoption still requires explicit
-  approval and no external configuration or dependency has been changed.
-- Remaining work: approve and configure the email identity provider; enable Sign in
-  with Apple for `wellbe.TrafficVienna` and regenerate its provisioning profile;
-  complete remaining journey and accessibility inspection.
-- Next action: run the cross-journey completion/accessibility audit while visual
-  inspection waits for an unlocked host; email integration waits for provider
-  approval and its external configuration.
+- Branch: `codex/system-surfaces-readiness`
+- Stack: native SwiftUI iOS application, widget extension, XCTest, and XCUITest.
+- Current phase: reviewed audit implementation and draft-PR handoff.
+- Product shell: Home, Discover, Alerts, and Saved; accounts are out of scope.
+- Verified tests: 137/137 pass on iPhone 17 Simulator (133 model/service tests
+  and 4 UI tests), with zero failures or skips. App and widget build successfully.
+- Verified visual coverage: four journeys and key secondary surfaces were
+  exercised on iPhone 17; Home, Station Detail, and reminder management were
+  inspected in light mode, dark mode, and accessibility Dynamic Type. A 13-inch
+  iPad Simulator provides supplementary adaptive-layout evidence.
+- Verified architecture/security review: no Blocking finding. Important findings
+  were addressed by restoring ActivityKit ownership, blocking new system
+  countdowns from stale data, revalidating reminder timing after permission,
+  removing body-time formatter allocation, and improving reminder row reflow.
+- Verified quality: Xcode static analysis passes; app extraction reports 267
+  keys with 0 missing catalogue/German values and widget extraction reports 31
+  with 0 missing catalogue/German values. Both repository structural validators,
+  `git diff --check`, and the scoped secret/new-endpoint scan pass.
+- Infrastructure limitation: `bash scripts/ci.sh` reaches the permission matcher
+  and exits 127 because the required global `opencode` CLI is not installed.
+  The reliability script's Python and timeout fixtures pass before the same
+  missing-tool boundary; available repository, Xcode, and diff gates pass.
+- Remaining local work: commit, feature-branch push, and draft PR.
+- External release gates: distribution signing, App Store Connect processed build,
+  and signed physical-device TestFlight acceptance are not provided by Simulator
+  evidence.

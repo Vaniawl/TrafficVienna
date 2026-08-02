@@ -68,6 +68,14 @@ struct AboutView: View {
                     }
                 }
 
+                Section("Notifications") {
+                    NavigationLink {
+                        DepartureRemindersView()
+                    } label: {
+                        Label("Departure reminders", systemImage: "bell.badge")
+                    }
+                }
+
                 Section {
                     Text("Departure times are provided live by Wiener Linien and may differ from actual service.")
                         .font(.footnote)

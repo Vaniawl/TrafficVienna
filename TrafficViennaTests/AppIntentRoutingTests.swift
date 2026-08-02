@@ -36,6 +36,22 @@ final class AppIntentRoutingTests: XCTestCase {
         XCTAssertNil(defaults.string(forKey: TrafficViennaShortcutRouter.pendingDestinationKey))
     }
 
+    func testStationRequestIsPersistedRestoredAndConsumed() {
+        let router = TrafficViennaShortcutRouter(defaults: defaults)
+        router.requestStation(id: 42)
+
+        let restored = TrafficViennaShortcutRouter(defaults: defaults)
+
+        XCTAssertEqual(restored.pendingStationID, 42)
+        XCTAssertEqual(restored.consumeStation(), 42)
+        XCTAssertNil(restored.pendingStationID)
+        XCTAssertNil(
+            defaults.object(
+                forKey: TrafficViennaShortcutRouter.pendingStationIDKey
+            )
+        )
+    }
+
     func testSupportedDeepLinksRoundTripAndRoute() throws {
         let router = TrafficViennaShortcutRouter(defaults: defaults)
 

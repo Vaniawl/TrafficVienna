@@ -137,6 +137,32 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(result, 0)
     }
 
+    func testLiveActivityLifecycleEndsTwoMinutesAfterDeparture() {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let departure = DepartureActivityLifecycle.departureDate(
+            minutes: 5,
+            now: now
+        )
+        let end = DepartureActivityLifecycle.automaticEndDate(
+            departureDate: departure
+        )
+
+        XCTAssertEqual(departure, now.addingTimeInterval(5 * 60))
+        XCTAssertEqual(end, now.addingTimeInterval(7 * 60))
+        XCTAssertFalse(
+            DepartureActivityLifecycle.isExpired(
+                departureDate: departure,
+                now: end.addingTimeInterval(-1)
+            )
+        )
+        XCTAssertTrue(
+            DepartureActivityLifecycle.isExpired(
+                departureDate: departure,
+                now: end
+            )
+        )
+    }
+
     // MARK: - DepartureTime liveMinutes
 
     func testDepartureTimeLiveMinutesFallback() {
@@ -388,6 +414,65 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(projected[1].departures, [1, 6])
     }
 
+    func testWidgetFreshnessClampsFutureSourceDateAndUsesWholeMinutes() {
+        let entryDate = Date(timeIntervalSince1970: 1_000)
+
+        XCTAssertEqual(
+            WidgetFreshness.elapsedWholeMinutes(
+                since: entryDate.addingTimeInterval(1),
+                at: entryDate
+            ),
+            0
+        )
+        XCTAssertEqual(
+            WidgetFreshness.elapsedWholeMinutes(
+                since: entryDate.addingTimeInterval(-179),
+                at: entryDate
+            ),
+            2
+        )
+    }
+
+    func testWidgetTimelineScheduleIncludesVisibleDepartureBoundaries() {
+        let now = Date(timeIntervalSince1970: 10_000)
+        let refreshDate = now.addingTimeInterval(300)
+        let items = [
+            WidgetDepartureData(
+                lineName: "U1",
+                stopName: "Stephansplatz",
+                destination: "Leopoldau",
+                departures: [1, 3, 8],
+                fetchedAt: now
+            ),
+            WidgetDepartureData(
+                lineName: "U4",
+                stopName: "Schwedenplatz",
+                destination: "Heiligenstadt",
+                departures: [2, 7],
+                fetchedAt: now
+            ),
+        ]
+
+        let dates = WidgetTimelineSchedule.entryDates(
+            now: now,
+            refreshDate: refreshDate,
+            items: items,
+            fallbackUpdatedAt: nil
+        )
+
+        XCTAssertEqual(
+            dates,
+            [
+                now,
+                now.addingTimeInterval(60),
+                now.addingTimeInterval(120),
+                now.addingTimeInterval(180),
+                now.addingTimeInterval(240),
+                refreshDate,
+            ]
+        )
+    }
+
     func testWidgetDataMergePreservesSelectedOrderAndCachedFailures() {
         let selected = [
             WidgetRouteKey(lineName: "U4", destination: "Heiligenstadt"),
@@ -459,6 +544,22 @@ final class TrafficViennaTests: XCTestCase {
         ]
 
         XCTAssertEqual(routes.sorted().map(\.lineName), ["U1", "U4"])
+    }
+
+    func testFavoriteRouteStableIDIsDeterministicAndCollisionSafe() {
+        let route = FavoriteRoute(
+            diva: "60200123",
+            lineName: "U1",
+            destination: "Leopoldau"
+        )
+        let differentRoute = FavoriteRoute(
+            diva: "60200123",
+            lineName: "U1",
+            destination: "Oberlaa"
+        )
+
+        XCTAssertEqual(route.stableID, route.stableID)
+        XCTAssertNotEqual(route.stableID, differentRoute.stableID)
     }
 }
 

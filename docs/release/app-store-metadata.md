@@ -43,9 +43,10 @@ See your next saved departure on Home, search the complete station catalogue,
 explore stops on a focused map in Discover, and check personalised service,
 accessibility, and stop-change notices before you leave.
 
-Save stations and line directions for quick access. Home Screen and Lock Screen
-widgets keep favourite departures visible, while Live Activities can follow a
-selected departure on the Lock Screen and Dynamic Island.
+Save stations and line directions for quick access. Set an optional local
+departure reminder, configure Home Screen and Lock Screen widgets for the routes
+you care about, or follow a selected departure with a Live Activity on the Lock
+Screen and Dynamic Island.
 
 Built for speed and clarity:
 
@@ -53,6 +54,7 @@ Built for speed and clarity:
 - fast station search with recent stops;
 - nearby and camera-aware map discovery;
 - favourite stations and routes;
+- on-device departure reminders;
 - Home Screen and Lock Screen widgets;
 - App Shortcuts that open Home, Discover, and Saved;
 - English and German;
@@ -71,7 +73,8 @@ Vienna,transit,departures,tram,metro,bus,alerts,stations,widget,public transport
 **What’s New**
 
 Initial release with live departures, station search, map discovery, service
-alerts, favourites, widgets, App Shortcuts, and Live Activities.
+alerts, favourites, local reminders, configurable widgets, App Shortcuts, and
+Live Activities.
 
 ## German (Austria)
 
@@ -93,9 +96,10 @@ Sieh deine nächste gespeicherte Abfahrt auf Start, durchsuche das vollständige
 Haltestellenverzeichnis, entdecke Stationen auf der Karte unter Entdecken und
 prüfe personalisierte Betriebs-, Barrierefreiheits- und Haltestellenmeldungen.
 
-Speichere Haltestellen und Linienrichtungen als Favoriten. Widgets für Home- und
-Sperrbildschirm zeigen die nächsten Abfahrten, während Live-Aktivitäten eine
-ausgewählte Abfahrt auf dem Sperrbildschirm und in der Dynamic Island begleiten.
+Speichere Haltestellen und Linienrichtungen als Favoriten. Erstelle auf Wunsch
+eine lokale Abfahrtserinnerung, konfiguriere Widgets für Home- und Sperrbildschirm
+mit deinen Linien oder begleite eine ausgewählte Abfahrt per Live-Aktivität auf
+dem Sperrbildschirm und in der Dynamic Island.
 
 Für Geschwindigkeit und Klarheit entwickelt:
 
@@ -103,6 +107,7 @@ Für Geschwindigkeit und Klarheit entwickelt:
 - schnelle Haltestellensuche mit letzten Suchen;
 - Haltestellen in der Nähe und Suche im sichtbaren Kartenbereich;
 - bevorzugte Haltestellen und Linien;
+- lokale Abfahrtserinnerungen auf dem Gerät;
 - Widgets für Home- und Sperrbildschirm;
 - App-Kurzbefehle für Start, Entdecken und Gespeichert;
 - Deutsch und Englisch;
@@ -122,7 +127,8 @@ Wien,Öffi,Abfahrten,U-Bahn,Straßenbahn,Bus,Störungen,Haltestellen,Widget
 **Neue Funktionen**
 
 Erste Version mit Live-Abfahrten, Haltestellensuche, Karte, Betriebsmeldungen,
-Favoriten, Widgets, App-Kurzbefehlen und Live-Aktivitäten.
+Favoriten, lokalen Erinnerungen, konfigurierbaren Widgets, App-Kurzbefehlen und
+Live-Aktivitäten.
 
 ## App Review notes
 
@@ -143,6 +149,7 @@ Suggested review path:
 7. Add the Traffic Vienna widget to inspect saved departure content.
 8. Start a Live Activity from a station departure when Live Activities are
    enabled on the review device.
+9. Choose **Remind me** on a departure to schedule an optional local notification.
 
 The app connects only to the public Wiener Linien realtime API at
 `https://www.wienerlinien.at/ogd_realtime/`. The bundled station catalogue and
@@ -157,8 +164,8 @@ the public privacy policy:
 - Advertising: No.
 - Analytics: No.
 - Precise location: Not collected; processed only on-device.
-- Search history, favourites, and widget preferences: Not collected; stored only
-  on-device.
+- Search history, favourites, widget preferences, and local departure reminders:
+  Not collected; stored only on-device.
 - Contact information and user ID: Not collected; the app has no account.
 - Other Data: Collected for App Functionality, linked to the user, not used for
   tracking. This conservative declaration covers station/route request

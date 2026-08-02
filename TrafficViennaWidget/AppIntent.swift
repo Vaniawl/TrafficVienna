@@ -8,9 +8,91 @@
 import WidgetKit
 import AppIntents
 
+private let appGroupID = "group.wellbe.TrafficVienna"
+private let favoritesKey = "favorite_routes"
+
+struct FavoriteRouteEntity: AppEntity {
+    static var typeDisplayRepresentation = TypeDisplayRepresentation(
+        name: "Saved route",
+        numericFormat: "\(placeholder: .int) saved routes"
+    )
+    static var defaultQuery = FavoriteRouteEntityQuery()
+
+    let id: String
+    let diva: String
+    let lineName: String
+    let destination: String
+
+    init(route: FavoriteRoute) {
+        id = route.stableID
+        diva = route.diva
+        lineName = route.lineName
+        destination = route.destination
+    }
+
+    var displayRepresentation: DisplayRepresentation {
+        DisplayRepresentation(
+            title: "\(lineName) → \(destination)",
+            subtitle: "Saved departure"
+        )
+    }
+
+    var route: FavoriteRoute {
+        FavoriteRoute(
+            diva: diva,
+            lineName: lineName,
+            destination: destination
+        )
+    }
+}
+
+struct FavoriteRouteEntityQuery: EntityQuery {
+    func entities(
+        for identifiers: [FavoriteRouteEntity.ID]
+    ) async throws -> [FavoriteRouteEntity] {
+        let identifiers = Set(identifiers)
+        return savedRoutes()
+            .map(FavoriteRouteEntity.init)
+            .filter { identifiers.contains($0.id) }
+    }
+
+    func suggestedEntities() async throws -> [FavoriteRouteEntity] {
+        savedRoutes().map(FavoriteRouteEntity.init)
+    }
+
+    private func savedRoutes() -> [FavoriteRoute] {
+        let defaults = UserDefaults(suiteName: appGroupID)
+        guard let data = defaults?.data(forKey: favoritesKey),
+              let routes = try? JSONDecoder().decode(Set<FavoriteRoute>.self, from: data)
+        else {
+            return []
+        }
+        return routes.sorted()
+    }
+}
+
 struct ConfigurationAppIntent: WidgetConfigurationIntent {
     static var title: LocalizedStringResource { "Departures" }
     static var description: IntentDescription { "Live departures for your favourite lines." }
+
+    @Parameter(
+        title: "Routes",
+        description: "Choose which saved routes appear in this widget.",
+        default: [],
+        size: [
+            .systemSmall: IntentCollectionSize(min: 0, max: 1),
+            .systemMedium: IntentCollectionSize(min: 0, max: 3),
+            .systemLarge: IntentCollectionSize(min: 0, max: 3),
+            .accessoryCircular: IntentCollectionSize(min: 0, max: 1),
+            .accessoryRectangular: IntentCollectionSize(min: 0, max: 1),
+            .accessoryInline: IntentCollectionSize(min: 0, max: 1),
+        ]
+    )
+    var routes: [FavoriteRouteEntity]
+
+    static var parameterSummary: some ParameterSummary {
+        Summary("Departures for \(\.$routes)")
+    }
 }
 
 struct RefreshFavoritesIntent: AppIntent {

@@ -105,6 +105,52 @@ nonisolated enum WidgetCountdownProjection {
     }
 }
 
+nonisolated enum WidgetFreshness {
+    static func elapsedWholeMinutes(
+        since lastUpdated: Date,
+        at entryDate: Date
+    ) -> Int {
+        max(0, Int(entryDate.timeIntervalSince(lastUpdated) / 60))
+    }
+}
+
+nonisolated enum WidgetTimelineSchedule {
+    static func entryDates(
+        now: Date,
+        refreshDate: Date,
+        items: [WidgetDepartureData],
+        fallbackUpdatedAt: Date?
+    ) -> [Date] {
+        var dates = Set([now, refreshDate])
+
+        for item in items {
+            let sourceDate = min(
+                item.fetchedAt ?? fallbackUpdatedAt ?? now,
+                now
+            )
+
+            for minutes in item.departures.prefix(2) where minutes > 0 {
+                let departureDate = sourceDate.addingTimeInterval(
+                    TimeInterval(minutes * 60)
+                )
+                guard departureDate > now, departureDate < refreshDate else {
+                    continue
+                }
+
+                dates.insert(departureDate)
+                dates.insert(
+                    min(
+                        departureDate.addingTimeInterval(60),
+                        refreshDate
+                    )
+                )
+            }
+        }
+
+        return dates.sorted()
+    }
+}
+
 private extension WidgetDepartureData {
     nonisolated var routeKey: WidgetRouteKey {
         WidgetRouteKey(

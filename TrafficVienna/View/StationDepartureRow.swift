@@ -14,8 +14,25 @@ struct StationDepartureRow: View {
                 nextIsLive: group.isLive
             )
 
-            Button {
-                viewModel.startTracking(group)
+            Menu {
+                Button {
+                    Task { await viewModel.scheduleReminder(group) }
+                } label: {
+                    Label("Remind me before departure", systemImage: "bell.badge")
+                }
+
+                Button {
+                    viewModel.startTracking(group)
+                } label: {
+                    Label(
+                        viewModel.trackedDepartureID == group.id
+                            ? "Stop Lock Screen tracking"
+                            : "Track on Lock Screen",
+                        systemImage: viewModel.trackedDepartureID == group.id
+                            ? "livephoto.slash"
+                            : "livephoto"
+                    )
+                }
             } label: {
                 Image(
                     systemName: viewModel.trackedDepartureID == group.id
@@ -29,7 +46,7 @@ struct StationDepartureRow: View {
                 )
             }
             .frame(minWidth: 44, minHeight: 44)
-            .accessibilityLabel("Track \(group.line) to \(group.destination) on the Lock Screen")
+            .accessibilityLabel("Departure options for \(group.line) to \(group.destination)")
         }
         .padding(.vertical, Spacing.xs)
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
@@ -44,7 +61,18 @@ struct StationDepartureRow: View {
             .tint(viewModel.isFavorite(group) ? .gray : .pink)
         }
         .contextMenu {
-            Button("Track on Lock Screen", systemImage: "bell.badge") {
+            Button("Remind me before departure", systemImage: "bell.badge") {
+                Task { await viewModel.scheduleReminder(group) }
+            }
+
+            Button(
+                viewModel.trackedDepartureID == group.id
+                    ? "Stop Lock Screen tracking"
+                    : "Track on Lock Screen",
+                systemImage: viewModel.trackedDepartureID == group.id
+                    ? "livephoto.slash"
+                    : "livephoto"
+            ) {
                 viewModel.startTracking(group)
             }
 

@@ -9,6 +9,8 @@ struct RootTabView: View {
     @StateObject private var shortcutRouter = TrafficViennaShortcutRouter.shared
     @AppStorage("hasOnboarded") private var hasOnboarded = false
     @State private var selectedTab: AppTab = .nearby
+    @State private var isShowingAbout = false
+    @State private var discoverPath: [Station] = []
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
@@ -23,13 +25,14 @@ struct RootTabView: View {
                                 favoritesViewModel: favoritesVM,
                                 disruptionsViewModel: disruptionsVM,
                                 onShowFavourites: showFavourites,
-                                onShowAlerts: showAlerts
+                                onShowAlerts: showAlerts,
+                                onShowAbout: { isShowingAbout = true }
                             )
                         }
                     }
 
                     Tab("Discover", systemImage: "magnifyingglass", value: .search) {
-                        NavigationStack {
+                        NavigationStack(path: $discoverPath) {
                             SearchView(
                                 store: store,
                                 locationManager: locationManager,
@@ -67,8 +70,18 @@ struct RootTabView: View {
                 )
                 .onChange(of: shortcutRouter.pendingDestination, initial: true) { _, destination in
                     guard let destination else { return }
+                    isShowingAbout = false
                     select(destination.appTab)
                     shortcutRouter.consume()
+                }
+                .onChange(of: shortcutRouter.pendingStationID, initial: true) { _, stationID in
+                    guard let stationID else { return }
+                    isShowingAbout = false
+                    discoverPath = store.stations
+                        .first(where: { $0.id == stationID })
+                        .map { [$0] } ?? []
+                    select(.search)
+                    shortcutRouter.consumeStation()
                 }
                 .onReceive(NotificationCenter.default.publisher(for: .favoriteStationsDidChange)) { _ in
                     favoritesVM.loadStations()
@@ -97,6 +110,9 @@ struct RootTabView: View {
         .animation(Motion.standard(reduceMotion: reduceMotion), value: hasOnboarded)
         .onOpenURL { url in
             shortcutRouter.handle(deepLinkURL: url)
+        }
+        .sheet(isPresented: $isShowingAbout) {
+            AboutView()
         }
     }
 

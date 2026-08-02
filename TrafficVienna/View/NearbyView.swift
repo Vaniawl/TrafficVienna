@@ -17,12 +17,12 @@ struct NearbyView: View {
     @ObservedObject private var locationManager: LocationManager
     @Bindable private var favoritesViewModel: FavoritesListViewModel
     @Bindable private var disruptionsViewModel: DisruptionsViewModel
-    @State private var isShowingAbout = false
     @Environment(\.openURL) private var openURL
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     private let onShowFavourites: () -> Void
     private let onShowAlerts: () -> Void
+    private let onShowAbout: () -> Void
 
     init(
         store: StationStore,
@@ -30,7 +30,8 @@ struct NearbyView: View {
         favoritesViewModel: FavoritesListViewModel,
         disruptionsViewModel: DisruptionsViewModel,
         onShowFavourites: @escaping () -> Void,
-        onShowAlerts: @escaping () -> Void
+        onShowAlerts: @escaping () -> Void,
+        onShowAbout: @escaping () -> Void
     ) {
         _store = ObservedObject(wrappedValue: store)
         _vm = State(initialValue: NearbyViewModel(store: store, location: locationManager))
@@ -39,6 +40,7 @@ struct NearbyView: View {
         _disruptionsViewModel = Bindable(wrappedValue: disruptionsViewModel)
         self.onShowFavourites = onShowFavourites
         self.onShowAlerts = onShowAlerts
+        self.onShowAbout = onShowAbout
     }
 
     var body: some View {
@@ -47,13 +49,10 @@ struct NearbyView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("About Traffic Vienna", systemImage: "info.circle") {
-                    isShowingAbout = true
+                    onShowAbout()
                 }
                 .labelStyle(.iconOnly)
             }
-        }
-        .sheet(isPresented: $isShowingAbout) {
-            AboutView()
         }
         .task {
             locationManager.requestLocationIfNeeded()
@@ -281,7 +280,8 @@ struct NearbyView: View {
             favoritesViewModel: FavoritesListViewModel(),
             disruptionsViewModel: DisruptionsViewModel(),
             onShowFavourites: {},
-            onShowAlerts: {}
+            onShowAlerts: {},
+            onShowAbout: {}
         )
     }
 }

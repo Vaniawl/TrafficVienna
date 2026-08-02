@@ -1,5 +1,54 @@
 # Architectural Decisions
 
+## 2026-08-02 — System countdowns require current departures
+
+**Context:** Station Detail can display an in-memory stale snapshot after a
+refresh failure. Starting a reminder or Live Activity from that snapshot could
+publish an inaccurate system countdown. View-model recreation also forgot an
+ActivityKit session that remained active, and a notification permission prompt
+could outlive the originally planned reminder fire time.
+
+**Decision:** Treat ActivityKit as the authoritative source for restoring the
+active departure identity. Permit a user to stop an existing activity at any
+time, but require a current departure snapshot before starting a new reminder or
+Live Activity. Revalidate reminder schedulability after notification permission
+returns and present a safe localised error for unexpected scheduling failures.
+
+**Consequences:** Readable stale departure fallback is preserved without creating
+misleading Lock Screen state. Activity controls remain consistent across
+view-model recreation, and delayed permission handling cannot turn an expired
+plan into an immediate alert. The change adds no endpoint, entitlement, account,
+or persistence boundary.
+
+## 2026-07-30 — System surfaces use local ownership and typed destinations
+
+**Context:** Widgets exposed an empty configuration intent, one-route large layouts
+wasted space, and five one-minute timeline entries duplicated countdown work that
+the system can render. Live Activities lacked an explicit end lifecycle. The app
+also had no notification feature; truthful remote service-alert push would require
+an owned backend and APNs provider that do not exist.
+
+**Decision:** Support only explicit, user-created local departure reminders through
+UserNotifications and ask for permission at the first reminder action. Persist the
+station ID in notification metadata and route taps through the existing durable
+root router to that Station Detail in Discover. Configure widgets from saved-route
+AppEntities with family-specific limits, use system-rendered countdown dates with
+a five-minute refresh budget, and schedule only bounded entries at visible
+departure boundaries and one minute afterward so departed rows do not linger at
+`0:00`. Derive visible freshness from the selected rows. Update, replace, stop,
+clean up, and automatically end Live Activities two minutes after departure. This
+supersedes the 2026-07-28 decision to create five one-minute widget timeline
+entries.
+
+**Consequences:** Notifications remain on-device and add no server, account, token,
+push entitlement, or transport-data collection boundary. Widget configuration and
+countdowns respect WidgetKit's scheduling budget while removing elapsed departures
+promptly and retaining a deterministic five-minute refresh fallback. Warm/cold
+system entry points dismiss stale modal UI and open owned destinations. Remote
+disruption push remains out of scope until a separately reviewed backend/APNs
+architecture exists; production notification, widget, Dynamic Island, and
+automatic-end behavior still require signed physical TestFlight acceptance.
+
 ## 2026-07-30 — Journey-first shell keeps external routes compatible
 
 **Context:** Five equal tabs made nearby departures, search, and map compete for

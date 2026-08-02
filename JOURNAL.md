@@ -1,5 +1,26 @@
 # Journal
 
+## 2026-08-02 - Full product audit and system-countdown hardening
+
+- Exercised the four journeys plus Map, About, reminder management, Station
+  Detail, context actions, and reminder feedback on iPhone 17. Inspected key
+  surfaces in light/dark appearance and accessibility Dynamic Type, plus a
+  supplementary 13-inch iPad layout.
+- Fixed ActivityKit restoration, stale-data reminder/Live Activity starts,
+  permission-prompt reminder expiry, safe unexpected reminder feedback, widget
+  body-time formatter allocation, and reminder-row Dynamic Type reflow.
+- Added focused regression coverage and German strings. The final iPhone 17
+  suite passes 137/137 (133 model/service + 4 UI), app/widget build succeeds,
+  and Xcode static analysis succeeds.
+- Compiler extraction found 267 app and 31 widget strings with zero missing
+  catalogue keys or German values. Repository/OpenCode structural validators,
+  scoped security scan, and `git diff --check` pass.
+- OpenCode reliability reaches its passing Python/timeout fixtures and both it
+  and `bash scripts/ci.sh` then stop at the global permission matcher because
+  `opencode` is not installed. Available constituent gates were run separately.
+  App Store distribution still requires signed archive,
+  App Store Connect processing, and physical TestFlight acceptance.
+
 ## 2026-07-18 - Map journey, location privacy, and selection UX
 
 - Replaced Map's body-time distance sorting and duplicate selection/sheet state

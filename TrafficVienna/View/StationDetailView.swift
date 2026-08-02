@@ -1,6 +1,8 @@
 import SwiftUI
+import UIKit
 
 struct StationDetailView: View {
+    @Environment(\.openURL) private var openURL
     @State private var viewModel: StationDetailViewModel
 
     init(station: Station) {
@@ -52,10 +54,19 @@ struct StationDetailView: View {
             }
         }
         .alert(item: $viewModel.notice) { notice in
-            Alert(
-                title: Text("Live Activity"),
-                message: Text(notice.message)
-            )
+            if notice.offersSettings {
+                Alert(
+                    title: Text(notice.title),
+                    message: Text(notice.message),
+                    primaryButton: .default(Text("Open Settings"), action: openSettings),
+                    secondaryButton: .cancel()
+                )
+            } else {
+                Alert(
+                    title: Text(notice.title),
+                    message: Text(notice.message)
+                )
+            }
         }
         .sensoryFeedback(.impact(weight: .light), trigger: viewModel.isStationFavorited)
         .sensoryFeedback(.success, trigger: viewModel.trackedDepartureID)
@@ -78,6 +89,13 @@ struct StationDetailView: View {
 
     private func retry() {
         Task { await viewModel.load(forceRefresh: true) }
+    }
+
+    private func openSettings() {
+        guard let url = URL(string: UIApplication.openNotificationSettingsURLString) else {
+            return
+        }
+        openURL(url)
     }
 }
 

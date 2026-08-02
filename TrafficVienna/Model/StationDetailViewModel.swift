@@ -12,6 +12,7 @@ final class StationDetailViewModel {
     private(set) var lastUpdated: Date?
     private(set) var isStationFavorited: Bool
     private(set) var trackedDepartureID: StationDepartureID?
+    private(set) var isShowingStaleData = false
     var categoryFilter: LineCategory?
     var notice: StationDetailNotice?
 
@@ -21,19 +22,22 @@ final class StationDetailViewModel {
     private let favoritesRepo: FavoritesRepository
     private let stationsRepo: FavoriteStationsStoring
     private let liveActivityStarter: LiveActivityStarting
+    private let reminderClient: DepartureReminderClient
 
     init(
         station: Station,
         service: MonitorProviding = MonitorService.shared,
         favoritesRepo: FavoritesRepository = UserDefaultsFavoritesRepository(),
         stationsRepo: FavoriteStationsStoring = UserDefaultsFavoriteStationsRepository(),
-        liveActivityStarter: LiveActivityStarting = SystemLiveActivityStarter()
+        liveActivityStarter: LiveActivityStarting = SystemLiveActivityStarter(),
+        reminderClient: DepartureReminderClient = .live
     ) {
         self.station = station
         self.service = service
         self.favoritesRepo = favoritesRepo
         self.stationsRepo = stationsRepo
         self.liveActivityStarter = liveActivityStarter
+        self.reminderClient = reminderClient
         isStationFavorited = stationsRepo.contains(id: station.id)
         favoriteRoutes = Set(favoritesRepo.getAll())
     }
@@ -74,8 +78,17 @@ final class StationDetailViewModel {
     }
 
     func startTracking(_ group: StationDepartureGroup) {
+        if trackedDepartureID == group.id {
+            liveActivityStarter.stopAll()
+            trackedDepartureID = nil
+            return
+        }
+
+        guard ensureLiveDeparturesForSystemCountdown() else { return }
+
         guard liveActivityStarter.isAvailable else {
             notice = StationDetailNotice(
+                title: String(localized: "Live Activity"),
                 message: String(localized: "Enable Live Activities in Settings to track departures on the Lock Screen.")
             )
             return
@@ -92,7 +105,42 @@ final class StationDetailViewModel {
             trackedDepartureID = group.id
         } catch {
             notice = StationDetailNotice(
+                title: String(localized: "Live Activity"),
                 message: String(localized: "The Live Activity could not be started. Please try again.")
+            )
+        }
+    }
+
+    func scheduleReminder(_ group: StationDepartureGroup) async {
+        guard ensureLiveDeparturesForSystemCountdown() else { return }
+
+        do {
+            let reminder = try await reminderClient.schedule(
+                DepartureReminderRequest(
+                    stationID: station.id,
+                    line: group.line,
+                    destination: group.destination,
+                    stop: station.name,
+                    minutes: group.minutes.first ?? 0
+                )
+            )
+            let time = reminder.fireDate?.formatted(date: .omitted, time: .shortened) ?? ""
+            notice = StationDetailNotice(
+                title: String(localized: "Reminder set"),
+                message: String(
+                    format: String(localized: "We’ll remind you about %@ at %@."),
+                    locale: .current,
+                    group.line,
+                    time
+                )
+            )
+        } catch {
+            let message = (error as? DepartureReminderError)?.localizedDescription
+                ?? String(localized: "The reminder could not be scheduled. Please try again.")
+            notice = StationDetailNotice(
+                title: String(localized: "Departure reminder"),
+                message: message,
+                offersSettings: error as? DepartureReminderError == .notificationsDisabled
             )
         }
     }
@@ -116,17 +164,52 @@ final class StationDetailViewModel {
             trafficInfos = response.data.trafficInfos ?? []
             allGroups = Self.departureGroups(from: response)
             lastUpdated = snapshot.updatedAt
+            isShowingStaleData = snapshot.isStale
             if snapshot.isStale {
                 refreshErrorMessage = String(localized: "Showing saved data from the last successful update.")
             }
             state = allGroups.isEmpty ? .empty : .loaded
+            updateTrackedActivity()
         } catch {
             if allGroups.isEmpty {
+                isShowingStaleData = false
                 state = .failed(error.monitorDisplayMessage)
             } else {
+                isShowingStaleData = true
                 refreshErrorMessage = error.monitorDisplayMessage
             }
         }
+    }
+
+    private func updateTrackedActivity() {
+        if trackedDepartureID == nil,
+           let activeID = liveActivityStarter.activeDepartureID(for: station.name),
+           allGroups.contains(where: { $0.id == activeID }) {
+            trackedDepartureID = activeID
+        }
+
+        guard let trackedDepartureID,
+              let group = allGroups.first(where: { $0.id == trackedDepartureID })
+        else {
+            return
+        }
+
+        liveActivityStarter.update(
+            line: group.line,
+            destination: group.destination,
+            stop: station.name,
+            minutes: group.minutes.first ?? 0,
+            isLive: group.isLive
+        )
+    }
+
+    private func ensureLiveDeparturesForSystemCountdown() -> Bool {
+        guard isShowingStaleData else { return true }
+        notice = StationDetailNotice(
+            title: String(localized: "Live departures required"),
+            message: String(localized: "Refresh live departures before setting a reminder or starting Lock Screen tracking.")
+        )
+        return false
     }
 
     private static func departureGroups(from response: MonitorResponse) -> [StationDepartureGroup] {

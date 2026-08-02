@@ -46,6 +46,49 @@ final class TrafficViennaUITests: XCTestCase {
     }
 
     func testSearchOpensTheSelectedStation() {
+        openStephansplatz()
+
+        XCTAssertTrue(
+            app.navigationBars["Stephansplatz"].waitForExistence(timeout: 5)
+                || app.navigationBars["Stephansplatz U"].waitForExistence(timeout: 5)
+        )
+    }
+
+    func testLiveActivityCanBeStartedAndStoppedFromDepartureOptions() {
+        openStephansplatz()
+
+        let options = app.buttons.matching(
+            NSPredicate(format: "label BEGINSWITH 'Departure options for'")
+        ).firstMatch
+        XCTAssertTrue(options.waitForExistence(timeout: 15))
+        options.tap()
+
+        let track = app.buttons["Track on Lock Screen"]
+        XCTAssertTrue(track.waitForExistence(timeout: 3))
+        track.tap()
+
+        options.tap()
+        let stop = app.buttons["Stop Lock Screen tracking"]
+        XCTAssertTrue(stop.waitForExistence(timeout: 3))
+        stop.tap()
+    }
+
+    func testPendingReminderRouteOpensItsStationOnColdLaunch() {
+        app.terminate()
+        app.launchArguments += [
+            "-pending_station_id", "1085621741",
+        ]
+        app.launch()
+
+        XCTAssertTrue(
+            app.navigationBars["Stephansplatz"].waitForExistence(timeout: 8)
+        )
+        XCTAssertTrue(
+            app.tabBars.firstMatch.buttons["Discover"].isSelected
+        )
+    }
+
+    private func openStephansplatz() {
         app.tabBars.firstMatch.buttons["Discover"].tap()
 
         let searchField = app.searchFields["Stop name"]
@@ -58,7 +101,6 @@ final class TrafficViennaUITests: XCTestCase {
         ).firstMatch
         XCTAssertTrue(result.waitForExistence(timeout: 5))
         result.tap()
-
         XCTAssertTrue(
             app.navigationBars["Stephansplatz"].waitForExistence(timeout: 5)
                 || app.navigationBars["Stephansplatz U"].waitForExistence(timeout: 5)

@@ -20,4 +20,28 @@ struct SystemLiveActivityStarter: LiveActivityStarting {
             isLive: isLive
         )
     }
+
+    func update(
+        line: String,
+        destination: String,
+        stop: String,
+        minutes: Int,
+        isLive: Bool
+    ) {
+        LiveActivityController.update(
+            line: line,
+            destination: destination,
+            stop: stop,
+            minutes: minutes,
+            isLive: isLive
+        )
+    }
+
+    func activeDepartureID(for stop: String) -> StationDepartureID? {
+        LiveActivityController.activeDepartureID(for: stop)
+    }
+
+    func stopAll() {
+        LiveActivityController.stopAll()
+    }
 }

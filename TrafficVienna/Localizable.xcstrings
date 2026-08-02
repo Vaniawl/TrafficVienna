@@ -2338,7 +2338,42 @@
           }
         }
       }
-    }
+    },
+    "%@ leaves in %lld min" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "%@ fährt in %lld Min." } } } },
+    "%@ → %@" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "%@ → %@" } } } },
+    "Cancel all" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Alle abbrechen" } } } },
+    "Cancel all reminders" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Alle Erinnerungen abbrechen" } } } },
+    "Cancel all reminders?" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Alle Erinnerungen abbrechen?" } } } },
+    "Choose Remind me from a live departure to see it here." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Wähle bei einer Live-Abfahrt „Erinnern“, damit sie hier erscheint." } } } },
+    "Departure options for %@ to %@" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrtsoptionen für %@ nach %@" } } } },
+    "Departure reminder" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrtserinnerung" } } } },
+    "Departure reminders" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrtserinnerungen" } } } },
+    "Disabled" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Deaktiviert" } } } },
+    "Enable notifications in Settings to receive departure reminders." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktiviere Mitteilungen in den Einstellungen, um Abfahrtserinnerungen zu erhalten." } } } },
+    "Enabled" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktiviert" } } } },
+    "Favourites, recent searches, onboarding state, widget preferences, and departure reminders stay on your device or in the app’s shared widget container." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Favoriten, letzte Suchen, Einführungsstatus, Widget-Einstellungen und Abfahrtserinnerungen bleiben auf deinem Gerät oder im gemeinsamen Widget-Container der App." } } } },
+    "If you create a departure reminder, Traffic Vienna asks iOS to deliver a local notification on this device. Reminder details are not sent to Traffic Vienna or to a push-notification server. You can cancel reminders in the app or revoke notification access in Settings." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Wenn du eine Abfahrtserinnerung erstellst, beauftragt Traffic Vienna iOS mit einer lokalen Mitteilung auf diesem Gerät. Erinnerungsdetails werden weder an Traffic Vienna noch an einen Push-Server gesendet. Du kannst Erinnerungen in der App abbrechen oder den Mitteilungszugriff in den Einstellungen widerrufen." } } } },
+    "Keep reminders" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Erinnerungen behalten" } } } },
+    "Last updated: 30 July 2026" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Zuletzt aktualisiert: 30. Juli 2026" } } } },
+    "Live departures required" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Live-Abfahrten erforderlich" } } } },
+    "Loading reminders…" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Erinnerungen werden geladen …" } } } },
+    "No departure reminders" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Keine Abfahrtserinnerungen" } } } },
+    "Not requested" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Nicht angefragt" } } } },
+    "Notifications" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Mitteilungen" } } } },
+    "Open notification settings" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Mitteilungseinstellungen öffnen" } } } },
+    "Permission" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Berechtigung" } } } },
+    "Remind me before departure" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Vor der Abfahrt erinnern" } } } },
+    "Reminder %@" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Erinnerung %@" } } } },
+    "Reminder set" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Erinnerung erstellt" } } } },
+    "Refresh live departures before setting a reminder or starting Lock Screen tracking." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktualisiere die Live-Abfahrten, bevor du eine Erinnerung oder das Sperrbildschirm-Tracking startest." } } } },
+    "Scheduled" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Geplant" } } } },
+    "Stop Lock Screen tracking" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Sperrbildschirm-Tracking beenden" } } } },
+    "This departure is too soon for a reminder." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Diese Abfahrt ist zu nah für eine Erinnerung." } } } },
+    "The reminder could not be scheduled. Please try again." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Die Erinnerung konnte nicht geplant werden. Bitte versuche es erneut." } } } },
+    "This removes every pending departure reminder from this device." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Dadurch werden alle ausstehenden Abfahrtserinnerungen von diesem Gerät entfernt." } } } },
+    "Traffic Vienna asks for permission only when you create your first reminder." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Traffic Vienna bittet erst beim Erstellen deiner ersten Erinnerung um Erlaubnis." } } } },
+    "We’ll remind you about %@ at %@." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Wir erinnern dich an %@ um %@." } } } },
+    "You can remove favourites, recent searches, and departure reminders in the app. Deleting the app removes its local app and widget data." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Du kannst Favoriten, letzte Suchen und Abfahrtserinnerungen in der App entfernen. Beim Löschen der App werden ihre lokalen App- und Widget-Daten entfernt." } } } }
   },
   "version" : "1.0"
 }

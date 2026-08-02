@@ -44,10 +44,12 @@ A `Go` requires:
 - The account-only Apple identity surface and entitlement were removed because
   they provided no cross-device feature and prevented the installed profile from
   archiving. A one-time migration deletes the legacy device-only Keychain item.
-- All 117 XCTest cases pass with zero failures or skips, including two XCUITest
+- All 137 XCTest cases pass with zero failures or skips, including four XCUITest
   journeys through the four-tab shell, Discover map entry, alert filters, Saved,
-  and search-to-station navigation. The cleanup migration is covered for success,
-  missing-item, and retry-after-failure paths.
+  and search-to-station navigation. Local reminder planning/decoding, notification
+  denial recovery, Live Activity update/stop behavior, and widget departure-boundary
+  scheduling, stale countdown prevention, permission-prompt expiry, and
+  ActivityKit state restoration have regression coverage.
 - iPhone 17 Pro Max and iPad Pro 13-inch runtime builds complete without
   diagnostics. English, German, location-denied, live-data, Favourites, and
   maximum Accessibility Dynamic Type paths were exercised.
@@ -57,7 +59,13 @@ A `Go` requires:
   non-interactive Keychain error at widget `codesign`.
 - Ten current localized 6.9-inch screenshots are prepared at 1320×2868 JPEG with
   no alpha: Home, Station Detail, Discover Map, Alerts, and Saved in both `en-US`
-  and `de-AT`.
+  and `de-AT`. The final pass reduced map density and recaptured both localized
+  Map frames.
+- All six widget families compile with explicit previews. Simulator acceptance
+  rendered small, medium, and large Home Screen widgets in light mode, large in
+  dark mode, a circular Lock Screen widget, and the Lock Screen Live Activity.
+  Countdown boundary scheduling, adaptive one-route layouts, and unclipped
+  freshness labels were observed; physical/TestFlight acceptance remains a gate.
 - One-shot coalesced location requests replace continuous tracking. The redesigned
   station detail reaches a settled UI state; eight idle Debug Simulator process
   samples measured 0.0% CPU after removing its repeating pulse and 30-second
@@ -89,7 +97,7 @@ A `Go` requires:
 | Distribution signing | The old Sign in with Apple profile mismatch is gone. Both signed archive and connected-device Release build select the expected identity/profiles and reach widget signing, but the login Keychain rejects non-interactive private-key access with `errSecInternalComponent`. | Grant `codesign` access to the private key in an interactive trusted session, then produce and inspect one clean signed archive. |
 | App Store Connect | Xcode provisioning access works for team `KZNP8PH94C`, but its distribution logs report no local account with App Store Connect access for that team. No browser or API-key session is available. | Authenticate an App Store Connect account or API key for the team, then confirm bundle ID registration, app record, agreements, roles, version/build uniqueness, privacy answers, age rating, categories, availability, and review contact. |
 | Store assets | Metadata and ten technically valid localized 6.9-inch screenshots are prepared locally. | Attach them to the App Store version and verify the final locale/order in App Store Connect. |
-| System-surface acceptance | Simulator coverage cannot prove production Apple signing, physical-device location, widget refresh, Dynamic Island, or Live Activity behavior. | Install a signed/TestFlight build on a supported physical device and complete the release smoke path. |
+| System-surface acceptance | Simulator coverage cannot prove production Apple signing, physical-device location, notification delivery, widget refresh/configuration, Dynamic Island, or Live Activity behavior. | Install a signed/TestFlight build on a supported physical device and complete the release smoke path, including local departure reminders. |
 | Apple processing | No build has been uploaded. | Upload only after explicit release approval; wait for processing, inspect warnings/privacy report, then run internal TestFlight smoke. |
 
 ## Repeatable evidence commands
