@@ -14,10 +14,11 @@
 - [x] **REQ-TV-005 — Performance.** Requests remain coalesced/cancellable and
   formatter creation was removed from the widget body. Settled iPad Simulator
   sampling measured 0.0% CPU in five observations.
-- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 147 tests, static
+- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 150 tests, static
   analysis, localisation extraction, repository validators, and diff checks
-  pass. Hosted Quality run `30758920980` installed the pinned OpenCode CLI and
-  completed the full `scripts/ci.sh` wrapper successfully.
+  pass. Hosted Quality run `30759655528` installed the pinned OpenCode CLI and
+  completed the previously published full `scripts/ci.sh` wrapper successfully;
+  every new published commit still requires its own protected run.
 - [x] **REQ-TV-007 — Review-ready state.** Architecture/security findings and
   documentation are resolved; the reviewed branch is maintained in draft PR #15.
 - [x] **REQ-TV-008 — Truthful system surfaces.** Reminders are local and
@@ -41,6 +42,9 @@
   and make Map ignore stale coordinates whenever permission is not authorized.
 - [x] Restrict sample widget departures to Widget Gallery previews; an empty
   runtime snapshot now renders the existing truthful empty state.
+- [x] Coalesce Saved reloads that overlap an in-flight request, preserve a queued
+  forced refresh, and prevent an obsolete route snapshot from reaching UI or the
+  widget after the repository changes.
 - [x] Move relative-time formatting out of the widget render body.
 - [x] Let reminder destinations/stops grow at accessibility Dynamic Type sizes.
 - [x] Add focused regression coverage for each behavioral change.
@@ -58,14 +62,15 @@
 
 ## Final validation and handoff
 
-- [x] Full iPhone 17 build and test suite: 143 model/service + 4 UI tests.
+- [x] Full iPhone 17 build and test suite: 146 model/service + 4 UI tests.
 - [x] Static analyzer and repository/OpenCode structural validators.
 - [x] English/German compiler-extraction catalogue comparison.
 - [x] `git diff --check`, security scan, and changed-file review.
 - [x] Synchronize `STATUS.md`, root/memory journals, and architectural decisions.
 - [x] Run `bash scripts/ci.sh` with the required OpenCode runtime: hosted
-  Quality run `30758920980` passed in 8m41s. The local host still lacks that
-  global CLI, so local wrapper attempts stop at the permission matcher.
+  Quality run `30759655528` passed the previously published baseline in 12m34s.
+  The local host still lacks that global CLI, so local wrapper attempts stop at
+  the permission matcher and protected CI remains authoritative after publication.
 - [x] Commit reviewed paths, push `codex/system-surfaces-readiness`, and open
   draft PR #15.
 

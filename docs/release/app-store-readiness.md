@@ -44,7 +44,7 @@ A `Go` requires:
 - The account-only Apple identity surface and entitlement were removed because
   they provided no cross-device feature and prevented the installed profile from
   archiving. A one-time migration deletes the legacy device-only Keychain item.
-- All 147 XCTest cases pass with zero failures or skips, including four XCUITest
+- All 150 XCTest cases pass with zero failures or skips, including four XCUITest
   journeys through the four-tab shell, Discover map entry, alert filters, Saved,
   and search-to-station navigation. Local reminder planning/decoding, idempotent
   route replacement and legacy cleanup, notification denial recovery, Live
@@ -54,6 +54,10 @@ A `Go` requires:
   precise coordinates, and Map ignores stale coordinates without authorization.
   Widget snapshot policy keeps example departures inside Gallery previews and
   uses the real empty state when a runtime snapshot has no selected or cached data.
+  Saved-route reload coverage proves that an overlapping repository change queues
+  one current pass even before notification delivery, preserves an explicit forced
+  refresh, and blocks an obsolete pass from republishing removed data to the UI or
+  widget. Cancellation still prevents both publication and a queued follow-up.
 - iPhone 17 Pro Max and iPad Pro 13-inch runtime builds complete without
   diagnostics. English, German, location-denied, live-data, Favourites, and
   maximum Accessibility Dynamic Type paths were exercised.

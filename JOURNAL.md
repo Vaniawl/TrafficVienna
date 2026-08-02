@@ -1,5 +1,25 @@
 # Journal
 
+## 2026-08-02 - Saved-route reload consistency
+
+- Found that `FavoritesListViewModel` discarded every reload requested while a
+  sequential monitor pass was in flight. Adding or removing a saved route during
+  that window could let the old pass restore the removed row and widget payload
+  until the next 60-second root refresh.
+- Coalesce overlapping requests into one follow-up pass, retain the strongest
+  queued `forceRefresh` value, revalidate the repository snapshot before commit,
+  and suppress publication from any pass that is already obsolete. Cancellation
+  still ends the owner-scoped chain without publishing or continuing in the
+  background.
+- Three deterministic concurrency regressions cover route replacement, force
+  preservation, and cancellation. The focused Saved suite passes 13/13; the
+  authoritative full `.xcresult` reports 150/150 passing with zero failures or
+  skips. Exact app/widget build, static analysis, repository/OpenCode validators,
+  scoped boundary scan, and `git diff --check` pass.
+- No endpoint, cache format, App Group key, entitlement, dependency, localization,
+  copy, or layout changed. Existing screenshots remain representative because the
+  slice corrects only transient state ownership.
+
 ## 2026-08-02 - Truthful empty widget snapshots
 
 - Found that `Provider.snapshot` reused its sample U1/O placeholder whenever no

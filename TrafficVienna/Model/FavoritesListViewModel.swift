@@ -14,6 +14,8 @@ final class FavoritesListViewModel {
     private let favoritesRepo: FavoritesRepository
     private let stationsRepo: FavoriteStationsStoring
     private let widgetSync: WidgetSyncing
+    // nil means no queued pass; false/true retain the strongest queued request.
+    private var queuedReloadForceRefresh: Bool?
 
     init(
         service: MonitorProviding = MonitorService.shared,
@@ -55,7 +57,28 @@ final class FavoritesListViewModel {
     }
 
     func loadFavorites(forceRefresh: Bool = false) async {
-        guard !isLoading else { return }
+        guard !isLoading else {
+            queuedReloadForceRefresh = (queuedReloadForceRefresh ?? false) || forceRefresh
+            return
+        }
+
+        isLoading = true
+        defer {
+            queuedReloadForceRefresh = nil
+            isLoading = false
+        }
+
+        var nextForceRefresh: Bool? = forceRefresh
+        while let currentForceRefresh = nextForceRefresh {
+            await loadFavoritesPass(forceRefresh: currentForceRefresh)
+            guard !Task.isCancelled else { return }
+
+            nextForceRefresh = queuedReloadForceRefresh
+            queuedReloadForceRefresh = nil
+        }
+    }
+
+    private func loadFavoritesPass(forceRefresh: Bool) async {
         let routes = favoritesRepo.getAll().sorted()
         guard !routes.isEmpty else {
             items = []
@@ -64,15 +87,17 @@ final class FavoritesListViewModel {
             return
         }
 
-        isLoading = true
-        defer { isLoading = false }
-
         var result: [FavoriteWithDeparture] = []
         for route in routes {
             guard !Task.isCancelled else { return }
             result.append(await loadItem(for: route, forceRefresh: forceRefresh))
         }
         guard !Task.isCancelled else { return }
+        guard favoritesRepo.getAll().sorted() == routes else {
+            queuedReloadForceRefresh = queuedReloadForceRefresh ?? false
+            return
+        }
+        guard queuedReloadForceRefresh == nil else { return }
         items = result
         updateFeaturedDeparture()
         syncWidget()

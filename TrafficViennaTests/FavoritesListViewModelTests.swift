@@ -82,6 +82,83 @@ final class FavoritesListViewModelTests: XCTestCase {
         XCTAssertEqual(widget.lastSaved.first?.lineName, "U1")
     }
 
+    func testRouteChangeDuringLoadSkipsStaleCommitAndRunsFollowUpPass() async {
+        let original = route("U1", "Leopoldau")
+        let replacement = route("U4", "Heiligenstadt")
+        let routes = StubFavoritesRepository(routes: [original])
+        let monitor = BlockingMonitorProvider(response: response(countdown: 5))
+        let widget = StubWidgetSync()
+        let viewModel = FavoritesListViewModel(
+            service: monitor,
+            favoritesRepo: routes,
+            stationsRepo: StubFavoriteStationsRepository(),
+            widgetSync: widget
+        )
+        let initialLoad = Task { await viewModel.loadFavorites() }
+        await monitor.waitForCall(1)
+
+        routes.routes = [replacement]
+        await monitor.releaseCall(1)
+        await monitor.waitForCall(2)
+
+        XCTAssertTrue(viewModel.items.isEmpty)
+        XCTAssertTrue(widget.savedBatches.isEmpty)
+
+        await monitor.releaseCall(2)
+        await initialLoad.value
+
+        XCTAssertEqual(viewModel.items.map(\.route), [replacement])
+        XCTAssertEqual(widget.savedBatches.count, 1)
+        XCTAssertEqual(widget.lastSaved.map(\.lineName), ["U4"])
+        let forceRefreshValues = await monitor.forceRefreshValues
+        XCTAssertEqual(forceRefreshValues, [false, false])
+    }
+
+    func testOverlappingLoadsCoalesceAndPreserveForcedRefresh() async {
+        let routes = StubFavoritesRepository(routes: [route("U1", "Leopoldau")])
+        let monitor = BlockingMonitorProvider(response: response(countdown: 5))
+        let viewModel = makeViewModel(service: monitor, favoritesRepo: routes)
+        let initialLoad = Task { await viewModel.loadFavorites() }
+        await monitor.waitForCall(1)
+
+        await viewModel.loadFavorites()
+        await viewModel.loadFavorites(forceRefresh: true)
+        await monitor.releaseCall(1)
+        await monitor.waitForCall(2)
+        await monitor.releaseCall(2)
+        await initialLoad.value
+
+        let forceRefreshValues = await monitor.forceRefreshValues
+        XCTAssertEqual(forceRefreshValues, [false, true])
+        XCTAssertEqual(viewModel.items.map(\.route.lineName), ["U1"])
+        XCTAssertFalse(viewModel.isLoading)
+    }
+
+    func testCancelledLoadDropsQueuedPassWithoutPublishing() async {
+        let routes = StubFavoritesRepository(routes: [route("U1", "Leopoldau")])
+        let monitor = BlockingMonitorProvider(response: response(countdown: 5))
+        let widget = StubWidgetSync()
+        let viewModel = FavoritesListViewModel(
+            service: monitor,
+            favoritesRepo: routes,
+            stationsRepo: StubFavoriteStationsRepository(),
+            widgetSync: widget
+        )
+        let load = Task { await viewModel.loadFavorites() }
+        await monitor.waitForCall(1)
+
+        await viewModel.loadFavorites(forceRefresh: true)
+        load.cancel()
+        await monitor.releaseCall(1)
+        await load.value
+
+        let forceRefreshValues = await monitor.forceRefreshValues
+        XCTAssertEqual(forceRefreshValues, [false])
+        XCTAssertTrue(viewModel.items.isEmpty)
+        XCTAssertTrue(widget.savedBatches.isEmpty)
+        XCTAssertFalse(viewModel.isLoading)
+    }
+
     func testFeaturedDepartureSelectsSoonestNonnegativeSavedRoute() async {
         let routes = StubFavoritesRepository(routes: [
             route("U4", "Heiligenstadt"),
@@ -135,7 +212,7 @@ final class FavoritesListViewModelTests: XCTestCase {
     }
 
     private func makeViewModel(
-        service: StubMonitorProvider? = nil,
+        service: MonitorProviding? = nil,
         favoritesRepo: StubFavoritesRepository = StubFavoritesRepository(),
         stationsRepo: StubFavoriteStationsRepository = StubFavoriteStationsRepository()
     ) -> FavoritesListViewModel {
@@ -201,6 +278,62 @@ private actor StubMonitorProvider: MonitorProviding {
     }
 }
 
+private actor BlockingMonitorProvider: MonitorProviding {
+    private let response: MonitorResponse
+    private var callCount = 0
+    private var callWaiters: [Int: [CheckedContinuation<Void, Never>]] = [:]
+    private var releaseContinuations: [Int: CheckedContinuation<Void, Never>] = [:]
+    private var releasedCalls: Set<Int> = []
+    private(set) var forceRefreshValues: [Bool] = []
+
+    init(response: MonitorResponse) {
+        self.response = response
+    }
+
+    func monitor(diva: Int, forceRefresh: Bool) async throws -> MonitorResponse {
+        try await monitorSnapshot(diva: diva, forceRefresh: forceRefresh).response
+    }
+
+    func monitorSnapshot(diva: Int, forceRefresh: Bool) async throws -> MonitorSnapshot {
+        callCount += 1
+        let call = callCount
+        forceRefreshValues.append(forceRefresh)
+        resumeCallWaiters()
+
+        await withCheckedContinuation { continuation in
+            if releasedCalls.remove(call) != nil {
+                continuation.resume()
+            } else {
+                releaseContinuations[call] = continuation
+            }
+        }
+
+        return MonitorSnapshot(response: response, updatedAt: .now, isStale: false)
+    }
+
+    func waitForCall(_ expectedCount: Int) async {
+        guard callCount < expectedCount else { return }
+        await withCheckedContinuation { continuation in
+            callWaiters[expectedCount, default: []].append(continuation)
+        }
+    }
+
+    func releaseCall(_ call: Int) {
+        if let continuation = releaseContinuations.removeValue(forKey: call) {
+            continuation.resume()
+        } else {
+            releasedCalls.insert(call)
+        }
+    }
+
+    private func resumeCallWaiters() {
+        let readyCounts = callWaiters.keys.filter { $0 <= callCount }
+        for count in readyCounts {
+            callWaiters.removeValue(forKey: count)?.forEach { $0.resume() }
+        }
+    }
+}
+
 private final class StubFavoritesRepository: FavoritesRepository, @unchecked Sendable {
     var routes: Set<FavoriteRoute>
     init(routes: [FavoriteRoute] = []) { self.routes = Set(routes) }
@@ -231,5 +364,9 @@ private final class StubFavoriteStationsRepository: FavoriteStationsStoring, @un
 
 private final class StubWidgetSync: WidgetSyncing, @unchecked Sendable {
     var lastSaved: [WidgetDepartureData] = []
-    func save(_ data: [WidgetDepartureData]) { lastSaved = data }
+    var savedBatches: [[WidgetDepartureData]] = []
+    func save(_ data: [WidgetDepartureData]) {
+        lastSaved = data
+        savedBatches.append(data)
+    }
 }

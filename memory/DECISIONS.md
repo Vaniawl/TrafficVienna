@@ -1,5 +1,27 @@
 # Architectural Decisions
 
+## 2026-08-02 — Saved-route reloads preserve the newest repository state
+
+**Context:** Saved routes refresh sequentially while the root receives repository
+change notifications. The view model previously returned immediately from any
+reload requested during an active pass. A user mutation could therefore be lost
+as a reload signal, allowing the older route snapshot to repopulate both Saved and
+the widget until the periodic root task ran again. An explicit pull-to-refresh
+could also lose its cache-bypass intent behind the active pass.
+
+**Decision:** Keep one owner-scoped load chain in `FavoritesListViewModel`. Queue
+at most one follow-up pass while it is active, combine queued requests so any
+`forceRefresh` wins, re-read the route repository before commit, and do not
+publish a completed pass when its captured route set is no longer current. If the
+owner task is cancelled, discard the queued pass and publish nothing from the
+cancelled request.
+
+**Consequences:** Saved and the widget converge on the newest repository state
+without parallel route fetches or a 60-second inconsistency window. User refresh
+intent is preserved, while cancellation, repository format, App Group storage,
+network throttling, and existing MVVM/notification ownership remain unchanged.
+Rollback is a normal revert and requires no migration.
+
 ## 2026-08-02 — Widget examples stay inside Gallery previews
 
 **Context:** WidgetKit uses `placeholder` for gallery presentation, but the
