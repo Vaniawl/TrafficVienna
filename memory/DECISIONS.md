@@ -1,5 +1,24 @@
 # Architectural Decisions
 
+## 2026-08-03 — Widget timelines cover every rendered departure
+
+**Context:** App Group sync and direct widget fetch both persist at most three
+departures per route, and several widget families render all three. Timeline
+scheduling created removal boundaries for only the first two. If the third
+departure fell before the five-minute refresh deadline, its system countdown
+could reach zero and remain visible until the network refresh.
+
+**Decision:** Schedule departure and one-minute-post-departure entries for the
+first three stored countdowns per route, matching the presentation and storage
+limit. Continue de-duplicating dates and ignore boundaries outside the existing
+five-minute refresh window.
+
+**Consequences:** Every rendered countdown is projected away on time without
+increasing network frequency or changing the widget payload, cache, App Group
+keys, endpoint, entitlement, localization, copy, or layout. The maximum timeline
+remains bounded by three routes times three departures, and rollback is a normal
+revert with no migration.
+
 ## 2026-08-03 — Widget refresh budgets are scoped by route selection
 
 **Context:** Every widget timeline used one App Group timestamp for the most

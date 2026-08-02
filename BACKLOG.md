@@ -14,9 +14,9 @@
 - [x] **REQ-TV-005 — Performance.** Requests remain coalesced/cancellable and
   formatter creation was removed from the widget body. Settled iPad Simulator
   sampling measured 0.0% CPU in five observations.
-- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 183 tests, static
+- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 184 tests, static
   analysis, localisation extraction, repository validators, and diff checks
-  pass. Hosted Quality run `30769227036` installed the pinned OpenCode CLI and
+  pass. Hosted Quality run `30771697899` installed the pinned OpenCode CLI and
   completed the previously published full `scripts/ci.sh` wrapper successfully;
   every new published commit still requires its own protected run.
 - [x] **REQ-TV-007 — Review-ready state.** Architecture/security findings and
@@ -73,6 +73,9 @@
 - [x] Scope widget fetch throttling to the canonical selected-route set so one
   widget configuration cannot suppress another configuration's first refresh,
   while empty configurations consume no refresh budget.
+- [x] Schedule timeline boundaries for all three departures that widget layouts
+  can render, so the third countdown is removed on time instead of lingering at
+  zero until the five-minute network refresh.
 - [x] Keep the Live Activity UI journey meaningful overnight by using the
   24-hour Schwedenplatz hub while retaining independent Stephansplatz search and
   notification-routing coverage.
@@ -96,16 +99,18 @@
   and capture Home Screen screenshots proving that the corrected widget reports
   source age without breaking its live countdown.
 - [x] Capture and inspect the current empty-selection small widget on iPhone 17.
+- [x] Capture and inspect a live small widget showing three real N38 countdowns
+  after the visible-departure scheduling fix.
 
 ## Final validation and handoff
 
-- [x] Full iPhone 17 build and test suite: 179 model/service + 4 UI tests.
+- [x] Full iPhone 17 build and test suite: 180 model/service + 4 UI tests.
 - [x] Static analyzer and repository/OpenCode structural validators.
 - [x] English/German compiler-extraction catalogue comparison.
 - [x] `git diff --check`, security scan, and changed-file review.
 - [x] Synchronize `STATUS.md`, root/memory journals, and architectural decisions.
 - [x] Run `bash scripts/ci.sh` with the required OpenCode runtime: hosted
-  Quality run `30769227036` passed the previously published `a5897901` baseline.
+  Quality run `30771697899` passed the previously published `e93e6a39` baseline.
   The local host still lacks that global CLI, so local wrapper attempts stop at
   the permission matcher and protected CI remains authoritative after publication.
 - [x] Commit reviewed paths, push `codex/system-surfaces-readiness`, and open

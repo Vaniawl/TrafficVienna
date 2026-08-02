@@ -1,5 +1,20 @@
 # Journal
 
+## 2026-08-03 — Widget timelines remove every visible departure
+
+- Reproduced that timeline scheduling considered only the first two countdowns
+  even though small, large, and Lock Screen widgets can render three. The focused
+  regression failed with the third departure's one-minute removal boundary at
+  `now + 240s` missing and a direct jump to the five-minute refresh.
+- The shared schedule now covers the same maximum of three departures enforced by
+  app sync, widget fetch, and presentation. Boundaries remain de-duplicated and
+  clamped to the existing refresh deadline; network cadence and layout are
+  unchanged.
+- The focused shared suite passes 58/58 and the authoritative iPhone 17
+  `.xcresult` reports 184/184 with zero failures or skips. A fresh 368×800 Home
+  Screen screenshot shows a real N38 route with the next two follow-up countdowns
+  visible, without clipping or placeholder data.
+
 ## 2026-08-03 — Widget refresh throttles stay configuration-scoped
 
 - Reproduced that the widget's single five-minute attempt timestamp let one
