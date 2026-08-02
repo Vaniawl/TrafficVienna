@@ -6,7 +6,7 @@
 - Stack: native SwiftUI iOS application, widget extension, XCTest, and XCUITest.
 - Current phase: continued reliability improvements on the existing draft PR.
 - Product shell: Home, Discover, Alerts, and Saved; accounts are out of scope.
-- Verified tests: 177/177 pass on iPhone 17 Simulator (173 model/service tests
+- Verified tests: 180/180 pass on iPhone 17 Simulator (176 model/service tests
   and 4 UI tests), with zero failures or skips. App and widget build successfully.
 - Verified visual coverage: four journeys and key secondary surfaces were
   exercised on iPhone 17; Home, Station Detail, and reminder management were
@@ -19,8 +19,9 @@
   making repeated reminders for one route idempotent. Location authorization is
   now authoritative over cached coordinates and Map projection. Widget samples
   are confined to Gallery previews and cannot appear in an empty runtime snapshot.
-  Saved-route reloads coalesce without losing repository changes or a queued
-  forced refresh, and obsolete results cannot overwrite UI/widget state. Station
+  Saved-route reloads and targeted row retries share one serialized owner: they
+  coalesce without losing repository changes or force intent, obsolete results
+  cannot overwrite UI/widget state, and cancellation drops queued work. Station
   Detail and Alerts likewise preserve a manual forced refresh behind active
   polling, suppress the obsolete pass, and discard queued work on cancellation.
   Nearby now serializes refresh ownership, carries the strongest force intent to
@@ -47,8 +48,8 @@
 - Infrastructure limitation: `bash scripts/ci.sh` reaches the permission matcher
   and exits 127 because the required global `opencode` CLI is not installed.
   The reliability script's Python and timeout fixtures pass before the same
-  missing-tool boundary. Hosted Quality run `30768267220` supplied the pinned
-  CLI and passed the previously published complete wrapper at `80f48df6`.
+  missing-tool boundary. Hosted Quality run `30769227036` supplied the pinned
+  CLI and passed the previously published complete wrapper at `a5897901`.
 - Handoff: draft PR #15 tracks `codex/system-surfaces-readiness` against protected
   `main`; each published update must pass its protected validation.
 - The current slice passes its local gates; protected CI remains the publication
@@ -63,8 +64,8 @@
   countdown continued updating.
 - Focused iPhone 17 UI acceptance opened Stephansplatz, started Lock Screen
   tracking, observed the stop action, and stopped the Live Activity successfully.
-  The current 368×800 reminder-management screenshot also confirms the unchanged
-  permission and empty-state layout after the state-ownership refactor.
+  Current 368×800 screenshots also confirm reminder management and the Saved
+  commute/line hierarchy after their respective state-ownership refactors.
 - External release gates: distribution signing, App Store Connect processed build,
   and signed physical-device TestFlight acceptance are not provided by Simulator
   evidence.

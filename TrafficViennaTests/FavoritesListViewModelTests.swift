@@ -66,6 +66,37 @@ final class FavoritesListViewModelTests: XCTestCase {
         XCTAssertEqual(forceRefreshValues, [false, true])
     }
 
+    func testRetryDuringActiveLoadRunsForcedFollowUpWithoutStaleOverwrite() async {
+        let favorite = route("U1", "Leopoldau")
+        let monitor = BlockingMonitorProvider(responses: [
+            response(countdown: 8),
+            response(countdown: 7),
+            response(countdown: 2)
+        ])
+        let viewModel = makeViewModel(
+            service: monitor,
+            favoritesRepo: StubFavoritesRepository(routes: [favorite])
+        )
+
+        let initialLoad = Task { await viewModel.loadFavorites() }
+        await monitor.waitForCall(1)
+        await monitor.releaseCall(1)
+        await initialLoad.value
+
+        let backgroundLoad = Task { await viewModel.loadFavorites() }
+        await monitor.waitForCall(2)
+        await monitor.releaseCall(3)
+
+        let retry = Task { await viewModel.refresh(favorite) }
+        await retry.value
+        await monitor.releaseCall(2)
+        await backgroundLoad.value
+
+        XCTAssertEqual(viewModel.items.first?.departures.first?.countdown, 2)
+        let forceRefreshValues = await monitor.forceRefreshValues
+        XCTAssertEqual(forceRefreshValues, [false, false, true])
+    }
+
     func testCachedRouteIsLabelledAndRemainsEligibleForWidget() async {
         let favorite = route("U1", "Leopoldau")
         let sourceUpdatedAt = Date(timeIntervalSince1970: 1_000)
@@ -141,6 +172,27 @@ final class FavoritesListViewModelTests: XCTestCase {
         XCTAssertFalse(viewModel.isLoading)
     }
 
+    func testForcedFullReloadSubsumesQueuedRouteRetry() async {
+        let favorite = route("U1", "Leopoldau")
+        let routes = StubFavoritesRepository(routes: [favorite])
+        let monitor = BlockingMonitorProvider(response: response(countdown: 5))
+        let viewModel = makeViewModel(service: monitor, favoritesRepo: routes)
+        let initialLoad = Task { await viewModel.loadFavorites() }
+        await monitor.waitForCall(1)
+
+        await viewModel.refresh(favorite)
+        await viewModel.loadFavorites(forceRefresh: true)
+        await monitor.releaseCall(1)
+        await monitor.waitForCall(2)
+        await monitor.releaseCall(2)
+        await initialLoad.value
+
+        let forceRefreshValues = await monitor.forceRefreshValues
+        XCTAssertEqual(forceRefreshValues, [false, true])
+        XCTAssertEqual(viewModel.items.map(\.route), [favorite])
+        XCTAssertFalse(viewModel.isLoading)
+    }
+
     func testCancelledLoadDropsQueuedPassWithoutPublishing() async {
         let routes = StubFavoritesRepository(routes: [route("U1", "Leopoldau")])
         let monitor = BlockingMonitorProvider(response: response(countdown: 5))
@@ -155,6 +207,34 @@ final class FavoritesListViewModelTests: XCTestCase {
         await monitor.waitForCall(1)
 
         await viewModel.loadFavorites(forceRefresh: true)
+        load.cancel()
+        await monitor.releaseCall(1)
+        await load.value
+
+        let forceRefreshValues = await monitor.forceRefreshValues
+        XCTAssertEqual(forceRefreshValues, [false])
+        XCTAssertTrue(viewModel.items.isEmpty)
+        XCTAssertTrue(widget.savedBatches.isEmpty)
+        XCTAssertFalse(viewModel.isLoading)
+    }
+
+    func testCancelledLoadDropsQueuedRouteRetryWithoutPublishing() async {
+        let favorite = route("U1", "Leopoldau")
+        let routes = StubFavoritesRepository(routes: [favorite])
+        let monitor = BlockingMonitorProvider(response: response(countdown: 5))
+        let widget = StubWidgetSync()
+        let viewModel = FavoritesListViewModel(
+            service: monitor,
+            favoritesRepo: routes,
+            stationsRepo: StubFavoriteStationsRepository(),
+            widgetSync: widget
+        )
+        let load = Task { await viewModel.loadFavorites() }
+        await monitor.waitForCall(1)
+        await monitor.releaseCall(2)
+
+        let retry = Task { await viewModel.refresh(favorite) }
+        await retry.value
         load.cancel()
         await monitor.releaseCall(1)
         await load.value
@@ -292,7 +372,7 @@ private actor StubMonitorProvider: MonitorProviding {
 }
 
 private actor BlockingMonitorProvider: MonitorProviding {
-    private let response: MonitorResponse
+    private let responses: [MonitorResponse]
     private var callCount = 0
     private var callWaiters: [Int: [CheckedContinuation<Void, Never>]] = [:]
     private var releaseContinuations: [Int: CheckedContinuation<Void, Never>] = [:]
@@ -300,7 +380,12 @@ private actor BlockingMonitorProvider: MonitorProviding {
     private(set) var forceRefreshValues: [Bool] = []
 
     init(response: MonitorResponse) {
-        self.response = response
+        responses = [response]
+    }
+
+    init(responses: [MonitorResponse]) {
+        precondition(!responses.isEmpty)
+        self.responses = responses
     }
 
     func monitor(diva: Int, forceRefresh: Bool) async throws -> MonitorResponse {
@@ -321,7 +406,11 @@ private actor BlockingMonitorProvider: MonitorProviding {
             }
         }
 
-        return MonitorSnapshot(response: response, updatedAt: .now, isStale: false)
+        return MonitorSnapshot(
+            response: responses[min(call - 1, responses.count - 1)],
+            updatedAt: .now,
+            isStale: false
+        )
     }
 
     func waitForCall(_ expectedCount: Int) async {

@@ -1,6 +1,6 @@
 # App Store readiness
 
-Status date: 2 August 2026
+Status date: 3 August 2026
 
 Current verdict: **No-Go** until every blocking item below has observed evidence.
 This file is intentionally stricter than a successful Simulator build.
@@ -44,7 +44,7 @@ A `Go` requires:
 - The account-only Apple identity surface and entitlement were removed because
   they provided no cross-device feature and prevented the installed profile from
   archiving. A one-time migration deletes the legacy device-only Keychain item.
-- All 167 XCTest cases pass with zero failures or skips, including four XCUITest
+- All 180 tests pass with zero failures or skips, including four XCUITest
   journeys through the four-tab shell, Discover map entry, alert filters, Saved,
   and search-to-station navigation. Local reminder planning/decoding, idempotent
   route replacement and legacy cleanup, notification denial recovery, Live
@@ -57,7 +57,9 @@ A `Go` requires:
   Saved-route reload coverage proves that an overlapping repository change queues
   one current pass even before notification delivery, preserves an explicit forced
   refresh, and blocks an obsolete pass from republishing removed data to the UI or
-  widget. Cancellation still prevents both publication and a queued follow-up.
+  widget. Targeted row retries use the same serialized owner, cannot be overwritten
+  by an older polling result, and are subsumed by a queued forced full refresh.
+  Cancellation still prevents publication and any queued follow-up or retry.
   Station Detail and Alerts also queue one explicit forced refresh behind active
   polling, suppress the obsolete pass and its error, and drop the queued follow-up
   when the owning task is cancelled. Nearby likewise serializes overlapping

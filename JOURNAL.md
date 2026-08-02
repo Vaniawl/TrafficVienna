@@ -1,5 +1,22 @@
 # Journal
 
+## 2026-08-03 - Saved retries cannot be overwritten by polling
+
+- Reproduced a Saved race in which a targeted forced retry published recovered
+  departures and was then overwritten by an older background reload. The
+  deterministic regression failed before the fix and now passes.
+- Full reloads and targeted retries now share one MainActor owner chain. Retries
+  remain route-specific, coalesce by identity, yield to queued full reloads, and
+  are discarded with the owner on cancellation; forced full work subsumes a
+  redundant queued retry.
+- Three regressions cover stale overwrite, cancellation, and forced-pass
+  coalescing. The focused suite passes 16/16 and the authoritative iPhone 17
+  `.xcresult` reports 180/180 with zero failures or skips.
+- Exact build, Xcode Analyze, structural validators, scoped security and diff
+  checks pass. The local wrapper reaches only the known missing global `opencode`
+  CLI boundary after its Python/timeout fixtures pass. A fresh 368×800 Saved
+  screenshot was captured and inspected without layout issues.
+
 ## 2026-08-02 - Reminder deletion survives stale system snapshots
 
 - Reproduced a reminder-management race: a system `scheduled()` snapshot started

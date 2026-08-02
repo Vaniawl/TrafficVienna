@@ -16,6 +16,13 @@ final class FavoritesListViewModel {
     private let widgetSync: WidgetSyncing
     // nil means no queued pass; false/true retain the strongest queued request.
     private var queuedReloadForceRefresh: Bool?
+    // Route retries share the same owner as full reloads and coalesce by identity.
+    private var queuedRouteRefreshes: Set<FavoriteRoute> = []
+
+    private enum ReloadOperation {
+        case all(forceRefresh: Bool)
+        case routes(Set<FavoriteRoute>)
+    }
 
     init(
         service: MonitorProviding = MonitorService.shared,
@@ -57,25 +64,63 @@ final class FavoritesListViewModel {
     }
 
     func loadFavorites(forceRefresh: Bool = false) async {
+        await runReload(.all(forceRefresh: forceRefresh))
+    }
+
+    func refresh(_ route: FavoriteRoute) async {
+        await runReload(.routes([route]))
+    }
+
+    private func runReload(_ initialOperation: ReloadOperation) async {
         guard !isLoading else {
-            queuedReloadForceRefresh = (queuedReloadForceRefresh ?? false) || forceRefresh
+            enqueue(initialOperation)
             return
         }
 
         isLoading = true
         defer {
             queuedReloadForceRefresh = nil
+            queuedRouteRefreshes = []
             isLoading = false
         }
 
-        var nextForceRefresh: Bool? = forceRefresh
-        while let currentForceRefresh = nextForceRefresh {
-            await loadFavoritesPass(forceRefresh: currentForceRefresh)
+        var nextOperation: ReloadOperation? = initialOperation
+        while let currentOperation = nextOperation {
+            switch currentOperation {
+            case let .all(forceRefresh):
+                await loadFavoritesPass(forceRefresh: forceRefresh)
+            case let .routes(routes):
+                await refreshRoutesPass(routes)
+            }
             guard !Task.isCancelled else { return }
 
-            nextForceRefresh = queuedReloadForceRefresh
-            queuedReloadForceRefresh = nil
+            nextOperation = dequeueOperation()
         }
+    }
+
+    private func enqueue(_ operation: ReloadOperation) {
+        switch operation {
+        case let .all(forceRefresh):
+            queuedReloadForceRefresh = (queuedReloadForceRefresh ?? false) || forceRefresh
+        case let .routes(routes):
+            queuedRouteRefreshes.formUnion(routes)
+        }
+    }
+
+    private func dequeueOperation() -> ReloadOperation? {
+        if let forceRefresh = queuedReloadForceRefresh {
+            queuedReloadForceRefresh = nil
+            if forceRefresh {
+                // A forced full pass already includes every saved route retry.
+                queuedRouteRefreshes = []
+            }
+            return .all(forceRefresh: forceRefresh)
+        }
+
+        guard !queuedRouteRefreshes.isEmpty else { return nil }
+        let routes = queuedRouteRefreshes
+        queuedRouteRefreshes = []
+        return .routes(routes)
     }
 
     private func loadFavoritesPass(forceRefresh: Bool) async {
@@ -103,11 +148,29 @@ final class FavoritesListViewModel {
         syncWidget()
     }
 
-    func refresh(_ route: FavoriteRoute) async {
-        let updated = await loadItem(for: route, forceRefresh: true)
+    private func refreshRoutesPass(_ routes: Set<FavoriteRoute>) async {
+        let savedRoutes = Set(favoritesRepo.getAll())
+        let targets = routes.intersection(savedRoutes).sorted()
+        guard !targets.isEmpty else { return }
+
+        var updates: [FavoriteRoute: FavoriteWithDeparture] = [:]
+        for route in targets {
+            guard !Task.isCancelled else { return }
+            updates[route] = await loadItem(for: route, forceRefresh: true)
+        }
         guard !Task.isCancelled else { return }
-        guard let index = items.firstIndex(where: { $0.route == route }) else { return }
-        items[index] = updated
+        guard queuedReloadForceRefresh == nil else { return }
+
+        let currentRoutes = Set(favoritesRepo.getAll())
+        var didUpdate = false
+        for route in targets where currentRoutes.contains(route) {
+            guard let index = items.firstIndex(where: { $0.route == route }),
+                  let updated = updates[route]
+            else { continue }
+            items[index] = updated
+            didUpdate = true
+        }
+        guard didUpdate else { return }
         updateFeaturedDeparture()
         syncWidget()
     }
