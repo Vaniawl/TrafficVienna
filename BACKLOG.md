@@ -18,8 +18,8 @@
   analysis, localisation extraction, repository validators, and diff checks
   pass. The OpenCode reliability/CI wrappers reach their permission matcher but
   cannot complete because the global `opencode` dependency is not installed.
-- [ ] **REQ-TV-007 — Review-ready state.** Architecture/security findings and
-  documentation synchronization are resolved; draft-PR handoff remains.
+- [x] **REQ-TV-007 — Review-ready state.** Architecture/security findings and
+  documentation are resolved; commit `09879b46` is published in draft PR #15.
 - [x] **REQ-TV-008 — Truthful system surfaces.** Reminders are local and
   user-created, stale data cannot start a new countdown, permission delay is
   revalidated, and ActivityKit state is restored across model recreation.
@@ -59,8 +59,8 @@
 - [x] Synchronize `STATUS.md`, root/memory journals, and architectural decisions.
 - [ ] Install/provide the global `opencode` CLI and rerun `bash scripts/ci.sh`;
   the wrapper currently stops at `tests/opencode-permission-matcher.sh`.
-- [ ] Commit only reviewed paths, push the feature branch, and create/update a
-  draft PR.
+- [x] Commit reviewed paths, push `codex/system-surfaces-readiness`, and open
+  draft PR #15.
 
 ## External release acceptance
 

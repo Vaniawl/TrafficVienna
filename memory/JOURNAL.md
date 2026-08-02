@@ -27,6 +27,9 @@
   is not installed. Available constituent gates were run separately. App Store
   submission remains gated by signed
   distribution, App Store Connect processing, and physical TestFlight evidence.
+- Published reviewed commit `09879b46` on
+  `codex/system-surfaces-readiness` and opened draft PR #15 against protected
+  `main`. No merge, ready-for-review, release, or deployment action was taken.
 
 ## 2026-07-30 — Final visual, widget, and release-evidence pass
 

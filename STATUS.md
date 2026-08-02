@@ -4,7 +4,7 @@
 - Workspace: `/Users/ivandovhosheia/Swift/TrafficVienna`
 - Branch: `codex/system-surfaces-readiness`
 - Stack: native SwiftUI iOS application, widget extension, XCTest, and XCUITest.
-- Current phase: reviewed audit implementation and draft-PR handoff.
+- Current phase: reviewed audit implementation published for draft PR review.
 - Product shell: Home, Discover, Alerts, and Saved; accounts are out of scope.
 - Verified tests: 137/137 pass on iPhone 17 Simulator (133 model/service tests
   and 4 UI tests), with zero failures or skips. App and widget build successfully.
@@ -24,7 +24,10 @@
   and exits 127 because the required global `opencode` CLI is not installed.
   The reliability script's Python and timeout fixtures pass before the same
   missing-tool boundary; available repository, Xcode, and diff gates pass.
-- Remaining local work: commit, feature-branch push, and draft PR.
+- Handoff: commit `09879b46` is pushed on
+  `codex/system-surfaces-readiness`; draft PR #15 targets protected `main`.
+- Remaining local work: none. Rerun the unavailable OpenCode permission matcher
+  when its global CLI is installed; do not merge or release without approval.
 - External release gates: distribution signing, App Store Connect processed build,
   and signed physical-device TestFlight acceptance are not provided by Simulator
   evidence.
