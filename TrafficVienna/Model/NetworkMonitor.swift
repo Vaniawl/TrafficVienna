@@ -9,6 +9,8 @@ final class NetworkMonitor: ObservableObject {
     private let queue = DispatchQueue(label: "at.wellbe.TrafficVienna.network-monitor")
 
     init() {
+        // A new NWPathMonitor reports an initial unsatisfied path before its
+        // first update, so keep connectivity neutral until that callback.
         monitor.pathUpdateHandler = { [weak self] path in
             let isConnected = path.status == .satisfied
             Task { @MainActor [weak self] in
@@ -16,7 +18,6 @@ final class NetworkMonitor: ObservableObject {
             }
         }
         monitor.start(queue: queue)
-        isConnected = monitor.currentPath.status == .satisfied
     }
 
     deinit {

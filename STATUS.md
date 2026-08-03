@@ -6,7 +6,7 @@
 - Stack: native SwiftUI iOS application, widget extension, XCTest, and XCUITest.
 - Current phase: continued reliability improvements on the existing draft PR.
 - Product shell: Home, Discover, Alerts, and Saved; accounts are out of scope.
-- Verified tests: 201/201 pass on iPhone 17 Simulator (196 model/service tests
+- Verified tests: 202/202 pass on iPhone 17 Simulator (197 model/service tests
   and 5 UI tests), with zero failures or skips. App and widget build successfully.
 - Verified visual coverage: four journeys and key secondary surfaces were
   exercised on iPhone 17; Home, Station Detail, and reminder management were
@@ -82,16 +82,19 @@
   render pass and pass immutable counts/categories to their child controls. This
   removes repeated filtering and `Set` construction during search and filter
   changes without adding cached observable state or changing presentation.
+  Network reachability now waits for the first `NWPathMonitor` callback instead
+  of treating its initial unsatisfied placeholder path as confirmed disconnection,
+  so a connected cold launch cannot flash a false Offline banner.
 - Verified quality: Xcode static analysis passes; compiler output contains 238 app
-  and 28 widget Localizable source keys, all covered by the committed 268/35-key
+  and 29 widget Localizable source keys, all covered by the committed 268/35-key
   catalogues with 0 missing or empty German values. Both repository structural
   validators, `git diff --check`, and the scoped secret/new-endpoint scan pass.
 - Infrastructure limitation: `bash scripts/ci.sh` reaches the permission matcher
   and exits 127 because the required global `opencode` CLI is not installed.
   The reliability script's Python and timeout fixtures pass before the same
-  missing-tool boundary. Hosted Quality run `30790735737` supplied the pinned CLI
+  missing-tool boundary. Hosted Quality run `30792848777` supplied the pinned CLI
   and passed the complete wrapper at exact published head
-  `2a7f328fcd7a96a332cbadc8fc3c75c928336cdb`.
+  `d7ab0e8f9e26cf860880d64b1f522624aca871ae`.
 - Handoff: draft PR #15 tracks `codex/system-surfaces-readiness` against protected
   `main`. The live PR head/check is authoritative for remote parity because a
   static state snapshot cannot record the CI result of the commit containing
@@ -132,6 +135,12 @@
   state, the full Stephansplatz departure list, and the filtered U-Bahn list at
   368×800. Runtime interaction confirmed the chips, rows, and alert count remain
   synchronized without clipping after the render-snapshot optimization.
+- A symbolicated iPhone 17 launch trace measured about 1.14 seconds of active
+  main-thread work across the focused 10.95-second capture. Station catalogue
+  decoding and index construction accounted for only about 22.5 ms, so no
+  speculative asynchronous catalogue rewrite was made. Matched 1206×2622 launch
+  captures reproduce the false Offline banner at 0.7 seconds before the fix and
+  show it absent at both 0.7 and 1.1 seconds afterward.
 - External release gates: distribution signing, App Store Connect processed build,
   and signed physical-device TestFlight acceptance are not provided by Simulator
   evidence.

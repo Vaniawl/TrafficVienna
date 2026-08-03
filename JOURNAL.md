@@ -1,5 +1,26 @@
 # Journal
 
+## 2026-08-03 - Connected launches do not flash Offline
+
+- A minimal `NWPathMonitor` reproduction and a matched iPhone 17 cold launch
+  proved that `currentPath` begins as `unsatisfied` before its first satisfied
+  callback. Home therefore flashed a false Offline banner at about 0.7 seconds
+  and removed it by 1.1 seconds on a connected simulator.
+- `NetworkMonitor` now keeps its neutral initial state until the first path
+  callback; real satisfied/unsatisfied updates, the existing overlay, motion,
+  MVVM ownership, endpoints, persistence, and security boundaries are unchanged.
+  The focused regression failed before the fix and now passes.
+- A symbolicated ETTrace launch capture measured about 1.14 seconds of active
+  main-thread work; station catalogue decode/index construction used only about
+  22.5 ms, so the considered asynchronous catalogue rewrite was rejected as
+  unjustified complexity.
+- The authoritative iPhone 17 `.xcresult` reports 202/202 with zero failures or
+  skips. Exact build, Xcode Analyze, repository/OpenCode validators, shell syntax,
+  238/29 source-key localisation coverage against 268/35 catalogues, scoped
+  boundary review, and whitespace checks pass. Matched 1206×2622 screenshots show
+  no Offline banner at 0.7 or 1.1 seconds after the fix. Local CI still stops only
+  at the known missing global `opencode` CLI boundary.
+
 ## 2026-08-03 - Filtered screens avoid repeated render work
 
 - A code-first SwiftUI performance audit found that Alerts recomputed its filtered
