@@ -14,11 +14,11 @@
 - [x] **REQ-TV-005 — Performance.** Requests remain coalesced/cancellable and
   formatter creation was removed from the widget body. Settled iPad Simulator
   sampling measured 0.0% CPU in five observations.
-- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 204 tests, static
+- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 205 tests, static
   analysis, localisation extraction, repository validators, and diff checks
-  pass. Hosted Quality run `30795395191` installed the pinned OpenCode CLI and
+  pass. Hosted Quality run `30797509348` installed the pinned OpenCode CLI and
   completed the full `scripts/ci.sh` wrapper successfully on exact published head
-  `98721254`; the live draft-PR check remains authoritative for every later
+  `9704828e`; the live draft-PR check remains authoritative for every later
   documentation or workflow commit.
 - [x] **REQ-TV-007 — Review-ready state.** Architecture/security findings and
   documentation are resolved; the reviewed branch is maintained in draft PR #15.
@@ -82,6 +82,9 @@
 - [x] Preserve the identifier order supplied when App Intents restores a
   multi-route widget configuration, while omitting routes that are no longer
   available instead of reverting to local suggestion order.
+- [x] Persist every available Saved route in the shared App Group cache so routes
+  selected by separate widget configurations retain cached data; keep the
+  one/three-route family presentation limits inside the widget.
 - [x] Schedule timeline boundaries for all three departures that widget layouts
   can render, so the third countdown is removed on time instead of lingering at
   zero until the five-minute network refresh.
@@ -147,16 +150,20 @@
   network-monitor correction, plus the settled 1.1-second state.
 - [x] Select Stephansplatz Bus departures and verify the chip plus four matching
   directions remain synchronized after a live pull-to-refresh.
+- [x] Save four available routes plus one unavailable route, inspect the Saved
+  screen, and decode the live App Group payload to prove all four eligible routes
+  are cached with at most three departures each while the unavailable route is
+  omitted.
 
 ## Final validation and handoff
 
-- [x] Full iPhone 17 build and test suite: 199 model/service + 5 UI tests.
+- [x] Full iPhone 17 build and test suite: 200 model/service + 5 UI tests.
 - [x] Static analyzer and repository/OpenCode structural validators.
 - [x] English/German compiler-extraction catalogue comparison.
 - [x] `git diff --check`, security scan, and changed-file review.
 - [x] Synchronize `STATUS.md`, root/memory journals, and architectural decisions.
 - [x] Run `bash scripts/ci.sh` with the required OpenCode runtime: hosted
-  Quality run `30795395191` passed exact published head `98721254`.
+  Quality run `30797509348` passed exact published head `9704828e`.
   The local host still lacks that global CLI, so local wrapper attempts stop at
   the permission matcher and the live protected PR check remains authoritative
   after any later publication.

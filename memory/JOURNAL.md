@@ -1,5 +1,27 @@
 # Journal
 
+## 2026-08-03 - App sync keeps every widget-selectable route
+
+- Reproduced a shared-cache coverage defect: after four available Saved routes
+  loaded, app sync persisted only divas `[1, 2, 3]` instead of
+  `[1, 2, 3, 4]`. A fourth route could therefore remain selectable in a separate
+  widget configuration but lose cached departures whenever the app refreshed.
+- Removed the app-level three-route truncation from the App Group projection.
+  The widget still presents one or three routes according to family, each route
+  still carries at most three departures, and unavailable Saved routes remain
+  excluded. The payload schema, App Group key, endpoints, entitlements, and MVVM
+  ownership are unchanged, so no migration or ADR is required.
+- The focused regression failed before the fix with the exact three-versus-four
+  mismatch and the complete Favorites List suite now passes 19/19. Live iPhone
+  17 inspection created four available Saved routes plus one unavailable route;
+  the decoded `widget_departure` payload contained all four available routes,
+  each with at most three departures, while the Saved screen remained unclipped.
+- The authoritative iPhone 17 `.xcresult` reports 205/205 with zero failures or
+  skips. Exact build, Xcode Analyze, repository/OpenCode validators, shell syntax,
+  238/29 source-key localisation coverage against 268/35 catalogues, scoped
+  boundary review, and whitespace checks pass. Local CI still stops only at the
+  known missing global `opencode` CLI; protected exact-head CI remains required.
+
 ## 2026-08-03 - Station Detail drops unavailable transport filters
 
 - Reproduced a hidden filter trap after a successful refresh: if the selected

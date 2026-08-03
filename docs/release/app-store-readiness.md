@@ -44,7 +44,7 @@ A `Go` requires:
 - The account-only Apple identity surface and entitlement were removed because
   they provided no cross-device feature and prevented the installed profile from
   archiving. A one-time migration deletes the legacy device-only Keychain item.
-- All 204 tests pass with zero failures or skips, including five XCUITest
+- All 205 tests pass with zero failures or skips, including five XCUITest
   journeys through the four-tab shell, Discover map entry, alert filters, Saved,
   search-to-station navigation, and cross-tab favourite reconciliation. Local
   reminder planning/decoding, idempotent
@@ -102,6 +102,11 @@ A `Go` requires:
   refresh budget, and manual refresh still bypasses a recent scoped attempt.
   AppEntity restoration preserves the system-provided identifier order for
   multi-route configurations and omits routes that are no longer available.
+  App-side sync persists every available Saved route in the shared App Group
+  cache, so a route selected by a separate widget configuration cannot lose its
+  cached departures merely because it follows the first three Saved routes.
+  Widget families still present only one or three routes, and each cached route
+  still contains at most three departures.
   Timeline scheduling covers all three departures that the widget can render per
   route, including a removal entry one minute after the third departure and
   before the five-minute refresh deadline. Departure and removal boundaries are
@@ -158,13 +163,13 @@ A `Go` requires:
   final diff check. Later evidence-only documentation commits do not alter the
   inspected app sources or binaries.
 - The continued audit remains unmerged in draft PR #15. Its exact published head
-  `98721254f98aca7e2e3cc8f57fe70714e59ad55c` passed protected Quality run
-  `30795395191`, including the pinned OpenCode CLI, repository validation,
-  app/widget build, the then-current 202-test suite, and the final diff check. The
-  later local Station Detail filter-reconciliation slice passes 204/204 tests and
-  Xcode Analyze; compiler extraction reports 238 app and 29 widget source keys
-  covered by the committed 268/35-key catalogues. Its own protected check remains
-  required after publication.
+  `9704828e3c54d5e5e89f5126a16cc2599764e442` passed protected Quality run
+  `30797509348`, including the pinned OpenCode CLI, repository validation,
+  app/widget build, the then-current 204-test suite, and the final diff check. The
+  later local all-route widget-cache slice passes 205/205 tests and Xcode Analyze;
+  compiler extraction reports 238 app and 29 widget source keys covered by the
+  committed 268/35-key catalogues. Its own protected check remains required after
+  publication.
 - `main` now requires pull requests and a strict successful `validate` check.
   Conversation resolution is required, admin enforcement is enabled, and force
   pushes and branch deletion are disabled.

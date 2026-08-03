@@ -85,6 +85,31 @@ final class FavoritesListViewModelTests: XCTestCase {
         XCTAssertTrue(widget.lastSaved.isEmpty)
     }
 
+    func testWidgetSyncIncludesAvailableRoutesBeyondOneWidgetPresentationLimit() async {
+        let savedRoutes = (1...4).map {
+            FavoriteRoute(
+                diva: String($0),
+                lineName: "U1",
+                destination: "Leopoldau"
+            )
+        }
+        let widget = StubWidgetSync()
+        let viewModel = FavoritesListViewModel(
+            service: StubMonitorProvider(result: .success(response(countdown: 5))),
+            favoritesRepo: StubFavoritesRepository(routes: savedRoutes),
+            stationsRepo: StubFavoriteStationsRepository(),
+            widgetSync: widget
+        )
+
+        await viewModel.loadFavorites()
+
+        XCTAssertEqual(
+            widget.lastSaved.compactMap(\.diva),
+            savedRoutes.sorted().map(\.diva)
+        )
+        XCTAssertTrue(widget.lastSaved.allSatisfy { $0.departures.count <= 3 })
+    }
+
     func testRefreshForcesNetworkAndReplacesMatchingItem() async {
         let monitor = StubMonitorProvider(result: .success(response(countdown: 5)))
         let favorite = route("U1", "Leopoldau")

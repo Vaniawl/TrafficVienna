@@ -6,7 +6,7 @@
 - Stack: native SwiftUI iOS application, widget extension, XCTest, and XCUITest.
 - Current phase: continued reliability improvements on the existing draft PR.
 - Product shell: Home, Discover, Alerts, and Saved; accounts are out of scope.
-- Verified tests: 204/204 pass on iPhone 17 Simulator (199 model/service tests
+- Verified tests: 205/205 pass on iPhone 17 Simulator (200 model/service tests
   and 5 UI tests), with zero failures or skips. App and widget build successfully.
 - Verified visual coverage: four journeys and key secondary surfaces were
   exercised on iPhone 17; Home, Station Detail, and reminder management were
@@ -58,6 +58,10 @@
   Widget AppEntity restoration now resolves saved routes in the system-provided
   identifier order while omitting unavailable routes, so a restored multi-route
   configuration retains the user's selected presentation order.
+  App sync now persists every available Saved route to the shared App Group
+  cache, so separate widget configurations keep cached departures beyond the
+  first three routes; the widget's one/three-route family presentation limits and
+  three-departure-per-route projection remain unchanged.
   Timeline scheduling now covers all three departures that widget layouts can
   render, so the third countdown cannot remain at zero until the next network
   refresh. Departure and removal boundaries are evaluated independently, so a
@@ -96,9 +100,9 @@
 - Infrastructure limitation: `bash scripts/ci.sh` reaches the permission matcher
   and exits 127 because the required global `opencode` CLI is not installed.
   The reliability script's Python and timeout fixtures pass before the same
-  missing-tool boundary. Hosted Quality run `30795395191` supplied the pinned CLI
+  missing-tool boundary. Hosted Quality run `30797509348` supplied the pinned CLI
   and passed the complete wrapper at exact published head
-  `98721254f98aca7e2e3cc8f57fe70714e59ad55c`.
+  `9704828e3c54d5e5e89f5126a16cc2599764e442`.
 - Handoff: draft PR #15 tracks `codex/system-surfaces-readiness` against protected
   `main`. The live PR head/check is authoritative for remote parity because a
   static state snapshot cannot record the CI result of the commit containing
@@ -119,6 +123,11 @@
   departure-boundary correction. A deterministic cached-row fixture then showed
   `now` and removed it 34 seconds later, before the five-minute network refresh;
   a final screenshot confirmed that live N38 data was restored.
+- Current Saved acceptance created four available routes plus one unavailable
+  route and decoded the live `widget_departure` App Group payload. All four
+  available routes were cached with no more than three departures each, the
+  unavailable route was excluded, and the 368×800 Saved screen remained
+  readable and unclipped.
 - Focused iPhone 17 UI acceptance opened Stephansplatz, started Lock Screen
   tracking, observed the stop action, and stopped the Live Activity successfully.
   Automated overnight coverage now performs the same start/stop journey at the

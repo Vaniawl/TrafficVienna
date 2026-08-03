@@ -265,7 +265,6 @@ final class FavoritesListViewModel {
         let projectionAnchor = Date.now
         let widgetItems = items
             .filter { $0.state != .unavailable }
-            .prefix(3)
             .map { favorite in
                 WidgetDepartureData(
                     diva: favorite.route.diva,
