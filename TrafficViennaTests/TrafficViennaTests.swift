@@ -195,6 +195,52 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(callCount, 2, "Force refresh should bypass cache")
     }
 
+    func testMonitorServiceRunsForcedSuccessorBehindNormalInFlightRequest() async throws {
+        let network = FirstRequestControlledNetworkManager()
+        let service = MonitorService(network: network, cacheTTL: 30, minInterval: 0)
+
+        let background = Task { try await service.monitor(diva: 1) }
+        await network.waitUntilCallCount(1)
+        let forced = Task { try await service.monitor(diva: 1, forceRefresh: true) }
+        try await Task.sleep(for: .milliseconds(20))
+
+        let callsBeforeRelease = await network.callCount
+        XCTAssertEqual(callsBeforeRelease, 1)
+        await network.releaseFirstCall()
+
+        let backgroundResponse = try await background.value
+        let forcedResponse = try await forced.value
+        let cachedResponse = try await service.monitor(diva: 1)
+        let totalCalls = await network.callCount
+        XCTAssertEqual(totalCalls, 2)
+        XCTAssertEqual(backgroundResponse.data.monitors.first?.lines.first?.departures.departure.first?.departureTime.countdown, 1)
+        XCTAssertEqual(forcedResponse.data.monitors.first?.lines.first?.departures.departure.first?.departureTime.countdown, 2)
+        XCTAssertEqual(cachedResponse.data.monitors.first?.lines.first?.departures.departure.first?.departureTime.countdown, 2)
+    }
+
+    func testMonitorServiceRunsForcedSuccessorAfterNormalInFlightFailure() async throws {
+        let network = FirstRequestControlledNetworkManager(failFirstCall: true)
+        let service = MonitorService(network: network, cacheTTL: 0, minInterval: 0)
+
+        let background = Task { try await service.monitor(diva: 1) }
+        await network.waitUntilCallCount(1)
+        let forced = Task { try await service.monitor(diva: 1, forceRefresh: true) }
+        try await Task.sleep(for: .milliseconds(20))
+        await network.releaseFirstCall()
+
+        do {
+            _ = try await background.value
+            XCTFail("The failed normal request should still report its error")
+        } catch {
+            XCTAssertEqual((error as? URLError)?.code, .timedOut)
+        }
+
+        let forcedResponse = try await forced.value
+        let totalCalls = await network.callCount
+        XCTAssertEqual(totalCalls, 2)
+        XCTAssertEqual(forcedResponse.data.monitors.first?.lines.first?.departures.departure.first?.departureTime.countdown, 2)
+    }
+
     func testMonitorServiceFallbackToStaleCacheOnNetworkError() async throws {
         let mock = MockNetworkManager()
         let service = MonitorService(network: mock, cacheTTL: 0)
@@ -240,6 +286,32 @@ final class TrafficViennaTests: XCTestCase {
 
         let callCount = await mock.callCount
         XCTAssertEqual(callCount, 1)
+    }
+
+    func testTrafficInfoListRunsForcedSuccessorBehindNormalInFlightRequest() async throws {
+        let network = FirstRequestControlledNetworkManager()
+        let service = MonitorService(network: network, cacheTTL: 30, minInterval: 0)
+
+        let background = Task { try await service.trafficInfoList() }
+        await network.waitUntilCallCount(1)
+        let forced = Task { try await service.trafficInfoList(forceRefresh: true) }
+        let coalescedForced = Task { try await service.trafficInfoList(forceRefresh: true) }
+        try await Task.sleep(for: .milliseconds(20))
+
+        let callsBeforeRelease = await network.callCount
+        XCTAssertEqual(callsBeforeRelease, 1)
+        await network.releaseFirstCall()
+
+        let backgroundInfos = try await background.value
+        let forcedInfos = try await forced.value
+        let coalescedForcedInfos = try await coalescedForced.value
+        let cachedInfos = try await service.trafficInfoList()
+        let totalCalls = await network.callCount
+        XCTAssertEqual(totalCalls, 2)
+        XCTAssertEqual(backgroundInfos.first?.id, "traffic-1")
+        XCTAssertEqual(forcedInfos.first?.id, "traffic-2")
+        XCTAssertEqual(coalescedForcedInfos.first?.id, "traffic-2")
+        XCTAssertEqual(cachedInfos.first?.id, "traffic-2")
     }
 
     func testTrafficInfoListFallsBackToStaleCache() async throws {
@@ -926,6 +998,86 @@ private actor MockNetworkManager: NetworkManaging {
         let monitor = Monitor(locationStop: stop, lines: [line])
         let data = DataBlock(monitors: [monitor], trafficInfos: nil)
         return MonitorResponse(data: data)
+    }
+}
+
+private actor FirstRequestControlledNetworkManager: NetworkManaging {
+    private(set) var callCount = 0
+    private let failFirstCall: Bool
+    private var isFirstCallReleased = false
+    private var firstCallContinuation: CheckedContinuation<Void, Never>?
+    private var callCountWaiters: [(count: Int, continuation: CheckedContinuation<Void, Never>)] = []
+
+    init(failFirstCall: Bool = false) {
+        self.failFirstCall = failFirstCall
+    }
+
+    func waitUntilCallCount(_ count: Int) async {
+        guard callCount < count else { return }
+        await withCheckedContinuation { continuation in
+            callCountWaiters.append((count, continuation))
+        }
+    }
+
+    func releaseFirstCall() {
+        isFirstCallReleased = true
+        firstCallContinuation?.resume()
+        firstCallContinuation = nil
+    }
+
+    func fetchMonitorData(diva: Int, includeArea: Bool) async throws -> MonitorResponse {
+        let call = beginCall()
+        await holdFirstCallIfNeeded(call)
+        if call == 1, failFirstCall { throw URLError(.timedOut) }
+        return response(call: call)
+    }
+
+    func fetchTrafficInfoList() async throws -> MonitorResponse {
+        let call = beginCall()
+        await holdFirstCallIfNeeded(call)
+        if call == 1, failFirstCall { throw URLError(.timedOut) }
+        return response(call: call)
+    }
+
+    private func beginCall() -> Int {
+        callCount += 1
+        let ready = callCountWaiters.filter { $0.count <= callCount }
+        callCountWaiters.removeAll { $0.count <= callCount }
+        ready.forEach { $0.continuation.resume() }
+        return callCount
+    }
+
+    private func holdFirstCallIfNeeded(_ call: Int) async {
+        guard call == 1, !isFirstCallReleased else { return }
+        await withCheckedContinuation { continuation in
+            firstCallContinuation = continuation
+        }
+    }
+
+    private func response(call: Int) -> MonitorResponse {
+        let departure = Departure(
+            departureTime: DepartureTime(countdown: call, timePlanned: nil, timeReal: nil)
+        )
+        let line = Lines(
+            name: "U1",
+            towards: "Leopoldau",
+            departures: Departures(departure: [departure])
+        )
+        let monitor = Monitor(
+            locationStop: LocationStop(
+                properties: Properties(title: "Test Stop", attributes: Attributes(rbl: 1234)),
+                geometry: nil
+            ),
+            lines: [line]
+        )
+        let info = TrafficInfo(
+            name: "traffic-\(call)",
+            title: "Traffic \(call)",
+            description: nil,
+            priority: nil,
+            relatedLines: nil
+        )
+        return MonitorResponse(data: DataBlock(monitors: [monitor], trafficInfos: [info]))
     }
 }
 

@@ -8,8 +8,9 @@
 //
 //   1. Caching      — responses are reused for `cacheTTL` seconds (the feed
 //                     itself only updates every ~15-30s, so this is free).
-//   2. Coalescing   — concurrent requests for the same DIVA share one network
-//                     call instead of firing several.
+//   2. Coalescing   — concurrent requests for the same DIVA share compatible
+//                     work; a user refresh behind older regular work receives
+//                     one serial forced successor.
 //   3. Throttling   — actual network calls are spaced at least `minInterval`
 //                     apart, so a burst of nearby cards can't flood the API.
 //   4. Backoff      — a 316 (rate limited) response is retried with growing
@@ -46,10 +47,23 @@ actor MonitorService {
         let timestamp: Date
     }
 
+    private struct MonitorInFlightRequest {
+        let generation: UInt64
+        let isForced: Bool
+        let task: Task<MonitorSnapshot, Error>
+    }
+
+    private struct TrafficInfoInFlightRequest {
+        let generation: UInt64
+        let isForced: Bool
+        let task: Task<TrafficInfoSnapshot, Error>
+    }
+
     private var cache: [Int: CacheEntry] = [:]
-    private var inFlight: [Int: Task<MonitorResponse, Error>] = [:]
+    private var inFlight: [Int: MonitorInFlightRequest] = [:]
     private var trafficInfoCache: (infos: [TrafficInfo], timestamp: Date)?
-    private var trafficInfoInFlight: Task<[TrafficInfo], Error>?
+    private var trafficInfoInFlight: TrafficInfoInFlightRequest?
+    private var nextRequestGeneration: UInt64 = 0
     // Next moment a network call is allowed to start (for spacing).
     private var nextSlot = Date.distantPast
 
@@ -82,10 +96,7 @@ actor MonitorService {
         }
 
         do {
-            let response = try await fetchCoalesced(diva: diva)
-            let updatedAt = await scheduler.now()
-            cache[diva] = CacheEntry(response: response, timestamp: updatedAt)
-            return MonitorSnapshot(response: response, updatedAt: updatedAt, isStale: false)
+            return try await fetchCoalesced(diva: diva, forceRefresh: forceRefresh)
         } catch {
             if let stale = cache[diva] {
                 return MonitorSnapshot(response: stale.response, updatedAt: stale.timestamp, isStale: true)
@@ -111,10 +122,7 @@ actor MonitorService {
         }
 
         do {
-            let infos = try await fetchTrafficInfoCoalesced()
-            let updatedAt = await scheduler.now()
-            trafficInfoCache = (infos, updatedAt)
-            return TrafficInfoSnapshot(infos: infos, updatedAt: updatedAt, isStale: false)
+            return try await fetchTrafficInfoCoalesced(forceRefresh: forceRefresh)
         } catch {
             if let trafficInfoCache {
                 return TrafficInfoSnapshot(
@@ -127,36 +135,108 @@ actor MonitorService {
         }
     }
 
-    // Shares one in-flight request per DIVA across concurrent callers.
-    private func fetchCoalesced(diva: Int) async throws -> MonitorResponse {
+    // A regular refresh may join any active request. A forced refresh only joins
+    // another forced request; behind a regular request it runs one serial successor.
+    private func fetchCoalesced(diva: Int, forceRefresh: Bool) async throws -> MonitorSnapshot {
         if let existing = inFlight[diva] {
-            return try await existing.value
+            if !forceRefresh || existing.isForced {
+                return try await resolve(existing, diva: diva)
+            }
+
+            // The user asked for work stronger than this regular refresh. Let it
+            // finish without cancelling its waiters, then start one forced successor.
+            // Concurrent forced callers will coalesce into that successor.
+            _ = try? await resolve(existing, diva: diva)
+            return try await fetchCoalesced(diva: diva, forceRefresh: true)
         }
-        let task = Task<MonitorResponse, Error> { [self] in
+
+        let generation = allocateRequestGeneration()
+        let task = Task<MonitorSnapshot, Error> { [self] in
             try await throttle()
-            return try await fetchWithRetry(diva: diva)
+            let response = try await fetchWithRetry(diva: diva)
+            let updatedAt = await scheduler.now()
+            cache[diva] = CacheEntry(response: response, timestamp: updatedAt)
+            return MonitorSnapshot(response: response, updatedAt: updatedAt, isStale: false)
         }
-        inFlight[diva] = task
-        defer { inFlight[diva] = nil }
-        return try await task.value
+        let request = MonitorInFlightRequest(
+            generation: generation,
+            isForced: forceRefresh,
+            task: task
+        )
+        inFlight[diva] = request
+        return try await resolve(request, diva: diva)
     }
 
     // Traffic alerts use the same request budget and stale-data policy as station
     // monitors. Concurrent tab/badge refreshes therefore share one network call.
-    private func fetchTrafficInfoCoalesced() async throws -> [TrafficInfo] {
-        if let trafficInfoInFlight {
-            return try await trafficInfoInFlight.value
+    private func fetchTrafficInfoCoalesced(forceRefresh: Bool) async throws -> TrafficInfoSnapshot {
+        if let existing = trafficInfoInFlight {
+            if !forceRefresh || existing.isForced {
+                return try await resolve(existing)
+            }
+
+            _ = try? await resolve(existing)
+            return try await fetchTrafficInfoCoalesced(forceRefresh: true)
         }
-        let task = Task<[TrafficInfo], Error> { [self] in
+
+        let generation = allocateRequestGeneration()
+        let task = Task<TrafficInfoSnapshot, Error> { [self] in
             try await throttle()
-            return try await fetchTrafficInfoWithRetry()
+            let infos = try await fetchTrafficInfoWithRetry()
+            let updatedAt = await scheduler.now()
+            trafficInfoCache = (infos, updatedAt)
+            return TrafficInfoSnapshot(infos: infos, updatedAt: updatedAt, isStale: false)
         }
-        trafficInfoInFlight = task
-        defer { trafficInfoInFlight = nil }
-        return try await task.value
+        let request = TrafficInfoInFlightRequest(
+            generation: generation,
+            isForced: forceRefresh,
+            task: task
+        )
+        trafficInfoInFlight = request
+        return try await resolve(request)
     }
 
     // MARK: - Internals
+
+    private func allocateRequestGeneration() -> UInt64 {
+        defer { nextRequestGeneration &+= 1 }
+        return nextRequestGeneration
+    }
+
+    private func resolve(
+        _ request: MonitorInFlightRequest,
+        diva: Int
+    ) async throws -> MonitorSnapshot {
+        do {
+            let snapshot = try await request.task.value
+            clearMonitorRequest(diva: diva, generation: request.generation)
+            return snapshot
+        } catch {
+            clearMonitorRequest(diva: diva, generation: request.generation)
+            throw error
+        }
+    }
+
+    private func clearMonitorRequest(diva: Int, generation: UInt64) {
+        guard inFlight[diva]?.generation == generation else { return }
+        inFlight[diva] = nil
+    }
+
+    private func resolve(_ request: TrafficInfoInFlightRequest) async throws -> TrafficInfoSnapshot {
+        do {
+            let snapshot = try await request.task.value
+            clearTrafficInfoRequest(generation: request.generation)
+            return snapshot
+        } catch {
+            clearTrafficInfoRequest(generation: request.generation)
+            throw error
+        }
+    }
+
+    private func clearTrafficInfoRequest(generation: UInt64) {
+        guard trafficInfoInFlight?.generation == generation else { return }
+        trafficInfoInFlight = nil
+    }
 
     private func isFresh(_ entry: CacheEntry, now: Date) -> Bool {
         now.timeIntervalSince(entry.timestamp) < cacheTTL

@@ -1,5 +1,25 @@
 # Journal
 
+## 2026-08-03 — Forced refresh survives lower-intent in-flight work
+
+- Reproduced the shared-service race for both station monitors and traffic info:
+  a forced request behind a regular in-flight request made only one network call
+  and returned the older response instead of a post-regular successor.
+- `MonitorService` now tracks refresh intent and a generation per in-flight task.
+  Regular work remains shareable, equivalent forced callers coalesce, and a
+  forced caller behind regular work receives one serial successor even when the
+  regular request fails. Snapshot caching completes inside the tracked task and
+  generation-guarded cleanup cannot erase a newer successor.
+- Three regressions cover station, traffic-info, concurrent forced callers,
+  successor cache authority, and failed-normal recovery; each passed five repeated
+  runs. The authoritative iPhone 17 `.xcresult` reports 192/192 with zero failures
+  or skips; exact build, Xcode Analyze, repository/OpenCode validators, scoped
+  security, shell syntax, and whitespace checks pass.
+- The local CI wrapper reaches only the known missing global `opencode` CLI
+  boundary after its Python/timeout fixtures pass. No UI, copy, endpoint,
+  persistence, entitlement, or dependency changed, so the existing inspected
+  screenshots remain representative.
+
 ## 2026-08-03 — Station Detail favourites follow repository truth
 
 - Reproduced a cross-tab consistency defect: Station Detail cached favourite

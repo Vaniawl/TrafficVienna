@@ -1,5 +1,31 @@
 # Architectural Decisions
 
+## 2026-08-03 — Forced monitor refreshes receive an intent-aware successor
+
+**Context:** `MonitorService` coalesced every request for the same station, and
+every traffic-info request, into whichever task was already running. A manual
+forced refresh arriving behind older background work therefore completed with
+the pre-gesture response and never performed its promised cache-bypassing fetch.
+Coordinating individual view models cannot cover callers in other tabs or app
+journeys that share the service.
+
+**Decision:** Keep refresh ownership in `MonitorService` and make each in-flight
+entry carry a generation token and forced/regular intent. A regular caller may
+join any active request; a forced caller may join an active forced request. When
+a forced caller encounters a regular request, it awaits that request without
+cancelling its waiters, then starts or joins exactly one serial forced successor,
+even if the regular request failed. Complete the cache write inside the tracked
+task before publishing its snapshot, and clear an entry only when its generation
+still matches so an older waiter cannot erase a newer successor.
+
+**Consequences:** Manual refresh can no longer be satisfied by lower-intent
+background work: it either joins equivalent forced work or receives a successor
+initiated after the regular request. Concurrent forced callers still coalesce,
+requests do not run in parallel, and the existing shared throttle, retry,
+stale-cache, and request-budget policies remain authoritative. Public provider
+protocols, endpoints, cache schemas, persistence, dependencies, and UI stay
+unchanged. Rollback is a normal revert with no migration.
+
 ## 2026-08-03 — Station Detail favourite state is repository-derived
 
 **Context:** A Station Detail view can remain alive in one tab while the same
