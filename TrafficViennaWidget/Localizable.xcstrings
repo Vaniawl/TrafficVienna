@@ -12,6 +12,7 @@
     "Add a favourite line in the app." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Füge in der App eine Linie zu den Favoriten hinzu." } } } },
     "Choose which saved routes appear in this widget." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Wähle die gespeicherten Routen für dieses Widget." } } } },
     "Departures" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrten" } } } },
+    "Departures for ${routes}" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrten für ${routes}" } } } },
     "Departures for %@" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfahrten für %@" } } } },
     "Live departures for your favourite lines." : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Live-Abfahrten für deine bevorzugten Linien." } } } },
     "Next departure" : { "localizations" : { "de" : { "stringUnit" : { "state" : "translated", "value" : "Nächste Abfahrt" } } } },

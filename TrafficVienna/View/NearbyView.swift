@@ -129,6 +129,14 @@ struct NearbyView: View {
                         actionTitle: nil,
                         action: nil
                     )
+                case .locationUnavailable:
+                    NearbyStatusCard(
+                        icon: "location.slash.fill",
+                        title: "Location unavailable",
+                        message: "Use your location to show the closest stops.",
+                        actionTitle: "Retry location",
+                        action: locationManager.requestLocationIfNeeded
+                    )
                 case .noStations:
                     NearbyStatusCard(
                         icon: "tram.fill",
@@ -197,7 +205,8 @@ struct NearbyView: View {
         NearbyDashboardState(
             authorizationStatus: locationManager.authorizationStatus,
             hasLocation: vm.hasLocation,
-            hasStations: !vm.items.isEmpty
+            hasStations: !vm.items.isEmpty,
+            hasLocationError: locationManager.errorMessage != nil
         )
     }
 

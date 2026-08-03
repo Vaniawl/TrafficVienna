@@ -44,7 +44,7 @@ A `Go` requires:
 - The account-only Apple identity surface and entitlement were removed because
   they provided no cross-device feature and prevented the installed profile from
   archiving. A one-time migration deletes the legacy device-only Keychain item.
-- All 192 tests pass with zero failures or skips, including five XCUITest
+- All 194 tests pass with zero failures or skips, including five XCUITest
   journeys through the four-tab shell, Discover map entry, alert filters, Saved,
   search-to-station navigation, and cross-tab favourite reconciliation. Local
   reminder planning/decoding, idempotent
@@ -53,6 +53,9 @@ A `Go` requires:
   countdown prevention, permission-prompt expiry, and ActivityKit state
   restoration have regression coverage. Location revocation/reset clears cached
   precise coordinates, and Map ignores stale coordinates without authorization.
+  An authorized one-shot location failure now exposes a retry action on Home,
+  clears the error on the next request, and keeps retained useful coordinates
+  visible during a transient refresh failure.
   Widget snapshot policy keeps example departures inside Gallery previews and
   uses the real empty state when a runtime snapshot has no selected or cached data.
   Saved-route reload coverage proves that an overlapping repository change queues
@@ -97,6 +100,10 @@ A `Go` requires:
 - iPhone 17 warm-link acceptance reproduced an open Stephansplatz detail surviving
   `trafficvienna://search` on the previous implementation, then verified and
   captured the corrected Discover root after the navigation-path fix.
+- iPhone 17 audit screenshots capture Home's retryable location failure in light
+  and dark appearance and the recovered live Stephansplatz departures after a
+  successful Vienna location request; the inspected cards and controls are not
+  clipped at the standard content size.
 - Xcode detects an available physical `iPhone18,2` on iOS 26.5.2. A Release
   device build selects the expected development identity and widget provisioning
   profile, compiles successfully to the signing phase, and reproduces the same
@@ -135,6 +142,10 @@ A `Go` requires:
   `f08662c0fe5dd5ba380316f2f95fb06c667d3060` passed protected Quality run
   `30777324747` in 14m00s, including the pinned OpenCode CLI, repository
   validation, app/widget build, the 192-test suite, and the final diff check.
+  The later local location-recovery slice passes 194/194 tests, Xcode Analyze,
+  and compiler extraction with all 237 app and 27 widget source keys covered by
+  the committed 267/32-key catalogues; its own protected check remains required
+  after publication.
 - `main` now requires pull requests and a strict successful `validate` check.
   Conversation resolution is required, admin enforcement is enabled, and force
   pushes and branch deletion are disabled.

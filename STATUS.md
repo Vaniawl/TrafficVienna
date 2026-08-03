@@ -6,7 +6,7 @@
 - Stack: native SwiftUI iOS application, widget extension, XCTest, and XCUITest.
 - Current phase: continued reliability improvements on the existing draft PR.
 - Product shell: Home, Discover, Alerts, and Saved; accounts are out of scope.
-- Verified tests: 192/192 pass on iPhone 17 Simulator (187 model/service tests
+- Verified tests: 194/194 pass on iPhone 17 Simulator (189 model/service tests
   and 5 UI tests), with zero failures or skips. App and widget build successfully.
 - Verified visual coverage: four journeys and key secondary surfaces were
   exercised on iPhone 17; Home, Station Detail, and reminder management were
@@ -58,8 +58,11 @@
   refresh. Departure and removal boundaries are evaluated independently, so a
   cached departure already rendering as `now` still receives its future removal
   entry instead of lingering until that refresh.
-- Verified quality: Xcode static analysis passes; compiler output contains 236 app
-  and 26 widget Localizable source keys, all covered by the committed 267/31-key
+  Authorized location failures now leave Home in an explicit retryable state
+  instead of an indefinite locating placeholder; retained coordinates still win
+  over a transient refresh error, and a new request clears the displayed error.
+- Verified quality: Xcode static analysis passes; compiler output contains 237 app
+  and 27 widget Localizable source keys, all covered by the committed 267/32-key
   catalogues with 0 missing or empty German values. Both repository structural
   validators, `git diff --check`, and the scoped secret/new-endpoint scan pass.
 - Infrastructure limitation: `bash scripts/ci.sh` reaches the permission matcher
@@ -97,6 +100,9 @@
   screenshots show the filled and cleared states.
   Current 368×800 screenshots also confirm reminder management and the Saved
   commute/line hierarchy after their respective state-ownership refactors.
+- Current iPhone 17 audit screenshots show the retryable Home location failure in
+  light and dark appearance and the recovered live Stephansplatz departures after
+  a successful retry, with no clipping at the standard content size.
 - External release gates: distribution signing, App Store Connect processed build,
   and signed physical-device TestFlight acceptance are not provided by Simulator
   evidence.

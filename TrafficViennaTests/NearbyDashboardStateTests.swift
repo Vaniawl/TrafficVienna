@@ -33,6 +33,17 @@ final class NearbyDashboardStateTests: XCTestCase {
         XCTAssertEqual(state, .locating)
     }
 
+    func testAuthorizedLocationFailureShowsRetryableUnavailableState() {
+        let state = NearbyDashboardState(
+            authorizationStatus: .authorizedWhenInUse,
+            hasLocation: false,
+            hasStations: false,
+            hasLocationError: true
+        )
+
+        XCTAssertEqual(state, .locationUnavailable)
+    }
+
     func testAuthorizedLocationWithoutNearbyStationsShowsEmptyState() {
         let state = NearbyDashboardState(
             authorizationStatus: .authorizedWhenInUse,
@@ -48,6 +59,17 @@ final class NearbyDashboardStateTests: XCTestCase {
             authorizationStatus: .authorizedWhenInUse,
             hasLocation: true,
             hasStations: true
+        )
+
+        XCTAssertEqual(state, .stations)
+    }
+
+    func testRetainedLocationContentWinsOverARefreshError() {
+        let state = NearbyDashboardState(
+            authorizationStatus: .authorizedWhenInUse,
+            hasLocation: true,
+            hasStations: true,
+            hasLocationError: true
         )
 
         XCTAssertEqual(state, .stations)

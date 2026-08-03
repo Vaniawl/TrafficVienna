@@ -99,7 +99,8 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
                          didFailWithError error: Error) {
         if let clError = error as? CLError, clError.code == .locationUnknown {
             isRequestInFlight = false
-            log.debug("locationUnknown, ignoring")
+            errorMessage = String(localized: "Location unavailable")
+            log.debug("locationUnknown, exposing retry state")
             return
         }
 

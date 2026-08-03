@@ -14,7 +14,7 @@
 - [x] **REQ-TV-005 — Performance.** Requests remain coalesced/cancellable and
   formatter creation was removed from the widget body. Settled iPad Simulator
   sampling measured 0.0% CPU in five observations.
-- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 192 tests, static
+- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 194 tests, static
   analysis, localisation extraction, repository validators, and diff checks
   pass. Hosted Quality run `30777324747` installed the pinned OpenCode CLI and
   completed the full `scripts/ci.sh` wrapper successfully on exact app-code head
@@ -83,6 +83,9 @@
   zero until the five-minute network refresh.
 - [x] Evaluate departure and removal boundaries independently so a cached
   departure already showing `now` still disappears at its future removal entry.
+- [x] Replace Home's indefinite authorized-location placeholder with an explicit
+  retry state, clear it when a new request starts, and preserve useful retained
+  coordinates during a transient refresh failure.
 - [x] Reconcile Station Detail station and route favourites from repository truth
   after local toggles and cross-tab change notifications instead of inverting a
   potentially stale cached set.
@@ -115,10 +118,12 @@
   34 seconds later before network refresh, and restore live N38 data afterward.
 - [x] Capture paired Schwedenplatz Station Detail screenshots before and after a
   Saved-tab removal, proving the preserved Discover stack clears its stale star.
+- [x] Capture and inspect Home's location retry state in light and dark appearance
+  plus the recovered live departures after a successful Vienna location request.
 
 ## Final validation and handoff
 
-- [x] Full iPhone 17 build and test suite: 187 model/service + 5 UI tests.
+- [x] Full iPhone 17 build and test suite: 189 model/service + 5 UI tests.
 - [x] Static analyzer and repository/OpenCode structural validators.
 - [x] English/German compiler-extraction catalogue comparison.
 - [x] `git diff --check`, security scan, and changed-file review.

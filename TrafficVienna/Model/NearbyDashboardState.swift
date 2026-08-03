@@ -4,13 +4,15 @@ enum NearbyDashboardState: Equatable {
     case locationDenied
     case permissionRequired
     case locating
+    case locationUnavailable
     case noStations
     case stations
 
     init(
         authorizationStatus: CLAuthorizationStatus,
         hasLocation: Bool,
-        hasStations: Bool
+        hasStations: Bool,
+        hasLocationError: Bool = false
     ) {
         switch authorizationStatus {
         case .denied, .restricted:
@@ -19,7 +21,7 @@ enum NearbyDashboardState: Equatable {
             self = .permissionRequired
         case .authorizedAlways, .authorizedWhenInUse:
             if !hasLocation {
-                self = .locating
+                self = hasLocationError ? .locationUnavailable : .locating
             } else if hasStations {
                 self = .stations
             } else {

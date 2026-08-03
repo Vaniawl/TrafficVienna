@@ -43,7 +43,7 @@ final class LocationManagerTests: XCTestCase {
         XCTAssertEqual(locationManager.userLocation?.coordinate.latitude, 48.2082)
     }
 
-    func testTemporaryLocationFailureAllowsRetry() {
+    func testTemporaryLocationFailureExposesRetryableErrorAndAllowsRetry() {
         let service = LocationServiceSpy(authorizationStatus: .authorizedWhenInUse)
         let locationManager = LocationManager(manager: service)
         locationManager.requestLocationIfNeeded()
@@ -52,6 +52,8 @@ final class LocationManagerTests: XCTestCase {
             CLLocationManager(),
             didFailWithError: CLError(.locationUnknown)
         )
+        XCTAssertNotNil(locationManager.errorMessage)
+
         locationManager.requestLocationIfNeeded()
 
         XCTAssertEqual(service.requestLocationCount, 2)

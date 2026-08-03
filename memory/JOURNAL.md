@@ -1,5 +1,23 @@
 # Journal
 
+## 2026-08-03 — Home location failures are retryable
+
+- Reproduced that `CLError.locationUnknown` released the one-shot request but
+  surfaced no error, leaving authorized Home users in an indefinite `Locating
+  you...` state with no recovery action. The regression first failed on the
+  missing error, and the projected dashboard state did not yet compile.
+- Temporary location failures now expose a localized retry card and a new request
+  clears the error. Retained coordinates and nearby departures remain useful
+  during a later refresh failure instead of being replaced by the fallback.
+- Focused coverage passes 14/14; the authoritative iPhone 17 `.xcresult` reports
+  194/194 with zero failures or skips. Exact build, Xcode Analyze, and localization
+  extraction pass with 237 app and 27 widget source keys fully covered by the
+  committed 267/32-key English/German catalogues.
+- Inspected iPhone 17 screenshots capture the retry state in light and dark mode
+  and live Stephansplatz recovery. No endpoint, dependency, persistence,
+  entitlement, or architecture boundary changed; protected CI remains required
+  after publication.
+
 ## 2026-08-03 — Root audit state is a validated contract
 
 - Found that the tracked root product/audit files were declared active by
