@@ -4,6 +4,9 @@ struct StationDeparturesList: View {
     @Bindable var viewModel: StationDetailViewModel
 
     var body: some View {
+        let availableCategories = viewModel.availableCategories
+        let groups = viewModel.groups
+
         List {
             if let message = viewModel.refreshErrorMessage {
                 Label(message, systemImage: "exclamationmark.arrow.trianglehead.2.clockwise.rotate.90")
@@ -29,9 +32,9 @@ struct StationDeparturesList: View {
                 }
             }
 
-            if viewModel.availableCategories.count > 1 {
+            if availableCategories.count > 1 {
                 FilterChips(
-                    categories: viewModel.availableCategories,
+                    categories: availableCategories,
                     selection: $viewModel.categoryFilter
                 )
                 .listRowInsets(EdgeInsets(top: Spacing.xs, leading: 0, bottom: Spacing.xs, trailing: 0))
@@ -39,7 +42,7 @@ struct StationDeparturesList: View {
             }
 
             Section("Departures") {
-                if viewModel.groups.isEmpty {
+                if groups.isEmpty {
                     ContentUnavailableView(
                         "No matching departures",
                         systemImage: "line.3.horizontal.decrease.circle",
@@ -47,7 +50,7 @@ struct StationDeparturesList: View {
                     )
                     .listRowBackground(Color.clear)
                 } else {
-                    ForEach(viewModel.groups) { group in
+                    ForEach(groups) { group in
                         StationDepartureRow(viewModel: viewModel, group: group)
                     }
                 }

@@ -78,16 +78,20 @@
   remaining fresh until automatic cleanup. Lock Screen and Dynamic Island render
   a localized departed state, retain a signed `T−`/`T+` fallback, and still end
   through the existing two-minute grace policy.
+  Alerts and Station Detail now derive each filtered collection once per SwiftUI
+  render pass and pass immutable counts/categories to their child controls. This
+  removes repeated filtering and `Set` construction during search and filter
+  changes without adding cached observable state or changing presentation.
 - Verified quality: Xcode static analysis passes; compiler output contains 238 app
-  and 29 widget Localizable source keys, all covered by the committed 268/35-key
+  and 28 widget Localizable source keys, all covered by the committed 268/35-key
   catalogues with 0 missing or empty German values. Both repository structural
   validators, `git diff --check`, and the scoped secret/new-endpoint scan pass.
 - Infrastructure limitation: `bash scripts/ci.sh` reaches the permission matcher
   and exits 127 because the required global `opencode` CLI is not installed.
   The reliability script's Python and timeout fixtures pass before the same
-  missing-tool boundary. Hosted Quality run `30787458985` supplied the pinned CLI
+  missing-tool boundary. Hosted Quality run `30790735737` supplied the pinned CLI
   and passed the complete wrapper at exact published head
-  `2a7d3623d2a3a1725681b2639c23891e70fc0e8b`.
+  `2a7f328fcd7a96a332cbadc8fc3c75c928336cdb`.
 - Handoff: draft PR #15 tracks `codex/system-surfaces-readiness` against protected
   `main`. The live PR head/check is authoritative for remote parity because a
   static state snapshot cannot record the CI result of the commit containing
@@ -124,6 +128,10 @@
 - Current iPhone 17 audit screenshots show the retryable Home location failure in
   light and dark appearance and the recovered live Stephansplatz departures after
   a successful retry, with no clipping at the standard content size.
+- Current iPhone 17 performance-audit screenshots show the Alerts count/empty
+  state, the full Stephansplatz departure list, and the filtered U-Bahn list at
+  368×800. Runtime interaction confirmed the chips, rows, and alert count remain
+  synchronized without clipping after the render-snapshot optimization.
 - External release gates: distribution signing, App Store Connect processed build,
   and signed physical-device TestFlight acceptance are not provided by Simulator
   evidence.

@@ -4,8 +4,15 @@ struct DisruptionsList: View {
     @Bindable var viewModel: DisruptionsViewModel
 
     var body: some View {
+        let filteredInfos = viewModel.filteredInfos
+        let availableCategories = viewModel.availableCategories
+
         List {
-            DisruptionFilterBar(viewModel: viewModel)
+            DisruptionFilterBar(
+                viewModel: viewModel,
+                filteredInfoCount: filteredInfos.count,
+                availableCategories: availableCategories
+            )
 
             if let message = viewModel.refreshErrorMessage {
                 Label(message, systemImage: "exclamationmark.arrow.trianglehead.2.clockwise.rotate.90")
@@ -21,7 +28,7 @@ struct DisruptionsList: View {
                     description: Text("Choose another alert type to see other service information.")
                 )
                 .listRowBackground(Color.clear)
-            } else if viewModel.filteredInfos.isEmpty {
+            } else if filteredInfos.isEmpty {
                 if viewModel.isShowingRelevantScope {
                     ContentUnavailableView {
                         Label("Your saved lines are clear", systemImage: "checkmark.circle.fill")
@@ -43,7 +50,7 @@ struct DisruptionsList: View {
                     .listRowBackground(Color.clear)
                 }
             } else {
-                ForEach(viewModel.filteredInfos) { info in
+                ForEach(filteredInfos) { info in
                     NavigationLink(value: info) {
                         DisruptionRow(info: info)
                     }

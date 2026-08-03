@@ -1,5 +1,23 @@
 # Journal
 
+## 2026-08-03 — Filtered screens avoid repeated render work
+
+- A code-first SwiftUI performance audit found that Alerts recomputed its filtered
+  feed three times per render pass, while Alerts transport categories and Station
+  Detail categories/departure groups were each derived twice.
+- `DisruptionsList` and `StationDeparturesList` now take one immutable snapshot of
+  each derived collection at the start of `body`; `DisruptionFilterBar` receives
+  the already-derived count and categories. No observable cache, persistence,
+  endpoint, dependency, copy, or layout changed.
+- Focused filter/detail coverage passes 39/39 and the authoritative iPhone 17
+  `.xcresult` reports 201/201 with zero failures or skips. Exact build, Xcode
+  Analyze, repository/OpenCode validators, 238/28 source-key localization coverage
+  against 268/35 catalogues, scoped boundary review, and whitespace checks pass.
+- Fresh 368×800 Simulator captures verify the Alerts count/empty state, the full
+  Stephansplatz list, and its U-Bahn-filtered state without clipping or stale rows.
+  Local CI still stops only at the known missing global `opencode` CLI boundary;
+  protected exact-head CI remains the publication authority.
+
 ## 2026-08-03 — Live Activity becomes stale at departure
 
 - Reproduced a suspended-app lifecycle defect: the Lock Screen countdown clamped

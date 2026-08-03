@@ -2,6 +2,8 @@ import SwiftUI
 
 struct DisruptionFilterBar: View {
     @Bindable var viewModel: DisruptionsViewModel
+    let filteredInfoCount: Int
+    let availableCategories: [LineCategory]
 
     var body: some View {
         HStack(spacing: Spacing.md) {
@@ -9,7 +11,7 @@ struct DisruptionFilterBar: View {
                 Text(viewModel.filterSummary)
                     .font(.headline)
 
-                Text("Alerts: \(viewModel.filteredInfos.count)")
+                Text("Alerts: \(filteredInfoCount)")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -46,7 +48,7 @@ struct DisruptionFilterBar: View {
                     }
                 }
 
-                if !viewModel.availableCategories.isEmpty {
+                if !availableCategories.isEmpty {
                     Section("Transport") {
                         Button {
                             viewModel.categoryFilter = nil
@@ -58,7 +60,7 @@ struct DisruptionFilterBar: View {
                             }
                         }
 
-                        ForEach(viewModel.availableCategories) { category in
+                        ForEach(availableCategories) { category in
                             Button {
                                 viewModel.categoryFilter = category
                             } label: {
