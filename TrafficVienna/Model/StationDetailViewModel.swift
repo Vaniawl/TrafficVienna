@@ -206,12 +206,12 @@ final class StationDetailViewModel {
             if snapshot.isStale {
                 refreshErrorMessage = String(localized: "Showing saved data from the last successful update.")
             }
-            state = allGroups.isEmpty ? .empty : .loaded
+            state = allGroups.isEmpty && trafficInfos.isEmpty ? .empty : .loaded
             updateTrackedActivity()
         } catch {
             guard !Task.isCancelled else { return }
             guard !isForceRefreshQueued else { return }
-            if allGroups.isEmpty {
+            if lastUpdated == nil {
                 isShowingStaleData = false
                 state = .failed(error.monitorDisplayMessage)
             } else {

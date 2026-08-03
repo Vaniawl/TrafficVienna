@@ -44,7 +44,7 @@ A `Go` requires:
 - The account-only Apple identity surface and entitlement were removed because
   they provided no cross-device feature and prevented the installed profile from
   archiving. A one-time migration deletes the legacy device-only Keychain item.
-- All 215 tests pass with zero failures or skips, including five XCUITest
+- All 217 tests pass with zero failures or skips, including five XCUITest
   journeys through the four-tab shell, Discover map entry, alert filters, Saved,
   search-to-station navigation, and cross-tab favourite reconciliation. Local
   reminder planning/decoding, idempotent
@@ -84,6 +84,10 @@ A `Go` requires:
   A successful empty Alerts feed is now an explicit retained snapshot: a failed
   refresh keeps it loaded, labels it as saved empty data, exposes retry, and does
   not claim that the current live network state is all clear.
+  Station Detail uses the same invariant for a successful response with no
+  departures: a later failed refresh retains the known empty snapshot, labels its
+  saved provenance, and exposes retry. A response containing station traffic
+  alerts but no departures remains loaded so those alerts stay visible.
   Root navigation regression
   coverage proves that external Home, Discover, and Saved destinations clear only
   their target stack, notification routing replaces Discover with one resolved
@@ -141,6 +145,10 @@ A `Go` requires:
   live feed after refresh: both U3 notices, search, filter control, and tab state
   remain reachable without clipping. The saved-empty failure state is verified by
   deterministic model/UI-state regression coverage rather than a mutable live feed.
+- A current 368×800 Station Detail capture verifies Stephansplatz still presents
+  both service alerts above its live departures after the station empty-snapshot
+  correction. Deterministic regressions cover the saved-empty and alert-only
+  response states rather than relying on mutable live service availability.
 - A current 368×800 Home acceptance observed a delayed U3 remain eligible while
   Wiener Linien moved its live timestamp, then verified the featured card advanced
   to U1 when U3 left the visible window. The final screenshot and accessibility
@@ -184,13 +192,13 @@ A `Go` requires:
   final diff check. Later evidence-only documentation commits do not alter the
   inspected app sources or binaries.
 - The continued audit remains unmerged in draft PR #15. Its exact published head
-  `a9f9f7b36d3d27860a5053f32c12b26773013bff` passed protected Quality run
-  `30805816029`, including the pinned OpenCode CLI, repository validation,
-  app/widget build, the then-current 213-test suite, and the final diff check. The
-  later local Alerts saved-empty slice passes 215/215 tests and Xcode Analyze;
-  compiler extraction reports 240 app and 29 widget source keys covered by the
-  committed 270/35-key catalogues. Its own protected check remains required after
-  publication.
+  `ad3a5e94f550082e92f82c1ab7751aa84cf34ae0` passed protected Quality run
+  `30808174894`, including the pinned OpenCode CLI, repository validation,
+  app/widget build, the then-current 215-test suite, and the final diff check. The
+  later local Station Detail saved-empty slice passes 217/217 tests and Xcode
+  Analyze; compiler extraction reports 243 app and 29 widget source keys covered
+  by the committed 272/35-key catalogues. Its own protected check remains required
+  after publication.
 - `main` now requires pull requests and a strict successful `validate` check.
   Conversation resolution is required, admin enforcement is enabled, and force
   pushes and branch deletion are disabled.

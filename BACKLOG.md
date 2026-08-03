@@ -14,11 +14,11 @@
 - [x] **REQ-TV-005 — Performance.** Requests remain coalesced/cancellable and
   formatter creation was removed from the widget body. Settled iPad Simulator
   sampling measured 0.0% CPU in five observations.
-- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 215 tests, static
+- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 217 tests, static
   analysis, localisation extraction, repository validators, and diff checks
-  pass. Hosted Quality run `30805816029` installed the pinned OpenCode CLI and
+  pass. Hosted Quality run `30808174894` installed the pinned OpenCode CLI and
   completed the full `scripts/ci.sh` wrapper successfully on exact published head
-  `a9f9f7b3`; the live draft-PR check remains authoritative for every later
+  `ad3a5e94`; the live draft-PR check remains authoritative for every later
   documentation or workflow commit.
 - [x] **REQ-TV-007 — Review-ready state.** Architecture/security findings and
   documentation are resolved; the reviewed branch is maintained in draft PR #15.
@@ -120,6 +120,9 @@
 - [x] Distinguish a successful empty Alerts snapshot from the initial state, retain
   it through a failed refresh, and qualify stale empty data with saved-data copy
   plus retry instead of presenting an unverified current all-clear state.
+- [x] Preserve a successful empty Station Detail snapshot through refresh failure,
+  qualify retained empty data with saved-data copy and retry, and render station
+  traffic alerts even when the response contains no departures.
 - [x] Give app departure projection an explicit expired state, anchor
   timestamp-free cached countdowns to their monitor source time, and exclude
   departed values from Nearby, Station Detail, Saved, featured commute, and
@@ -172,19 +175,22 @@
 - [x] Reopen and refresh the unfiltered live Alerts feed after the saved-empty
   correction, verify both U3 notices remain reachable, and capture the unclipped
   368×800 search/filter/list state.
+- [x] Reopen live Stephansplatz after the Station Detail empty-snapshot correction,
+  verify both service alerts remain visible above departures, and capture the
+  unclipped 368×800 state.
 - [x] Observe a live featured U3 across its delayed boundary, verify Home advances
   to the next eligible saved route, and capture the resulting U1 card plus matching
   accessibility semantics at 368×800.
 
 ## Final validation and handoff
 
-- [x] Full iPhone 17 build and test suite: 210 model/service + 5 UI tests.
+- [x] Full iPhone 17 build and test suite: 212 model/service + 5 UI tests.
 - [x] Static analyzer and repository/OpenCode structural validators.
 - [x] English/German compiler-extraction catalogue comparison.
 - [x] `git diff --check`, security scan, and changed-file review.
 - [x] Synchronize `STATUS.md`, root/memory journals, and architectural decisions.
 - [x] Run `bash scripts/ci.sh` with the required OpenCode runtime: hosted
-  Quality run `30805816029` passed exact published head `a9f9f7b3`.
+  Quality run `30808174894` passed exact published head `ad3a5e94`.
   The local host still lacks that global CLI, so local wrapper attempts stop at
   the permission matcher and the live protected PR check remains authoritative
   after any later publication.

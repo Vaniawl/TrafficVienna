@@ -73,6 +73,87 @@ final class StationDetailViewModelTests: XCTestCase {
         }
     }
 
+    func testEmptySuccessfulSnapshotRemainsVisibleDuringFailedRefresh() async {
+        let monitor = ControlledDetailMonitorProvider(
+            results: [
+                .success(emptyResponse()),
+                .failure(DetailTestError.failed),
+            ]
+        )
+        let viewModel = StationDetailViewModel(
+            station: Station(id: 1, diva: 123, name: "Test", lat: 0, lon: 0),
+            service: monitor,
+            favoritesRepo: DetailRoutesRepository(),
+            stationsRepo: DetailStationsRepository(),
+            liveActivityStarter: DetailLiveActivityStarter(isAvailable: true),
+            reminderClient: .test
+        )
+        let initialLoad = Task { await viewModel.load() }
+        await monitor.waitUntilCallCount(1)
+        await monitor.releaseCall(1)
+        await initialLoad.value
+
+        XCTAssertEqual(viewModel.state, .empty)
+        XCTAssertNotNil(viewModel.lastUpdated)
+        XCTAssertFalse(viewModel.isShowingStaleData)
+
+        let refresh = Task { await viewModel.load(forceRefresh: true) }
+        await monitor.waitUntilCallCount(2)
+
+        XCTAssertEqual(viewModel.state, .empty)
+
+        await monitor.releaseCall(2)
+        await refresh.value
+
+        XCTAssertEqual(viewModel.state, .empty)
+        XCTAssertNotNil(viewModel.lastUpdated)
+        XCTAssertTrue(viewModel.isShowingStaleData)
+        XCTAssertNotNil(viewModel.refreshErrorMessage)
+    }
+
+    func testTrafficAlertsRemainVisibleWithoutDeparturesAndAcrossRefreshFailure() async {
+        let info = TrafficInfo(
+            name: "traffic-1",
+            title: "U1: Service change",
+            description: nil,
+            priority: nil,
+            relatedLines: ["U1"]
+        )
+        let monitor = ControlledDetailMonitorProvider(
+            results: [
+                .success(emptyResponse(trafficInfos: [info])),
+                .failure(DetailTestError.failed),
+            ]
+        )
+        let viewModel = StationDetailViewModel(
+            station: Station(id: 1, diva: 123, name: "Test", lat: 0, lon: 0),
+            service: monitor,
+            favoritesRepo: DetailRoutesRepository(),
+            stationsRepo: DetailStationsRepository(),
+            liveActivityStarter: DetailLiveActivityStarter(isAvailable: true),
+            reminderClient: .test
+        )
+        let initialLoad = Task { await viewModel.load() }
+        await monitor.waitUntilCallCount(1)
+        await monitor.releaseCall(1)
+        await initialLoad.value
+
+        XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertTrue(viewModel.groups.isEmpty)
+        XCTAssertEqual(viewModel.trafficInfos, [info])
+
+        let refresh = Task { await viewModel.load(forceRefresh: true) }
+        await monitor.waitUntilCallCount(2)
+        await monitor.releaseCall(2)
+        await refresh.value
+
+        XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertTrue(viewModel.groups.isEmpty)
+        XCTAssertEqual(viewModel.trafficInfos, [info])
+        XCTAssertTrue(viewModel.isShowingStaleData)
+        XCTAssertNotNil(viewModel.refreshErrorMessage)
+    }
+
     func testRefreshFailureKeepsExistingDeparturesVisible() async {
         let monitor = DetailMonitorProvider(result: .success(responseWithMergedU1()))
         let viewModel = makeViewModel(service: monitor)
@@ -196,6 +277,7 @@ final class StationDetailViewModelTests: XCTestCase {
 
         XCTAssertEqual(viewModel.state, .empty)
         XCTAssertTrue(viewModel.groups.isEmpty)
+        XCTAssertTrue(viewModel.isShowingStaleData)
         XCTAssertNotNil(viewModel.refreshErrorMessage)
     }
 
@@ -601,6 +683,15 @@ final class StationDetailViewModelTests: XCTestCase {
             data: DataBlock(
                 monitors: [monitor(lines: [u1, bus])],
                 trafficInfos: []
+            )
+        )
+    }
+
+    private func emptyResponse(trafficInfos: [TrafficInfo] = []) -> MonitorResponse {
+        MonitorResponse(
+            data: DataBlock(
+                monitors: [],
+                trafficInfos: trafficInfos
             )
         )
     }

@@ -1,5 +1,38 @@
 # Journal
 
+## 2026-08-03 - Empty Station Detail snapshots remain truthful
+
+- Reproduced two Station Detail state defects with regression-first coverage. A
+  successful response containing no departures was treated like no successful
+  snapshot, so a later refresh failure replaced it with an initial error. A
+  response containing traffic alerts but no departures entered the departure
+  empty state and hid those alerts. The focused suite failed 29/31 before the fix
+  on the exact expected state mismatches.
+- `StationDetailViewModel` now uses `lastUpdated` as the existing successful
+  snapshot identity and enters the loaded list whenever traffic alerts exist.
+  Refresh failure retains either a loaded or empty successful snapshot, marks it
+  stale, and keeps the refresh error available. This stays inside the existing
+  SwiftUI/MVVM, cache, polling, and public protocol boundaries; no migration or
+  ADR is required.
+- Station Detail now distinguishes current empty data from qualified saved-empty
+  data, exposes retry in both cases, and uses complete German copy. An alert-only
+  list presents the truthful no-departures message while retaining the service
+  alert section instead of suggesting that a transport filter is hiding results.
+- The complete focused Station Detail suite passes 31/31. The exact iPhone 17
+  build and 217/217 tests (212 model/service plus 5 UI) pass with no failures or
+  skips, and Xcode Analyze is clean. Compiler extraction reports 243 app and 29
+  widget source keys, all covered by the 272/35 catalogues with no missing or
+  empty German values; repository/OpenCode validators, shell syntax, scoped
+  boundary review, JSON validation, and `git diff --check` pass.
+- Live iPhone 17 acceptance reopened Stephansplatz and verified both service alerts
+  remain visible above its live departures with no clipping. The inspected
+  368×800 capture is stored at
+  `docs/release/screenshots/audit/station-detail-after-empty-state-fix.jpg`;
+  deterministic tests provide saved-empty and alert-only state evidence. Local CI
+  reaches its passing Python/timeout fixtures and stops only at the known missing
+  global `opencode` CLI, so protected exact-head CI remains the publication
+  authority.
+
 ## 2026-08-03 - Empty Alerts snapshots remain truthful
 
 - Reproduced an Alerts state-identity defect: a successful empty feed was

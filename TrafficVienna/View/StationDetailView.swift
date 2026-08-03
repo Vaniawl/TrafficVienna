@@ -27,11 +27,36 @@ struct StationDetailView: View {
                 }
 
             case .empty:
-                ContentUnavailableView(
-                    "No departures",
-                    systemImage: "tram",
-                    description: Text("Nothing is scheduled right now.")
-                )
+                if viewModel.isShowingStaleData {
+                    ContentUnavailableView {
+                        Label(
+                            "No departures in saved data",
+                            systemImage: "clock.badge.exclamationmark"
+                        )
+                    } description: {
+                        VStack(spacing: Spacing.sm) {
+                            Text("The last successful update contained no upcoming departures.")
+                            if let message = viewModel.refreshErrorMessage {
+                                Text(message)
+                                    .font(.footnote)
+                            }
+                        }
+                    } actions: {
+                        Button("Try again", systemImage: "arrow.clockwise", action: retry)
+                            .buttonStyle(.borderedProminent)
+                    }
+                    .accessibilityIdentifier("station-detail.saved-empty")
+                } else {
+                    ContentUnavailableView {
+                        Label("No departures", systemImage: "tram")
+                    } description: {
+                        Text("Nothing is scheduled right now.")
+                    } actions: {
+                        Button("Refresh departures", systemImage: "arrow.clockwise", action: retry)
+                            .buttonStyle(.bordered)
+                    }
+                    .accessibilityIdentifier("station-detail.empty")
+                }
 
             case .loaded:
                 StationDeparturesList(viewModel: viewModel)

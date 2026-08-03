@@ -43,12 +43,21 @@ struct StationDeparturesList: View {
 
             Section("Departures") {
                 if groups.isEmpty {
-                    ContentUnavailableView(
-                        "No matching departures",
-                        systemImage: "line.3.horizontal.decrease.circle",
-                        description: Text("Choose another transport type.")
-                    )
-                    .listRowBackground(Color.clear)
+                    if viewModel.categoryFilter == nil {
+                        ContentUnavailableView(
+                            "No departures",
+                            systemImage: "tram",
+                            description: Text("Nothing is scheduled right now.")
+                        )
+                        .listRowBackground(Color.clear)
+                    } else {
+                        ContentUnavailableView(
+                            "No matching departures",
+                            systemImage: "line.3.horizontal.decrease.circle",
+                            description: Text("Choose another transport type.")
+                        )
+                        .listRowBackground(Color.clear)
+                    }
                 } else {
                     ForEach(groups) { group in
                         StationDepartureRow(viewModel: viewModel, group: group)

@@ -1037,6 +1037,16 @@
         }
       }
     },
+    "No departures in saved data" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Abfahrten in den gespeicherten Daten"
+          }
+        }
+      }
+    },
     "No departures loaded" : {
       "localizations" : {
         "de" : {
@@ -1949,6 +1959,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Die letzte erfolgreiche Aktualisierung enthielt keine Betriebsmeldungen."
+          }
+        }
+      }
+    },
+    "The last successful update contained no upcoming departures." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die letzte erfolgreiche Aktualisierung enthielt keine bevorstehenden Abfahrten."
           }
         }
       }

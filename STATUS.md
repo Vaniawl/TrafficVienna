@@ -6,7 +6,7 @@
 - Stack: native SwiftUI iOS application, widget extension, XCTest, and XCUITest.
 - Current phase: continued reliability improvements on the existing draft PR.
 - Product shell: Home, Discover, Alerts, and Saved; accounts are out of scope.
-- Verified tests: 215/215 pass on iPhone 17 Simulator (210 model/service tests
+- Verified tests: 217/217 pass on iPhone 17 Simulator (212 model/service tests
   and 5 UI tests), with zero failures or skips. App and widget build successfully.
 - Verified visual coverage: four journeys and key secondary surfaces were
   exercised on iPhone 17; Home, Station Detail, and reminder management were
@@ -102,20 +102,25 @@
   A later failed refresh retains that known empty snapshot and presents it as
   qualified saved data with retry, rather than replacing it with an initial error
   or claiming that the current network state is all clear.
+  Station Detail now applies the same successful-snapshot identity to empty
+  departure data. A refresh failure keeps a known empty snapshot visible with
+  saved-data provenance and retry instead of replacing it with an initial error.
+  Traffic alerts remain renderable when a station has no departures, so an
+  alert-only response cannot be hidden behind the departure empty state.
   App departure projection now has an explicit expired state. Parseable real/planned
   timestamps and timestamp-free countdowns anchored to the monitor source time share
   the widget's one-minute `now` grace, after which Nearby, Station Detail, Saved,
   featured-commute selection, and app-to-widget sync omit the departed service.
-- Verified quality: Xcode static analysis passes; compiler output contains 240 app
-  and 29 widget Localizable source keys, all covered by the committed 270/35-key
+- Verified quality: Xcode static analysis passes; compiler output contains 243 app
+  and 29 widget Localizable source keys, all covered by the committed 272/35-key
   catalogues with 0 missing or empty German values. Both repository structural
   validators, `git diff --check`, and the scoped secret/new-endpoint scan pass.
 - Infrastructure limitation: `bash scripts/ci.sh` reaches the permission matcher
   and exits 127 because the required global `opencode` CLI is not installed.
   The reliability script's Python and timeout fixtures pass before the same
-  missing-tool boundary. Hosted Quality run `30805816029` supplied the pinned CLI
+  missing-tool boundary. Hosted Quality run `30808174894` supplied the pinned CLI
   and passed the complete wrapper at exact published head
-  `a9f9f7b36d3d27860a5053f32c12b26773013bff`.
+  `ad3a5e94f550082e92f82c1ab7751aa84cf34ae0`.
 - Handoff: draft PR #15 tracks `codex/system-surfaces-readiness` against protected
   `main`. The live PR head/check is authoritative for remote parity because a
   static state snapshot cannot record the CI result of the commit containing
@@ -164,6 +169,10 @@
 - Current 368×800 Station Detail captures show Stephansplatz with the Bus chip
   selected and four matching directions both before and after pull-to-refresh;
   the refreshed state remains reachable, synchronized, and unclipped.
+- A current 368×800 Station Detail capture also verifies that Stephansplatz keeps
+  its two service alerts visible above live departures after the empty-snapshot
+  correction. Deterministic regressions cover the saved-empty and alert-only
+  response states that cannot be reproduced reliably against the live feed.
 - Current 368×800 Alerts acceptance shows the live U3 construction notice with
   the U-Bahn filter selected. Its visible `For you · Service · U-Bahn` summary,
   result count, and alert remain synchronized after pull-to-refresh without
