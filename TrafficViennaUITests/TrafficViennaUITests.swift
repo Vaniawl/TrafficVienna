@@ -88,6 +88,41 @@ final class TrafficViennaUITests: XCTestCase {
         )
     }
 
+    func testStationFavouriteReflectsRemovalFromSavedTab() {
+        openStation(named: "Schwedenplatz")
+
+        let addFavourite = app.buttons["Add station to favourites"]
+        let removeFavourite = app.buttons["Remove station from favourites"]
+        if removeFavourite.exists {
+            removeFavourite.tap()
+            XCTAssertTrue(addFavourite.waitForExistence(timeout: 3))
+        }
+        addFavourite.tap()
+        XCTAssertTrue(removeFavourite.waitForExistence(timeout: 3))
+        attachScreenshot(named: "station-favourite-before-external-removal")
+
+        let tabBar = app.tabBars.firstMatch
+        tabBar.buttons["Saved"].tap()
+        XCTAssertTrue(app.navigationBars["Saved"].waitForExistence(timeout: 3))
+
+        let savedStation = app.buttons.matching(
+            NSPredicate(
+                format: "identifier BEGINSWITH 'saved.station.' AND label CONTAINS 'Schwedenplatz'"
+            )
+        ).firstMatch
+        XCTAssertTrue(savedStation.waitForExistence(timeout: 5))
+        savedStation.swipeLeft()
+        let delete = app.buttons["Delete"]
+        XCTAssertTrue(delete.waitForExistence(timeout: 3))
+        delete.tap()
+        XCTAssertFalse(savedStation.waitForExistence(timeout: 3))
+
+        tabBar.buttons["Discover"].tap()
+        XCTAssertTrue(app.navigationBars["Schwedenplatz"].waitForExistence(timeout: 3))
+        XCTAssertTrue(addFavourite.waitForExistence(timeout: 3))
+        attachScreenshot(named: "station-favourite-after-external-removal")
+    }
+
     private func openStation(named stationName: String) {
         app.tabBars.firstMatch.buttons["Discover"].tap()
 
@@ -105,5 +140,12 @@ final class TrafficViennaUITests: XCTestCase {
             app.navigationBars[stationName].waitForExistence(timeout: 5)
                 || app.navigationBars["\(stationName) U"].waitForExistence(timeout: 5)
         )
+    }
+
+    private func attachScreenshot(named name: String) {
+        let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
     }
 }

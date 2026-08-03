@@ -1,5 +1,24 @@
 # Architectural Decisions
 
+## 2026-08-03 — Station Detail favourite state is repository-derived
+
+**Context:** A Station Detail view can remain alive in one tab while the same
+station or route is removed from Saved. Its view model loaded route favourites
+only at initialization and locally inverted that cached set after a toggle. The
+display could therefore remain stale and then become the opposite of the actual
+repository state.
+
+**Decision:** Keep the existing station and route repositories as the source of
+truth. Re-read them after every local toggle, and let Station Detail subscribe to
+the existing station/route change notifications so a preserved view reconciles
+mutations made elsewhere. Do not inject the root favourites view model or create
+a second shared state owner.
+
+**Consequences:** Cross-tab changes update the Station Detail controls without
+resetting navigation or coupling feature view models. Duplicate repository reads
+are small local UserDefaults reads, no storage schema or notification contract
+changes, and rollback is a normal revert with no migration.
+
 ## 2026-08-03 — Widget removal boundaries survive delayed timeline generation
 
 **Context:** Countdown projection deliberately retains zero for one minute so a

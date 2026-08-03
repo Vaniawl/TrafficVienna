@@ -27,7 +27,8 @@ A SwiftUI iOS app for live Wiener Linien (Vienna public transport) departures. T
   the small system-facing wrappers above.
 - **Regression surfaces**: `TrafficViennaTests` covers model and service behavior;
   `TrafficViennaUITests` proves the four-tab shell, Discover-to-map reachability,
-  alert filters, Saved, and station search-to-detail navigation.
+  alert filters, Saved, station search-to-detail navigation, and cross-tab
+  favourite reconciliation in a preserved Station Detail stack.
 
 ## What good looks like
 

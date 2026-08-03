@@ -84,6 +84,12 @@ struct StationDetailView: View {
         .refreshable {
             await viewModel.load(forceRefresh: true)
         }
+        .onReceive(NotificationCenter.default.publisher(for: .favoriteStationsDidChange)) { _ in
+            viewModel.reloadStationFavorite()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .favoriteRoutesDidChange)) { _ in
+            viewModel.reloadRouteFavorites()
+        }
         .background(DesignColor.background)
     }
 

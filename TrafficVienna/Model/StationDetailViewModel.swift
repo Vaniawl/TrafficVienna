@@ -67,16 +67,22 @@ final class StationDetailViewModel {
 
     func toggleStationFavorite() {
         stationsRepo.toggle(FavoriteStation(station))
-        isStationFavorited = stationsRepo.contains(id: station.id)
+        reloadStationFavorite()
     }
 
     func toggleFavorite(_ group: StationDepartureGroup) {
         guard let diva = station.diva else { return }
         let route = FavoriteRoute(diva: String(diva), lineName: group.line, destination: group.destination)
         favoritesRepo.toggle(diva: route.diva, lineName: route.lineName, destination: route.destination)
-        if favoriteRoutes.remove(route) == nil {
-            favoriteRoutes.insert(route)
-        }
+        reloadRouteFavorites()
+    }
+
+    func reloadStationFavorite() {
+        isStationFavorited = stationsRepo.contains(id: station.id)
+    }
+
+    func reloadRouteFavorites() {
+        favoriteRoutes = Set(favoritesRepo.getAll())
     }
 
     func startTracking(_ group: StationDepartureGroup) {

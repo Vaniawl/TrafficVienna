@@ -168,6 +168,45 @@ final class StationDetailViewModelTests: XCTestCase {
         XCTAssertTrue(stations.contains(id: 1))
     }
 
+    func testRouteFavouriteToggleReconcilesExternallyChangedRepositoryState() async {
+        let routes = DetailRoutesRepository()
+        let viewModel = makeViewModel(favoritesRepo: routes)
+        await viewModel.load()
+        guard let group = viewModel.groups.first else { return XCTFail("Missing group") }
+
+        viewModel.toggleFavorite(group)
+        routes.toggle(diva: "123", lineName: group.line, destination: group.destination)
+        viewModel.toggleFavorite(group)
+
+        XCTAssertTrue(
+            routes.isFavorite(diva: "123", lineName: group.line, destination: group.destination)
+        )
+        XCTAssertTrue(viewModel.isFavorite(group))
+    }
+
+    func testRouteFavouriteReloadReflectsExternalRemoval() async {
+        let routes = DetailRoutesRepository()
+        let viewModel = makeViewModel(favoritesRepo: routes)
+        await viewModel.load()
+        guard let group = viewModel.groups.first else { return XCTFail("Missing group") }
+
+        viewModel.toggleFavorite(group)
+        routes.toggle(diva: "123", lineName: group.line, destination: group.destination)
+        viewModel.reloadRouteFavorites()
+
+        XCTAssertFalse(viewModel.isFavorite(group))
+    }
+
+    func testStationFavouriteReloadReflectsExternalChange() {
+        let stations = DetailStationsRepository()
+        let viewModel = makeViewModel(stationsRepo: stations)
+
+        stations.toggle(FavoriteStation(viewModel.station))
+        viewModel.reloadStationFavorite()
+
+        XCTAssertTrue(viewModel.isStationFavorited)
+    }
+
     func testUnavailableLiveActivitiesShowUserNotice() async {
         let starter = DetailLiveActivityStarter(isAvailable: false)
         let viewModel = makeViewModel(liveActivityStarter: starter)

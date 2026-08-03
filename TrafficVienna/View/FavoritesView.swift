@@ -79,6 +79,7 @@ struct FavoritesView: View {
                     }
                     .padding(.vertical, Spacing.xs)
                 }
+                .accessibilityIdentifier("saved.station.\(station.id)")
             }
             .onMove { viewModel.moveStations(fromOffsets: $0, toOffset: $1) }
             .onDelete { offsets in

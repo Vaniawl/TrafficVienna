@@ -14,9 +14,9 @@
 - [x] **REQ-TV-005 — Performance.** Requests remain coalesced/cancellable and
   formatter creation was removed from the widget body. Settled iPad Simulator
   sampling measured 0.0% CPU in five observations.
-- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 185 tests, static
+- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 189 tests, static
   analysis, localisation extraction, repository validators, and diff checks
-  pass. Hosted Quality run `30772786327` installed the pinned OpenCode CLI and
+  pass. Hosted Quality run `30774796251` installed the pinned OpenCode CLI and
   completed the previously published full `scripts/ci.sh` wrapper successfully;
   every new published commit still requires its own protected run.
 - [x] **REQ-TV-007 — Review-ready state.** Architecture/security findings and
@@ -78,6 +78,9 @@
   zero until the five-minute network refresh.
 - [x] Evaluate departure and removal boundaries independently so a cached
   departure already showing `now` still disappears at its future removal entry.
+- [x] Reconcile Station Detail station and route favourites from repository truth
+  after local toggles and cross-tab change notifications instead of inverting a
+  potentially stale cached set.
 - [x] Keep the Live Activity UI journey meaningful overnight by using the
   24-hour Schwedenplatz hub while retaining independent Stephansplatz search and
   notification-routing coverage.
@@ -105,16 +108,18 @@
   after the visible-departure scheduling fix.
 - [x] Capture a controlled cached departure showing `now`, observe its removal
   34 seconds later before network refresh, and restore live N38 data afterward.
+- [x] Capture paired Schwedenplatz Station Detail screenshots before and after a
+  Saved-tab removal, proving the preserved Discover stack clears its stale star.
 
 ## Final validation and handoff
 
-- [x] Full iPhone 17 build and test suite: 181 model/service + 4 UI tests.
+- [x] Full iPhone 17 build and test suite: 184 model/service + 5 UI tests.
 - [x] Static analyzer and repository/OpenCode structural validators.
 - [x] English/German compiler-extraction catalogue comparison.
 - [x] `git diff --check`, security scan, and changed-file review.
 - [x] Synchronize `STATUS.md`, root/memory journals, and architectural decisions.
 - [x] Run `bash scripts/ci.sh` with the required OpenCode runtime: hosted
-  Quality run `30772786327` passed the previously published `e9975962` baseline.
+  Quality run `30774796251` passed the previously published `d89d8421` baseline.
   The local host still lacks that global CLI, so local wrapper attempts stop at
   the permission matcher and protected CI remains authoritative after publication.
 - [x] Commit reviewed paths, push `codex/system-surfaces-readiness`, and open

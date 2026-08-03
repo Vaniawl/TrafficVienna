@@ -44,9 +44,10 @@ A `Go` requires:
 - The account-only Apple identity surface and entitlement were removed because
   they provided no cross-device feature and prevented the installed profile from
   archiving. A one-time migration deletes the legacy device-only Keychain item.
-- All 185 tests pass with zero failures or skips, including four XCUITest
+- All 189 tests pass with zero failures or skips, including five XCUITest
   journeys through the four-tab shell, Discover map entry, alert filters, Saved,
-  and search-to-station navigation. Local reminder planning/decoding, idempotent
+  search-to-station navigation, and cross-tab favourite reconciliation. Local
+  reminder planning/decoding, idempotent
   route replacement and legacy cleanup, notification denial recovery, Live
   Activity update/stop behavior, widget departure-boundary scheduling, stale
   countdown prevention, permission-prompt expiry, and ActivityKit state
@@ -69,6 +70,11 @@ A `Go` requires:
   coverage proves that external Home, Discover, and Saved destinations clear only
   their target stack, notification routing replaces Discover with one resolved
   station, and ordinary tab changes preserve their paths.
+  Station Detail favourite coverage proves that repository changes made from a
+  different tab refresh both station and route state and that a stale local route
+  cache cannot invert the displayed result after the next toggle. Paired iPhone
+  17 screenshots show the filled Schwedenplatz star before Saved removal and the
+  cleared star after returning to the preserved Discover stack.
   Widget freshness coverage separates countdown projection time from transport
   source time, uses the oldest source across visible mixed rows, persists that
   value through App Group sync, and proves both legacy-payload reads and rollback

@@ -1,5 +1,18 @@
 # Journal
 
+## 2026-08-03 - Station Detail favourites follow repository truth
+
+- Reproduced a cross-tab consistency defect: Station Detail cached favourite
+  routes at initialization and inverted that stale set after a Saved-tab change,
+  allowing its station or route control to disagree with persisted state.
+- Station and route favourites now reload from their repositories after local
+  toggles and the existing change notifications. Saved station rows also expose
+  stable accessibility identifiers for the end-to-end regression.
+- Three focused model regressions pass, the new cross-tab UI journey passes, and
+  the authoritative iPhone 17 `.xcresult` reports 189/189 with zero failures or
+  skips. Paired screenshots show Schwedenplatz filled before external removal and
+  cleared after returning to the preserved Discover detail.
+
 ## 2026-08-03 - Cached widget departures leave `now` on time
 
 - Reproduced that timeline scheduling discarded both boundaries when a cached
