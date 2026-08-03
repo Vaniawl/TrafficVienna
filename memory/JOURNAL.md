@@ -1,5 +1,22 @@
 # Journal
 
+## 2026-08-03 — Widget configuration preserves selected route order
+
+- Traced the multi-route AppEntity restoration path and reproduced that converting
+  the ordered identifier input to a `Set` returned saved routes in local sort order.
+  The focused regression failed with U1/U4 instead of the requested U4/U1 order.
+- Added a shared pure resolution policy used by the widget query. It now traverses
+  identifiers in order, omits unavailable routes, and leaves deterministic
+  suggestion ordering, stable IDs, cache merging, storage, and fetch behavior intact.
+- The focused resolution/order suite passes 4/4; the authoritative iPhone 17
+  `.xcresult` reports 200/200 with zero failures or skips. Exact app/widget build,
+  Xcode Analyze, repository/OpenCode validators, shell syntax, catalogue values,
+  scoped security/dependency review, and whitespace checks pass.
+- The local CI wrapper still reaches only the missing global `opencode` boundary
+  after its Python/timeout fixtures pass. No layout, copy, color, or asset changed,
+  so existing inspected widget screenshots remain pixel-representative; the
+  published commit still requires its own protected Quality run.
+
 ## 2026-08-03 — Cancelled refreshes do not create forced successors
 
 - Reproduced that a cancelled station or traffic-info force-refresh waiting

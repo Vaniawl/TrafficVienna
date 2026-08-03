@@ -14,11 +14,11 @@
 - [x] **REQ-TV-005 — Performance.** Requests remain coalesced/cancellable and
   formatter creation was removed from the widget body. Settled iPad Simulator
   sampling measured 0.0% CPU in five observations.
-- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 199 tests, static
+- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 200 tests, static
   analysis, localisation extraction, repository validators, and diff checks
-  pass. Hosted Quality run `30783001019` installed the pinned OpenCode CLI and
+  pass. Hosted Quality run `30784181172` installed the pinned OpenCode CLI and
   completed the full `scripts/ci.sh` wrapper successfully on exact published head
-  `538334e3`; the live draft-PR check remains authoritative for every later
+  `52e1e494`; the live draft-PR check remains authoritative for every later
   documentation or workflow commit.
 - [x] **REQ-TV-007 — Review-ready state.** Architecture/security findings and
   documentation are resolved; the reviewed branch is maintained in draft PR #15.
@@ -79,6 +79,9 @@
 - [x] Scope widget fetch throttling to the canonical selected-route set so one
   widget configuration cannot suppress another configuration's first refresh,
   while empty configurations consume no refresh budget.
+- [x] Preserve the identifier order supplied when App Intents restores a
+  multi-route widget configuration, while omitting routes that are no longer
+  available instead of reverting to local suggestion order.
 - [x] Schedule timeline boundaries for all three departures that widget layouts
   can render, so the third countdown is removed on time instead of lingering at
   zero until the five-minute network refresh.
@@ -128,13 +131,13 @@
 
 ## Final validation and handoff
 
-- [x] Full iPhone 17 build and test suite: 194 model/service + 5 UI tests.
+- [x] Full iPhone 17 build and test suite: 195 model/service + 5 UI tests.
 - [x] Static analyzer and repository/OpenCode structural validators.
 - [x] English/German compiler-extraction catalogue comparison.
 - [x] `git diff --check`, security scan, and changed-file review.
 - [x] Synchronize `STATUS.md`, root/memory journals, and architectural decisions.
 - [x] Run `bash scripts/ci.sh` with the required OpenCode runtime: hosted
-  Quality run `30783001019` passed exact published head `538334e3`.
+  Quality run `30784181172` passed exact published head `52e1e494`.
   The local host still lacks that global CLI, so local wrapper attempts stop at
   the permission matcher and the live protected PR check remains authoritative
   after any later publication.

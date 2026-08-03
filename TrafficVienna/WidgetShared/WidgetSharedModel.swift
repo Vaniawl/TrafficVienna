@@ -53,6 +53,21 @@ nonisolated struct WidgetRouteKey: Hashable, Sendable {
     }
 }
 
+nonisolated enum WidgetRouteEntityResolution {
+    static func routes(
+        for identifiers: [String],
+        availableRoutes: [FavoriteRoute]
+    ) -> [FavoriteRoute] {
+        let routesByID = Dictionary(
+            availableRoutes.map { ($0.stableID, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+        return identifiers.compactMap {
+            routesByID[$0]
+        }
+    }
+}
+
 nonisolated enum WidgetDataMerge {
     static func ordered(
         selected: [WidgetRouteKey],

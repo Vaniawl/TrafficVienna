@@ -1016,6 +1016,31 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(routes.sorted().map(\.lineName), ["U1", "U4"])
     }
 
+    func testWidgetRouteEntityResolutionPreservesRequestedOrderAndOmitsUnavailableRoutes() {
+        let u1 = FavoriteRoute(
+            diva: "1",
+            lineName: "U1",
+            destination: "Leopoldau"
+        )
+        let u4 = FavoriteRoute(
+            diva: "2",
+            lineName: "U4",
+            destination: "Heiligenstadt"
+        )
+        let removed = FavoriteRoute(
+            diva: "3",
+            lineName: "U3",
+            destination: "Ottakring"
+        )
+
+        let resolved = WidgetRouteEntityResolution.routes(
+            for: [u4.stableID, removed.stableID, u1.stableID],
+            availableRoutes: [u1, u4]
+        )
+
+        XCTAssertEqual(resolved, [u4, u1])
+    }
+
     func testFavoriteRouteStableIDIsDeterministicAndCollisionSafe() {
         let route = FavoriteRoute(
             diva: "60200123",

@@ -604,10 +604,13 @@ while the widget rendered the numeric stop identifier as the station title.
 **Decision:** Keep one Codable, Hashable, Comparable route value in
 `WidgetShared/FavoriteRoute.swift`; both targets use its deterministic order. The
 widget decodes the monitor response station title and localises its own strings in
-an extension-owned catalogue.
+an extension-owned catalogue. Suggestions use deterministic saved-route order;
+when App Intents restores an explicit identifier collection, resolve in that
+identifier order and omit identifiers whose saved route is no longer available.
 
 **Consequences:** App and widget cannot silently drift in route identity or sort
-order, refreshed widgets show a human-readable stop name, and the extension remains
+order, a restored multi-route configuration retains the user's presentation order,
+refreshed widgets show a human-readable stop name, and the extension remains
 independently localisable without adding a service or changing App Group scope.
 
 ## 2026-07-18 — Station Detail does not own widget content

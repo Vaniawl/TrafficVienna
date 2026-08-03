@@ -6,7 +6,7 @@
 - Stack: native SwiftUI iOS application, widget extension, XCTest, and XCUITest.
 - Current phase: continued reliability improvements on the existing draft PR.
 - Product shell: Home, Discover, Alerts, and Saved; accounts are out of scope.
-- Verified tests: 199/199 pass on iPhone 17 Simulator (194 model/service tests
+- Verified tests: 200/200 pass on iPhone 17 Simulator (195 model/service tests
   and 5 UI tests), with zero failures or skips. App and widget build successfully.
 - Verified visual coverage: four journeys and key secondary surfaces were
   exercised on iPhone 17; Home, Station Detail, and reminder management were
@@ -55,6 +55,9 @@
   fetch throttling is scoped to the canonical selected-route set, so refreshing
   one widget configuration cannot suppress another configuration's first fetch;
   empty configurations do not consume the throttle or advance cache freshness.
+  Widget AppEntity restoration now resolves saved routes in the system-provided
+  identifier order while omitting unavailable routes, so a restored multi-route
+  configuration retains the user's selected presentation order.
   Timeline scheduling now covers all three departures that widget layouts can
   render, so the third countdown cannot remain at zero until the next network
   refresh. Departure and removal boundaries are evaluated independently, so a
@@ -74,9 +77,9 @@
 - Infrastructure limitation: `bash scripts/ci.sh` reaches the permission matcher
   and exits 127 because the required global `opencode` CLI is not installed.
   The reliability script's Python and timeout fixtures pass before the same
-  missing-tool boundary. Hosted Quality run `30783001019` supplied the pinned CLI
+  missing-tool boundary. Hosted Quality run `30784181172` supplied the pinned CLI
   and passed the complete wrapper at exact published head
-  `538334e3c08320794a524be067b5f87fa0470509`.
+  `52e1e494a06b04bf363492ffe94a4dd3de1f474e`.
 - Handoff: draft PR #15 tracks `codex/system-surfaces-readiness` against protected
   `main`. The live PR head/check is authoritative for remote parity because a
   static state snapshot cannot record the CI result of the commit containing

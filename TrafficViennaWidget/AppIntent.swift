@@ -50,10 +50,11 @@ struct FavoriteRouteEntityQuery: EntityQuery {
     func entities(
         for identifiers: [FavoriteRouteEntity.ID]
     ) async throws -> [FavoriteRouteEntity] {
-        let identifiers = Set(identifiers)
-        return savedRoutes()
+        WidgetRouteEntityResolution.routes(
+            for: identifiers,
+            availableRoutes: savedRoutes()
+        )
             .map(FavoriteRouteEntity.init)
-            .filter { identifiers.contains($0.id) }
     }
 
     func suggestedEntities() async throws -> [FavoriteRouteEntity] {
