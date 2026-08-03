@@ -157,7 +157,7 @@ final class FavoritesListViewModelTests: XCTestCase {
 
     func testCachedRouteIsLabelledAndRemainsEligibleForWidget() async {
         let favorite = route("U1", "Leopoldau")
-        let sourceUpdatedAt = Date(timeIntervalSince1970: 1_000)
+        let sourceUpdatedAt = Date.now.addingTimeInterval(-30)
         let widget = StubWidgetSync()
         let viewModel = FavoritesListViewModel(
             service: StubMonitorProvider(
@@ -317,7 +317,7 @@ final class FavoritesListViewModelTests: XCTestCase {
         await viewModel.loadFavorites()
 
         XCTAssertEqual(viewModel.featuredDeparture?.route.lineName, "U4")
-        XCTAssertEqual(viewModel.featuredDeparture?.departure.liveMinutes, 3)
+        XCTAssertEqual(viewModel.featuredDeparture?.departure.countdown, 3)
         XCTAssertEqual(viewModel.featuredDeparture?.stopName, "Test")
     }
 
@@ -343,6 +343,28 @@ final class FavoritesListViewModelTests: XCTestCase {
         await viewModel.loadFavorites()
 
         XCTAssertNil(viewModel.featuredDeparture)
+    }
+
+    func testCachedFallbackDepartureExpiresFromSourceTimestamp() async {
+        let favorite = route("U1", "Leopoldau")
+        let widget = StubWidgetSync()
+        let monitor = StubMonitorProvider(
+            result: .success(response(countdown: 5)),
+            isStale: true,
+            updatedAt: Date.now.addingTimeInterval(-7 * 60)
+        )
+        let viewModel = FavoritesListViewModel(
+            service: monitor,
+            favoritesRepo: StubFavoritesRepository(routes: [favorite]),
+            stationsRepo: StubFavoriteStationsRepository(),
+            widgetSync: widget
+        )
+
+        await viewModel.loadFavorites(forceRefresh: true)
+
+        XCTAssertEqual(viewModel.items.first?.state, .cached)
+        XCTAssertNil(viewModel.featuredDeparture)
+        XCTAssertTrue(widget.lastSaved.isEmpty)
     }
 
     func testToggleStationUsesSharedRepositoryAndRefreshesViewState() {

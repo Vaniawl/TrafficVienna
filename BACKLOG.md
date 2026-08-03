@@ -14,11 +14,11 @@
 - [x] **REQ-TV-005 — Performance.** Requests remain coalesced/cancellable and
   formatter creation was removed from the widget body. Settled iPad Simulator
   sampling measured 0.0% CPU in five observations.
-- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 207 tests, static
+- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 213 tests, static
   analysis, localisation extraction, repository validators, and diff checks
-  pass. Hosted Quality run `30799989082` installed the pinned OpenCode CLI and
+  pass. Hosted Quality run `30802411859` installed the pinned OpenCode CLI and
   completed the full `scripts/ci.sh` wrapper successfully on exact published head
-  `da811cc8`; the live draft-PR check remains authoritative for every later
+  `89c166d8`; the live draft-PR check remains authoritative for every later
   documentation or workflow commit.
 - [x] **REQ-TV-007 — Review-ready state.** Architecture/security findings and
   documentation are resolved; the reviewed branch is maintained in draft PR #15.
@@ -117,6 +117,10 @@
 - [x] Clear an Alerts transport filter when a successful feed no longer contains
   that category, preserve valid selections and retained-data failure behavior,
   and expose the active category in the visible filter summary.
+- [x] Give app departure projection an explicit expired state, anchor
+  timestamp-free cached countdowns to their monitor source time, and exclude
+  departed values from Nearby, Station Detail, Saved, featured commute, and
+  app-to-widget sync after the shared one-minute `now` grace.
 - [x] Move relative-time formatting out of the widget render body.
 - [x] Let reminder destinations/stops grow at accessibility Dynamic Type sizes.
 - [x] Add focused regression coverage for each behavioral change.
@@ -126,6 +130,8 @@
 
 - [x] Exercise Home, Discover, Map, Alerts, Saved, About, reminder management,
   Station Detail, context actions, and reminder failure feedback on iPhone 17.
+- [x] Observe a live featured departure across its boundary and capture the Home
+  card after it advances to the next eligible saved route.
 - [x] Inspect representative Home/About/reminder surfaces in dark appearance and
   accessibility Dynamic Type.
 - [x] Inspect adaptive Home layout on a 13-inch iPad Simulator.
@@ -160,16 +166,19 @@
 - [x] Select the live U-Bahn Alerts filter, verify the visible
   `For you · Service · U-Bahn` summary and U3 result persist after
   pull-to-refresh, and capture the unclipped 368×800 state.
+- [x] Observe a live featured U3 across its delayed boundary, verify Home advances
+  to the next eligible saved route, and capture the resulting U1 card plus matching
+  accessibility semantics at 368×800.
 
 ## Final validation and handoff
 
-- [x] Full iPhone 17 build and test suite: 202 model/service + 5 UI tests.
+- [x] Full iPhone 17 build and test suite: 208 model/service + 5 UI tests.
 - [x] Static analyzer and repository/OpenCode structural validators.
 - [x] English/German compiler-extraction catalogue comparison.
 - [x] `git diff --check`, security scan, and changed-file review.
 - [x] Synchronize `STATUS.md`, root/memory journals, and architectural decisions.
 - [x] Run `bash scripts/ci.sh` with the required OpenCode runtime: hosted
-  Quality run `30799989082` passed exact published head `da811cc8`.
+  Quality run `30802411859` passed exact published head `89c166d8`.
   The local host still lacks that global CLI, so local wrapper attempts stop at
   the permission matcher and the live protected PR check remains authoritative
   after any later publication.

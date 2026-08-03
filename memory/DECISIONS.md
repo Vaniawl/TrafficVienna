@@ -1,5 +1,32 @@
 # Architectural Decisions
 
+## 2026-08-03 — App departures expire from their source snapshot
+
+**Context:** The app projected parseable departure timestamps with a nonnegative
+`Int`, so every past timestamp collapsed to `0` and could remain visible as
+`now`. Timestamp-free departures kept the response's fallback countdown without
+accounting for the age of a cached snapshot. A stale service could consequently
+remain the featured commute, stay in Station Detail/Nearby/Saved rows, and be
+re-synced to the widget as if its countdown had just started. Widget projection
+already retained `now` for one minute and then removed the departure.
+
+**Decision:** Make the shared app departure projection optional: prefer a
+parseable real-time timestamp, then the planned timestamp, and otherwise derive
+an absolute departure boundary from `MonitorSnapshot.updatedAt` plus the fallback
+countdown. Keep `0` visible for the same one-minute `now` grace as the widget and
+return `nil` at or after the removal boundary. Pass the snapshot timestamp through
+Station Detail, Nearby, Saved, featured-commute selection, and app-to-widget sync;
+drop expired values and omit widget rows that no longer contain a visible
+departure.
+
+**Consequences:** Cached and timestamp-free services age truthfully without new
+network work, timers, persistence, or payload fields. Existing 60-second screen
+refresh ownership remains unchanged, valid current rows preserve their layout and
+copy, and the widget receives only still-visible countdowns anchored at sync time.
+Endpoints, request budgets, cache schema, App Group keys, entitlements,
+dependencies, and localization are unchanged. Rollback is a normal revert with
+no migration.
+
 ## 2026-08-03 — Root audit state is conditionally routed and validated
 
 **Context:** TrafficVienna tracks a root product/audit set (`PROJECT.md`,

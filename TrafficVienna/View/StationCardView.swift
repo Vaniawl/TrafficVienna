@@ -133,15 +133,23 @@ struct StationCardView: View {
         if station.diva == nil {
             noLiveDataView
         } else if !lines.isEmpty {
+            let projectionDate = Date.now
             let visible = Array(lines.prefix(maxLines).enumerated())
             VStack(spacing: 0) {
                 ForEach(visible, id: \.offset) { index, line in
+                    let departures = line.departures.departure.compactMap { departure -> (Int, Bool)? in
+                        guard let minutes = departure.departureTime.liveMinutes(
+                            anchoredAt: updatedAt,
+                            now: projectionDate
+                        ) else { return nil }
+                        return (minutes, departure.departureTime.timeReal != nil)
+                    }
                     DepartureLineRow(
                         lineName: line.name,
                         destination: line.towards,
-                        minutes: line.departures.departure.map { $0.departureTime.liveMinutes },
+                        minutes: departures.map(\.0),
                         walkMinutes: walkMinutes,
-                        nextIsLive: line.departures.departure.first?.departureTime.timeReal != nil,
+                        nextIsLive: departures.first?.1 ?? false,
                         showFollowUp: false
                     )
                     .padding(.vertical, Spacing.xs)

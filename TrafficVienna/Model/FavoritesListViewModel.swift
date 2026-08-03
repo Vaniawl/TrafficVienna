@@ -237,41 +237,61 @@ final class FavoritesListViewModel {
     }
 
     private func updateFeaturedDeparture() {
-        featuredDeparture = items
+        let now = Date.now
+        let candidates: [(featured: FeaturedDeparture, minutes: Int)] = items
             .filter { $0.state != .unavailable }
-            .compactMap { item -> FeaturedDeparture? in
-                guard let departure = item.departures
-                    .filter({ $0.liveMinutes >= 0 })
-                    .min(by: { $0.liveMinutes < $1.liveMinutes })
+            .compactMap { item in
+                let departures = item.departures.compactMap { departure -> (DepartureInfo, Int)? in
+                    guard let minutes = departure.liveMinutes(
+                        anchoredAt: item.updatedAt,
+                        now: now
+                    ) else { return nil }
+                    return (departure, minutes)
+                }
+                guard let candidate = departures.min(by: { $0.1 < $1.1 })
                 else { return nil }
 
-                return FeaturedDeparture(
-                    route: item.route,
-                    stopName: item.stopName,
-                    departure: departure,
-                    state: item.state
+                return (
+                    FeaturedDeparture(
+                        route: item.route,
+                        stopName: item.stopName,
+                        departure: candidate.0,
+                        state: item.state,
+                        updatedAt: item.updatedAt
+                    ),
+                    candidate.1
                 )
             }
+        featuredDeparture = candidates
             .min { lhs, rhs in
-                if lhs.departure.liveMinutes == rhs.departure.liveMinutes {
-                    lhs.route < rhs.route
+                if lhs.minutes == rhs.minutes {
+                    lhs.featured.route < rhs.featured.route
                 } else {
-                    lhs.departure.liveMinutes < rhs.departure.liveMinutes
+                    lhs.minutes < rhs.minutes
                 }
-            }
+            }?.featured
     }
 
     private func syncWidget() {
         let projectionAnchor = Date.now
         let widgetItems = items
             .filter { $0.state != .unavailable }
-            .map { favorite in
-                WidgetDepartureData(
+            .compactMap { favorite -> WidgetDepartureData? in
+                let departures = Array(
+                    favorite.departures.compactMap {
+                        $0.liveMinutes(
+                            anchoredAt: favorite.updatedAt,
+                            now: projectionAnchor
+                        )
+                    }.prefix(3)
+                )
+                guard !departures.isEmpty else { return nil }
+                return WidgetDepartureData(
                     diva: favorite.route.diva,
                     lineName: favorite.route.lineName,
                     stopName: favorite.stopName,
                     destination: favorite.route.destination,
-                    departures: favorite.departures.prefix(3).map(\.liveMinutes),
+                    departures: departures,
                     fetchedAt: projectionAnchor,
                     dataUpdatedAt: favorite.updatedAt
                 )

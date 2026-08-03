@@ -131,10 +131,54 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(result, 2)
     }
 
-    func testLiveMinutesNeverNegative() {
-        let past = ISO8601DateFormatter().string(from: Date().addingTimeInterval(-60))
-        let result = DepartureClock.liveMinutes(realtime: nil, planned: past, fallback: 0)
+    func testLiveMinutesShowsNowDuringGracePeriod() {
+        let past = ISO8601DateFormatter().string(from: Date().addingTimeInterval(-30))
+        let result = DepartureClock.liveMinutes(realtime: nil, planned: past, fallback: 99)
         XCTAssertEqual(result, 0)
+    }
+
+    func testLiveMinutesExpiresAfterNowGracePeriod() {
+        let expired = ISO8601DateFormatter().string(from: Date().addingTimeInterval(-61))
+        let result = DepartureClock.liveMinutes(realtime: nil, planned: expired, fallback: 0)
+
+        XCTAssertNil(result)
+    }
+
+    func testLiveMinutesProjectsFallbackFromSnapshotTimestamp() {
+        let anchor = Date(timeIntervalSince1970: 10_000)
+        let result = DepartureClock.liveMinutes(
+            realtime: nil,
+            planned: nil,
+            fallback: 5,
+            anchoredAt: anchor,
+            now: anchor.addingTimeInterval(4 * 60)
+        )
+
+        XCTAssertEqual(result, 1)
+    }
+
+    func testLiveMinutesExpiresAnchoredFallbackAfterNowGracePeriod() {
+        let anchor = Date(timeIntervalSince1970: 10_000)
+        let result = DepartureClock.liveMinutes(
+            realtime: nil,
+            planned: nil,
+            fallback: 5,
+            anchoredAt: anchor,
+            now: anchor.addingTimeInterval(6 * 60)
+        )
+
+        XCTAssertNil(result)
+    }
+
+    func testLiveMinutesParsesWienerLinienTimezoneWithoutColon() {
+        let result = DepartureClock.liveMinutes(
+            realtime: "2026-08-03T12:18:30.000+0200",
+            planned: nil,
+            fallback: 99,
+            now: Date(timeIntervalSince1970: 1_785_752_010)
+        )
+
+        XCTAssertEqual(result, 5)
     }
 
     func testLiveActivityBecomesStaleAtDepartureAndEndsTwoMinutesLater() {
@@ -171,7 +215,7 @@ final class TrafficViennaTests: XCTestCase {
 
     func testDepartureTimeLiveMinutesFallback() {
         let dt = DepartureTime(countdown: 7, timePlanned: nil, timeReal: nil)
-        XCTAssertEqual(dt.liveMinutes, 7)
+        XCTAssertEqual(dt.liveMinutes(), 7)
     }
 
     // MARK: - MonitorService (mock network)

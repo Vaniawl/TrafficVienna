@@ -117,6 +117,10 @@ A `Go` requires:
   receives its future removal entry. Fresh API and app-synced departures delivered
   as `0` also receive a one-minute removal entry instead of lingering until the
   network refresh.
+  The app now applies the same one-minute `now` grace through an optional shared
+  projection. Real/planned timestamps expire by their absolute boundary, while
+  timestamp-free countdowns use the monitor snapshot time; expired rows cannot
+  remain featured or be re-synced to the widget as fresh countdowns.
 - iPhone 17 Pro Max and iPad Pro 13-inch runtime builds complete without
   diagnostics. English, German, location-denied, live-data, Favourites, and
   maximum Accessibility Dynamic Type paths were exercised.
@@ -130,6 +134,10 @@ A `Go` requires:
 - A current 368×800 Alerts audit capture shows the live U3 notice with the U-Bahn
   filter selected. The visible `For you · Service · U-Bahn` summary and matching
   result persist after pull-to-refresh without clipping or a hidden stale filter.
+- A current 368×800 Home acceptance observed a delayed U3 remain eligible while
+  Wiener Linien moved its live timestamp, then verified the featured card advanced
+  to U1 when U3 left the visible window. The final screenshot and accessibility
+  tree both report U1 to Leopoldau in one minute without clipping.
 - Final iPhone 17 inspection also captures the Stephansplatz route summary as
   `1A 2A 3A U1 +1` at standard size and `1A 2A +3` at maximum accessibility
   Dynamic Type. The runtime accessibility tree exposes `Additional lines: 3`,
@@ -169,10 +177,10 @@ A `Go` requires:
   final diff check. Later evidence-only documentation commits do not alter the
   inspected app sources or binaries.
 - The continued audit remains unmerged in draft PR #15. Its exact published head
-  `da811cc8a61dd7de3dec58d10b688a8fc2ee2225` passed protected Quality run
-  `30799989082`, including the pinned OpenCode CLI, repository validation,
-  app/widget build, the then-current 205-test suite, and the final diff check. The
-  later local Alerts-filter slice passes 207/207 tests and Xcode Analyze; compiler
+  `89c166d8996eb40154a3aa8396be7f1c8fb0a848` passed protected Quality run
+  `30802411859`, including the pinned OpenCode CLI, repository validation,
+  app/widget build, the then-current 207-test suite, and the final diff check. The
+  later local app-countdown slice passes 213/213 tests and Xcode Analyze; compiler
   extraction reports 238 app and 29 widget source keys covered by the committed
   268/35-key catalogues. Its own protected check remains required after
   publication.

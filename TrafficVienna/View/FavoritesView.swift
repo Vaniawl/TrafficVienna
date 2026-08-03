@@ -137,12 +137,21 @@ struct FavoritesView: View {
     }
 
     private func savedLineContent(_ item: FavoriteWithDeparture) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
+        let projectionDate = Date.now
+        let departures = item.departures.compactMap { departure -> (Int, Bool)? in
+            guard let minutes = departure.liveMinutes(
+                anchoredAt: item.updatedAt,
+                now: projectionDate
+            ) else { return nil }
+            return (minutes, departure.isRealtime)
+        }
+
+        return VStack(alignment: .leading, spacing: Spacing.xs) {
             DepartureLineRow(
                 lineName: item.route.lineName,
                 destination: item.route.destination,
-                minutes: item.departures.map { $0.liveMinutes },
-                nextIsLive: item.departures.first?.isRealtime ?? false
+                minutes: departures.map(\.0),
+                nextIsLive: departures.first?.1 ?? false
             )
 
             if item.state == .unavailable {
@@ -172,6 +181,8 @@ private struct SavedCommuteRow: View {
     let item: FeaturedDeparture
 
     var body: some View {
+        let minutes = item.departure.liveMinutes(anchoredAt: item.updatedAt)
+
         HStack(spacing: Spacing.md) {
             LineBadge(line: item.route.lineName)
 
@@ -186,11 +197,17 @@ private struct SavedCommuteRow: View {
             Spacer(minLength: Spacing.xs)
 
             VStack(alignment: .trailing, spacing: Spacing.none) {
-                Text(item.departure.liveMinutes <= 0 ? "now" : "\(item.departure.liveMinutes)")
-                    .font(.title2.weight(.semibold))
-                    .monospacedDigit()
-                    .foregroundStyle(.appAccent)
-                if item.departure.liveMinutes > 0 {
+                if let minutes {
+                    Text(minutes <= 0 ? "now" : "\(minutes)")
+                        .font(.title2.weight(.semibold))
+                        .monospacedDigit()
+                        .foregroundStyle(.appAccent)
+                } else {
+                    Text("—")
+                        .font(.title2.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                }
+                if let minutes, minutes > 0 {
                     Text("min")
                         .font(.caption)
                         .foregroundStyle(.secondary)

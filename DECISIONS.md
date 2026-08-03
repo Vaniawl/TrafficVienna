@@ -1,5 +1,19 @@
 # Decisions
 
+## 2026-08-03 - App departures expire from their source snapshot
+
+The shared app countdown projection returns no value after a departure's
+one-minute `now` grace. It prefers real-time then planned timestamps; feeds
+without a parseable timestamp derive their departure boundary from the monitor
+snapshot timestamp plus the API fallback countdown. Station Detail, Nearby,
+Saved, featured-commute selection, and app-to-widget sync all consume that same
+policy and exclude expired values.
+
+This prevents stale cached services from remaining `now` or being re-synced as a
+fresh widget countdown. Existing polling cadence, network requests, cache and App
+Group schemas, endpoints, entitlements, dependencies, copy, and localization stay
+unchanged. Rollback is a normal revert with no migration.
+
 ## 2026-08-03 - Root audit state is conditional and validated
 
 The tracked root audit set (`PROJECT.md`, `SPEC.md`, `STATUS.md`, `BACKLOG.md`,

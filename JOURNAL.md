@@ -1,5 +1,29 @@
 # Journal
 
+## 2026-08-03 - App departures expire after the now grace
+
+- Reproduced a truthfulness defect in the shared app projection: a parseable
+  timestamp 61 seconds after departure still returned `0`, so stale services could
+  remain `now`. Timestamp-free cached countdowns also ignored their source age and
+  could remain featured or be re-synced to the widget as newly projected data.
+- `DepartureClock` now returns an optional projection, prefers a valid real-time
+  then planned timestamp, anchors fallback countdowns to
+  `MonitorSnapshot.updatedAt`, preserves `now` for one minute, and expires the
+  value afterward. Nearby, Station Detail, Saved, featured selection, and widget
+  sync all exclude expired values; network cadence and persistence stay unchanged.
+- The regression first failed with `XCTAssertNil failed: "0"`. Six focused
+  timestamp/fallback/Saved/Station Detail cases then passed, followed by 208/208
+  unit tests. Live iPhone 17 acceptance observed Wiener Linien delay U3 in real
+  time, then verified the featured card and accessibility tree advance to U1 when
+  U3 left the visible window; the unclipped 368×800 capture is stored at
+  `docs/release/screenshots/audit/featured-departure-advanced.jpg`.
+- The final exact iPhone 17 `.xcresult` reports 213/213 with zero failures or
+  skips. Exact app/widget build, Xcode Analyze, repository/OpenCode validators,
+  shell syntax, 238/29 source-key localisation coverage against 268/35 catalogues,
+  scoped secret/endpoint/dependency review, and whitespace checks pass. Local CI
+  reaches its passing Python/timeout fixtures and stops only at the known missing
+  global `opencode` CLI; protected exact-head CI remains required.
+
 ## 2026-08-03 - Alerts drop unavailable transport filters
 
 - Reproduced a hidden Alerts filter trap after a successful feed change: a

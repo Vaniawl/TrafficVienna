@@ -112,11 +112,11 @@ struct FavoriteNextDepartureCard: View {
             alignment: dynamicTypeSize.isAccessibilitySize ? .leading : .trailing,
             spacing: Spacing.none
         ) {
-            if minutes <= 0 {
+            if let minutes, minutes <= 0 {
                 Text("now")
                     .font(.largeTitle)
                     .bold()
-            } else {
+            } else if let minutes {
                 Text(minutes, format: .number)
                     .font(.largeTitle)
                     .bold()
@@ -128,13 +128,17 @@ struct FavoriteNextDepartureCard: View {
                     )
                 Text("min")
                     .font(.subheadline)
+            } else {
+                Text("—")
+                    .font(.largeTitle)
+                    .bold()
             }
         }
         .animation(Motion.quick(reduceMotion: reduceMotion), value: minutes)
     }
 
-    private var minutes: Int {
-        item.departure.liveMinutes
+    private var minutes: Int? {
+        item.departure.liveMinutes(anchoredAt: item.updatedAt)
     }
 
     private var accessibilityLabel: String {
@@ -144,9 +148,9 @@ struct FavoriteNextDepartureCard: View {
             item.stopName
         ]
 
-        if minutes <= 0 {
+        if let minutes, minutes <= 0 {
             details.append(String(localized: "Next departure now"))
-        } else {
+        } else if let minutes {
             let duration = Measurement(value: Double(minutes), unit: UnitDuration.minutes)
                 .formatted(
                     .measurement(
@@ -156,6 +160,8 @@ struct FavoriteNextDepartureCard: View {
                     )
                 )
             details.append(String(localized: "Next departure in \(duration)"))
+        } else {
+            details.append(String(localized: "No departure time available"))
         }
 
         if item.state == .cached {

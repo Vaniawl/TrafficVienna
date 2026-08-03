@@ -190,7 +190,11 @@ final class StationDetailViewModel {
             guard !isForceRefreshQueued else { return }
             let response = snapshot.response
             trafficInfos = response.data.trafficInfos ?? []
-            allGroups = Self.departureGroups(from: response)
+            allGroups = Self.departureGroups(
+                from: response,
+                anchoredAt: snapshot.updatedAt,
+                now: .now
+            )
             if let categoryFilter,
                !allGroups.contains(where: {
                    LineCategory.of($0.line) == categoryFilter
@@ -253,14 +257,25 @@ final class StationDetailViewModel {
         return false
     }
 
-    private static func departureGroups(from response: MonitorResponse) -> [StationDepartureGroup] {
+    private static func departureGroups(
+        from response: MonitorResponse,
+        anchoredAt: Date,
+        now: Date
+    ) -> [StationDepartureGroup] {
         var merged: [StationDepartureID: (minutes: [Int], isLive: Bool)] = [:]
 
         for line in response.data.monitors.flatMap(\.lines) {
             let id = StationDepartureID(line: line.name, destination: line.towards)
-            let minutes = line.departures.departure.map { $0.departureTime.liveMinutes }
-            guard !minutes.isEmpty else { continue }
-            let isLive = line.departures.departure.contains { $0.departureTime.timeReal != nil }
+            let visibleDepartures = line.departures.departure.compactMap { departure -> (Int, Bool)? in
+                guard let minutes = departure.departureTime.liveMinutes(
+                    anchoredAt: anchoredAt,
+                    now: now
+                ) else { return nil }
+                return (minutes, departure.departureTime.timeReal != nil)
+            }
+            guard !visibleDepartures.isEmpty else { continue }
+            let minutes = visibleDepartures.map(\.0)
+            let isLive = visibleDepartures.contains(where: \.1)
             let existing = merged[id] ?? ([], false)
             merged[id] = (existing.minutes + minutes, existing.isLive || isLive)
         }

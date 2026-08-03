@@ -169,7 +169,7 @@ final class StationDetailViewModelTests: XCTestCase {
     }
 
     func testStaleSnapshotKeepsOriginalTimestampAndShowsSavedDataNotice() async {
-        let updatedAt = Date(timeIntervalSince1970: 1_700_000_000)
+        let updatedAt = Date.now.addingTimeInterval(-30)
         let monitor = DetailMonitorProvider(
             result: .success(responseWithMergedU1()),
             isStale: true,
@@ -181,6 +181,21 @@ final class StationDetailViewModelTests: XCTestCase {
 
         XCTAssertEqual(viewModel.state, .loaded)
         XCTAssertEqual(viewModel.lastUpdated, updatedAt)
+        XCTAssertNotNil(viewModel.refreshErrorMessage)
+    }
+
+    func testStaleFallbackDeparturesExpireFromSourceTimestamp() async {
+        let monitor = DetailMonitorProvider(
+            result: .success(responseWithMergedU1()),
+            isStale: true,
+            updatedAt: Date.now.addingTimeInterval(-10 * 60)
+        )
+        let viewModel = makeViewModel(service: monitor)
+
+        await viewModel.load(forceRefresh: true)
+
+        XCTAssertEqual(viewModel.state, .empty)
+        XCTAssertTrue(viewModel.groups.isEmpty)
         XCTAssertNotNil(viewModel.refreshErrorMessage)
     }
 
@@ -681,7 +696,7 @@ private actor ControlledDetailMonitorProvider: MonitorProviding {
         let result = results[min(call - 1, results.count - 1)]
         return MonitorSnapshot(
             response: try result.get(),
-            updatedAt: Date(timeIntervalSince1970: TimeInterval(call)),
+            updatedAt: .now,
             isStale: false
         )
     }
