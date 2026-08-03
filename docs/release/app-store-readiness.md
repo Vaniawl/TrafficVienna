@@ -44,7 +44,7 @@ A `Go` requires:
 - The account-only Apple identity surface and entitlement were removed because
   they provided no cross-device feature and prevented the installed profile from
   archiving. A one-time migration deletes the legacy device-only Keychain item.
-- All 201 tests pass with zero failures or skips, including five XCUITest
+- All 204 tests pass with zero failures or skips, including five XCUITest
   journeys through the four-tab shell, Discover map entry, alert filters, Saved,
   search-to-station navigation, and cross-tab favourite reconciliation. Local
   reminder planning/decoding, idempotent
@@ -72,10 +72,13 @@ A `Go` requires:
   Cancellation still prevents publication and any queued follow-up or retry.
   Station Detail and Alerts also queue one explicit forced refresh behind active
   polling, suppress the obsolete pass and its error, and drop the queued follow-up
-  when the owning task is cancelled. Nearby likewise serializes overlapping
-  polling, location changes, and pull-to-refresh; the latest location and strongest
-  force intent win, cancelled work cannot mark retained departures failed, and a
-  surviving location task explicitly takes ownership. Root navigation regression
+  when the owning task is cancelled. Station Detail also clears a selected
+  transport category when a successful snapshot no longer contains it, while
+  preserving valid filters and retained-data failure states. Nearby likewise
+  serializes overlapping polling, location changes, and pull-to-refresh; the latest
+  location and strongest force intent win, cancelled work cannot mark retained
+  departures failed, and a surviving location task explicitly takes ownership.
+  Root navigation regression
   coverage proves that external Home, Discover, and Saved destinations clear only
   their target stack, notification routing replaces Discover with one resolved
   station, and ordinary tab changes preserve their paths.
@@ -155,13 +158,13 @@ A `Go` requires:
   final diff check. Later evidence-only documentation commits do not alter the
   inspected app sources or binaries.
 - The continued audit remains unmerged in draft PR #15. Its exact published head
-  `f0eb5805bd408ddeda37ba49e58de4f6f811ed95` passed protected Quality run
-  `30785478360`, including the pinned OpenCode CLI, repository validation,
-  app/widget build, the 200-test suite, and the final diff check. The later local
-  station-card accessibility slice passes 201/201 tests and Xcode Analyze;
-  compiler extraction reports 238 app and 27 widget source keys covered by the
-  committed 268/32-key catalogues. Its own protected check remains required after
-  publication.
+  `98721254f98aca7e2e3cc8f57fe70714e59ad55c` passed protected Quality run
+  `30795395191`, including the pinned OpenCode CLI, repository validation,
+  app/widget build, the then-current 202-test suite, and the final diff check. The
+  later local Station Detail filter-reconciliation slice passes 204/204 tests and
+  Xcode Analyze; compiler extraction reports 238 app and 29 widget source keys
+  covered by the committed 268/35-key catalogues. Its own protected check remains
+  required after publication.
 - `main` now requires pull requests and a strict successful `validate` check.
   Conversation resolution is required, admin enforcement is enabled, and force
   pushes and branch deletion are disabled.

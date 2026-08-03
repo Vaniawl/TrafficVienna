@@ -14,11 +14,11 @@
 - [x] **REQ-TV-005 — Performance.** Requests remain coalesced/cancellable and
   formatter creation was removed from the widget body. Settled iPad Simulator
   sampling measured 0.0% CPU in five observations.
-- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 202 tests, static
+- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 204 tests, static
   analysis, localisation extraction, repository validators, and diff checks
-  pass. Hosted Quality run `30792848777` installed the pinned OpenCode CLI and
+  pass. Hosted Quality run `30795395191` installed the pinned OpenCode CLI and
   completed the full `scripts/ci.sh` wrapper successfully on exact published head
-  `d7ab0e8f`; the live draft-PR check remains authoritative for every later
+  `98721254`; the live draft-PR check remains authoritative for every later
   documentation or workflow commit.
 - [x] **REQ-TV-007 — Review-ready state.** Architecture/security findings and
   documentation are resolved; the reviewed branch is maintained in draft PR #15.
@@ -108,6 +108,9 @@
 - [x] Wait for the first authoritative network-path callback before showing an
   offline state, so the monitor's initial placeholder path cannot flash a false
   Offline banner during a connected cold launch.
+- [x] Clear a Station Detail transport filter when a successful refresh no longer
+  contains that category, while preserving valid selections and retained-data
+  failure behavior so hidden chips cannot strand the list in an empty state.
 - [x] Move relative-time formatting out of the widget render body.
 - [x] Let reminder destinations/stops grow at accessibility Dynamic Type sizes.
 - [x] Add focused regression coverage for each behavioral change.
@@ -142,16 +145,18 @@
   stopped: one-line `T−1 minute` before departure and `Departed` afterward.
 - [x] Capture matched iPhone 17 cold-launch frames at 0.7 seconds before and after
   network-monitor correction, plus the settled 1.1-second state.
+- [x] Select Stephansplatz Bus departures and verify the chip plus four matching
+  directions remain synchronized after a live pull-to-refresh.
 
 ## Final validation and handoff
 
-- [x] Full iPhone 17 build and test suite: 197 model/service + 5 UI tests.
+- [x] Full iPhone 17 build and test suite: 199 model/service + 5 UI tests.
 - [x] Static analyzer and repository/OpenCode structural validators.
 - [x] English/German compiler-extraction catalogue comparison.
 - [x] `git diff --check`, security scan, and changed-file review.
 - [x] Synchronize `STATUS.md`, root/memory journals, and architectural decisions.
 - [x] Run `bash scripts/ci.sh` with the required OpenCode runtime: hosted
-  Quality run `30792848777` passed exact published head `d7ab0e8f`.
+  Quality run `30795395191` passed exact published head `98721254`.
   The local host still lacks that global CLI, so local wrapper attempts stop at
   the permission matcher and the live protected PR check remains authoritative
   after any later publication.

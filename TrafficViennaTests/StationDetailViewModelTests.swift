@@ -34,6 +34,35 @@ final class StationDetailViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.availableCategories, [.metro])
     }
 
+    func testRefreshClearsCategoryFilterThatIsNoLongerAvailable() async {
+        let monitor = DetailMonitorProvider(
+            result: .success(responseWithU1And13A())
+        )
+        let viewModel = makeViewModel(service: monitor)
+        await viewModel.load()
+        viewModel.categoryFilter = .bus
+        await monitor.setResult(.success(responseWithMergedU1()))
+
+        await viewModel.load(forceRefresh: true)
+
+        XCTAssertNil(viewModel.categoryFilter)
+        XCTAssertEqual(viewModel.groups.map(\.line), ["U1"])
+    }
+
+    func testRefreshPreservesCategoryFilterThatIsStillAvailable() async {
+        let monitor = DetailMonitorProvider(
+            result: .success(responseWithU1And13A())
+        )
+        let viewModel = makeViewModel(service: monitor)
+        await viewModel.load()
+        viewModel.categoryFilter = .bus
+
+        await viewModel.load(forceRefresh: true)
+
+        XCTAssertEqual(viewModel.categoryFilter, .bus)
+        XCTAssertEqual(viewModel.groups.map(\.line), ["13A"])
+    }
+
     func testInitialNetworkFailureShowsFailureState() async {
         let viewModel = makeViewModel(result: .failure(DetailTestError.failed))
 
@@ -48,11 +77,13 @@ final class StationDetailViewModelTests: XCTestCase {
         let monitor = DetailMonitorProvider(result: .success(responseWithMergedU1()))
         let viewModel = makeViewModel(service: monitor)
         await viewModel.load()
+        viewModel.categoryFilter = .metro
         await monitor.setResult(.failure(DetailTestError.failed))
 
         await viewModel.load(forceRefresh: true)
 
         XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertEqual(viewModel.categoryFilter, .metro)
         XCTAssertEqual(viewModel.groups.first?.minutes, [2, 5, 8])
         XCTAssertNotNil(viewModel.refreshErrorMessage)
     }
@@ -515,6 +546,45 @@ final class StationDetailViewModelTests: XCTestCase {
         return MonitorResponse(
             data: DataBlock(
                 monitors: [monitor(lines: [first]), monitor(lines: [second])],
+                trafficInfos: []
+            )
+        )
+    }
+
+    private func responseWithU1And13A() -> MonitorResponse {
+        let u1 = Lines(
+            name: "U1",
+            towards: "Leopoldau",
+            departures: Departures(
+                departure: [
+                    Departure(
+                        departureTime: DepartureTime(
+                            countdown: 2,
+                            timePlanned: nil,
+                            timeReal: "live"
+                        )
+                    ),
+                ]
+            )
+        )
+        let bus = Lines(
+            name: "13A",
+            towards: "Hauptbahnhof",
+            departures: Departures(
+                departure: [
+                    Departure(
+                        departureTime: DepartureTime(
+                            countdown: 4,
+                            timePlanned: nil,
+                            timeReal: nil
+                        )
+                    ),
+                ]
+            )
+        )
+        return MonitorResponse(
+            data: DataBlock(
+                monitors: [monitor(lines: [u1, bus])],
                 trafficInfos: []
             )
         )

@@ -191,6 +191,12 @@ final class StationDetailViewModel {
             let response = snapshot.response
             trafficInfos = response.data.trafficInfos ?? []
             allGroups = Self.departureGroups(from: response)
+            if let categoryFilter,
+               !allGroups.contains(where: {
+                   LineCategory.of($0.line) == categoryFilter
+               }) {
+                self.categoryFilter = nil
+            }
             lastUpdated = snapshot.updatedAt
             isShowingStaleData = snapshot.isStale
             if snapshot.isStale {

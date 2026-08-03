@@ -1,6 +1,26 @@
 # Journal
 
-## 2026-08-03 — Connected launches do not flash Offline
+## 2026-08-03 - Station Detail drops unavailable transport filters
+
+- Reproduced a hidden filter trap after a successful refresh: if the selected
+  transport category disappeared from the new response, its chip disappeared too
+  while the retained selection filtered every departure out of the list.
+- `StationDetailViewModel` now reconciles the selection with each successful
+  departure snapshot. It clears only a category that is no longer present,
+  preserves a still-valid category, and leaves the current selection untouched
+  when a refresh fails and existing departures remain visible.
+- The invalid-filter regression failed before the fix with the retained `bus`
+  selection. The focused Station Detail suite now passes 28/28, including valid
+  refresh and retained-data failure paths. Live iPhone 17 inspection selected the
+  Bus chip at Stephansplatz and verified that it and four matching directions
+  remain synchronized after pull-to-refresh, without clipping or stale empty rows.
+- The authoritative iPhone 17 `.xcresult` reports 204/204 with zero failures or
+  skips. Exact build, Xcode Analyze, repository/OpenCode validators, shell syntax,
+  238/29 source-key localisation coverage against 268/35 catalogues, scoped
+  boundary review, and whitespace checks pass. Local CI remains bounded only by
+  the missing global `opencode` CLI; protected exact-head CI is still required.
+
+## 2026-08-03 - Connected launches do not flash Offline
 
 - A minimal `NWPathMonitor` reproduction and a matched iPhone 17 cold launch
   proved that `currentPath` begins as `unsatisfied` before its first satisfied
