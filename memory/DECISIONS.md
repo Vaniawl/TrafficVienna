@@ -1,5 +1,28 @@
 # Architectural Decisions
 
+## 2026-08-03 — Root audit state is conditionally routed and validated
+
+**Context:** TrafficVienna tracks a root product/audit set (`PROJECT.md`,
+`SPEC.md`, `STATUS.md`, `BACKLOG.md`, `CHECKS.md`, `RESTRICTIONS.md`,
+`SECURITY.md`, `DECISIONS.md`, and `JOURNAL.md`), but the OpenCode state contract
+still said those files did not exist and its validators did not require them.
+The root snapshots consequently drifted to 189 tests and an older CI head after
+the published branch had 192 tests and newer exact-head Quality evidence. Loading
+the whole set unconditionally would also spend substantial context on narrow work.
+
+**Decision:** Register every root audit artifact in
+`docs/opencode/state-files.md`, require its presence and registration in both the
+structural validator and reliability suite, and route the set through `AGENTS.md`
+only for broad product, audit, or release work. Narrow tasks load only the root
+artifacts relevant to their scope. Current source, configuration, command output,
+rendered artifacts, and external-service state override stale narrative.
+
+**Consequences:** Broad reviews receive the complete active requirements and
+evidence contract, missing or silently unregistered state fails validation, and
+short implementation tasks avoid unnecessary context. This changes no app,
+widget, persistence, endpoint, permission, entitlement, or dependency boundary.
+Rollback is a normal revert with no migration.
+
 ## 2026-08-03 — Forced monitor refreshes receive an intent-aware successor
 
 **Context:** `MonitorService` coalesced every request for the same station, and

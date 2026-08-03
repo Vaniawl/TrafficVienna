@@ -44,7 +44,7 @@ A `Go` requires:
 - The account-only Apple identity surface and entitlement were removed because
   they provided no cross-device feature and prevented the installed profile from
   archiving. A one-time migration deletes the legacy device-only Keychain item.
-- All 189 tests pass with zero failures or skips, including five XCUITest
+- All 192 tests pass with zero failures or skips, including five XCUITest
   journeys through the four-tab shell, Discover map entry, alert filters, Saved,
   search-to-station navigation, and cross-tab favourite reconciliation. Local
   reminder planning/decoding, idempotent
@@ -75,6 +75,10 @@ A `Go` requires:
   cache cannot invert the displayed result after the next toggle. Paired iPhone
   17 screenshots show the filled Schwedenplatz star before Saved removal and the
   cleared star after returning to the preserved Discover stack.
+  Shared-service refresh coverage proves that forced station and traffic-info
+  requests behind regular work receive exactly one serial successor, concurrent
+  forced callers coalesce, a failed regular request cannot suppress manual
+  refresh, and the successor remains the authoritative cached result.
   Widget freshness coverage separates countdown projection time from transport
   source time, uses the oldest source across visible mixed rows, persists that
   value through App Group sync, and proves both legacy-payload reads and rollback
@@ -127,6 +131,10 @@ A `Go` requires:
   with the pinned OpenCode checks, repository validation, build, tests, and
   final diff check. Later evidence-only documentation commits do not alter the
   inspected app sources or binaries.
+- The continued audit remains unmerged in draft PR #15. Its exact app-code head
+  `f08662c0fe5dd5ba380316f2f95fb06c667d3060` passed protected Quality run
+  `30777324747` in 14m00s, including the pinned OpenCode CLI, repository
+  validation, app/widget build, the 192-test suite, and the final diff check.
 - `main` now requires pull requests and a strict successful `validate` check.
   Conversation resolution is required, admin enforcement is enabled, and force
   pushes and branch deletion are disabled.

@@ -18,12 +18,22 @@ production data.
 | `docs/opencode/git-ci-release.md` | GitHub handoff, CI, release, and rollback rules | update when handoff rules change |
 | `docs/opencode/permission-matrix.md` | permission expectations and safety gates | update when permissions change |
 | `docs/opencode/model-matrix.md` | exact model inventory and agent assignments | update after model inventory changes |
+| `PROJECT.md` | product scope, architecture, boundaries, and evidence precedence | update when product scope or source ownership changes |
+| `SPEC.md` | active product-audit requirements and definition of done | update when audit requirements change |
+| `STATUS.md` | concise current evidence, limitations, branch, and handoff snapshot | update after each published audit slice |
+| `BACKLOG.md` | requirement coverage, resolved findings, inspection, and external gates | update when coverage or gate evidence changes |
+| `CHECKS.md` | exact validation commands and required evidence | update when checks or acceptance platforms change |
+| `RESTRICTIONS.md` | repository, architecture, mutation, and release boundaries | update only when an approved boundary changes |
+| `SECURITY.md` | current product trust boundaries and required review areas | update when data, system, or network boundaries change |
+| `DECISIONS.md` | concise active/superseded decision summary for the current audit | update when a current decision changes; keep durable detail in `memory/DECISIONS.md` |
+| `JOURNAL.md` | concise newest-first audit progress and validation evidence | add one entry per meaningful audit slice; keep full history in `memory/JOURNAL.md` |
 
-`STATUS.md`, `CHECKS.md`, `DECISIONS.md`, `JOURNAL.md`, `BACKLOG.md`, `SPEC.md`,
-and `RESTRICTIONS.md` are not root-level TrafficVienna state files today. Their
-responsibilities are covered by `memory/`, `AGENTS.md`, and `docs/opencode/`.
-If any of those root-level files are introduced later, they must be added to this
-table and to the reliability suite.
+The root audit set supplements the default memory and workflow instructions. Read
+it as a group for broad product, audit, or release work; route only the relevant
+artifacts into a narrow task so short runs do not pay the full context cost.
+Current source, configuration, command output, rendered artifacts, and external
+service state override stale narrative. Synchronize affected root snapshots after
+verification instead of treating an older checked box as current evidence.
 
 ## Checkpoint Schema
 

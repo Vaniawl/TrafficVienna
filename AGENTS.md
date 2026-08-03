@@ -3,6 +3,10 @@
 - Build: `xcodebuild -scheme TrafficVienna -project TrafficVienna.xcodeproj -destination 'platform=iOS Simulator,name=iPhone 17' build`
 - Run tests: `xcodebuild -scheme TrafficVienna -project TrafficVienna.xcodeproj -destination 'platform=iOS Simulator,name=iPhone 17' test`
 - Memory: on start read `memory/JOURNAL.md` and `memory/DECISIONS.md` for context. After each task, append a short summary to `memory/JOURNAL.md` (newest first). Record architectural decisions in `memory/DECISIONS.md`.
+- For broad product, audit, or release work, also read the registered root audit
+  state in `PROJECT.md`, `SPEC.md`, `STATUS.md`, `BACKLOG.md`, `CHECKS.md`,
+  `RESTRICTIONS.md`, `SECURITY.md`, `DECISIONS.md`, and `JOURNAL.md`. Narrow
+  tasks may load only the root artifacts relevant to their scope.
 
 ## OpenCode autonomous workflow
 

@@ -6,7 +6,7 @@
 - Stack: native SwiftUI iOS application, widget extension, XCTest, and XCUITest.
 - Current phase: continued reliability improvements on the existing draft PR.
 - Product shell: Home, Discover, Alerts, and Saved; accounts are out of scope.
-- Verified tests: 189/189 pass on iPhone 17 Simulator (184 model/service tests
+- Verified tests: 192/192 pass on iPhone 17 Simulator (187 model/service tests
   and 5 UI tests), with zero failures or skips. App and widget build successfully.
 - Verified visual coverage: four journeys and key secondary surfaces were
   exercised on iPhone 17; Home, Station Detail, and reminder management were
@@ -42,6 +42,11 @@
   station and route state reload after local mutations and the existing
   cross-tab change notifications, so a preserved navigation stack cannot display
   or invert stale Saved state.
+  `MonitorService` now carries regular/forced intent and a generation in each
+  station or traffic-info in-flight entry. A forced caller behind regular work
+  receives one serial forced successor even when the regular request fails;
+  equivalent forced callers still coalesce, cache publication completes before
+  the tracked task resolves, and an older waiter cannot erase a newer successor.
   Reminder management now has one MainActor-owned state model: overlapping system
   snapshots coalesce, deletion/cancel-all revisions reject older snapshots, and
   cancelled loads cannot publish late state or restore removed reminders. Widget
@@ -60,10 +65,13 @@
 - Infrastructure limitation: `bash scripts/ci.sh` reaches the permission matcher
   and exits 127 because the required global `opencode` CLI is not installed.
   The reliability script's Python and timeout fixtures pass before the same
-  missing-tool boundary. Hosted Quality run `30774796251` supplied the pinned CLI
-  and passed the previously published complete wrapper at `d89d8421`.
+  missing-tool boundary. Hosted Quality run `30777324747` supplied the pinned CLI
+  and passed the complete wrapper in 14m00s at exact app-code head
+  `f08662c0fe5dd5ba380316f2f95fb06c667d3060`.
 - Handoff: draft PR #15 tracks `codex/system-surfaces-readiness` against protected
-  `main`; each published update must pass its protected validation.
+  `main`. The live PR head/check is authoritative for remote parity because a
+  static state snapshot cannot record the CI result of the commit containing
+  itself; each published update must pass its own protected validation.
 - The current slice passes its local gates; protected CI remains the publication
   authority. Broader product improvement remains active; do not merge or release
   without explicit approval.

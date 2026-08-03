@@ -1,5 +1,27 @@
 # Journal
 
+## 2026-08-03 — Root audit state is a validated contract
+
+- Found that the tracked root product/audit files were declared active by
+  `PROJECT.md` but explicitly described as nonexistent by the OpenCode state
+  contract. Structural validation therefore ignored the same `STATUS`, `BACKLOG`,
+  and decision snapshots used for continued audit work; they had drifted to 189
+  tests, an older CI head, and superseded Apple/OpenCode claims.
+- Registered all nine root audit artifacts, added conditional broad-audit routing
+  to `AGENTS.md`, and added matching structural and reliability assertions. The
+  new validator first failed on the missing routing rule and now passes; narrow
+  tasks remain free to load only relevant root artifacts.
+- Synchronized active evidence to the authoritative 192/192 iPhone 17 result and
+  protected app-code Quality run `30777324747` at `f08662c0`, documented the
+  shared forced-refresh invariant, and marked the removed Apple profile plus the
+  obsolete global-only OpenCode ownership as superseded.
+- Repository/OpenCode validation, shell syntax, root-state existence, and
+  whitespace checks pass. The reliability suite's expanded Python and timeout
+  fixtures pass before the known local missing-`opencode` boundary. No app,
+  widget, UI, copy, localization, endpoint, persistence, entitlement, dependency,
+  or screenshot changed; the documentation/workflow commit still requires its
+  own protected PR check after publication.
+
 ## 2026-08-03 — Forced refresh survives lower-intent in-flight work
 
 - Reproduced the shared-service race for both station monitors and traffic info:
