@@ -6,7 +6,7 @@
 - Stack: native SwiftUI iOS application, widget extension, XCTest, and XCUITest.
 - Current phase: continued reliability improvements on the existing draft PR.
 - Product shell: Home, Discover, Alerts, and Saved; accounts are out of scope.
-- Verified tests: 213/213 pass on iPhone 17 Simulator (208 model/service tests
+- Verified tests: 215/215 pass on iPhone 17 Simulator (210 model/service tests
   and 5 UI tests), with zero failures or skips. App and widget build successfully.
 - Verified visual coverage: four journeys and key secondary surfaces were
   exercised on iPhone 17; Home, Station Detail, and reminder management were
@@ -98,20 +98,24 @@
   category absent from the refreshed service feed. The visible filter summary
   includes the active category, so a user never has to reopen the menu to discover
   why the feed is narrowed.
+  Alerts now also distinguishes a successful empty snapshot from an initial load.
+  A later failed refresh retains that known empty snapshot and presents it as
+  qualified saved data with retry, rather than replacing it with an initial error
+  or claiming that the current network state is all clear.
   App departure projection now has an explicit expired state. Parseable real/planned
   timestamps and timestamp-free countdowns anchored to the monitor source time share
   the widget's one-minute `now` grace, after which Nearby, Station Detail, Saved,
   featured-commute selection, and app-to-widget sync omit the departed service.
-- Verified quality: Xcode static analysis passes; compiler output contains 238 app
-  and 29 widget Localizable source keys, all covered by the committed 268/35-key
+- Verified quality: Xcode static analysis passes; compiler output contains 240 app
+  and 29 widget Localizable source keys, all covered by the committed 270/35-key
   catalogues with 0 missing or empty German values. Both repository structural
   validators, `git diff --check`, and the scoped secret/new-endpoint scan pass.
 - Infrastructure limitation: `bash scripts/ci.sh` reaches the permission matcher
   and exits 127 because the required global `opencode` CLI is not installed.
   The reliability script's Python and timeout fixtures pass before the same
-  missing-tool boundary. Hosted Quality run `30802411859` supplied the pinned CLI
+  missing-tool boundary. Hosted Quality run `30805816029` supplied the pinned CLI
   and passed the complete wrapper at exact published head
-  `89c166d8996eb40154a3aa8396be7f1c8fb0a848`.
+  `a9f9f7b36d3d27860a5053f32c12b26773013bff`.
 - Handoff: draft PR #15 tracks `codex/system-surfaces-readiness` against protected
   `main`. The live PR head/check is authoritative for remote parity because a
   static state snapshot cannot record the CI result of the commit containing
@@ -164,6 +168,11 @@
   the U-Bahn filter selected. Its visible `For you · Service · U-Bahn` summary,
   result count, and alert remain synchronized after pull-to-refresh without
   clipping; the audit capture is stored with the release evidence.
+- Current 368×800 Alerts regression acceptance also reopened the unfiltered live
+  feed, refreshed it, and retained both current U3 notices with an unclipped
+  search/filter/list layout. Deterministic tests separately prove that a failed
+  refresh over a successful empty snapshot shows qualified saved-empty copy and
+  retry instead of an unqualified live all-clear claim.
 - Current 368×800 Home acceptance observed a delayed U3 remain eligible while its
   live timestamp moved, then verified that the featured card advanced to U1 when
   U3 left the visible window. The final frame and accessibility tree agree on U1,

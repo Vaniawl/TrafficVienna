@@ -22,11 +22,32 @@ struct DisruptionsView: View {
                 }
 
             case .loaded where viewModel.infos.isEmpty:
-                ContentUnavailableView(
-                    "All clear",
-                    systemImage: "checkmark.circle.fill",
-                    description: Text("All lines are running normally.")
-                )
+                if viewModel.isShowingSavedData {
+                    ContentUnavailableView {
+                        Label(
+                            "No alerts in saved data",
+                            systemImage: "clock.badge.exclamationmark"
+                        )
+                    } description: {
+                        VStack(spacing: Spacing.sm) {
+                            Text("The last successful update contained no service alerts.")
+                            if let message = viewModel.refreshErrorMessage {
+                                Text(message)
+                                    .font(.footnote)
+                            }
+                        }
+                    } actions: {
+                        Button("Try again", systemImage: "arrow.clockwise", action: retry)
+                            .buttonStyle(.borderedProminent)
+                    }
+                    .accessibilityIdentifier("alerts.saved-empty")
+                } else {
+                    ContentUnavailableView(
+                        "All clear",
+                        systemImage: "checkmark.circle.fill",
+                        description: Text("All lines are running normally.")
+                    )
+                }
 
             case .loaded:
                 DisruptionsList(viewModel: viewModel)

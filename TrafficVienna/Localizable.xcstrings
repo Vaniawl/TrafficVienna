@@ -977,6 +977,16 @@
         }
       }
     },
+    "No alerts in saved data" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Meldungen in den gespeicherten Daten"
+          }
+        }
+      }
+    },
     "No connection" : {
       "localizations" : {
         "de" : {
@@ -1929,6 +1939,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Die Live-Aktivität konnte nicht gestartet werden. Versuche es erneut."
+          }
+        }
+      }
+    },
+    "The last successful update contained no service alerts." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die letzte erfolgreiche Aktualisierung enthielt keine Betriebsmeldungen."
           }
         }
       }

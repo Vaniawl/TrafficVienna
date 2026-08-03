@@ -78,6 +78,20 @@ final class DisruptionsViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.dashboardStatus, .allClear(isSaved: false))
     }
 
+    func testStaleEmptySnapshotIsQualifiedAsSavedAllClearData() async {
+        let viewModel = DisruptionsViewModel(
+            service: StubTrafficInfoProvider(result: .success([]), isStale: true)
+        )
+
+        await viewModel.load(force: true)
+
+        XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertTrue(viewModel.infos.isEmpty)
+        XCTAssertTrue(viewModel.isShowingSavedData)
+        XCTAssertNotNil(viewModel.refreshErrorMessage)
+        XCTAssertEqual(viewModel.dashboardStatus, .allClear(isSaved: true))
+    }
+
     func testSelectingKindClearsIncompatibleCategoryFilter() async {
         let viewModel = makeLoadedViewModel()
         await viewModel.load()
@@ -205,6 +219,36 @@ final class DisruptionsViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["service"])
         XCTAssertNotNil(viewModel.refreshErrorMessage)
         XCTAssertEqual(viewModel.dashboardStatus, .alerts(count: 1, isSaved: true))
+    }
+
+    func testEmptySuccessfulSnapshotRemainsVisibleDuringFailedRefresh() async {
+        let provider = ControlledTrafficInfoProvider(
+            results: [
+                .success([]),
+                .failure(TestError.unavailable),
+            ]
+        )
+        let viewModel = DisruptionsViewModel(service: provider)
+        let initialLoad = Task { await viewModel.load() }
+        await provider.waitUntilCallCount(1)
+        await provider.releaseCall(1)
+        await initialLoad.value
+
+        XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertEqual(viewModel.dashboardStatus, .allClear(isSaved: false))
+
+        let refresh = Task { await viewModel.load(force: true) }
+        await provider.waitUntilCallCount(2)
+
+        XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertEqual(viewModel.dashboardStatus, .allClear(isSaved: false))
+
+        await provider.releaseCall(2)
+        await refresh.value
+
+        XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertEqual(viewModel.dashboardStatus, .allClear(isSaved: true))
+        XCTAssertNotNil(viewModel.refreshErrorMessage)
     }
 
     func testQueuedManualRefreshRunsAfterBackgroundLoadAndSuppressesItsFailure() async {

@@ -1,5 +1,29 @@
 # Journal
 
+## 2026-08-03 - Empty Alerts snapshots remain truthful
+
+- Reproduced an Alerts state-identity defect: a successful empty feed was
+  indistinguishable from never having loaded, so a later forced refresh replaced
+  the known snapshot with loading and then an initial failure. When retained as
+  saved data, the view also hid that provenance behind an unconditional live
+  `All clear` claim.
+- `DisruptionsViewModel` now records whether any snapshot has succeeded. Later
+  failures retain an empty loaded snapshot and publish a refresh error; the empty
+  view distinguishes current all-clear data from qualified saved-empty data,
+  includes explicit retry, and has complete German copy.
+- The regression failed before the fix across loading, failure, saved-data, and
+  refresh-error assertions. Both new empty-snapshot cases, all 17 disruptions
+  model tests, and the exact 215/215 iPhone 17 suite then passed with no failures
+  or skips. Exact build, Xcode Analyze, repository/OpenCode validators, shell
+  syntax, 240/29 source-key localisation coverage against 270/35 catalogues,
+  scoped boundary checks, and whitespace validation pass.
+- Live iPhone 17 acceptance reopened Alerts, pulled to refresh, and retained both
+  current U3 notices with an unclipped layout. The inspected 368×800 capture is
+  stored at `docs/release/screenshots/audit/alerts-live-after-empty-state-fix.jpg`;
+  deterministic tests provide the saved-empty state evidence. Local CI still
+  stops only at the known missing global `opencode` CLI, so exact-head protected
+  CI remains the publication authority.
+
 ## 2026-08-03 - App departures expire after the now grace
 
 - Reproduced a truthfulness defect in the shared app projection: a parseable

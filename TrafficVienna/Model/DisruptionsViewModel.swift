@@ -16,6 +16,7 @@ final class DisruptionsViewModel {
     var lineFilter = ""
 
     private var isForceRefreshQueued = false
+    private var hasLoadedSnapshot = false
     private let service: TrafficInfoProviding
 
     init(service: TrafficInfoProviding = MonitorService.shared) {
@@ -155,7 +156,7 @@ final class DisruptionsViewModel {
     }
 
     private func loadPass(force: Bool) async {
-        if infos.isEmpty {
+        if !hasLoadedSnapshot {
             state = .loading
             isShowingSavedData = false
         }
@@ -174,17 +175,19 @@ final class DisruptionsViewModel {
             if snapshot.isStale {
                 refreshErrorMessage = String(localized: "Showing saved data from the last successful update.")
             }
+            hasLoadedSnapshot = true
             state = .loaded
         } catch {
             guard !Task.isCancelled else { return }
             guard !isForceRefreshQueued else { return }
             let message = error.monitorDisplayMessage
-            if infos.isEmpty {
+            if !hasLoadedSnapshot {
                 state = .failed(message)
                 isShowingSavedData = false
             } else {
                 refreshErrorMessage = message
                 isShowingSavedData = true
+                state = .loaded
             }
         }
     }
