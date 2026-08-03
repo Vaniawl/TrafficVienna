@@ -465,6 +465,22 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(LineCategory.of("D"), .tram)
     }
 
+    func testStationCardLineSummaryBoundsBadgesAndReportsHiddenLines() {
+        let standard = StationCardLineSummary(
+            lineNames: ["U3", "1A", "U1", "1A", "U4", "2A"],
+            maximumVisible: 4
+        )
+        let accessibility = StationCardLineSummary(
+            lineNames: ["U3", "1A", "U1", "1A", "U4", "2A"],
+            maximumVisible: 2
+        )
+
+        XCTAssertEqual(standard.visibleLines, ["1A", "2A", "U1", "U3"])
+        XCTAssertEqual(standard.hiddenCount, 1)
+        XCTAssertEqual(accessibility.visibleLines, ["1A", "2A"])
+        XCTAssertEqual(accessibility.hiddenCount, 3)
+    }
+
     // MARK: - WidgetDepartureData
 
     func testWidgetDepartureDataCodable() {

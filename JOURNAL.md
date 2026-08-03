@@ -1,5 +1,25 @@
 # Journal
 
+## 2026-08-03 - Station card summaries remain readable at large text
+
+- Reproduced the unbounded fixed route-badge row on compact Home cards; the
+  existing five-line Stephansplatz screenshot was already near the width limit,
+  and maximum Dynamic Type also squeezed station name and metadata into narrow
+  columns.
+- Added a deterministic unique-line summary: standard cards show four badges,
+  accessibility sizes show two, and both preserve omitted information as a
+  localized `+N` accessibility label. Accessibility headers now stack station
+  identity above walking/freshness metadata without changing card navigation,
+  departures, storage, endpoints, or MVVM ownership.
+- The focused regression failed before the summary policy existed and now passes.
+  Final iPhone 17 runtime inspection shows `1A 2A 3A U1 +1` at standard size and
+  `1A 2A +3` with semantic `Additional lines: 3` at maximum Dynamic Type.
+- The authoritative `.xcresult` reports 201/201 with zero failures or skips.
+  Exact build, Xcode Analyze, repository/OpenCode validators, shell syntax,
+  238/27 source-key localisation coverage against 268/32 catalogues, scoped
+  boundary review, and whitespace checks pass. Local CI still stops only at the
+  known missing global `opencode` CLI; protected exact-head CI remains required.
+
 ## 2026-08-03 - Widget configuration preserves selected route order
 
 - Traced the multi-route AppEntity restoration path and reproduced that converting

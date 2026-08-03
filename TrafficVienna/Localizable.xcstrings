@@ -41,6 +41,16 @@
         }
       }
     },
+    "Additional lines: %lld" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weitere Linien: %lld"
+          }
+        }
+      }
+    },
     "Add station to favourites" : {
       "localizations" : {
         "de" : {

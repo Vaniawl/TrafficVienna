@@ -44,7 +44,7 @@ A `Go` requires:
 - The account-only Apple identity surface and entitlement were removed because
   they provided no cross-device feature and prevented the installed profile from
   archiving. A one-time migration deletes the legacy device-only Keychain item.
-- All 200 tests pass with zero failures or skips, including five XCUITest
+- All 201 tests pass with zero failures or skips, including five XCUITest
   journeys through the four-tab shell, Discover map entry, alert filters, Saved,
   search-to-station navigation, and cross-tab favourite reconciliation. Local
   reminder planning/decoding, idempotent
@@ -55,6 +55,10 @@ A `Go` requires:
   idempotent, so stale UI state cannot restore an already-removed route. Location
   revocation/reset clears cached precise coordinates, and Map ignores stale
   coordinates without authorization.
+  Nearby station-card route summaries are deduplicated and bounded to four badges
+  at standard sizes or two at accessibility sizes, retain the hidden count, and
+  move distance/freshness metadata below the station identity at accessibility
+  Dynamic Type so the header keeps usable width.
   An authorized one-shot location failure now exposes a retry action on Home,
   clears the error on the next request, and keeps retained useful coordinates
   visible during a transient refresh failure.
@@ -112,6 +116,10 @@ A `Go` requires:
   and dark appearance and the recovered live Stephansplatz departures after a
   successful Vienna location request; the inspected cards and controls are not
   clipped at the standard content size.
+- Final iPhone 17 inspection also captures the Stephansplatz route summary as
+  `1A 2A 3A U1 +1` at standard size and `1A 2A +3` at maximum accessibility
+  Dynamic Type. The runtime accessibility tree exposes `Additional lines: 3`,
+  and the vertical large-text header keeps distance and freshness readable.
 - Xcode detects an available physical `iPhone18,2` on iOS 26.5.2. A Release
   device build selects the expected development identity and widget provisioning
   profile, compiles successfully to the signing phase, and reproduces the same
@@ -147,13 +155,13 @@ A `Go` requires:
   final diff check. Later evidence-only documentation commits do not alter the
   inspected app sources or binaries.
 - The continued audit remains unmerged in draft PR #15. Its exact published head
-  `52e1e494a06b04bf363492ffe94a4dd3de1f474e` passed protected Quality run
-  `30784181172`, including the pinned OpenCode CLI, repository validation,
-  app/widget build, the 199-test suite, and the final diff check. The later local
-  widget-configuration ordering slice passes 200/200 tests and Xcode Analyze;
-  compiler extraction remains unchanged with all 237 app and 27 widget source
-  keys covered by the committed 267/32-key catalogues. Its own protected check
-  remains required after publication.
+  `f0eb5805bd408ddeda37ba49e58de4f6f811ed95` passed protected Quality run
+  `30785478360`, including the pinned OpenCode CLI, repository validation,
+  app/widget build, the 200-test suite, and the final diff check. The later local
+  station-card accessibility slice passes 201/201 tests and Xcode Analyze;
+  compiler extraction reports 238 app and 27 widget source keys covered by the
+  committed 268/32-key catalogues. Its own protected check remains required after
+  publication.
 - `main` now requires pull requests and a strict successful `validate` check.
   Conversation resolution is required, admin enforcement is enabled, and force
   pushes and branch deletion are disabled.

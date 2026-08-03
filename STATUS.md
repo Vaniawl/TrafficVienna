@@ -6,7 +6,7 @@
 - Stack: native SwiftUI iOS application, widget extension, XCTest, and XCUITest.
 - Current phase: continued reliability improvements on the existing draft PR.
 - Product shell: Home, Discover, Alerts, and Saved; accounts are out of scope.
-- Verified tests: 200/200 pass on iPhone 17 Simulator (195 model/service tests
+- Verified tests: 201/201 pass on iPhone 17 Simulator (196 model/service tests
   and 5 UI tests), with zero failures or skips. App and widget build successfully.
 - Verified visual coverage: four journeys and key secondary surfaces were
   exercised on iPhone 17; Home, Station Detail, and reminder management were
@@ -70,16 +70,20 @@
   Destructive Saved-route removal now uses an explicit idempotent repository
   operation, so a stale visible row cannot silently restore a route that another
   view already removed.
-- Verified quality: Xcode static analysis passes; compiler output contains 237 app
-  and 27 widget Localizable source keys, all covered by the committed 267/32-key
+  Nearby station cards now bound their unique route summary to four badges at
+  standard sizes and two at accessibility sizes, expose the hidden count as
+  localized `+N` semantics, and stack station identity above distance/freshness
+  metadata for readable maximum Dynamic Type layout.
+- Verified quality: Xcode static analysis passes; compiler output contains 238 app
+  and 27 widget Localizable source keys, all covered by the committed 268/32-key
   catalogues with 0 missing or empty German values. Both repository structural
   validators, `git diff --check`, and the scoped secret/new-endpoint scan pass.
 - Infrastructure limitation: `bash scripts/ci.sh` reaches the permission matcher
   and exits 127 because the required global `opencode` CLI is not installed.
   The reliability script's Python and timeout fixtures pass before the same
-  missing-tool boundary. Hosted Quality run `30784181172` supplied the pinned CLI
+  missing-tool boundary. Hosted Quality run `30785478360` supplied the pinned CLI
   and passed the complete wrapper at exact published head
-  `52e1e494a06b04bf363492ffe94a4dd3de1f474e`.
+  `f0eb5805bd408ddeda37ba49e58de4f6f811ed95`.
 - Handoff: draft PR #15 tracks `codex/system-surfaces-readiness` against protected
   `main`. The live PR head/check is authoritative for remote parity because a
   static state snapshot cannot record the CI result of the commit containing
