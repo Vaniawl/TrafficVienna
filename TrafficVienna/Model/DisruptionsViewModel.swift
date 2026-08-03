@@ -41,9 +41,14 @@ final class DisruptionsViewModel {
     }
 
     var filterSummary: String {
-        let scopeTitle = effectiveScope.title
-        let kindTitle = String(localized: selectedKind.title)
-        return "\(scopeTitle) · \(kindTitle)"
+        var parts = [
+            effectiveScope.title,
+            String(localized: selectedKind.title),
+        ]
+        if let categoryFilter {
+            parts.append(categoryFilter.rawValue)
+        }
+        return parts.joined(separator: " · ")
     }
 
     var isShowingRelevantScope: Bool {
@@ -161,6 +166,10 @@ final class DisruptionsViewModel {
             guard !Task.isCancelled else { return }
             guard !isForceRefreshQueued else { return }
             infos = Self.normalized(snapshot.infos)
+            if let categoryFilter,
+               !availableCategories.contains(categoryFilter) {
+                self.categoryFilter = nil
+            }
             isShowingSavedData = snapshot.isStale
             if snapshot.isStale {
                 refreshErrorMessage = String(localized: "Showing saved data from the last successful update.")

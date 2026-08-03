@@ -6,7 +6,7 @@
 - Stack: native SwiftUI iOS application, widget extension, XCTest, and XCUITest.
 - Current phase: continued reliability improvements on the existing draft PR.
 - Product shell: Home, Discover, Alerts, and Saved; accounts are out of scope.
-- Verified tests: 205/205 pass on iPhone 17 Simulator (200 model/service tests
+- Verified tests: 207/207 pass on iPhone 17 Simulator (202 model/service tests
   and 5 UI tests), with zero failures or skips. App and widget build successfully.
 - Verified visual coverage: four journeys and key secondary surfaces were
   exercised on iPhone 17; Home, Station Detail, and reminder management were
@@ -93,6 +93,11 @@
   an unavailable category clears before it can hide the refreshed departures,
   while valid filters and retained-data network-failure states preserve the
   user's selection.
+  Alerts applies the same successful-snapshot invariant to its transport filter,
+  preserving a valid selection or retained-data failure state but clearing a
+  category absent from the refreshed service feed. The visible filter summary
+  includes the active category, so a user never has to reopen the menu to discover
+  why the feed is narrowed.
 - Verified quality: Xcode static analysis passes; compiler output contains 238 app
   and 29 widget Localizable source keys, all covered by the committed 268/35-key
   catalogues with 0 missing or empty German values. Both repository structural
@@ -100,9 +105,9 @@
 - Infrastructure limitation: `bash scripts/ci.sh` reaches the permission matcher
   and exits 127 because the required global `opencode` CLI is not installed.
   The reliability script's Python and timeout fixtures pass before the same
-  missing-tool boundary. Hosted Quality run `30797509348` supplied the pinned CLI
+  missing-tool boundary. Hosted Quality run `30799989082` supplied the pinned CLI
   and passed the complete wrapper at exact published head
-  `9704828e3c54d5e5e89f5126a16cc2599764e442`.
+  `da811cc8a61dd7de3dec58d10b688a8fc2ee2225`.
 - Handoff: draft PR #15 tracks `codex/system-surfaces-readiness` against protected
   `main`. The live PR head/check is authoritative for remote parity because a
   static state snapshot cannot record the CI result of the commit containing
@@ -151,6 +156,10 @@
 - Current 368×800 Station Detail captures show Stephansplatz with the Bus chip
   selected and four matching directions both before and after pull-to-refresh;
   the refreshed state remains reachable, synchronized, and unclipped.
+- Current 368×800 Alerts acceptance shows the live U3 construction notice with
+  the U-Bahn filter selected. Its visible `For you · Service · U-Bahn` summary,
+  result count, and alert remain synchronized after pull-to-refresh without
+  clipping; the audit capture is stored with the release evidence.
 - A symbolicated iPhone 17 launch trace measured about 1.14 seconds of active
   main-thread work across the focused 10.95-second capture. Station catalogue
   decoding and index construction accounted for only about 22.5 ms, so no

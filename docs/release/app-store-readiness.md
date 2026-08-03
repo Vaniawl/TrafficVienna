@@ -44,7 +44,7 @@ A `Go` requires:
 - The account-only Apple identity surface and entitlement were removed because
   they provided no cross-device feature and prevented the installed profile from
   archiving. A one-time migration deletes the legacy device-only Keychain item.
-- All 205 tests pass with zero failures or skips, including five XCUITest
+- All 207 tests pass with zero failures or skips, including five XCUITest
   journeys through the four-tab shell, Discover map entry, alert filters, Saved,
   search-to-station navigation, and cross-tab favourite reconciliation. Local
   reminder planning/decoding, idempotent
@@ -74,7 +74,10 @@ A `Go` requires:
   polling, suppress the obsolete pass and its error, and drop the queued follow-up
   when the owning task is cancelled. Station Detail also clears a selected
   transport category when a successful snapshot no longer contains it, while
-  preserving valid filters and retained-data failure states. Nearby likewise
+  preserving valid filters and retained-data failure states. Alerts now enforces
+  the same successful-feed invariant and includes the active transport category
+  in its visible summary, while preserving valid filters and retained-data
+  failures. Nearby likewise
   serializes overlapping polling, location changes, and pull-to-refresh; the latest
   location and strongest force intent win, cancelled work cannot mark retained
   departures failed, and a surviving location task explicitly takes ownership.
@@ -124,6 +127,9 @@ A `Go` requires:
   and dark appearance and the recovered live Stephansplatz departures after a
   successful Vienna location request; the inspected cards and controls are not
   clipped at the standard content size.
+- A current 368×800 Alerts audit capture shows the live U3 notice with the U-Bahn
+  filter selected. The visible `For you · Service · U-Bahn` summary and matching
+  result persist after pull-to-refresh without clipping or a hidden stale filter.
 - Final iPhone 17 inspection also captures the Stephansplatz route summary as
   `1A 2A 3A U1 +1` at standard size and `1A 2A +3` at maximum accessibility
   Dynamic Type. The runtime accessibility tree exposes `Additional lines: 3`,
@@ -163,12 +169,12 @@ A `Go` requires:
   final diff check. Later evidence-only documentation commits do not alter the
   inspected app sources or binaries.
 - The continued audit remains unmerged in draft PR #15. Its exact published head
-  `9704828e3c54d5e5e89f5126a16cc2599764e442` passed protected Quality run
-  `30797509348`, including the pinned OpenCode CLI, repository validation,
-  app/widget build, the then-current 204-test suite, and the final diff check. The
-  later local all-route widget-cache slice passes 205/205 tests and Xcode Analyze;
-  compiler extraction reports 238 app and 29 widget source keys covered by the
-  committed 268/35-key catalogues. Its own protected check remains required after
+  `da811cc8a61dd7de3dec58d10b688a8fc2ee2225` passed protected Quality run
+  `30799989082`, including the pinned OpenCode CLI, repository validation,
+  app/widget build, the then-current 205-test suite, and the final diff check. The
+  later local Alerts-filter slice passes 207/207 tests and Xcode Analyze; compiler
+  extraction reports 238 app and 29 widget source keys covered by the committed
+  268/35-key catalogues. Its own protected check remains required after
   publication.
 - `main` now requires pull requests and a strict successful `validate` check.
   Conversation resolution is required, admin enforcement is enabled, and force

@@ -89,12 +89,59 @@ final class DisruptionsViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["accessibility"])
     }
 
+    func testSuccessfulRefreshClearsCategoryFilterMissingFromSelectedKind() async {
+        let provider = StubTrafficInfoProvider(result: .success([serviceInfo]))
+        let viewModel = DisruptionsViewModel(service: provider)
+        await viewModel.load()
+        viewModel.categoryFilter = .metro
+        await provider.setResult(
+            .success([
+                makeInfo(
+                    name: "bus-service",
+                    title: "13A: Umleitung",
+                    description: "Geänderte Strecke",
+                    lines: ["13A"],
+                    categoryID: 2
+                )
+            ])
+        )
+
+        await viewModel.load(force: true)
+
+        XCTAssertNil(viewModel.categoryFilter)
+        XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["bus-service"])
+    }
+
+    func testSuccessfulRefreshPreservesAvailableCategoryFilter() async {
+        let provider = StubTrafficInfoProvider(result: .success([serviceInfo]))
+        let viewModel = DisruptionsViewModel(service: provider)
+        await viewModel.load()
+        viewModel.categoryFilter = .metro
+        await provider.setResult(
+            .success([
+                makeInfo(
+                    name: "replacement-metro-service",
+                    title: "U4: Bauarbeiten",
+                    description: "Kein Betrieb",
+                    lines: ["U4"],
+                    categoryID: 2
+                )
+            ])
+        )
+
+        await viewModel.load(force: true)
+
+        XCTAssertEqual(viewModel.categoryFilter, .metro)
+        XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["replacement-metro-service"])
+    }
+
     func testLineCategoryFilterMatchesAffectedLines() async {
         let viewModel = makeLoadedViewModel()
         await viewModel.load()
         viewModel.categoryFilter = .metro
 
         XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["service"])
+        XCTAssertEqual(viewModel.filterSummary, "All Vienna · Service · U-Bahn")
 
         viewModel.categoryFilter = .bus
         XCTAssertTrue(viewModel.filteredInfos.isEmpty)
@@ -132,11 +179,13 @@ final class DisruptionsViewModelTests: XCTestCase {
         let provider = StubTrafficInfoProvider(result: .success([serviceInfo]))
         let viewModel = DisruptionsViewModel(service: provider)
         await viewModel.load()
+        viewModel.categoryFilter = .metro
         await provider.setResult(.failure(TestError.unavailable))
 
         await viewModel.load(force: true)
 
         XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertEqual(viewModel.categoryFilter, .metro)
         XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["service"])
         XCTAssertNotNil(viewModel.refreshErrorMessage)
         XCTAssertEqual(viewModel.dashboardStatus, .alerts(count: 1, isSaved: true))
@@ -148,8 +197,11 @@ final class DisruptionsViewModelTests: XCTestCase {
         )
 
         await viewModel.load(force: true)
+        viewModel.categoryFilter = .metro
+        await viewModel.load(force: true)
 
         XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertEqual(viewModel.categoryFilter, .metro)
         XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["service"])
         XCTAssertNotNil(viewModel.refreshErrorMessage)
         XCTAssertEqual(viewModel.dashboardStatus, .alerts(count: 1, isSaved: true))

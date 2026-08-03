@@ -1,5 +1,26 @@
 # Journal
 
+## 2026-08-03 - Alerts drop unavailable transport filters
+
+- Reproduced a hidden Alerts filter trap after a successful feed change: a
+  selected category could disappear from the menu while remaining active and
+  filtering every refreshed result out of the list. The regression first failed
+  with the retained `metro` value.
+- `DisruptionsViewModel` now clears only a selected category absent from the
+  normalized successful snapshot. A still-available category and retained-data
+  refresh failures preserve the user's selection. The visible summary also shows
+  the active category, closing the runtime-discovered `All Vienna · Service`
+  versus `All Vienna · Service · U-Bahn` mismatch without new copy or keys.
+- Focused coverage passes 15/15. Live iPhone 17 acceptance selected U-Bahn on the
+  current U3 construction alert and verified that the visible
+  `For you · Service · U-Bahn` summary, count, and result persist after
+  pull-to-refresh; the unclipped 368×800 screenshot is stored in release evidence.
+- The authoritative iPhone 17 `.xcresult` reports 207/207 with zero failures or
+  skips. Exact build, Xcode Analyze, repository/OpenCode validators, shell syntax,
+  238/29 source-key localisation coverage against 268/35 catalogues, scoped
+  boundary review, and whitespace checks pass. Local CI still stops only at the
+  known missing global `opencode` CLI; protected exact-head CI remains required.
+
 ## 2026-08-03 - App sync keeps every widget-selectable route
 
 - Reproduced a shared-cache coverage defect: after four available Saved routes
