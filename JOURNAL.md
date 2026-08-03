@@ -1,5 +1,24 @@
 # Journal
 
+## 2026-08-03 - Fresh `now` widget departures leave on time
+
+- Reproduced that both the direct widget API path and app sync can store a fresh
+  departure as `0`, while timeline scheduling ignored zero and left the rendered
+  `now` value visible until the five-minute network refresh. The deterministic
+  regression failed before the fix.
+- Timeline scheduling now applies the existing one-minute removal grace to every
+  nonnegative visible countdown, including a fresh zero, while negative input
+  remains excluded. Projection, persistence, endpoint, layout, and copy are
+  unchanged.
+- The focused scheduling suite passes 4/4; the authoritative iPhone 17
+  `.xcresult` reports 197/197 with zero failures or skips. Exact build, Xcode
+  Analyze, repository/OpenCode validators, shell syntax, catalogue values,
+  scoped boundary review, and whitespace checks pass.
+- The local CI wrapper reaches only the known missing global `opencode` CLI
+  boundary after its Python/timeout fixtures pass. No pixels changed, so the
+  existing inspected widget screenshots remain representative; the published
+  commit still requires its own protected Quality run.
+
 ## 2026-08-03 - Saved route removal is idempotent
 
 - Reproduced that deleting a stale Saved route row called `toggle`, so a route

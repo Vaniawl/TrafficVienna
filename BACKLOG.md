@@ -14,11 +14,11 @@
 - [x] **REQ-TV-005 — Performance.** Requests remain coalesced/cancellable and
   formatter creation was removed from the widget body. Settled iPad Simulator
   sampling measured 0.0% CPU in five observations.
-- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 196 tests, static
+- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 197 tests, static
   analysis, localisation extraction, repository validators, and diff checks
-  pass. Hosted Quality run `30780429929` installed the pinned OpenCode CLI and
+  pass. Hosted Quality run `30781954511` installed the pinned OpenCode CLI and
   completed the full `scripts/ci.sh` wrapper successfully on exact published head
-  `740bb48d`; the live draft-PR check remains authoritative for every later
+  `c147d430`; the live draft-PR check remains authoritative for every later
   documentation or workflow commit.
 - [x] **REQ-TV-007 — Review-ready state.** Architecture/security findings and
   documentation are resolved; the reviewed branch is maintained in draft PR #15.
@@ -83,6 +83,8 @@
   zero until the five-minute network refresh.
 - [x] Evaluate departure and removal boundaries independently so a cached
   departure already showing `now` still disappears at its future removal entry.
+- [x] Give a fresh widget departure delivered as `0` the same one-minute removal
+  boundary, so it cannot remain at `now` until the five-minute network refresh.
 - [x] Replace Home's indefinite authorized-location placeholder with an explicit
   retry state, clear it when a new request starts, and preserve useful retained
   coordinates during a transient refresh failure.
@@ -125,13 +127,13 @@
 
 ## Final validation and handoff
 
-- [x] Full iPhone 17 build and test suite: 191 model/service + 5 UI tests.
+- [x] Full iPhone 17 build and test suite: 192 model/service + 5 UI tests.
 - [x] Static analyzer and repository/OpenCode structural validators.
 - [x] English/German compiler-extraction catalogue comparison.
 - [x] `git diff --check`, security scan, and changed-file review.
 - [x] Synchronize `STATUS.md`, root/memory journals, and architectural decisions.
 - [x] Run `bash scripts/ci.sh` with the required OpenCode runtime: hosted
-  Quality run `30780429929` passed exact published head `740bb48d` in 16m00s.
+  Quality run `30781954511` passed exact published head `c147d430`.
   The local host still lacks that global CLI, so local wrapper attempts stop at
   the permission matcher and the live protected PR check remains authoritative
   after any later publication.

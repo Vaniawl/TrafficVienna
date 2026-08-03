@@ -44,7 +44,7 @@ A `Go` requires:
 - The account-only Apple identity surface and entitlement were removed because
   they provided no cross-device feature and prevented the installed profile from
   archiving. A one-time migration deletes the legacy device-only Keychain item.
-- All 196 tests pass with zero failures or skips, including five XCUITest
+- All 197 tests pass with zero failures or skips, including five XCUITest
   journeys through the four-tab shell, Discover map entry, alert filters, Saved,
   search-to-station navigation, and cross-tab favourite reconciliation. Local
   reminder planning/decoding, idempotent
@@ -95,7 +95,9 @@ A `Go` requires:
   route, including a removal entry one minute after the third departure and
   before the five-minute refresh deadline. Departure and removal boundaries are
   independent, so an older cached departure already projected as `now` still
-  receives its future removal entry.
+  receives its future removal entry. Fresh API and app-synced departures delivered
+  as `0` also receive a one-minute removal entry instead of lingering until the
+  network refresh.
 - iPhone 17 Pro Max and iPad Pro 13-inch runtime builds complete without
   diagnostics. English, German, location-denied, live-data, Favourites, and
   maximum Accessibility Dynamic Type paths were exercised.
@@ -141,13 +143,13 @@ A `Go` requires:
   final diff check. Later evidence-only documentation commits do not alter the
   inspected app sources or binaries.
 - The continued audit remains unmerged in draft PR #15. Its exact published head
-  `740bb48de4ed13d4091daad8b6554b4f5ad63e05` passed protected Quality run
-  `30780429929` in 16m00s, including the pinned OpenCode CLI, repository
-  validation, app/widget build, the 194-test suite, and the final diff check.
-  The later local idempotent-removal slice passes 196/196 tests, Xcode Analyze,
-  and compiler extraction remains unchanged with all 237 app and 27 widget
-  source keys covered by the committed 267/32-key catalogues; its own protected
-  check remains required after publication.
+  `c147d430f53f2932da99932d5c2bb49a35f39b13` passed protected Quality run
+  `30781954511`, including the pinned OpenCode CLI, repository validation,
+  app/widget build, the 196-test suite, and the final diff check. The later local
+  fresh-`now` widget-removal slice passes 197/197 tests and Xcode Analyze; compiler
+  extraction remains unchanged with all 237 app and 27 widget source keys covered
+  by the committed 267/32-key catalogues. Its own protected check remains required
+  after publication.
 - `main` now requires pull requests and a strict successful `validate` check.
   Conversation resolution is required, admin enforcement is enabled, and force
   pushes and branch deletion are disabled.

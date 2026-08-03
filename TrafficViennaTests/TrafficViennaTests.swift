@@ -743,6 +743,38 @@ final class TrafficViennaTests: XCTestCase {
         )
     }
 
+    func testWidgetTimelineScheduleRemovesFreshDepartureAlreadyShowingNow() {
+        let now = Date(timeIntervalSince1970: 10_000)
+        let refreshDate = now.addingTimeInterval(300)
+        let items = [
+            WidgetDepartureData(
+                lineName: "U1",
+                stopName: "Stephansplatz",
+                destination: "Leopoldau",
+                departures: [0, 2],
+                fetchedAt: now
+            ),
+        ]
+
+        let dates = WidgetTimelineSchedule.entryDates(
+            now: now,
+            refreshDate: refreshDate,
+            items: items,
+            fallbackUpdatedAt: nil
+        )
+
+        XCTAssertEqual(
+            dates,
+            [
+                now,
+                now.addingTimeInterval(60),
+                now.addingTimeInterval(120),
+                now.addingTimeInterval(180),
+                refreshDate,
+            ]
+        )
+    }
+
     func testWidgetTimelineScheduleRemovesCachedDepartureAlreadyShowingNow() {
         let now = Date(timeIntervalSince1970: 10_000)
         let refreshDate = now.addingTimeInterval(300)

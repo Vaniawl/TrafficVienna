@@ -6,7 +6,7 @@
 - Stack: native SwiftUI iOS application, widget extension, XCTest, and XCUITest.
 - Current phase: continued reliability improvements on the existing draft PR.
 - Product shell: Home, Discover, Alerts, and Saved; accounts are out of scope.
-- Verified tests: 196/196 pass on iPhone 17 Simulator (191 model/service tests
+- Verified tests: 197/197 pass on iPhone 17 Simulator (192 model/service tests
   and 5 UI tests), with zero failures or skips. App and widget build successfully.
 - Verified visual coverage: four journeys and key secondary surfaces were
   exercised on iPhone 17; Home, Station Detail, and reminder management were
@@ -57,7 +57,8 @@
   render, so the third countdown cannot remain at zero until the next network
   refresh. Departure and removal boundaries are evaluated independently, so a
   cached departure already rendering as `now` still receives its future removal
-  entry instead of lingering until that refresh.
+  entry instead of lingering until that refresh. A fresh API or app-synced
+  departure delivered as `0` receives the same one-minute removal boundary.
   Authorized location failures now leave Home in an explicit retryable state
   instead of an indefinite locating placeholder; retained coordinates still win
   over a transient refresh error, and a new request clears the displayed error.
@@ -71,9 +72,9 @@
 - Infrastructure limitation: `bash scripts/ci.sh` reaches the permission matcher
   and exits 127 because the required global `opencode` CLI is not installed.
   The reliability script's Python and timeout fixtures pass before the same
-  missing-tool boundary. Hosted Quality run `30780429929` supplied the pinned CLI
-  and passed the complete wrapper in 16m00s at exact published head
-  `740bb48de4ed13d4091daad8b6554b4f5ad63e05`.
+  missing-tool boundary. Hosted Quality run `30781954511` supplied the pinned CLI
+  and passed the complete wrapper at exact published head
+  `c147d430f53f2932da99932d5c2bb49a35f39b13`.
 - Handoff: draft PR #15 tracks `codex/system-surfaces-readiness` against protected
   `main`. The live PR head/check is authoritative for remote parity because a
   static state snapshot cannot record the CI result of the commit containing

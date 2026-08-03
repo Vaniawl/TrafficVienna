@@ -192,7 +192,7 @@ nonisolated enum WidgetTimelineSchedule {
                 now
             )
 
-            for minutes in item.departures.prefix(3) where minutes > 0 {
+            for minutes in item.departures.prefix(3) where minutes >= 0 {
                 let departureDate = sourceDate.addingTimeInterval(
                     TimeInterval(minutes * 60)
                 )
