@@ -838,9 +838,22 @@ struct TrafficViennaWidget: Widget {
 
 // MARK: - Live Activity (Lock Screen + Dynamic Island)
 
-private func clampedRange(to end: Date) -> ClosedRange<Date> {
-    let now = Date.now
-    return now ... max(end, now.addingTimeInterval(1))
+private struct DepartureActivityTimeView: View {
+    let departureDate: Date
+    let isStale: Bool
+
+    var body: some View {
+        if isStale {
+            Text("Departed")
+        } else {
+            // Signed T−/T+ remains truthful even if the stale-state redraw is delayed.
+            HStack(spacing: 0) {
+                Text(verbatim: "T")
+                Text(departureDate, style: .offset)
+            }
+            .accessibilityElement(children: .combine)
+        }
+    }
 }
 
 struct DepartureLiveActivity: Widget {
@@ -854,12 +867,16 @@ struct DepartureLiveActivity: Widget {
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 1) {
-                    Text(timerInterval: clampedRange(to: context.state.departureDate), countsDown: true)
+                    DepartureActivityTimeView(
+                        departureDate: context.state.departureDate,
+                        isStale: context.isStale
+                    )
                         .font(.title2.weight(.semibold))
                         .monospacedDigit()
                         .multilineTextAlignment(.trailing)
-                        .frame(width: 78)
-                    Text("to departure").font(.caption).foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.65)
+                        .frame(width: 108)
                 }
             }
             .padding()
@@ -872,11 +889,16 @@ struct DepartureLiveActivity: Widget {
                         .padding(.leading, 4)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    Text(timerInterval: clampedRange(to: context.state.departureDate), countsDown: true)
+                    DepartureActivityTimeView(
+                        departureDate: context.state.departureDate,
+                        isStale: context.isStale
+                    )
                         .font(.title3.weight(.semibold))
                         .monospacedDigit()
-                        .frame(width: 70)
-                        .foregroundStyle(.green)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.65)
+                        .frame(width: 96)
+                        .foregroundStyle(context.isStale ? Color.secondary : Color.green)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
                     Text("→ \(context.attributes.destination)")
@@ -886,12 +908,31 @@ struct DepartureLiveActivity: Widget {
             } compactLeading: {
                 WidgetLineBadge(line: context.attributes.line)
             } compactTrailing: {
-                Text(timerInterval: clampedRange(to: context.state.departureDate), countsDown: true)
-                    .monospacedDigit()
-                    .frame(width: 44)
-                    .foregroundStyle(.green)
+                if context.isStale {
+                    Image(systemName: "clock.badge.exclamationmark")
+                        .foregroundStyle(.secondary)
+                        .accessibilityLabel("Departure has passed")
+                } else {
+                    DepartureActivityTimeView(
+                        departureDate: context.state.departureDate,
+                        isStale: false
+                    )
+                        .monospacedDigit()
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.65)
+                        .frame(width: 56)
+                        .foregroundStyle(.green)
+                }
             } minimal: {
-                Image(systemName: "tram.fill").foregroundStyle(.green)
+                if context.isStale {
+                    Image(systemName: "clock.badge.exclamationmark")
+                        .foregroundStyle(.secondary)
+                        .accessibilityLabel("Departure has passed")
+                } else {
+                    Image(systemName: "tram.fill")
+                        .foregroundStyle(.green)
+                        .accessibilityLabel("Tracked departure")
+                }
             }
         }
     }

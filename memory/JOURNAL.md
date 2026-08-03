@@ -1,5 +1,23 @@
 # Journal
 
+## 2026-08-03 — Live Activity becomes stale at departure
+
+- Reproduced a suspended-app lifecycle defect: the Lock Screen countdown clamped
+  to `0:00 to departure`, while ActivityKit content stayed fresh until the
+  two-minute automatic end boundary.
+- Live Activity content now becomes stale at the actual departure time and keeps
+  the existing two-minute end grace. Lock Screen and Dynamic Island surfaces show
+  a localized departed state; signed `T−`/`T+` offset rendering remains truthful
+  if a system stale redraw is delayed.
+- The lifecycle regression failed before the stale-date policy existed and now
+  passes. With the app process stopped, paired iPhone 17 screenshots show
+  `T−1 minute` before departure and `Departed` after it, both on one unclipped row.
+- The authoritative `.xcresult` reports 201/201 with zero failures or skips.
+  Exact build, Xcode Analyze, repository/OpenCode validators, shell syntax,
+  238/29 source-key localisation coverage against 268/35 catalogues, scoped
+  boundary review, and whitespace checks pass. Local CI still stops only at the
+  known missing global `opencode` CLI; protected exact-head CI remains required.
+
 ## 2026-08-03 — Station card summaries remain readable at large text
 
 - Reproduced the unbounded fixed route-badge row on compact Home cards; the

@@ -37,6 +37,12 @@ nonisolated enum DepartureActivityLifecycle {
         departureDate.addingTimeInterval(gracePeriod)
     }
 
+    static func contentStaleDate(
+        departureDate: Date
+    ) -> Date {
+        departureDate
+    }
+
     static func isExpired(
         departureDate: Date,
         now: Date = .now

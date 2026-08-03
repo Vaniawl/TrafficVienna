@@ -16,9 +16,9 @@
   sampling measured 0.0% CPU in five observations.
 - [x] **REQ-TV-006 — Validation evidence.** App/widget build, 201 tests, static
   analysis, localisation extraction, repository validators, and diff checks
-  pass. Hosted Quality run `30785478360` installed the pinned OpenCode CLI and
+  pass. Hosted Quality run `30787458985` installed the pinned OpenCode CLI and
   completed the full `scripts/ci.sh` wrapper successfully on exact published head
-  `f0eb5805`; the live draft-PR check remains authoritative for every later
+  `2a7d3623`; the live draft-PR check remains authoritative for every later
   documentation or workflow commit.
 - [x] **REQ-TV-007 — Review-ready state.** Architecture/security findings and
   documentation are resolved; the reviewed branch is maintained in draft PR #15.
@@ -99,6 +99,9 @@
   cannot toggle an already-removed route back into persistence or the widget.
 - [x] Bound Nearby station-card route badges with an explicit hidden count and
   stack header metadata vertically at accessibility Dynamic Type sizes.
+- [x] Mark Live Activity content stale at the actual departure, present a
+  localized departed state across Lock Screen/Dynamic Island families, and keep
+  signed before/after offset semantics as a delayed-redraw fallback.
 - [x] Keep the Live Activity UI journey meaningful overnight by using the
   24-hour Schwedenplatz hub while retaining independent Stephansplatz search and
   notification-routing coverage.
@@ -132,6 +135,8 @@
   plus the recovered live departures after a successful Vienna location request.
 - [x] Capture and inspect the final station-card route summary at standard and
   maximum accessibility Dynamic Type, including its semantic hidden-line count.
+- [x] Capture and inspect paired Lock Screen Live Activity states with the app
+  stopped: one-line `T−1 minute` before departure and `Departed` afterward.
 
 ## Final validation and handoff
 
@@ -141,7 +146,7 @@
 - [x] `git diff --check`, security scan, and changed-file review.
 - [x] Synchronize `STATUS.md`, root/memory journals, and architectural decisions.
 - [x] Run `bash scripts/ci.sh` with the required OpenCode runtime: hosted
-  Quality run `30785478360` passed exact published head `f0eb5805`.
+  Quality run `30787458985` passed exact published head `2a7d3623`.
   The local host still lacks that global CLI, so local wrapper attempts stop at
   the permission matcher and the live protected PR check remains authoritative
   after any later publication.

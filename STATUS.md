@@ -74,16 +74,20 @@
   standard sizes and two at accessibility sizes, expose the hidden count as
   localized `+N` semantics, and stack station identity above distance/freshness
   metadata for readable maximum Dynamic Type layout.
+  Live Activity content now becomes stale at the tracked departure instead of
+  remaining fresh until automatic cleanup. Lock Screen and Dynamic Island render
+  a localized departed state, retain a signed `T−`/`T+` fallback, and still end
+  through the existing two-minute grace policy.
 - Verified quality: Xcode static analysis passes; compiler output contains 238 app
-  and 27 widget Localizable source keys, all covered by the committed 268/32-key
+  and 29 widget Localizable source keys, all covered by the committed 268/35-key
   catalogues with 0 missing or empty German values. Both repository structural
   validators, `git diff --check`, and the scoped secret/new-endpoint scan pass.
 - Infrastructure limitation: `bash scripts/ci.sh` reaches the permission matcher
   and exits 127 because the required global `opencode` CLI is not installed.
   The reliability script's Python and timeout fixtures pass before the same
-  missing-tool boundary. Hosted Quality run `30785478360` supplied the pinned CLI
+  missing-tool boundary. Hosted Quality run `30787458985` supplied the pinned CLI
   and passed the complete wrapper at exact published head
-  `f0eb5805bd408ddeda37ba49e58de4f6f811ed95`.
+  `2a7d3623d2a3a1725681b2639c23891e70fc0e8b`.
 - Handoff: draft PR #15 tracks `codex/system-surfaces-readiness` against protected
   `main`. The live PR head/check is authoritative for remote parity because a
   static state snapshot cannot record the CI result of the commit containing
@@ -113,6 +117,10 @@
   screenshots show the filled and cleared states.
   Current 368×800 screenshots also confirm reminder management and the Saved
   commute/line hierarchy after their respective state-ownership refactors.
+- Controlled iPhone 17 Lock Screen acceptance stopped the app immediately after
+  starting a two-minute Live Activity. A paired 368×800 capture shows the
+  unclipped `T−1 minute` state before departure and the system-driven localized
+  `Departed` state afterward, without an in-process refresh.
 - Current iPhone 17 audit screenshots show the retryable Home location failure in
   light and dark appearance and the recovered live Stephansplatz departures after
   a successful retry, with no clipping at the standard content size.

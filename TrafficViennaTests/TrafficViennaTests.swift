@@ -137,17 +137,21 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(result, 0)
     }
 
-    func testLiveActivityLifecycleEndsTwoMinutesAfterDeparture() {
+    func testLiveActivityBecomesStaleAtDepartureAndEndsTwoMinutesLater() {
         let now = Date(timeIntervalSince1970: 1_700_000_000)
         let departure = DepartureActivityLifecycle.departureDate(
             minutes: 5,
             now: now
+        )
+        let staleDate = DepartureActivityLifecycle.contentStaleDate(
+            departureDate: departure
         )
         let end = DepartureActivityLifecycle.automaticEndDate(
             departureDate: departure
         )
 
         XCTAssertEqual(departure, now.addingTimeInterval(5 * 60))
+        XCTAssertEqual(staleDate, departure)
         XCTAssertEqual(end, now.addingTimeInterval(7 * 60))
         XCTAssertFalse(
             DepartureActivityLifecycle.isExpired(

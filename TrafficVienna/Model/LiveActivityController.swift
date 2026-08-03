@@ -22,7 +22,7 @@ enum LiveActivityController {
         let state = DepartureActivityAttributes.ContentState(departureDate: departureDate, isLive: isLive)
         let content = ActivityContent(
             state: state,
-            staleDate: DepartureActivityLifecycle.automaticEndDate(
+            staleDate: DepartureActivityLifecycle.contentStaleDate(
                 departureDate: departureDate
             )
         )
@@ -55,7 +55,7 @@ enum LiveActivityController {
         let state = DepartureActivityAttributes.ContentState(departureDate: departureDate, isLive: isLive)
         let content = ActivityContent(
             state: state,
-            staleDate: DepartureActivityLifecycle.automaticEndDate(
+            staleDate: DepartureActivityLifecycle.contentStaleDate(
                 departureDate: departureDate
             )
         )
