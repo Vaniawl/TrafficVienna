@@ -36,6 +36,39 @@ final class FavoritesListViewModelTests: XCTestCase {
         XCTAssertTrue(viewModel.items.allSatisfy { $0.state == .available })
     }
 
+    func testRemovingStaleRouteCannotRestoreItToRepository() async {
+        let favorite = route("U1", "Leopoldau")
+        let routes = StubFavoritesRepository(routes: [favorite])
+        let viewModel = makeViewModel(favoritesRepo: routes)
+        await viewModel.loadFavorites()
+
+        routes.routes.remove(favorite)
+        viewModel.remove(favorite)
+
+        XCTAssertFalse(routes.routes.contains(favorite))
+        XCTAssertTrue(viewModel.items.isEmpty)
+    }
+
+    func testPersistedRouteRemovalIsIdempotent() {
+        let suiteName = "FavoritesListViewModelTests.\(UUID().uuidString)"
+        guard let storage = UserDefaults(suiteName: suiteName) else {
+            return XCTFail("Could not create isolated UserDefaults suite")
+        }
+        defer { storage.removePersistentDomain(forName: suiteName) }
+        let repository = UserDefaultsFavoritesRepository(storage: storage)
+        let favorite = route("U1", "Leopoldau")
+        repository.toggle(diva: favorite.diva, lineName: favorite.lineName, destination: favorite.destination)
+
+        repository.remove(diva: favorite.diva, lineName: favorite.lineName, destination: favorite.destination)
+        repository.remove(diva: favorite.diva, lineName: favorite.lineName, destination: favorite.destination)
+
+        XCTAssertFalse(repository.isFavorite(
+            diva: favorite.diva,
+            lineName: favorite.lineName,
+            destination: favorite.destination
+        ))
+    }
+
     func testFailedRouteRemainsVisibleAndIsExcludedFromWidget() async {
         let routes = StubFavoritesRepository(routes: [route("U1", "Leopoldau")])
         let widget = StubWidgetSync()
@@ -443,6 +476,9 @@ private final class StubFavoritesRepository: FavoritesRepository, @unchecked Sen
     func toggle(diva: String, lineName: String, destination: String) {
         let route = FavoriteRoute(diva: diva, lineName: lineName, destination: destination)
         if routes.remove(route) == nil { routes.insert(route) }
+    }
+    func remove(diva: String, lineName: String, destination: String) {
+        routes.remove(FavoriteRoute(diva: diva, lineName: lineName, destination: destination))
     }
     func getAll() -> [FavoriteRoute] { Array(routes) }
     func removeAll() { routes = [] }

@@ -1,5 +1,23 @@
 # Journal
 
+## 2026-08-03 — Saved route removal is idempotent
+
+- Reproduced that deleting a stale Saved route row called `toggle`, so a route
+  already removed by another view was silently inserted back into persistence.
+  The regression first failed by observing the route restored after deletion.
+- Added an explicit idempotent route-removal operation to the existing favourites
+  repository and used it for destructive Saved actions. Persistence format, App
+  Group key, notification boundary, widget payload, and UI layout are unchanged.
+- Focused Saved and Station Detail coverage passes 44/44; an isolated
+  `UserDefaults` regression also proves repeated removal remains absent. The
+  authoritative iPhone 17 `.xcresult` reports 196/196 with zero failures or skips;
+  exact build, Xcode Analyze, repository/OpenCode validators, localisation
+  catalogue checks, scoped boundary review, and whitespace checks pass.
+- The local CI wrapper reaches only the known missing global `opencode` CLI
+  boundary after its Python/timeout fixtures pass. No pixels or copy changed, so
+  the existing inspected Saved screenshots remain representative; the published
+  commit still requires its own protected Quality run.
+
 ## 2026-08-03 — Home location failures are retryable
 
 - Reproduced that `CLError.locationUnknown` released the one-shot request but

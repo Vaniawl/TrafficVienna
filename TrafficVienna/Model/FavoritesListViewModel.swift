@@ -176,7 +176,7 @@ final class FavoritesListViewModel {
     }
 
     func remove(_ route: FavoriteRoute) {
-        favoritesRepo.toggle(diva: route.diva, lineName: route.lineName, destination: route.destination)
+        favoritesRepo.remove(diva: route.diva, lineName: route.lineName, destination: route.destination)
         items.removeAll { $0.route == route }
         updateFeaturedDeparture()
         syncWidget()

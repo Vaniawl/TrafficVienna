@@ -44,15 +44,17 @@ A `Go` requires:
 - The account-only Apple identity surface and entitlement were removed because
   they provided no cross-device feature and prevented the installed profile from
   archiving. A one-time migration deletes the legacy device-only Keychain item.
-- All 194 tests pass with zero failures or skips, including five XCUITest
+- All 196 tests pass with zero failures or skips, including five XCUITest
   journeys through the four-tab shell, Discover map entry, alert filters, Saved,
   search-to-station navigation, and cross-tab favourite reconciliation. Local
   reminder planning/decoding, idempotent
   route replacement and legacy cleanup, notification denial recovery, Live
   Activity update/stop behavior, widget departure-boundary scheduling, stale
   countdown prevention, permission-prompt expiry, and ActivityKit state
-  restoration have regression coverage. Location revocation/reset clears cached
-  precise coordinates, and Map ignores stale coordinates without authorization.
+  restoration have regression coverage. Destructive Saved-route removal is
+  idempotent, so stale UI state cannot restore an already-removed route. Location
+  revocation/reset clears cached precise coordinates, and Map ignores stale
+  coordinates without authorization.
   An authorized one-shot location failure now exposes a retry action on Home,
   clears the error on the next request, and keeps retained useful coordinates
   visible during a transient refresh failure.
@@ -138,14 +140,14 @@ A `Go` requires:
   with the pinned OpenCode checks, repository validation, build, tests, and
   final diff check. Later evidence-only documentation commits do not alter the
   inspected app sources or binaries.
-- The continued audit remains unmerged in draft PR #15. Its exact app-code head
-  `f08662c0fe5dd5ba380316f2f95fb06c667d3060` passed protected Quality run
-  `30777324747` in 14m00s, including the pinned OpenCode CLI, repository
-  validation, app/widget build, the 192-test suite, and the final diff check.
-  The later local location-recovery slice passes 194/194 tests, Xcode Analyze,
-  and compiler extraction with all 237 app and 27 widget source keys covered by
-  the committed 267/32-key catalogues; its own protected check remains required
-  after publication.
+- The continued audit remains unmerged in draft PR #15. Its exact published head
+  `740bb48de4ed13d4091daad8b6554b4f5ad63e05` passed protected Quality run
+  `30780429929` in 16m00s, including the pinned OpenCode CLI, repository
+  validation, app/widget build, the 194-test suite, and the final diff check.
+  The later local idempotent-removal slice passes 196/196 tests, Xcode Analyze,
+  and compiler extraction remains unchanged with all 237 app and 27 widget
+  source keys covered by the committed 267/32-key catalogues; its own protected
+  check remains required after publication.
 - `main` now requires pull requests and a strict successful `validate` check.
   Conversation resolution is required, admin enforcement is enabled, and force
   pushes and branch deletion are disabled.

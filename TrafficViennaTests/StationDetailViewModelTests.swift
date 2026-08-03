@@ -632,6 +632,9 @@ private final class DetailRoutesRepository: FavoritesRepository, @unchecked Send
         let route = FavoriteRoute(diva: diva, lineName: lineName, destination: destination)
         if routes.remove(route) == nil { routes.insert(route) }
     }
+    func remove(diva: String, lineName: String, destination: String) {
+        routes.remove(FavoriteRoute(diva: diva, lineName: lineName, destination: destination))
+    }
     func getAll() -> [FavoriteRoute] { Array(routes) }
     func removeAll() { routes = [] }
 }
