@@ -97,6 +97,8 @@ actor MonitorService {
 
         do {
             return try await fetchCoalesced(diva: diva, forceRefresh: forceRefresh)
+        } catch is CancellationError {
+            throw CancellationError()
         } catch {
             if let stale = cache[diva] {
                 return MonitorSnapshot(response: stale.response, updatedAt: stale.timestamp, isStale: true)
@@ -123,6 +125,8 @@ actor MonitorService {
 
         do {
             return try await fetchTrafficInfoCoalesced(forceRefresh: forceRefresh)
+        } catch is CancellationError {
+            throw CancellationError()
         } catch {
             if let trafficInfoCache {
                 return TrafficInfoSnapshot(
@@ -138,6 +142,10 @@ actor MonitorService {
     // A regular refresh may join any active request. A forced refresh only joins
     // another forced request; behind a regular request it runs one serial successor.
     private func fetchCoalesced(diva: Int, forceRefresh: Bool) async throws -> MonitorSnapshot {
+        // A caller that no longer owns visible refresh work must not create a new
+        // request, including the recursive forced successor below.
+        try Task.checkCancellation()
+
         if let existing = inFlight[diva] {
             if !forceRefresh || existing.isForced {
                 return try await resolve(existing, diva: diva)
@@ -170,6 +178,8 @@ actor MonitorService {
     // Traffic alerts use the same request budget and stale-data policy as station
     // monitors. Concurrent tab/badge refreshes therefore share one network call.
     private func fetchTrafficInfoCoalesced(forceRefresh: Bool) async throws -> TrafficInfoSnapshot {
+        try Task.checkCancellation()
+
         if let existing = trafficInfoInFlight {
             if !forceRefresh || existing.isForced {
                 return try await resolve(existing)

@@ -23,8 +23,11 @@ serial forced successor even when the regular request failed.
 
 The tracked task publishes its cache before resolving. Cleanup clears an entry
 only when its generation still matches, preventing an older waiter from deleting
-a newer successor. Existing throttle, retry, stale fallback, endpoints, public
-provider protocols, and storage remain unchanged.
+a newer successor. A cancellation checkpoint makes successor ownership conditional
+on a still-active caller, and cancellation propagates instead of being interpreted
+as a network failure eligible for stale-cache fallback. Existing throttle, retry,
+stale fallback for real failures, endpoints, public provider protocols, and
+storage remain unchanged.
 
 ## 2026-08-02 - Widget projection time is not source freshness
 

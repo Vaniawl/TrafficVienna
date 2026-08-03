@@ -218,6 +218,30 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(cachedResponse.data.monitors.first?.lines.first?.departures.departure.first?.departureTime.countdown, 2)
     }
 
+    func testMonitorServiceDoesNotRunForcedSuccessorForCancelledCaller() async throws {
+        let network = FirstRequestControlledNetworkManager()
+        let service = MonitorService(network: network, cacheTTL: 30, minInterval: 0)
+
+        let background = Task { try await service.monitor(diva: 1) }
+        await network.waitUntilCallCount(1)
+        let forced = Task { try await service.monitor(diva: 1, forceRefresh: true) }
+        forced.cancel()
+        await network.releaseFirstCall()
+
+        _ = try await background.value
+        do {
+            _ = try await forced.value
+            XCTFail("A cancelled caller must not receive data or start a forced successor")
+        } catch is CancellationError {
+            // Expected: the abandoned refresh no longer owns network work.
+        } catch {
+            XCTFail("Expected CancellationError, got \(error)")
+        }
+
+        let totalCalls = await network.callCount
+        XCTAssertEqual(totalCalls, 1)
+    }
+
     func testMonitorServiceRunsForcedSuccessorAfterNormalInFlightFailure() async throws {
         let network = FirstRequestControlledNetworkManager(failFirstCall: true)
         let service = MonitorService(network: network, cacheTTL: 0, minInterval: 0)
@@ -312,6 +336,30 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(forcedInfos.first?.id, "traffic-2")
         XCTAssertEqual(coalescedForcedInfos.first?.id, "traffic-2")
         XCTAssertEqual(cachedInfos.first?.id, "traffic-2")
+    }
+
+    func testTrafficInfoListDoesNotRunForcedSuccessorForCancelledCaller() async throws {
+        let network = FirstRequestControlledNetworkManager()
+        let service = MonitorService(network: network, cacheTTL: 30, minInterval: 0)
+
+        let background = Task { try await service.trafficInfoList() }
+        await network.waitUntilCallCount(1)
+        let forced = Task { try await service.trafficInfoList(forceRefresh: true) }
+        forced.cancel()
+        await network.releaseFirstCall()
+
+        _ = try await background.value
+        do {
+            _ = try await forced.value
+            XCTFail("A cancelled caller must not receive data or start a forced successor")
+        } catch is CancellationError {
+            // Expected: the abandoned refresh no longer owns network work.
+        } catch {
+            XCTFail("Expected CancellationError, got \(error)")
+        }
+
+        let totalCalls = await network.callCount
+        XCTAssertEqual(totalCalls, 1)
     }
 
     func testTrafficInfoListFallsBackToStaleCache() async throws {

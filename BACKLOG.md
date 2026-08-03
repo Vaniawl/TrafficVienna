@@ -14,11 +14,11 @@
 - [x] **REQ-TV-005 — Performance.** Requests remain coalesced/cancellable and
   formatter creation was removed from the widget body. Settled iPad Simulator
   sampling measured 0.0% CPU in five observations.
-- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 197 tests, static
+- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 199 tests, static
   analysis, localisation extraction, repository validators, and diff checks
-  pass. Hosted Quality run `30781954511` installed the pinned OpenCode CLI and
+  pass. Hosted Quality run `30783001019` installed the pinned OpenCode CLI and
   completed the full `scripts/ci.sh` wrapper successfully on exact published head
-  `c147d430`; the live draft-PR check remains authoritative for every later
+  `538334e3`; the live draft-PR check remains authoritative for every later
   documentation or workflow commit.
 - [x] **REQ-TV-007 — Review-ready state.** Architecture/security findings and
   documentation are resolved; the reviewed branch is maintained in draft PR #15.
@@ -55,7 +55,8 @@
 - [x] Preserve forced-refresh intent at the shared `MonitorService` boundary:
   forced station and traffic-info callers behind regular work receive one serial
   successor, equivalent forced callers coalesce, failed regular work cannot
-  suppress the successor, and generation-guarded cleanup preserves its cache.
+  suppress the successor, generation-guarded cleanup preserves its cache, and a
+  cancelled caller cannot create an abandoned successor or receive stale fallback.
 - [x] Serialize Nearby refresh ownership, preserve a queued manual force refresh,
   and hand the latest location request to a surviving caller when SwiftUI cancels
   the previous location task.
@@ -127,13 +128,13 @@
 
 ## Final validation and handoff
 
-- [x] Full iPhone 17 build and test suite: 192 model/service + 5 UI tests.
+- [x] Full iPhone 17 build and test suite: 194 model/service + 5 UI tests.
 - [x] Static analyzer and repository/OpenCode structural validators.
 - [x] English/German compiler-extraction catalogue comparison.
 - [x] `git diff --check`, security scan, and changed-file review.
 - [x] Synchronize `STATUS.md`, root/memory journals, and architectural decisions.
 - [x] Run `bash scripts/ci.sh` with the required OpenCode runtime: hosted
-  Quality run `30781954511` passed exact published head `c147d430`.
+  Quality run `30783001019` passed exact published head `538334e3`.
   The local host still lacks that global CLI, so local wrapper attempts stop at
   the permission matcher and the live protected PR check remains authoritative
   after any later publication.

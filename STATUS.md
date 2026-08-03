@@ -6,7 +6,7 @@
 - Stack: native SwiftUI iOS application, widget extension, XCTest, and XCUITest.
 - Current phase: continued reliability improvements on the existing draft PR.
 - Product shell: Home, Discover, Alerts, and Saved; accounts are out of scope.
-- Verified tests: 197/197 pass on iPhone 17 Simulator (192 model/service tests
+- Verified tests: 199/199 pass on iPhone 17 Simulator (194 model/service tests
   and 5 UI tests), with zero failures or skips. App and widget build successfully.
 - Verified visual coverage: four journeys and key secondary surfaces were
   exercised on iPhone 17; Home, Station Detail, and reminder management were
@@ -47,6 +47,8 @@
   receives one serial forced successor even when the regular request fails;
   equivalent forced callers still coalesce, cache publication completes before
   the tracked task resolves, and an older waiter cannot erase a newer successor.
+  A cancelled caller now exits before creating that successor, and cancellation
+  is no longer converted into stale-cache success.
   Reminder management now has one MainActor-owned state model: overlapping system
   snapshots coalesce, deletion/cancel-all revisions reject older snapshots, and
   cancelled loads cannot publish late state or restore removed reminders. Widget
@@ -72,9 +74,9 @@
 - Infrastructure limitation: `bash scripts/ci.sh` reaches the permission matcher
   and exits 127 because the required global `opencode` CLI is not installed.
   The reliability script's Python and timeout fixtures pass before the same
-  missing-tool boundary. Hosted Quality run `30781954511` supplied the pinned CLI
+  missing-tool boundary. Hosted Quality run `30783001019` supplied the pinned CLI
   and passed the complete wrapper at exact published head
-  `c147d430f53f2932da99932d5c2bb49a35f39b13`.
+  `538334e3c08320794a524be067b5f87fa0470509`.
 - Handoff: draft PR #15 tracks `codex/system-surfaces-readiness` against protected
   `main`. The live PR head/check is authoritative for remote parity because a
   static state snapshot cannot record the CI result of the commit containing

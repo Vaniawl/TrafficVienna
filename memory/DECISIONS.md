@@ -39,15 +39,19 @@ a forced caller encounters a regular request, it awaits that request without
 cancelling its waiters, then starts or joins exactly one serial forced successor,
 even if the regular request failed. Complete the cache write inside the tracked
 task before publishing its snapshot, and clear an entry only when its generation
-still matches so an older waiter cannot erase a newer successor.
+still matches so an older waiter cannot erase a newer successor. Check caller
+cancellation before creating any new tracked request, including the serial
+successor, and propagate `CancellationError` past stale-cache fallback.
 
 **Consequences:** Manual refresh can no longer be satisfied by lower-intent
 background work: it either joins equivalent forced work or receives a successor
 initiated after the regular request. Concurrent forced callers still coalesce,
-requests do not run in parallel, and the existing shared throttle, retry,
-stale-cache, and request-budget policies remain authoritative. Public provider
-protocols, endpoints, cache schemas, persistence, dependencies, and UI stay
-unchanged. Rollback is a normal revert with no migration.
+requests do not run in parallel, and an abandoned caller cannot spend request
+budget on a successor or receive stale data as a successful cancellation result.
+The existing shared throttle, retry, stale-cache policy for real failures, and
+request-budget policies remain authoritative. Public provider protocols,
+endpoints, cache schemas, persistence, dependencies, and UI stay unchanged.
+Rollback is a normal revert with no migration.
 
 ## 2026-08-03 — Station Detail favourite state is repository-derived
 

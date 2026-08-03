@@ -1,5 +1,23 @@
 # Journal
 
+## 2026-08-03 - Cancelled refreshes do not create forced successors
+
+- Reproduced that a cancelled station or traffic-info force-refresh waiting
+  behind regular work still started a serial network successor. Both deterministic
+  regressions failed before the service fix.
+- `MonitorService` now checks caller cancellation before creating tracked network
+  work, including the recursive successor, and propagates `CancellationError`
+  instead of converting it into stale-cache success. Live forced callers still
+  receive exactly one coalesced successor.
+- The focused old/new concurrency suite passes 4/4; the authoritative iPhone 17
+  `.xcresult` reports 199/199 with zero failures or skips. Exact build, Xcode
+  Analyze, repository/OpenCode validators, shell syntax, catalogue values,
+  scoped security/dependency review, and whitespace checks pass.
+- The local CI wrapper reaches only the known missing global `opencode` CLI
+  boundary after its Python/timeout fixtures pass. No pixels or copy changed, so
+  existing inspected screenshots remain representative; the published commit
+  still requires its own protected Quality run.
+
 ## 2026-08-03 - Fresh `now` widget departures leave on time
 
 - Reproduced that both the direct widget API path and app sync can store a fresh
