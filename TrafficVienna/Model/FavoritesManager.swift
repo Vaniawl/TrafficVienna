@@ -14,6 +14,7 @@ extension Notification.Name {
 protocol FavoritesRepository: Sendable {
     func isFavorite(diva: String, lineName: String, destination: String) -> Bool
     func toggle(diva: String, lineName: String, destination: String)
+    func remove(diva: String, lineName: String, destination: String)
     func getAll() -> [FavoriteRoute]
     func removeAll()
 }
@@ -46,6 +47,13 @@ nonisolated final class UserDefaultsFavoritesRepository: FavoritesRepository {
         } else {
             set.insert(fav)
         }
+        save(set)
+    }
+
+    func remove(diva: String, lineName: String, destination: String) {
+        var set = load()
+        let favorite = FavoriteRoute(diva: diva, lineName: lineName, destination: destination)
+        guard set.remove(favorite) != nil else { return }
         save(set)
     }
     

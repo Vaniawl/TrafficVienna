@@ -13,7 +13,10 @@ nonisolated struct WidgetDepartureData: Codable, Equatable, Sendable {
     let stopName: String
     let destination: String
     let departures: [Int]
+    /// Anchor used to project countdowns between timeline entries.
     let fetchedAt: Date?
+    /// Actual freshness of the underlying transport response.
+    let dataUpdatedAt: Date?
 
     init(
         diva: String? = nil,
@@ -21,7 +24,8 @@ nonisolated struct WidgetDepartureData: Codable, Equatable, Sendable {
         stopName: String,
         destination: String,
         departures: [Int],
-        fetchedAt: Date? = nil
+        fetchedAt: Date? = nil,
+        dataUpdatedAt: Date? = nil
     ) {
         self.diva = diva
         self.lineName = lineName
@@ -29,6 +33,7 @@ nonisolated struct WidgetDepartureData: Codable, Equatable, Sendable {
         self.destination = destination
         self.departures = departures
         self.fetchedAt = fetchedAt
+        self.dataUpdatedAt = dataUpdatedAt
     }
 }
 
@@ -45,6 +50,21 @@ nonisolated struct WidgetRouteKey: Hashable, Sendable {
         self.diva = diva
         self.lineName = lineName
         self.destination = destination
+    }
+}
+
+nonisolated enum WidgetRouteEntityResolution {
+    static func routes(
+        for identifiers: [String],
+        availableRoutes: [FavoriteRoute]
+    ) -> [FavoriteRoute] {
+        let routesByID = Dictionary(
+            availableRoutes.map { ($0.stableID, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+        return identifiers.compactMap {
+            routesByID[$0]
+        }
     }
 }
 
@@ -99,9 +119,110 @@ nonisolated enum WidgetCountdownProjection {
                 stopName: item.stopName,
                 destination: item.destination,
                 departures: departures,
-                fetchedAt: item.fetchedAt
+                fetchedAt: item.fetchedAt,
+                dataUpdatedAt: item.dataUpdatedAt
             )
         }
+    }
+}
+
+nonisolated enum WidgetFreshness {
+    static func displayedUpdatedAt(
+        items: [WidgetDepartureData],
+        fallback: Date?
+    ) -> Date? {
+        let rowDates = items.compactMap { item in
+            item.dataUpdatedAt ?? item.fetchedAt
+        }
+        guard rowDates.count == items.count else {
+            return fallback
+        }
+        return rowDates.min()
+    }
+
+    static func elapsedWholeMinutes(
+        since lastUpdated: Date,
+        at entryDate: Date
+    ) -> Int {
+        max(0, Int(entryDate.timeIntervalSince(lastUpdated) / 60))
+    }
+}
+
+nonisolated enum WidgetSnapshotContent: Equatable, Sendable {
+    case placeholder
+    case empty
+    case items
+}
+
+nonisolated enum WidgetSnapshotPolicy {
+    static func content(
+        hasItems: Bool,
+        isPreview: Bool
+    ) -> WidgetSnapshotContent {
+        if hasItems {
+            return .items
+        }
+        return isPreview ? .placeholder : .empty
+    }
+}
+
+nonisolated enum WidgetRefreshThrottle {
+    static func attemptKey(
+        baseKey: String,
+        routes: [FavoriteRoute]
+    ) -> String {
+        let canonicalSelection = Set(routes.map(\.stableID))
+            .sorted()
+            .joined(separator: ";")
+        let encodedSelection = Data(canonicalSelection.utf8).base64EncodedString()
+        return "\(baseKey).\(encodedSelection)"
+    }
+
+    static func shouldFetch(
+        routes: [FavoriteRoute],
+        lastAttempt: Date?,
+        refreshRequestedAt: Date?,
+        now: Date,
+        minimumInterval: TimeInterval = 300
+    ) -> Bool {
+        guard !routes.isEmpty else { return false }
+        let lastAttempt = lastAttempt ?? .distantPast
+        let hasManualRefresh = refreshRequestedAt.map { $0 > lastAttempt } ?? false
+        return hasManualRefresh || now.timeIntervalSince(lastAttempt) >= minimumInterval
+    }
+}
+
+nonisolated enum WidgetTimelineSchedule {
+    static func entryDates(
+        now: Date,
+        refreshDate: Date,
+        items: [WidgetDepartureData],
+        fallbackUpdatedAt: Date?
+    ) -> [Date] {
+        var dates = Set([now, refreshDate])
+
+        for item in items {
+            let sourceDate = min(
+                item.fetchedAt ?? fallbackUpdatedAt ?? now,
+                now
+            )
+
+            for minutes in item.departures.prefix(3) where minutes >= 0 {
+                let departureDate = sourceDate.addingTimeInterval(
+                    TimeInterval(minutes * 60)
+                )
+                let removalDate = departureDate.addingTimeInterval(60)
+
+                if departureDate > now, departureDate < refreshDate {
+                    dates.insert(departureDate)
+                }
+                if removalDate > now, removalDate < refreshDate {
+                    dates.insert(removalDate)
+                }
+            }
+        }
+
+        return dates.sorted()
     }
 }
 

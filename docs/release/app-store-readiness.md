@@ -1,6 +1,6 @@
 # App Store readiness
 
-Status date: 29 July 2026
+Status date: 3 August 2026
 
 Current verdict: **No-Go** until every blocking item below has observed evidence.
 This file is intentionally stricter than a successful Simulator build.
@@ -44,20 +44,146 @@ A `Go` requires:
 - The account-only Apple identity surface and entitlement were removed because
   they provided no cross-device feature and prevented the installed profile from
   archiving. A one-time migration deletes the legacy device-only Keychain item.
-- All 108 XCTest cases pass with zero failures or skips. The cleanup migration is
-  covered for success, missing-item, and retry-after-failure paths.
+- All 217 tests pass with zero failures or skips, including five XCUITest
+  journeys through the four-tab shell, Discover map entry, alert filters, Saved,
+  search-to-station navigation, and cross-tab favourite reconciliation. Local
+  reminder planning/decoding, idempotent
+  route replacement and legacy cleanup, notification denial recovery, Live
+  Activity update/stop behavior, widget departure-boundary scheduling, stale
+  countdown prevention, permission-prompt expiry, and ActivityKit state
+  restoration have regression coverage. Destructive Saved-route removal is
+  idempotent, so stale UI state cannot restore an already-removed route. Location
+  revocation/reset clears cached precise coordinates, and Map ignores stale
+  coordinates without authorization.
+  Nearby station-card route summaries are deduplicated and bounded to four badges
+  at standard sizes or two at accessibility sizes, retain the hidden count, and
+  move distance/freshness metadata below the station identity at accessibility
+  Dynamic Type so the header keeps usable width.
+  An authorized one-shot location failure now exposes a retry action on Home,
+  clears the error on the next request, and keeps retained useful coordinates
+  visible during a transient refresh failure.
+  Widget snapshot policy keeps example departures inside Gallery previews and
+  uses the real empty state when a runtime snapshot has no selected or cached data.
+  Saved-route reload coverage proves that an overlapping repository change queues
+  one current pass even before notification delivery, preserves an explicit forced
+  refresh, and blocks an obsolete pass from republishing removed data to the UI or
+  widget. Targeted row retries use the same serialized owner, cannot be overwritten
+  by an older polling result, and are subsumed by a queued forced full refresh.
+  Cancellation still prevents publication and any queued follow-up or retry.
+  Station Detail and Alerts also queue one explicit forced refresh behind active
+  polling, suppress the obsolete pass and its error, and drop the queued follow-up
+  when the owning task is cancelled. Station Detail also clears a selected
+  transport category when a successful snapshot no longer contains it, while
+  preserving valid filters and retained-data failure states. Alerts now enforces
+  the same successful-feed invariant and includes the active transport category
+  in its visible summary, while preserving valid filters and retained-data
+  failures. Nearby likewise
+  serializes overlapping polling, location changes, and pull-to-refresh; the latest
+  location and strongest force intent win, cancelled work cannot mark retained
+  departures failed, and a surviving location task explicitly takes ownership.
+  A successful empty Alerts feed is now an explicit retained snapshot: a failed
+  refresh keeps it loaded, labels it as saved empty data, exposes retry, and does
+  not claim that the current live network state is all clear.
+  Station Detail uses the same invariant for a successful response with no
+  departures: a later failed refresh retains the known empty snapshot, labels its
+  saved provenance, and exposes retry. A response containing station traffic
+  alerts but no departures remains loaded so those alerts stay visible.
+  Root navigation regression
+  coverage proves that external Home, Discover, and Saved destinations clear only
+  their target stack, notification routing replaces Discover with one resolved
+  station, and ordinary tab changes preserve their paths.
+  Station Detail favourite coverage proves that repository changes made from a
+  different tab refresh both station and route state and that a stale local route
+  cache cannot invert the displayed result after the next toggle. Paired iPhone
+  17 screenshots show the filled Schwedenplatz star before Saved removal and the
+  cleared star after returning to the preserved Discover stack.
+  Shared-service refresh coverage proves that forced station and traffic-info
+  requests behind regular work receive exactly one serial successor, concurrent
+  forced callers coalesce, a failed regular request cannot suppress manual
+  refresh, and the successor remains the authoritative cached result. Cancelled
+  callers propagate cancellation without starting an abandoned successor or
+  converting it into stale-cache success.
+  Widget freshness coverage separates countdown projection time from transport
+  source time, uses the oldest source across visible mixed rows, persists that
+  value through App Group sync, and proves both legacy-payload reads and rollback
+  decoding of the optional field. Widget fetch throttling is keyed by the
+  canonical selected-route set, so a recent request for one configuration cannot
+  suppress another configuration's initial fetch; empty selections do not claim
+  refresh budget, and manual refresh still bypasses a recent scoped attempt.
+  AppEntity restoration preserves the system-provided identifier order for
+  multi-route configurations and omits routes that are no longer available.
+  App-side sync persists every available Saved route in the shared App Group
+  cache, so a route selected by a separate widget configuration cannot lose its
+  cached departures merely because it follows the first three Saved routes.
+  Widget families still present only one or three routes, and each cached route
+  still contains at most three departures.
+  Timeline scheduling covers all three departures that the widget can render per
+  route, including a removal entry one minute after the third departure and
+  before the five-minute refresh deadline. Departure and removal boundaries are
+  independent, so an older cached departure already projected as `now` still
+  receives its future removal entry. Fresh API and app-synced departures delivered
+  as `0` also receive a one-minute removal entry instead of lingering until the
+  network refresh.
+  The app now applies the same one-minute `now` grace through an optional shared
+  projection. Real/planned timestamps expire by their absolute boundary, while
+  timestamp-free countdowns use the monitor snapshot time; expired rows cannot
+  remain featured or be re-synced to the widget as fresh countdowns.
 - iPhone 17 Pro Max and iPad Pro 13-inch runtime builds complete without
   diagnostics. English, German, location-denied, live-data, Favourites, and
   maximum Accessibility Dynamic Type paths were exercised.
+- iPhone 17 warm-link acceptance reproduced an open Stephansplatz detail surviving
+  `trafficvienna://search` on the previous implementation, then verified and
+  captured the corrected Discover root after the navigation-path fix.
+- iPhone 17 audit screenshots capture Home's retryable location failure in light
+  and dark appearance and the recovered live Stephansplatz departures after a
+  successful Vienna location request; the inspected cards and controls are not
+  clipped at the standard content size.
+- A current 368×800 Alerts audit capture shows the live U3 notice with the U-Bahn
+  filter selected. The visible `For you · Service · U-Bahn` summary and matching
+  result persist after pull-to-refresh without clipping or a hidden stale filter.
+- A second current 368×800 Alerts capture verifies the corrected build's unfiltered
+  live feed after refresh: both U3 notices, search, filter control, and tab state
+  remain reachable without clipping. The saved-empty failure state is verified by
+  deterministic model/UI-state regression coverage rather than a mutable live feed.
+- A current 368×800 Station Detail capture verifies Stephansplatz still presents
+  both service alerts above its live departures after the station empty-snapshot
+  correction. Deterministic regressions cover the saved-empty and alert-only
+  response states rather than relying on mutable live service availability.
+- A current 368×800 Home acceptance observed a delayed U3 remain eligible while
+  Wiener Linien moved its live timestamp, then verified the featured card advanced
+  to U1 when U3 left the visible window. The final screenshot and accessibility
+  tree both report U1 to Leopoldau in one minute without clipping.
+- Final iPhone 17 inspection also captures the Stephansplatz route summary as
+  `1A 2A 3A U1 +1` at standard size and `1A 2A +3` at maximum accessibility
+  Dynamic Type. The runtime accessibility tree exposes `Additional lines: 3`,
+  and the vertical large-text header keeps distance and freshness readable.
 - Xcode detects an available physical `iPhone18,2` on iOS 26.5.2. A Release
   device build selects the expected development identity and widget provisioning
   profile, compiles successfully to the signing phase, and reproduces the same
   non-interactive Keychain error at widget `codesign`.
-- Ten localized 6.9-inch screenshots are prepared at 1320×2868 JPEG with no
-  alpha: Nearby, Station Detail, Map, Alerts, and Favourites in both `en-US`
-  and `de-AT`.
+- Ten current localized 6.9-inch screenshots are prepared at 1320×2868 JPEG with
+  no alpha: Home, Station Detail, Discover Map, Alerts, and Saved in both `en-US`
+  and `de-AT`. The final pass reduced map density and recaptured both localized
+  Map frames.
+- All six widget families compile with explicit previews. Simulator acceptance
+  rendered small, medium, and large Home Screen widgets in light mode, large in
+  dark mode, a circular Lock Screen widget, and the Lock Screen Live Activity.
+  Countdown boundary scheduling, adaptive one-route layouts, and unclipped
+  freshness labels were observed; physical/TestFlight acceptance remains a gate.
+- A controlled Home Screen fixture reproduced legacy cached departures reporting
+  only the recent projection age, then verified that the corrected medium widget
+  reported the roughly 23-minute transport-source age while its countdown kept
+  updating. This is Simulator evidence only; production background refresh still
+  remains in the physical/TestFlight gate.
+- A second controlled fixture rendered an older cached N38 departure as `now`,
+  then removed it 34 seconds later without waiting for the five-minute network
+  refresh. Live N38 data was fetched and visually confirmed after cleanup.
+- One-shot coalesced location requests replace continuous tracking. The redesigned
+  station detail reaches a settled UI state; eight idle Debug Simulator process
+  samples measured 0.0% CPU after removing its repeating pulse and 30-second
+  refresh cadence.
 - App Store metadata copy is within Apple’s field limits: subtitles 23/21
-  characters, promotional text 129/126, descriptions 1106/1345, and keywords
+  characters, promotional text 129/126, descriptions 1125/1355, and keywords
   80/72 for English/German.
 - Release-readiness PR #10 and stacked product PR #9 are merged at release code
   integration commit `52009857a361e0a3c138c4cbded380034dc48f16`. That
@@ -65,6 +191,14 @@ A `Go` requires:
   with the pinned OpenCode checks, repository validation, build, tests, and
   final diff check. Later evidence-only documentation commits do not alter the
   inspected app sources or binaries.
+- The continued audit remains unmerged in draft PR #15. Its exact published head
+  `ad3a5e94f550082e92f82c1ab7751aa84cf34ae0` passed protected Quality run
+  `30808174894`, including the pinned OpenCode CLI, repository validation,
+  app/widget build, the then-current 215-test suite, and the final diff check. The
+  later local Station Detail saved-empty slice passes 217/217 tests and Xcode
+  Analyze; compiler extraction reports 243 app and 29 widget source keys covered
+  by the committed 272/35-key catalogues. Its own protected check remains required
+  after publication.
 - `main` now requires pull requests and a strict successful `validate` check.
   Conversation resolution is required, admin enforcement is enabled, and force
   pushes and branch deletion are disabled.
@@ -83,7 +217,7 @@ A `Go` requires:
 | Distribution signing | The old Sign in with Apple profile mismatch is gone. Both signed archive and connected-device Release build select the expected identity/profiles and reach widget signing, but the login Keychain rejects non-interactive private-key access with `errSecInternalComponent`. | Grant `codesign` access to the private key in an interactive trusted session, then produce and inspect one clean signed archive. |
 | App Store Connect | Xcode provisioning access works for team `KZNP8PH94C`, but its distribution logs report no local account with App Store Connect access for that team. No browser or API-key session is available. | Authenticate an App Store Connect account or API key for the team, then confirm bundle ID registration, app record, agreements, roles, version/build uniqueness, privacy answers, age rating, categories, availability, and review contact. |
 | Store assets | Metadata and ten technically valid localized 6.9-inch screenshots are prepared locally. | Attach them to the App Store version and verify the final locale/order in App Store Connect. |
-| System-surface acceptance | Simulator coverage cannot prove production Apple signing, physical-device location, widget refresh, Dynamic Island, or Live Activity behavior. | Install a signed/TestFlight build on a supported physical device and complete the release smoke path. |
+| System-surface acceptance | Simulator coverage cannot prove production Apple signing, physical-device location, notification delivery, widget refresh/configuration, Dynamic Island, or Live Activity behavior. | Install a signed/TestFlight build on a supported physical device and complete the release smoke path, including local departure reminders. |
 | Apple processing | No build has been uploaded. | Upload only after explicit release approval; wait for processing, inspect warnings/privacy report, then run internal TestFlight smoke. |
 
 ## Repeatable evidence commands

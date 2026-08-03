@@ -5,7 +5,7 @@ struct DisruptionsView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        Group {
+        ZStack {
             switch viewModel.state {
             case .loading:
                 ProgressView("Loading alerts…")
@@ -22,30 +22,43 @@ struct DisruptionsView: View {
                 }
 
             case .loaded where viewModel.infos.isEmpty:
-                ContentUnavailableView(
-                    "All clear",
-                    systemImage: "checkmark.circle.fill",
-                    description: Text("All lines are running normally.")
-                )
+                if viewModel.isShowingSavedData {
+                    ContentUnavailableView {
+                        Label(
+                            "No alerts in saved data",
+                            systemImage: "clock.badge.exclamationmark"
+                        )
+                    } description: {
+                        VStack(spacing: Spacing.sm) {
+                            Text("The last successful update contained no service alerts.")
+                            if let message = viewModel.refreshErrorMessage {
+                                Text(message)
+                                    .font(.footnote)
+                            }
+                        }
+                    } actions: {
+                        Button("Try again", systemImage: "arrow.clockwise", action: retry)
+                            .buttonStyle(.borderedProminent)
+                    }
+                    .accessibilityIdentifier("alerts.saved-empty")
+                } else {
+                    ContentUnavailableView(
+                        "All clear",
+                        systemImage: "checkmark.circle.fill",
+                        description: Text("All lines are running normally.")
+                    )
+                }
 
             case .loaded:
                 DisruptionsList(viewModel: viewModel)
             }
         }
-        .id(viewModel.state)
         .transition(Motion.stateTransition(reduceMotion: reduceMotion))
         .navigationTitle("Alerts")
         .navigationDestination(for: TrafficInfo.self, destination: DisruptionDetailView.init)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button("Refresh alerts", systemImage: "arrow.clockwise", action: refresh)
-                    .labelStyle(.iconOnly)
-                    .disabled(viewModel.isLoadingRequest)
-            }
-        }
         .searchable(
             text: $viewModel.lineFilter,
-            placement: .navigationBarDrawer(displayMode: .always),
+            placement: .automatic,
             prompt: "Search line or alert"
         )
         .refreshable {
@@ -53,12 +66,6 @@ struct DisruptionsView: View {
         }
         .background(DesignColor.background)
         .animation(Motion.quick(reduceMotion: reduceMotion), value: viewModel.state)
-    }
-
-    private func refresh() {
-        Task {
-            await viewModel.load(force: true)
-        }
     }
 
     private func retry() {

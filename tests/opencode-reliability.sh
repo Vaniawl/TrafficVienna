@@ -97,6 +97,30 @@ for phrase in [
     if phrase not in state_doc_compact:
         raise AssertionError(f"state-files.md missing phrase: {phrase}")
 
+root_state_files = [
+    "PROJECT.md",
+    "SPEC.md",
+    "STATUS.md",
+    "BACKLOG.md",
+    "CHECKS.md",
+    "RESTRICTIONS.md",
+    "SECURITY.md",
+    "DECISIONS.md",
+    "JOURNAL.md",
+]
+for path in root_state_files:
+    if not (root / path).is_file():
+        raise AssertionError(f"missing root audit state: {path}")
+    if f"`{path}`" not in state_doc:
+        raise AssertionError(f"state-files.md does not register root state: {path}")
+
+agents_rules = (root / "AGENTS.md").read_text(encoding="utf-8")
+if "For broad product, audit, or release work" not in agents_rules:
+    raise AssertionError("AGENTS.md missing conditional root-state routing")
+for path in root_state_files:
+    if f"`{path}`" not in agents_rules:
+        raise AssertionError(f"AGENTS.md does not route root audit state: {path}")
+
 required_fields = [
     "Task ID",
     "Goal",

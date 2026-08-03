@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ServiceStatusCard: View {
     let status: ServiceDashboardStatus
+    var isPersonalized = false
     let action: () -> Void
 
     var body: some View {
@@ -72,9 +73,13 @@ struct ServiceStatusCard: View {
         case .loading:
             String(localized: "Checking service status…")
         case .allClear:
-            String(localized: "All lines are running normally.")
+            isPersonalized
+                ? String(localized: "Your saved lines are running normally.")
+                : String(localized: "All lines are running normally.")
         case .alerts(let count, _):
-            String(localized: "Service alerts: \(count)")
+            isPersonalized
+                ? String(localized: "Alerts on saved lines: \(count)")
+                : String(localized: "Service alerts: \(count)")
         case .unavailable:
             String(localized: "Alerts unavailable")
         }
@@ -120,7 +125,7 @@ struct ServiceStatusCard: View {
 }
 
 #Preview("Service alerts") {
-    ServiceStatusCard(status: .alerts(count: 3, isSaved: true), action: {})
+    ServiceStatusCard(status: .alerts(count: 3, isSaved: true), isPersonalized: true, action: {})
         .padding()
         .background(DesignColor.background)
 }

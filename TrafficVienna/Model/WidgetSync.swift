@@ -50,7 +50,14 @@ nonisolated final class WidgetSyncManager: WidgetSyncing {
         }
 
         storage.set(encoded, forKey: dataKey)
-        storage.set(Date(), forKey: lastUpdatedKey)
+        if let updatedAt = WidgetFreshness.displayedUpdatedAt(
+            items: data,
+            fallback: nil
+        ) {
+            storage.set(updatedAt, forKey: lastUpdatedKey)
+        } else {
+            storage.removeObject(forKey: lastUpdatedKey)
+        }
 
         WidgetCenter.shared.reloadTimelines(ofKind: widgetKind)
 

@@ -17,7 +17,13 @@ struct PrivacyPolicyView: View {
 
             Section("On-device data") {
                 Text(
-                    "Favourites, recent searches, onboarding state, and widget preferences stay on your device or in the app’s shared widget container."
+                    "Favourites, recent searches, onboarding state, widget preferences, and departure reminders stay on your device or in the app’s shared widget container."
+                )
+            }
+
+            Section("Notifications") {
+                Text(
+                    "If you create a departure reminder, Traffic Vienna asks iOS to deliver a local notification on this device. Reminder details are not sent to Traffic Vienna or to a push-notification server. You can cancel reminders in the app or revoke notification access in Settings."
                 )
             }
 
@@ -29,7 +35,7 @@ struct PrivacyPolicyView: View {
 
             Section("Your choices") {
                 Text(
-                    "You can remove favourites and recent searches in the app. Deleting the app removes its local app and widget data."
+                    "You can remove favourites, recent searches, and departure reminders in the app. Deleting the app removes its local app and widget data."
                 )
             }
 
@@ -44,7 +50,7 @@ struct PrivacyPolicyView: View {
             }
 
             Section {
-                Text("Last updated: 29 July 2026")
+                Text("Last updated: 30 July 2026")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }

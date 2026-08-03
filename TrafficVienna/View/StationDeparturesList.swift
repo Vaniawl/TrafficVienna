@@ -4,6 +4,9 @@ struct StationDeparturesList: View {
     @Bindable var viewModel: StationDetailViewModel
 
     var body: some View {
+        let availableCategories = viewModel.availableCategories
+        let groups = viewModel.groups
+
         List {
             if let message = viewModel.refreshErrorMessage {
                 Label(message, systemImage: "exclamationmark.arrow.trianglehead.2.clockwise.rotate.90")
@@ -14,17 +17,24 @@ struct StationDeparturesList: View {
 
             if !viewModel.trafficInfos.isEmpty {
                 Section("Service alerts") {
-                    ForEach(viewModel.trafficInfos) { info in
+                    if viewModel.trafficInfos.count == 1,
+                       let info = viewModel.trafficInfos.first {
                         NavigationLink(value: info) {
                             DisruptionRow(info: info)
+                        }
+                    } else {
+                        NavigationLink {
+                            StationAlertsView(infos: viewModel.trafficInfos)
+                        } label: {
+                            StationAlertsSummaryRow(infos: viewModel.trafficInfos)
                         }
                     }
                 }
             }
 
-            if viewModel.availableCategories.count > 1 {
+            if availableCategories.count > 1 {
                 FilterChips(
-                    categories: viewModel.availableCategories,
+                    categories: availableCategories,
                     selection: $viewModel.categoryFilter
                 )
                 .listRowInsets(EdgeInsets(top: Spacing.xs, leading: 0, bottom: Spacing.xs, trailing: 0))
@@ -32,28 +42,39 @@ struct StationDeparturesList: View {
             }
 
             Section("Departures") {
-                if viewModel.groups.isEmpty {
-                    ContentUnavailableView(
-                        "No matching departures",
-                        systemImage: "line.3.horizontal.decrease.circle",
-                        description: Text("Choose another transport type.")
-                    )
-                    .listRowBackground(Color.clear)
+                if groups.isEmpty {
+                    if viewModel.categoryFilter == nil {
+                        ContentUnavailableView(
+                            "No departures",
+                            systemImage: "tram",
+                            description: Text("Nothing is scheduled right now.")
+                        )
+                        .listRowBackground(Color.clear)
+                    } else {
+                        ContentUnavailableView(
+                            "No matching departures",
+                            systemImage: "line.3.horizontal.decrease.circle",
+                            description: Text("Choose another transport type.")
+                        )
+                        .listRowBackground(Color.clear)
+                    }
                 } else {
-                    ForEach(viewModel.groups) { group in
+                    ForEach(groups) { group in
                         StationDepartureRow(viewModel: viewModel, group: group)
                     }
                 }
             }
-        }
-        .listStyle(.insetGrouped)
-        .safeAreaInset(edge: .bottom) {
+
             if let lastUpdated = viewModel.lastUpdated {
                 StationFreshnessBar(
                     lastUpdated: lastUpdated,
                     isStale: viewModel.refreshErrorMessage != nil
                 )
+                .frame(maxWidth: .infinity, alignment: .center)
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
             }
         }
+        .listStyle(.insetGrouped)
     }
 }

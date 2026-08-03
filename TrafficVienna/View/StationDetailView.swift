@@ -1,6 +1,8 @@
 import SwiftUI
+import UIKit
 
 struct StationDetailView: View {
+    @Environment(\.openURL) private var openURL
     @State private var viewModel: StationDetailViewModel
 
     init(station: Station) {
@@ -25,11 +27,36 @@ struct StationDetailView: View {
                 }
 
             case .empty:
-                ContentUnavailableView(
-                    "No departures",
-                    systemImage: "tram",
-                    description: Text("Nothing is scheduled right now.")
-                )
+                if viewModel.isShowingStaleData {
+                    ContentUnavailableView {
+                        Label(
+                            "No departures in saved data",
+                            systemImage: "clock.badge.exclamationmark"
+                        )
+                    } description: {
+                        VStack(spacing: Spacing.sm) {
+                            Text("The last successful update contained no upcoming departures.")
+                            if let message = viewModel.refreshErrorMessage {
+                                Text(message)
+                                    .font(.footnote)
+                            }
+                        }
+                    } actions: {
+                        Button("Try again", systemImage: "arrow.clockwise", action: retry)
+                            .buttonStyle(.borderedProminent)
+                    }
+                    .accessibilityIdentifier("station-detail.saved-empty")
+                } else {
+                    ContentUnavailableView {
+                        Label("No departures", systemImage: "tram")
+                    } description: {
+                        Text("Nothing is scheduled right now.")
+                    } actions: {
+                        Button("Refresh departures", systemImage: "arrow.clockwise", action: retry)
+                            .buttonStyle(.bordered)
+                    }
+                    .accessibilityIdentifier("station-detail.empty")
+                }
 
             case .loaded:
                 StationDeparturesList(viewModel: viewModel)
@@ -39,7 +66,7 @@ struct StationDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(for: TrafficInfo.self, destination: DisruptionDetailView.init)
         .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button(
                     viewModel.isStationFavorited
                         ? "Remove station from favourites"
@@ -49,17 +76,22 @@ struct StationDetailView: View {
                 )
                 .labelStyle(.iconOnly)
                 .foregroundStyle(viewModel.isStationFavorited ? .yellow : .secondary)
-
-                Button("Refresh departures", systemImage: "arrow.clockwise", action: refresh)
-                    .labelStyle(.iconOnly)
-                    .disabled(viewModel.isLoadingRequest)
             }
         }
         .alert(item: $viewModel.notice) { notice in
-            Alert(
-                title: Text("Live Activity"),
-                message: Text(notice.message)
-            )
+            if notice.offersSettings {
+                Alert(
+                    title: Text(notice.title),
+                    message: Text(notice.message),
+                    primaryButton: .default(Text("Open Settings"), action: openSettings),
+                    secondaryButton: .cancel()
+                )
+            } else {
+                Alert(
+                    title: Text(notice.title),
+                    message: Text(notice.message)
+                )
+            }
         }
         .sensoryFeedback(.impact(weight: .light), trigger: viewModel.isStationFavorited)
         .sensoryFeedback(.success, trigger: viewModel.trackedDepartureID)
@@ -67,7 +99,7 @@ struct StationDetailView: View {
             await viewModel.load()
             while !Task.isCancelled {
                 do {
-                    try await Task.sleep(for: .seconds(30))
+                    try await Task.sleep(for: .seconds(60))
                 } catch {
                     break
                 }
@@ -77,15 +109,24 @@ struct StationDetailView: View {
         .refreshable {
             await viewModel.load(forceRefresh: true)
         }
+        .onReceive(NotificationCenter.default.publisher(for: .favoriteStationsDidChange)) { _ in
+            viewModel.reloadStationFavorite()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .favoriteRoutesDidChange)) { _ in
+            viewModel.reloadRouteFavorites()
+        }
         .background(DesignColor.background)
-    }
-
-    private func refresh() {
-        Task { await viewModel.load(forceRefresh: true) }
     }
 
     private func retry() {
         Task { await viewModel.load(forceRefresh: true) }
+    }
+
+    private func openSettings() {
+        guard let url = URL(string: UIApplication.openNotificationSettingsURLString) else {
+            return
+        }
+        openURL(url)
     }
 }
 

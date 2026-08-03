@@ -17,17 +17,30 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     @Published var userLocation: CLLocation?
     @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
     @Published var errorMessage: String?
-    
-    //say preview not to ask real location
-    private var isPreview: Bool {
-        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
-    }
-    
-    private let manager = CLLocationManager()
-    
+
+    private var isRequestInFlight = false
+
+    private let isPreview: Bool
+    private let manager: any LocationManaging
+
     override init() {
+        isPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+        manager = CLLocationManager()
         super.init()
-        
+        configure()
+    }
+
+    init(
+        manager: any LocationManaging,
+        isPreview: Bool = false
+    ) {
+        self.manager = manager
+        self.isPreview = isPreview
+        super.init()
+        configure()
+    }
+
+    private func configure() {
         guard !isPreview else {
             userLocation = CLLocation(latitude: 48.2082, longitude: 16.3738) // Відень
             authorizationStatus = .authorizedWhenInUse
@@ -44,28 +57,39 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
         case .notDetermined:
             manager.requestWhenInUseAuthorization()
         case .authorizedWhenInUse, .authorizedAlways:
-            manager.startUpdatingLocation()
+            requestCurrentLocation()
         default:
             break
         }
     }
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        authorizationStatus = manager.authorizationStatus
+        let status = self.manager.authorizationStatus
+        authorizationStatus = status
         
-        switch manager.authorizationStatus {
+        switch status {
         case .authorizedWhenInUse, .authorizedAlways:
-            manager.startUpdatingLocation()
+            requestCurrentLocation()
         case .denied, .restricted:
+            clearLocation()
             errorMessage = "Location access denied"
-        default:
-            break
+        case .notDetermined:
+            clearLocation()
+            errorMessage = nil
+        @unknown default:
+            clearLocation()
+            errorMessage = nil
         }
     }
     
     func locationManager(_ manager: CLLocationManager,
                          didUpdateLocations locations: [CLLocation]) {
         if isPreview { return }
+        isRequestInFlight = false
+        guard isLocationAuthorized else {
+            userLocation = nil
+            return
+        }
         guard let loc = locations.last else { return }
         userLocation = loc
         errorMessage = nil
@@ -74,10 +98,36 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     func locationManager(_ manager: CLLocationManager,
                          didFailWithError error: Error) {
         if let clError = error as? CLError, clError.code == .locationUnknown {
-            log.debug("locationUnknown, ignoring")
+            isRequestInFlight = false
+            errorMessage = String(localized: "Location unavailable")
+            log.debug("locationUnknown, exposing retry state")
             return
         }
 
+        isRequestInFlight = false
         errorMessage = error.localizedDescription
+    }
+
+    private func requestCurrentLocation() {
+        guard !isRequestInFlight else { return }
+        isRequestInFlight = true
+        errorMessage = nil
+        manager.requestLocation()
+    }
+
+    private func clearLocation() {
+        isRequestInFlight = false
+        userLocation = nil
+    }
+
+    private var isLocationAuthorized: Bool {
+        switch manager.authorizationStatus {
+        case .authorizedAlways, .authorizedWhenInUse:
+            true
+        case .notDetermined, .denied, .restricted:
+            false
+        @unknown default:
+            false
+        }
     }
 }

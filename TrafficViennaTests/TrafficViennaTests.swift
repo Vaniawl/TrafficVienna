@@ -131,17 +131,91 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(result, 2)
     }
 
-    func testLiveMinutesNeverNegative() {
-        let past = ISO8601DateFormatter().string(from: Date().addingTimeInterval(-60))
-        let result = DepartureClock.liveMinutes(realtime: nil, planned: past, fallback: 0)
+    func testLiveMinutesShowsNowDuringGracePeriod() {
+        let past = ISO8601DateFormatter().string(from: Date().addingTimeInterval(-30))
+        let result = DepartureClock.liveMinutes(realtime: nil, planned: past, fallback: 99)
         XCTAssertEqual(result, 0)
+    }
+
+    func testLiveMinutesExpiresAfterNowGracePeriod() {
+        let expired = ISO8601DateFormatter().string(from: Date().addingTimeInterval(-61))
+        let result = DepartureClock.liveMinutes(realtime: nil, planned: expired, fallback: 0)
+
+        XCTAssertNil(result)
+    }
+
+    func testLiveMinutesProjectsFallbackFromSnapshotTimestamp() {
+        let anchor = Date(timeIntervalSince1970: 10_000)
+        let result = DepartureClock.liveMinutes(
+            realtime: nil,
+            planned: nil,
+            fallback: 5,
+            anchoredAt: anchor,
+            now: anchor.addingTimeInterval(4 * 60)
+        )
+
+        XCTAssertEqual(result, 1)
+    }
+
+    func testLiveMinutesExpiresAnchoredFallbackAfterNowGracePeriod() {
+        let anchor = Date(timeIntervalSince1970: 10_000)
+        let result = DepartureClock.liveMinutes(
+            realtime: nil,
+            planned: nil,
+            fallback: 5,
+            anchoredAt: anchor,
+            now: anchor.addingTimeInterval(6 * 60)
+        )
+
+        XCTAssertNil(result)
+    }
+
+    func testLiveMinutesParsesWienerLinienTimezoneWithoutColon() {
+        let result = DepartureClock.liveMinutes(
+            realtime: "2026-08-03T12:18:30.000+0200",
+            planned: nil,
+            fallback: 99,
+            now: Date(timeIntervalSince1970: 1_785_752_010)
+        )
+
+        XCTAssertEqual(result, 5)
+    }
+
+    func testLiveActivityBecomesStaleAtDepartureAndEndsTwoMinutesLater() {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let departure = DepartureActivityLifecycle.departureDate(
+            minutes: 5,
+            now: now
+        )
+        let staleDate = DepartureActivityLifecycle.contentStaleDate(
+            departureDate: departure
+        )
+        let end = DepartureActivityLifecycle.automaticEndDate(
+            departureDate: departure
+        )
+
+        XCTAssertEqual(departure, now.addingTimeInterval(5 * 60))
+        XCTAssertEqual(staleDate, departure)
+        XCTAssertEqual(end, now.addingTimeInterval(7 * 60))
+        XCTAssertFalse(
+            DepartureActivityLifecycle.isExpired(
+                departureDate: departure,
+                now: end.addingTimeInterval(-1)
+            )
+        )
+        XCTAssertTrue(
+            DepartureActivityLifecycle.isExpired(
+                departureDate: departure,
+                now: end
+            )
+        )
     }
 
     // MARK: - DepartureTime liveMinutes
 
     func testDepartureTimeLiveMinutesFallback() {
         let dt = DepartureTime(countdown: 7, timePlanned: nil, timeReal: nil)
-        XCTAssertEqual(dt.liveMinutes, 7)
+        XCTAssertEqual(dt.liveMinutes(), 7)
     }
 
     // MARK: - MonitorService (mock network)
@@ -167,6 +241,76 @@ final class TrafficViennaTests: XCTestCase {
         let callCount = await mock.callCount
 
         XCTAssertEqual(callCount, 2, "Force refresh should bypass cache")
+    }
+
+    func testMonitorServiceRunsForcedSuccessorBehindNormalInFlightRequest() async throws {
+        let network = FirstRequestControlledNetworkManager()
+        let service = MonitorService(network: network, cacheTTL: 30, minInterval: 0)
+
+        let background = Task { try await service.monitor(diva: 1) }
+        await network.waitUntilCallCount(1)
+        let forced = Task { try await service.monitor(diva: 1, forceRefresh: true) }
+        try await Task.sleep(for: .milliseconds(20))
+
+        let callsBeforeRelease = await network.callCount
+        XCTAssertEqual(callsBeforeRelease, 1)
+        await network.releaseFirstCall()
+
+        let backgroundResponse = try await background.value
+        let forcedResponse = try await forced.value
+        let cachedResponse = try await service.monitor(diva: 1)
+        let totalCalls = await network.callCount
+        XCTAssertEqual(totalCalls, 2)
+        XCTAssertEqual(backgroundResponse.data.monitors.first?.lines.first?.departures.departure.first?.departureTime.countdown, 1)
+        XCTAssertEqual(forcedResponse.data.monitors.first?.lines.first?.departures.departure.first?.departureTime.countdown, 2)
+        XCTAssertEqual(cachedResponse.data.monitors.first?.lines.first?.departures.departure.first?.departureTime.countdown, 2)
+    }
+
+    func testMonitorServiceDoesNotRunForcedSuccessorForCancelledCaller() async throws {
+        let network = FirstRequestControlledNetworkManager()
+        let service = MonitorService(network: network, cacheTTL: 30, minInterval: 0)
+
+        let background = Task { try await service.monitor(diva: 1) }
+        await network.waitUntilCallCount(1)
+        let forced = Task { try await service.monitor(diva: 1, forceRefresh: true) }
+        forced.cancel()
+        await network.releaseFirstCall()
+
+        _ = try await background.value
+        do {
+            _ = try await forced.value
+            XCTFail("A cancelled caller must not receive data or start a forced successor")
+        } catch is CancellationError {
+            // Expected: the abandoned refresh no longer owns network work.
+        } catch {
+            XCTFail("Expected CancellationError, got \(error)")
+        }
+
+        let totalCalls = await network.callCount
+        XCTAssertEqual(totalCalls, 1)
+    }
+
+    func testMonitorServiceRunsForcedSuccessorAfterNormalInFlightFailure() async throws {
+        let network = FirstRequestControlledNetworkManager(failFirstCall: true)
+        let service = MonitorService(network: network, cacheTTL: 0, minInterval: 0)
+
+        let background = Task { try await service.monitor(diva: 1) }
+        await network.waitUntilCallCount(1)
+        let forced = Task { try await service.monitor(diva: 1, forceRefresh: true) }
+        try await Task.sleep(for: .milliseconds(20))
+        await network.releaseFirstCall()
+
+        do {
+            _ = try await background.value
+            XCTFail("The failed normal request should still report its error")
+        } catch {
+            XCTAssertEqual((error as? URLError)?.code, .timedOut)
+        }
+
+        let forcedResponse = try await forced.value
+        let totalCalls = await network.callCount
+        XCTAssertEqual(totalCalls, 2)
+        XCTAssertEqual(forcedResponse.data.monitors.first?.lines.first?.departures.departure.first?.departureTime.countdown, 2)
     }
 
     func testMonitorServiceFallbackToStaleCacheOnNetworkError() async throws {
@@ -214,6 +358,56 @@ final class TrafficViennaTests: XCTestCase {
 
         let callCount = await mock.callCount
         XCTAssertEqual(callCount, 1)
+    }
+
+    func testTrafficInfoListRunsForcedSuccessorBehindNormalInFlightRequest() async throws {
+        let network = FirstRequestControlledNetworkManager()
+        let service = MonitorService(network: network, cacheTTL: 30, minInterval: 0)
+
+        let background = Task { try await service.trafficInfoList() }
+        await network.waitUntilCallCount(1)
+        let forced = Task { try await service.trafficInfoList(forceRefresh: true) }
+        let coalescedForced = Task { try await service.trafficInfoList(forceRefresh: true) }
+        try await Task.sleep(for: .milliseconds(20))
+
+        let callsBeforeRelease = await network.callCount
+        XCTAssertEqual(callsBeforeRelease, 1)
+        await network.releaseFirstCall()
+
+        let backgroundInfos = try await background.value
+        let forcedInfos = try await forced.value
+        let coalescedForcedInfos = try await coalescedForced.value
+        let cachedInfos = try await service.trafficInfoList()
+        let totalCalls = await network.callCount
+        XCTAssertEqual(totalCalls, 2)
+        XCTAssertEqual(backgroundInfos.first?.id, "traffic-1")
+        XCTAssertEqual(forcedInfos.first?.id, "traffic-2")
+        XCTAssertEqual(coalescedForcedInfos.first?.id, "traffic-2")
+        XCTAssertEqual(cachedInfos.first?.id, "traffic-2")
+    }
+
+    func testTrafficInfoListDoesNotRunForcedSuccessorForCancelledCaller() async throws {
+        let network = FirstRequestControlledNetworkManager()
+        let service = MonitorService(network: network, cacheTTL: 30, minInterval: 0)
+
+        let background = Task { try await service.trafficInfoList() }
+        await network.waitUntilCallCount(1)
+        let forced = Task { try await service.trafficInfoList(forceRefresh: true) }
+        forced.cancel()
+        await network.releaseFirstCall()
+
+        _ = try await background.value
+        do {
+            _ = try await forced.value
+            XCTFail("A cancelled caller must not receive data or start a forced successor")
+        } catch is CancellationError {
+            // Expected: the abandoned refresh no longer owns network work.
+        } catch {
+            XCTFail("Expected CancellationError, got \(error)")
+        }
+
+        let totalCalls = await network.callCount
+        XCTAssertEqual(totalCalls, 1)
     }
 
     func testTrafficInfoListFallsBackToStaleCache() async throws {
@@ -319,17 +513,35 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(LineCategory.of("D"), .tram)
     }
 
+    func testStationCardLineSummaryBoundsBadgesAndReportsHiddenLines() {
+        let standard = StationCardLineSummary(
+            lineNames: ["U3", "1A", "U1", "1A", "U4", "2A"],
+            maximumVisible: 4
+        )
+        let accessibility = StationCardLineSummary(
+            lineNames: ["U3", "1A", "U1", "1A", "U4", "2A"],
+            maximumVisible: 2
+        )
+
+        XCTAssertEqual(standard.visibleLines, ["1A", "2A", "U1", "U3"])
+        XCTAssertEqual(standard.hiddenCount, 1)
+        XCTAssertEqual(accessibility.visibleLines, ["1A", "2A"])
+        XCTAssertEqual(accessibility.hiddenCount, 3)
+    }
+
     // MARK: - WidgetDepartureData
 
     func testWidgetDepartureDataCodable() {
         let fetchedAt = Date(timeIntervalSince1970: 1_000)
+        let dataUpdatedAt = fetchedAt.addingTimeInterval(-30)
         let data = WidgetDepartureData(
             diva: "60200195",
             lineName: "U1",
             stopName: "Stephansplatz",
             destination: "Leopoldau",
             departures: [2, 5, 12],
-            fetchedAt: fetchedAt
+            fetchedAt: fetchedAt,
+            dataUpdatedAt: dataUpdatedAt
         )
         let encoded = try! JSONEncoder().encode(data)
         let decoded = try! JSONDecoder().decode(WidgetDepartureData.self, from: encoded)
@@ -337,6 +549,7 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(decoded.diva, "60200195")
         XCTAssertEqual(decoded.departures, [2, 5, 12])
         XCTAssertEqual(decoded.fetchedAt, fetchedAt)
+        XCTAssertEqual(decoded.dataUpdatedAt, dataUpdatedAt)
     }
 
     func testWidgetDepartureDataDecodesLegacyPayload() throws {
@@ -356,18 +569,53 @@ final class TrafficViennaTests: XCTestCase {
 
         XCTAssertNil(decoded.diva)
         XCTAssertNil(decoded.fetchedAt)
+        XCTAssertNil(decoded.dataUpdatedAt)
         XCTAssertEqual(decoded.departures, [2, 5, 12])
+    }
+
+    func testLegacyWidgetDecoderIgnoresNewSourceFreshnessField() throws {
+        struct LegacyWidgetDepartureData: Decodable {
+            let lineName: String
+            let stopName: String
+            let destination: String
+            let departures: [Int]
+            let fetchedAt: Date?
+        }
+
+        let projectionAnchor = Date(timeIntervalSince1970: 2_000)
+        let encoded = try JSONEncoder().encode(
+            WidgetDepartureData(
+                lineName: "U1",
+                stopName: "Stephansplatz",
+                destination: "Leopoldau",
+                departures: [2, 5, 12],
+                fetchedAt: projectionAnchor,
+                dataUpdatedAt: projectionAnchor.addingTimeInterval(-300)
+            )
+        )
+        let decoded = try JSONDecoder().decode(
+            LegacyWidgetDepartureData.self,
+            from: encoded
+        )
+
+        XCTAssertEqual(decoded.lineName, "U1")
+        XCTAssertEqual(decoded.stopName, "Stephansplatz")
+        XCTAssertEqual(decoded.destination, "Leopoldau")
+        XCTAssertEqual(decoded.departures, [2, 5, 12])
+        XCTAssertEqual(decoded.fetchedAt, projectionAnchor)
     }
 
     func testWidgetCountdownProjectionUsesEachRowsFetchTime() {
         let now = Date(timeIntervalSince1970: 10_000)
+        let sourceUpdatedAt = now.addingTimeInterval(-300)
         let items = [
             WidgetDepartureData(
                 lineName: "U1",
                 stopName: "Stephansplatz",
                 destination: "Leopoldau",
                 departures: [1, 4, 8],
-                fetchedAt: now.addingTimeInterval(-120)
+                fetchedAt: now.addingTimeInterval(-120),
+                dataUpdatedAt: sourceUpdatedAt
             ),
             WidgetDepartureData(
                 lineName: "U4",
@@ -386,6 +634,377 @@ final class TrafficViennaTests: XCTestCase {
 
         XCTAssertEqual(projected[0].departures, [2, 6])
         XCTAssertEqual(projected[1].departures, [1, 6])
+        XCTAssertEqual(projected[0].dataUpdatedAt, sourceUpdatedAt)
+    }
+
+    func testWidgetFreshnessClampsFutureSourceDateAndUsesWholeMinutes() {
+        let entryDate = Date(timeIntervalSince1970: 1_000)
+
+        XCTAssertEqual(
+            WidgetFreshness.elapsedWholeMinutes(
+                since: entryDate.addingTimeInterval(1),
+                at: entryDate
+            ),
+            0
+        )
+        XCTAssertEqual(
+            WidgetFreshness.elapsedWholeMinutes(
+                since: entryDate.addingTimeInterval(-179),
+                at: entryDate
+            ),
+            2
+        )
+    }
+
+    func testWidgetFreshnessDoesNotTreatProjectionAnchorAsSourceRefresh() {
+        let sourceUpdatedAt = Date(timeIntervalSince1970: 1_000)
+        let projectionAnchor = sourceUpdatedAt.addingTimeInterval(300)
+        let item = WidgetDepartureData(
+            lineName: "U1",
+            stopName: "Stephansplatz",
+            destination: "Leopoldau",
+            departures: [2, 7],
+            fetchedAt: projectionAnchor,
+            dataUpdatedAt: sourceUpdatedAt
+        )
+
+        XCTAssertEqual(
+            WidgetFreshness.displayedUpdatedAt(
+                items: [item],
+                fallback: sourceUpdatedAt
+            ),
+            sourceUpdatedAt
+        )
+    }
+
+    func testWidgetFreshnessUsesOldestSourceAcrossVisibleRows() {
+        let projectionAnchor = Date(timeIntervalSince1970: 2_000)
+        let oldestUpdate = projectionAnchor.addingTimeInterval(-300)
+        let newerUpdate = projectionAnchor.addingTimeInterval(-60)
+        let items = [
+            WidgetDepartureData(
+                lineName: "U1",
+                stopName: "Stephansplatz",
+                destination: "Leopoldau",
+                departures: [2],
+                fetchedAt: projectionAnchor,
+                dataUpdatedAt: newerUpdate
+            ),
+            WidgetDepartureData(
+                lineName: "U4",
+                stopName: "Schwedenplatz",
+                destination: "Heiligenstadt",
+                departures: [3],
+                fetchedAt: projectionAnchor,
+                dataUpdatedAt: oldestUpdate
+            ),
+        ]
+
+        XCTAssertEqual(
+            WidgetFreshness.displayedUpdatedAt(
+                items: items,
+                fallback: nil
+            ),
+            oldestUpdate
+        )
+    }
+
+    func testWidgetSyncPersistsOldestSourceFreshness() throws {
+        let suiteName = "TrafficViennaTests.WidgetSync.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defaults.removePersistentDomain(forName: suiteName)
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let projectionAnchor = Date(timeIntervalSince1970: 2_000)
+        let oldestUpdate = projectionAnchor.addingTimeInterval(-300)
+        let manager = WidgetSyncManager(
+            appGroupID: suiteName,
+            widgetKind: "TrafficViennaTests"
+        )
+        manager.save([
+            WidgetDepartureData(
+                lineName: "U1",
+                stopName: "Stephansplatz",
+                destination: "Leopoldau",
+                departures: [2],
+                fetchedAt: projectionAnchor,
+                dataUpdatedAt: oldestUpdate
+            ),
+        ])
+
+        XCTAssertEqual(
+            defaults.object(forKey: "widget_last_updated") as? Date,
+            oldestUpdate
+        )
+        let encoded = try XCTUnwrap(defaults.data(forKey: "widget_departure"))
+        let decoded = try JSONDecoder().decode(
+            [WidgetDepartureData].self,
+            from: encoded
+        )
+        XCTAssertEqual(decoded.first?.fetchedAt, projectionAnchor)
+        XCTAssertEqual(decoded.first?.dataUpdatedAt, oldestUpdate)
+    }
+
+    func testWidgetSnapshotUsesPlaceholderForEmptyGalleryPreview() {
+        XCTAssertEqual(
+            WidgetSnapshotPolicy.content(
+                hasItems: false,
+                isPreview: true
+            ),
+            .placeholder
+        )
+    }
+
+    func testWidgetSnapshotUsesEmptyStateForEmptyRuntimeSnapshot() {
+        XCTAssertEqual(
+            WidgetSnapshotPolicy.content(
+                hasItems: false,
+                isPreview: false
+            ),
+            .empty
+        )
+    }
+
+    func testWidgetSnapshotPrefersRealItemsInPreviewAndRuntime() {
+        XCTAssertEqual(
+            WidgetSnapshotPolicy.content(
+                hasItems: true,
+                isPreview: true
+            ),
+            .items
+        )
+        XCTAssertEqual(
+            WidgetSnapshotPolicy.content(
+                hasItems: true,
+                isPreview: false
+            ),
+            .items
+        )
+    }
+
+    func testWidgetTimelineScheduleIncludesVisibleDepartureBoundaries() {
+        let now = Date(timeIntervalSince1970: 10_000)
+        let refreshDate = now.addingTimeInterval(300)
+        let items = [
+            WidgetDepartureData(
+                lineName: "U1",
+                stopName: "Stephansplatz",
+                destination: "Leopoldau",
+                departures: [1, 3, 8],
+                fetchedAt: now
+            ),
+            WidgetDepartureData(
+                lineName: "U4",
+                stopName: "Schwedenplatz",
+                destination: "Heiligenstadt",
+                departures: [2, 7],
+                fetchedAt: now
+            ),
+        ]
+
+        let dates = WidgetTimelineSchedule.entryDates(
+            now: now,
+            refreshDate: refreshDate,
+            items: items,
+            fallbackUpdatedAt: nil
+        )
+
+        XCTAssertEqual(
+            dates,
+            [
+                now,
+                now.addingTimeInterval(60),
+                now.addingTimeInterval(120),
+                now.addingTimeInterval(180),
+                now.addingTimeInterval(240),
+                refreshDate,
+            ]
+        )
+    }
+
+    func testWidgetTimelineScheduleRemovesThirdVisibleDepartureBeforeRefresh() {
+        let now = Date(timeIntervalSince1970: 10_000)
+        let refreshDate = now.addingTimeInterval(300)
+        let items = [
+            WidgetDepartureData(
+                lineName: "U1",
+                stopName: "Stephansplatz",
+                destination: "Leopoldau",
+                departures: [1, 2, 3],
+                fetchedAt: now
+            ),
+        ]
+
+        let dates = WidgetTimelineSchedule.entryDates(
+            now: now,
+            refreshDate: refreshDate,
+            items: items,
+            fallbackUpdatedAt: nil
+        )
+
+        XCTAssertEqual(
+            dates,
+            [
+                now,
+                now.addingTimeInterval(60),
+                now.addingTimeInterval(120),
+                now.addingTimeInterval(180),
+                now.addingTimeInterval(240),
+                refreshDate,
+            ]
+        )
+    }
+
+    func testWidgetTimelineScheduleRemovesFreshDepartureAlreadyShowingNow() {
+        let now = Date(timeIntervalSince1970: 10_000)
+        let refreshDate = now.addingTimeInterval(300)
+        let items = [
+            WidgetDepartureData(
+                lineName: "U1",
+                stopName: "Stephansplatz",
+                destination: "Leopoldau",
+                departures: [0, 2],
+                fetchedAt: now
+            ),
+        ]
+
+        let dates = WidgetTimelineSchedule.entryDates(
+            now: now,
+            refreshDate: refreshDate,
+            items: items,
+            fallbackUpdatedAt: nil
+        )
+
+        XCTAssertEqual(
+            dates,
+            [
+                now,
+                now.addingTimeInterval(60),
+                now.addingTimeInterval(120),
+                now.addingTimeInterval(180),
+                refreshDate,
+            ]
+        )
+    }
+
+    func testWidgetTimelineScheduleRemovesCachedDepartureAlreadyShowingNow() {
+        let now = Date(timeIntervalSince1970: 10_000)
+        let refreshDate = now.addingTimeInterval(300)
+        let items = [
+            WidgetDepartureData(
+                lineName: "U1",
+                stopName: "Stephansplatz",
+                destination: "Leopoldau",
+                departures: [1, 2],
+                fetchedAt: now.addingTimeInterval(-150)
+            ),
+        ]
+
+        let dates = WidgetTimelineSchedule.entryDates(
+            now: now,
+            refreshDate: refreshDate,
+            items: items,
+            fallbackUpdatedAt: nil
+        )
+
+        XCTAssertEqual(
+            dates,
+            [
+                now,
+                now.addingTimeInterval(30),
+                refreshDate,
+            ]
+        )
+    }
+
+    func testWidgetRefreshThrottleScopesRecentAttemptsToSelectedRoutes() {
+        let now = Date(timeIntervalSince1970: 10_000)
+        let u1 = FavoriteRoute(
+            diva: "60200123",
+            lineName: "U1",
+            destination: "Leopoldau"
+        )
+        let u4 = FavoriteRoute(
+            diva: "60200644",
+            lineName: "U4",
+            destination: "Heiligenstadt"
+        )
+        let u1Key = WidgetRefreshThrottle.attemptKey(
+            baseKey: "widget_last_fetch_attempt",
+            routes: [u1]
+        )
+        let u4Key = WidgetRefreshThrottle.attemptKey(
+            baseKey: "widget_last_fetch_attempt",
+            routes: [u4]
+        )
+
+        XCTAssertNotEqual(u1Key, u4Key)
+        XCTAssertFalse(
+            WidgetRefreshThrottle.shouldFetch(
+                routes: [u1],
+                lastAttempt: now.addingTimeInterval(-60),
+                refreshRequestedAt: nil,
+                now: now
+            )
+        )
+        XCTAssertTrue(
+            WidgetRefreshThrottle.shouldFetch(
+                routes: [u4],
+                lastAttempt: nil,
+                refreshRequestedAt: nil,
+                now: now
+            )
+        )
+    }
+
+    func testWidgetRefreshThrottleSharesScopeAcrossRouteOrdering() {
+        let u1 = FavoriteRoute(
+            diva: "60200123",
+            lineName: "U1",
+            destination: "Leopoldau"
+        )
+        let u4 = FavoriteRoute(
+            diva: "60200644",
+            lineName: "U4",
+            destination: "Heiligenstadt"
+        )
+
+        XCTAssertEqual(
+            WidgetRefreshThrottle.attemptKey(
+                baseKey: "widget_last_fetch_attempt",
+                routes: [u1, u4]
+            ),
+            WidgetRefreshThrottle.attemptKey(
+                baseKey: "widget_last_fetch_attempt",
+                routes: [u4, u1, u4]
+            )
+        )
+    }
+
+    func testWidgetRefreshThrottleSkipsEmptySelectionsAndHonoursManualRefresh() {
+        let now = Date(timeIntervalSince1970: 10_000)
+        let route = FavoriteRoute(
+            diva: "60200123",
+            lineName: "U1",
+            destination: "Leopoldau"
+        )
+
+        XCTAssertFalse(
+            WidgetRefreshThrottle.shouldFetch(
+                routes: [],
+                lastAttempt: nil,
+                refreshRequestedAt: now,
+                now: now
+            )
+        )
+        XCTAssertTrue(
+            WidgetRefreshThrottle.shouldFetch(
+                routes: [route],
+                lastAttempt: now.addingTimeInterval(-60),
+                refreshRequestedAt: now,
+                now: now
+            )
+        )
     }
 
     func testWidgetDataMergePreservesSelectedOrderAndCachedFailures() {
@@ -460,6 +1079,47 @@ final class TrafficViennaTests: XCTestCase {
 
         XCTAssertEqual(routes.sorted().map(\.lineName), ["U1", "U4"])
     }
+
+    func testWidgetRouteEntityResolutionPreservesRequestedOrderAndOmitsUnavailableRoutes() {
+        let u1 = FavoriteRoute(
+            diva: "1",
+            lineName: "U1",
+            destination: "Leopoldau"
+        )
+        let u4 = FavoriteRoute(
+            diva: "2",
+            lineName: "U4",
+            destination: "Heiligenstadt"
+        )
+        let removed = FavoriteRoute(
+            diva: "3",
+            lineName: "U3",
+            destination: "Ottakring"
+        )
+
+        let resolved = WidgetRouteEntityResolution.routes(
+            for: [u4.stableID, removed.stableID, u1.stableID],
+            availableRoutes: [u1, u4]
+        )
+
+        XCTAssertEqual(resolved, [u4, u1])
+    }
+
+    func testFavoriteRouteStableIDIsDeterministicAndCollisionSafe() {
+        let route = FavoriteRoute(
+            diva: "60200123",
+            lineName: "U1",
+            destination: "Leopoldau"
+        )
+        let differentRoute = FavoriteRoute(
+            diva: "60200123",
+            lineName: "U1",
+            destination: "Oberlaa"
+        )
+
+        XCTAssertEqual(route.stableID, route.stableID)
+        XCTAssertNotEqual(route.stableID, differentRoute.stableID)
+    }
 }
 
 // MARK: - Mock Network Manager
@@ -507,6 +1167,86 @@ private actor MockNetworkManager: NetworkManaging {
         let monitor = Monitor(locationStop: stop, lines: [line])
         let data = DataBlock(monitors: [monitor], trafficInfos: nil)
         return MonitorResponse(data: data)
+    }
+}
+
+private actor FirstRequestControlledNetworkManager: NetworkManaging {
+    private(set) var callCount = 0
+    private let failFirstCall: Bool
+    private var isFirstCallReleased = false
+    private var firstCallContinuation: CheckedContinuation<Void, Never>?
+    private var callCountWaiters: [(count: Int, continuation: CheckedContinuation<Void, Never>)] = []
+
+    init(failFirstCall: Bool = false) {
+        self.failFirstCall = failFirstCall
+    }
+
+    func waitUntilCallCount(_ count: Int) async {
+        guard callCount < count else { return }
+        await withCheckedContinuation { continuation in
+            callCountWaiters.append((count, continuation))
+        }
+    }
+
+    func releaseFirstCall() {
+        isFirstCallReleased = true
+        firstCallContinuation?.resume()
+        firstCallContinuation = nil
+    }
+
+    func fetchMonitorData(diva: Int, includeArea: Bool) async throws -> MonitorResponse {
+        let call = beginCall()
+        await holdFirstCallIfNeeded(call)
+        if call == 1, failFirstCall { throw URLError(.timedOut) }
+        return response(call: call)
+    }
+
+    func fetchTrafficInfoList() async throws -> MonitorResponse {
+        let call = beginCall()
+        await holdFirstCallIfNeeded(call)
+        if call == 1, failFirstCall { throw URLError(.timedOut) }
+        return response(call: call)
+    }
+
+    private func beginCall() -> Int {
+        callCount += 1
+        let ready = callCountWaiters.filter { $0.count <= callCount }
+        callCountWaiters.removeAll { $0.count <= callCount }
+        ready.forEach { $0.continuation.resume() }
+        return callCount
+    }
+
+    private func holdFirstCallIfNeeded(_ call: Int) async {
+        guard call == 1, !isFirstCallReleased else { return }
+        await withCheckedContinuation { continuation in
+            firstCallContinuation = continuation
+        }
+    }
+
+    private func response(call: Int) -> MonitorResponse {
+        let departure = Departure(
+            departureTime: DepartureTime(countdown: call, timePlanned: nil, timeReal: nil)
+        )
+        let line = Lines(
+            name: "U1",
+            towards: "Leopoldau",
+            departures: Departures(departure: [departure])
+        )
+        let monitor = Monitor(
+            locationStop: LocationStop(
+                properties: Properties(title: "Test Stop", attributes: Attributes(rbl: 1234)),
+                geometry: nil
+            ),
+            lines: [line]
+        )
+        let info = TrafficInfo(
+            name: "traffic-\(call)",
+            title: "Traffic \(call)",
+            description: nil,
+            priority: nil,
+            relatedLines: nil
+        )
+        return MonitorResponse(data: DataBlock(monitors: [monitor], trafficInfos: [info]))
     }
 }
 

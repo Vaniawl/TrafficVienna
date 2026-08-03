@@ -36,7 +36,36 @@ final class DisruptionsViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.selectedKind, .service)
         XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["service"])
         XCTAssertEqual(viewModel.activeServiceCount, 1)
+        XCTAssertEqual(viewModel.badgeCount, 1)
         XCTAssertEqual(viewModel.dashboardStatus, .alerts(count: 1, isSaved: false))
+    }
+
+    func testSavedLinesPersonalizeDefaultAlertScopeAndBadge() async {
+        let viewModel = makeLoadedViewModel()
+        viewModel.updateRelevantLines(["U3"])
+
+        await viewModel.load()
+
+        XCTAssertEqual(viewModel.selectedScope, .relevant)
+        XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["service"])
+        XCTAssertEqual(viewModel.badgeCount, 1)
+
+        viewModel.updateRelevantLines(["U1"])
+
+        XCTAssertTrue(viewModel.filteredInfos.isEmpty)
+        XCTAssertEqual(viewModel.badgeCount, 0)
+        XCTAssertEqual(viewModel.dashboardStatus, .allClear(isSaved: false))
+    }
+
+    func testAllViennaScopeShowsAlertsOutsideSavedLines() async {
+        let viewModel = makeLoadedViewModel()
+        viewModel.updateRelevantLines(["U1"])
+        await viewModel.load()
+
+        viewModel.selectScope(.all)
+
+        XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["service"])
+        XCTAssertEqual(viewModel.filterSummary, "All Vienna · Service")
     }
 
     func testEmptySuccessfulFeedShowsAllClearDashboardStatus() async {
@@ -47,6 +76,20 @@ final class DisruptionsViewModelTests: XCTestCase {
         await viewModel.load()
 
         XCTAssertEqual(viewModel.dashboardStatus, .allClear(isSaved: false))
+    }
+
+    func testStaleEmptySnapshotIsQualifiedAsSavedAllClearData() async {
+        let viewModel = DisruptionsViewModel(
+            service: StubTrafficInfoProvider(result: .success([]), isStale: true)
+        )
+
+        await viewModel.load(force: true)
+
+        XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertTrue(viewModel.infos.isEmpty)
+        XCTAssertTrue(viewModel.isShowingSavedData)
+        XCTAssertNotNil(viewModel.refreshErrorMessage)
+        XCTAssertEqual(viewModel.dashboardStatus, .allClear(isSaved: true))
     }
 
     func testSelectingKindClearsIncompatibleCategoryFilter() async {
@@ -60,12 +103,59 @@ final class DisruptionsViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["accessibility"])
     }
 
+    func testSuccessfulRefreshClearsCategoryFilterMissingFromSelectedKind() async {
+        let provider = StubTrafficInfoProvider(result: .success([serviceInfo]))
+        let viewModel = DisruptionsViewModel(service: provider)
+        await viewModel.load()
+        viewModel.categoryFilter = .metro
+        await provider.setResult(
+            .success([
+                makeInfo(
+                    name: "bus-service",
+                    title: "13A: Umleitung",
+                    description: "Geänderte Strecke",
+                    lines: ["13A"],
+                    categoryID: 2
+                )
+            ])
+        )
+
+        await viewModel.load(force: true)
+
+        XCTAssertNil(viewModel.categoryFilter)
+        XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["bus-service"])
+    }
+
+    func testSuccessfulRefreshPreservesAvailableCategoryFilter() async {
+        let provider = StubTrafficInfoProvider(result: .success([serviceInfo]))
+        let viewModel = DisruptionsViewModel(service: provider)
+        await viewModel.load()
+        viewModel.categoryFilter = .metro
+        await provider.setResult(
+            .success([
+                makeInfo(
+                    name: "replacement-metro-service",
+                    title: "U4: Bauarbeiten",
+                    description: "Kein Betrieb",
+                    lines: ["U4"],
+                    categoryID: 2
+                )
+            ])
+        )
+
+        await viewModel.load(force: true)
+
+        XCTAssertEqual(viewModel.categoryFilter, .metro)
+        XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["replacement-metro-service"])
+    }
+
     func testLineCategoryFilterMatchesAffectedLines() async {
         let viewModel = makeLoadedViewModel()
         await viewModel.load()
         viewModel.categoryFilter = .metro
 
         XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["service"])
+        XCTAssertEqual(viewModel.filterSummary, "All Vienna · Service · U-Bahn")
 
         viewModel.categoryFilter = .bus
         XCTAssertTrue(viewModel.filteredInfos.isEmpty)
@@ -103,11 +193,13 @@ final class DisruptionsViewModelTests: XCTestCase {
         let provider = StubTrafficInfoProvider(result: .success([serviceInfo]))
         let viewModel = DisruptionsViewModel(service: provider)
         await viewModel.load()
+        viewModel.categoryFilter = .metro
         await provider.setResult(.failure(TestError.unavailable))
 
         await viewModel.load(force: true)
 
         XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertEqual(viewModel.categoryFilter, .metro)
         XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["service"])
         XCTAssertNotNil(viewModel.refreshErrorMessage)
         XCTAssertEqual(viewModel.dashboardStatus, .alerts(count: 1, isSaved: true))
@@ -119,11 +211,92 @@ final class DisruptionsViewModelTests: XCTestCase {
         )
 
         await viewModel.load(force: true)
+        viewModel.categoryFilter = .metro
+        await viewModel.load(force: true)
 
         XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertEqual(viewModel.categoryFilter, .metro)
         XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["service"])
         XCTAssertNotNil(viewModel.refreshErrorMessage)
         XCTAssertEqual(viewModel.dashboardStatus, .alerts(count: 1, isSaved: true))
+    }
+
+    func testEmptySuccessfulSnapshotRemainsVisibleDuringFailedRefresh() async {
+        let provider = ControlledTrafficInfoProvider(
+            results: [
+                .success([]),
+                .failure(TestError.unavailable),
+            ]
+        )
+        let viewModel = DisruptionsViewModel(service: provider)
+        let initialLoad = Task { await viewModel.load() }
+        await provider.waitUntilCallCount(1)
+        await provider.releaseCall(1)
+        await initialLoad.value
+
+        XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertEqual(viewModel.dashboardStatus, .allClear(isSaved: false))
+
+        let refresh = Task { await viewModel.load(force: true) }
+        await provider.waitUntilCallCount(2)
+
+        XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertEqual(viewModel.dashboardStatus, .allClear(isSaved: false))
+
+        await provider.releaseCall(2)
+        await refresh.value
+
+        XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertEqual(viewModel.dashboardStatus, .allClear(isSaved: true))
+        XCTAssertNotNil(viewModel.refreshErrorMessage)
+    }
+
+    func testQueuedManualRefreshRunsAfterBackgroundLoadAndSuppressesItsFailure() async {
+        let provider = ControlledTrafficInfoProvider(
+            results: [
+                .failure(TestError.unavailable),
+                .success([serviceInfo]),
+            ]
+        )
+        let viewModel = DisruptionsViewModel(service: provider)
+        let backgroundLoad = Task { await viewModel.load() }
+        await provider.waitUntilCallCount(1)
+
+        await viewModel.load(force: true)
+        await viewModel.load()
+        await provider.releaseCall(1)
+        await provider.releaseCall(2)
+        await backgroundLoad.value
+
+        let forceRefreshValues = await provider.forceRefreshValues
+        XCTAssertEqual(forceRefreshValues, [false, true])
+        XCTAssertEqual(viewModel.state, .loaded)
+        XCTAssertEqual(viewModel.filteredInfos.map(\.id), ["service"])
+        XCTAssertNil(viewModel.refreshErrorMessage)
+        XCTAssertFalse(viewModel.isLoadingRequest)
+    }
+
+    func testCancellationDropsQueuedDisruptionsRefresh() async {
+        let provider = ControlledTrafficInfoProvider(
+            results: [
+                .success([serviceInfo]),
+                .success([serviceInfo]),
+            ]
+        )
+        let viewModel = DisruptionsViewModel(service: provider)
+        let backgroundLoad = Task { await viewModel.load() }
+        await provider.waitUntilCallCount(1)
+        await viewModel.load(force: true)
+
+        backgroundLoad.cancel()
+        await provider.releaseCall(1)
+        await provider.releaseCall(2)
+        await backgroundLoad.value
+
+        let forceRefreshValues = await provider.forceRefreshValues
+        XCTAssertEqual(forceRefreshValues, [false])
+        XCTAssertTrue(viewModel.infos.isEmpty)
+        XCTAssertFalse(viewModel.isLoadingRequest)
     }
 
     private func makeLoadedViewModel() -> DisruptionsViewModel {
@@ -205,5 +378,65 @@ private actor StubTrafficInfoProvider: TrafficInfoProviding {
             updatedAt: .now,
             isStale: isStale
         )
+    }
+}
+
+private actor ControlledTrafficInfoProvider: TrafficInfoProviding {
+    private let results: [Result<[TrafficInfo], Error>]
+    private var recordedForceRefreshValues: [Bool] = []
+    private var callCountWaiters: [(count: Int, continuation: CheckedContinuation<Void, Never>)] = []
+    private var releaseWaiters: [Int: CheckedContinuation<Void, Never>] = [:]
+    private var releasedCalls: Set<Int> = []
+
+    init(results: [Result<[TrafficInfo], Error>]) {
+        self.results = results
+    }
+
+    var forceRefreshValues: [Bool] {
+        recordedForceRefreshValues
+    }
+
+    func waitUntilCallCount(_ count: Int) async {
+        guard recordedForceRefreshValues.count < count else { return }
+        await withCheckedContinuation { continuation in
+            callCountWaiters.append((count, continuation))
+        }
+    }
+
+    func releaseCall(_ call: Int) {
+        if let continuation = releaseWaiters.removeValue(forKey: call) {
+            continuation.resume()
+        } else {
+            releasedCalls.insert(call)
+        }
+    }
+
+    func trafficInfoList(forceRefresh: Bool) async throws -> [TrafficInfo] {
+        try await trafficInfoSnapshot(forceRefresh: forceRefresh).infos
+    }
+
+    func trafficInfoSnapshot(forceRefresh: Bool) async throws -> TrafficInfoSnapshot {
+        let call = recordedForceRefreshValues.count + 1
+        recordedForceRefreshValues.append(forceRefresh)
+        resumeCallCountWaiters()
+
+        if releasedCalls.remove(call) == nil {
+            await withCheckedContinuation { continuation in
+                releaseWaiters[call] = continuation
+            }
+        }
+
+        let result = results[min(call - 1, results.count - 1)]
+        return TrafficInfoSnapshot(
+            infos: try result.get(),
+            updatedAt: Date(timeIntervalSince1970: TimeInterval(call)),
+            isStale: false
+        )
+    }
+
+    private func resumeCallCountWaiters() {
+        let ready = callCountWaiters.filter { $0.count <= recordedForceRefreshValues.count }
+        callCountWaiters.removeAll { $0.count <= recordedForceRefreshValues.count }
+        ready.forEach { $0.continuation.resume() }
     }
 }

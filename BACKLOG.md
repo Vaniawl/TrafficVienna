@@ -1,288 +1,208 @@
 # Backlog
 
-## Workflow baseline
-
-- [x] Use the global orchestrator, specialist agents, and local model routing.
-- [x] Remove obsolete project-local agents, plugins, and Git/PR automation.
-- [x] Create the project-specific Markdown state baseline.
-- [x] Verify global OpenCode inheritance and permissions.
-
 ## Requirement coverage
 
-- [ ] **REQ-TV-001:** preserve and regression-test core journeys through the
-  Phase 2 screen slices and TV-VERIFY-031/032.
-- [ ] **REQ-TV-002:** complete the shared visual foundation and accessible design
-  through TV-UI-001/002 and all Phase 2 slices.
-- [ ] **REQ-TV-003:** perform only evidence-backed refactoring through TV-CORE-020.
-- [ ] **REQ-TV-004:** complete localised loading, empty, error, retry, and stale
-  states through Phase 2 and TV-CORE-021.
-- [x] **REQ-TV-005:** verify cancellation, refresh, throttling, and performance
-  through TV-CORE-022.
-- [ ] **REQ-TV-006:** collect fresh repository, build, test, widget, UI, and
-  accessibility evidence through TV-VERIFY-030/031/032.
-- [ ] **REQ-TV-007:** synchronize state and clear independent reviews through
-  TV-VERIFY-033/034.
-- [ ] **REQ-TV-008:** finish the minimalist redesign, single design identity, and
-  evidence-backed favourites improvement through TV-UI-002 and Phase 2.
-- [ ] **REQ-TV-009:** implement optional Apple/email accounts after a real email
-  identity provider is selected; anonymous transport use must remain available.
+- [x] **REQ-TV-001 — Core journeys.** The four-tab shell, Discover search/map,
+  Alerts, Saved, Station Detail, notification routing, widget, and Live Activity
+  flows have automated coverage and Simulator inspection.
+- [x] **REQ-TV-002 — Accessible design.** Shared visual hierarchy follows system
+  light/dark appearance; key screens reflow at accessibility Dynamic Type sizes.
+- [x] **REQ-TV-003 — Focused refactoring.** Changes stay within existing MVVM and
+  protocol boundaries and address observed correctness/performance findings.
+- [x] **REQ-TV-004 — Failure and localisation.** Stale departure guards, safe
+  reminder errors, permission recovery, and German strings are implemented.
+- [x] **REQ-TV-005 — Performance.** Requests remain coalesced/cancellable and
+  formatter creation was removed from the widget body. Settled iPad Simulator
+  sampling measured 0.0% CPU in five observations.
+- [x] **REQ-TV-006 — Validation evidence.** App/widget build, 217 tests, static
+  analysis, localisation extraction, repository validators, and diff checks
+  pass. Hosted Quality run `30808174894` installed the pinned OpenCode CLI and
+  completed the full `scripts/ci.sh` wrapper successfully on exact published head
+  `ad3a5e94`; the live draft-PR check remains authoritative for every later
+  documentation or workflow commit.
+- [x] **REQ-TV-007 — Review-ready state.** Architecture/security findings and
+  documentation are resolved; the reviewed branch is maintained in draft PR #15.
+- [x] **REQ-TV-008 — Truthful system surfaces.** Reminders are local and
+  user-created, stale data cannot start a new countdown, permission delay is
+  revalidated, and ActivityKit state is restored across model recreation.
+- [x] **REQ-TV-009 — Account-free boundary.** All transport features are
+  anonymous; the obsolete optional-account plan is removed from active scope.
 
-## Phase 1 - Recover the shared visual foundation
+## Audit findings and fixes
 
-- [x] **TV-UI-001 - Remove selectable designs and conflicting theme ownership.**
-  - Outcome: one adaptive Vienna-red design system follows the device appearance;
-    `ThemeEngine`, presets, and the appearance picker are gone.
-  - Paths: design token files, `AppColors.swift`, `TrafficViennaApp.swift`.
-  - Dependencies: none.
-  - Acceptance: no runtime theme/preset owner or design picker remains.
-  - Validation: source search, warning-free build, and changed-file reread on
-    2026-07-18.
-- [x] **TV-UI-002 - Validate appearance behaviour.**
-  - Outcome: the single design adapts to system light/dark without user presets.
-  - Paths: `RootTabView.swift`, onboarding, design tokens, and affected previews.
-  - Dependencies: TV-UI-001.
-  - Acceptance: light/dark simulator runs are readable; labels are localised and
-    motion respects Reduce Motion.
-  - Validation: warning-free build, 27 tests, and light/dark iPhone 17 screenshots.
-  - Motion polish: shared quick/standard/live/shimmer timings now drive onboarding,
-    app-state, search, alerts, map-card, offline-banner, and live-countdown changes.
-    Reduce Motion removes displacement, scale, pulse, shimmer, and numeric rolling
-    while retaining readable opacity transitions where state changes.
-  - Evidence: source audit finds no remaining ad hoc app animation timing outside
-    the shared motion tokens; warning-free full CI passes with 85 XCTest cases.
+- [x] Restore the active departure identity from system ActivityKit state before
+  updating Station Detail.
+- [x] Block new reminders and Live Activities when departures are stale while
+  retaining the ability to stop an existing Activity.
+- [x] Revalidate a reminder after the notification permission prompt so a
+  now-expired plan is rejected.
+- [x] Replace raw unexpected reminder errors with safe localised feedback.
+- [x] Coalesce repeated reminders for the same station, line, and destination,
+  while removing matching legacy duplicates without touching other routes.
+- [x] Clear precise coordinates when location authorization is revoked or reset,
+  and make Map ignore stale coordinates whenever permission is not authorized.
+- [x] Restrict sample widget departures to Widget Gallery previews; an empty
+  runtime snapshot now renders the existing truthful empty state.
+- [x] Coalesce Saved reloads that overlap an in-flight request, preserve a queued
+  forced refresh, and prevent an obsolete route snapshot from reaching UI or the
+  widget after the repository changes.
+- [x] Serialize a targeted Saved-row retry with the full reload owner so an older
+  polling result cannot overwrite its forced response; coalesce duplicate work
+  and discard a queued retry when the owner is cancelled.
+- [x] Preserve manual force-refresh intent when Station Detail or Alerts polling
+  is already active, suppress the obsolete pass, and drop queued work on
+  cancellation.
+- [x] Preserve forced-refresh intent at the shared `MonitorService` boundary:
+  forced station and traffic-info callers behind regular work receive one serial
+  successor, equivalent forced callers coalesce, failed regular work cannot
+  suppress the successor, generation-guarded cleanup preserves its cache, and a
+  cancelled caller cannot create an abandoned successor or receive stale fallback.
+- [x] Serialize Nearby refresh ownership, preserve a queued manual force refresh,
+  and hand the latest location request to a surviving caller when SwiftUI cancels
+  the previous location task.
+- [x] Give every tab an owned navigation path so warm Siri, Shortcuts, widget, and
+  deep-link destinations reset only their target stack; notification routing
+  replaces Discover with the requested station while ordinary tab changes retain
+  navigation history.
+- [x] Separate each widget row's countdown projection anchor from the underlying
+  transport-source timestamp, preserve the oldest visible freshness across mixed
+  cached/live rows, and keep old and rollback payload decoders compatible.
+- [x] Serialize ActivityKit updates and ends per system Activity ID so refresh,
+  replacement, expiry, and user stop preserve submission order without blocking
+  unrelated activities.
+- [x] Make ActivityKit end terminal from submission: reject later updates and
+  restoration for an ending Activity ID, preserve explicit Station Detail stop
+  intent across an in-flight refresh, and clear local tracking after a system end.
+- [x] Give reminder management one MainActor state owner, serialize overlapping
+  system snapshots, and fence delete/cancel-all so an older snapshot cannot
+  restore a removed reminder.
+- [x] Scope widget fetch throttling to the canonical selected-route set so one
+  widget configuration cannot suppress another configuration's first refresh,
+  while empty configurations consume no refresh budget.
+- [x] Preserve the identifier order supplied when App Intents restores a
+  multi-route widget configuration, while omitting routes that are no longer
+  available instead of reverting to local suggestion order.
+- [x] Persist every available Saved route in the shared App Group cache so routes
+  selected by separate widget configurations retain cached data; keep the
+  one/three-route family presentation limits inside the widget.
+- [x] Schedule timeline boundaries for all three departures that widget layouts
+  can render, so the third countdown is removed on time instead of lingering at
+  zero until the five-minute network refresh.
+- [x] Evaluate departure and removal boundaries independently so a cached
+  departure already showing `now` still disappears at its future removal entry.
+- [x] Give a fresh widget departure delivered as `0` the same one-minute removal
+  boundary, so it cannot remain at `now` until the five-minute network refresh.
+- [x] Replace Home's indefinite authorized-location placeholder with an explicit
+  retry state, clear it when a new request starts, and preserve useful retained
+  coordinates during a transient refresh failure.
+- [x] Reconcile Station Detail station and route favourites from repository truth
+  after local toggles and cross-tab change notifications instead of inverting a
+  potentially stale cached set.
+- [x] Make destructive Saved-route deletion idempotent so a stale visible row
+  cannot toggle an already-removed route back into persistence or the widget.
+- [x] Bound Nearby station-card route badges with an explicit hidden count and
+  stack header metadata vertically at accessibility Dynamic Type sizes.
+- [x] Mark Live Activity content stale at the actual departure, present a
+  localized departed state across Lock Screen/Dynamic Island families, and keep
+  signed before/after offset semantics as a delayed-redraw fallback.
+- [x] Keep the Live Activity UI journey meaningful overnight by using the
+  24-hour Schwedenplatz hub while retaining independent Stephansplatz search and
+  notification-routing coverage.
+- [x] Wait for the first authoritative network-path callback before showing an
+  offline state, so the monitor's initial placeholder path cannot flash a false
+  Offline banner during a connected cold launch.
+- [x] Clear a Station Detail transport filter when a successful refresh no longer
+  contains that category, while preserving valid selections and retained-data
+  failure behavior so hidden chips cannot strand the list in an empty state.
+- [x] Clear an Alerts transport filter when a successful feed no longer contains
+  that category, preserve valid selections and retained-data failure behavior,
+  and expose the active category in the visible filter summary.
+- [x] Distinguish a successful empty Alerts snapshot from the initial state, retain
+  it through a failed refresh, and qualify stale empty data with saved-data copy
+  plus retry instead of presenting an unverified current all-clear state.
+- [x] Preserve a successful empty Station Detail snapshot through refresh failure,
+  qualify retained empty data with saved-data copy and retry, and render station
+  traffic alerts even when the response contains no departures.
+- [x] Give app departure projection an explicit expired state, anchor
+  timestamp-free cached countdowns to their monitor source time, and exclude
+  departed values from Nearby, Station Detail, Saved, featured commute, and
+  app-to-widget sync after the shared one-minute `now` grace.
+- [x] Move relative-time formatting out of the widget render body.
+- [x] Let reminder destinations/stops grow at accessibility Dynamic Type sizes.
+- [x] Add focused regression coverage for each behavioral change.
+- [x] Add German catalogue values for new feedback.
 
-## Phase 2 - Redesign complete user journeys
+## Product inspection
 
-- [x] **TV-UI-010 - Nearby journey.**
-  - Outcome: clear location/loading/error/empty states and scannable nearby
-    station cards with consistent hierarchy.
-  - Paths: `NearbyView.swift`, `StationCardView.swift`, related view model/tests.
-  - Dependencies: TV-UI-002.
-  - Acceptance: location denied and successful station loading are both usable;
-    Dynamic Type and VoiceOver do not hide essential data.
-  - Validation: focused tests plus simulator accessibility inspection.
-  - Dashboard follow-up: saved stations now remain reachable above the location
-    state when permission is undecided, denied, or restricted. Quick access uses
-    adaptive view-aligned cards instead of compressed chips; accessibility Dynamic
-    Type receives one full-width card per page.
-  - Evidence: five deterministic dashboard-state regressions, two Nearby loading
-    regressions, warning-free full CI with 95 XCTest cases, and fresh iPhone 17
-    light/dark renders with two saved stations above the location prompt.
-- [ ] **TV-UI-011 - Search journey.**
-  - Outcome: fast, minimal search with clear idle, no-result, failure, and result
-    states.
-  - Paths: `SearchView.swift`, its view model and focused tests.
-  - Dependencies: TV-UI-002.
-  - Acceptance: search, cancellation, selection, retry, and empty result work.
-  - Validation: focused tests plus simulator inspection.
-  - Completed implementation: explicit idle/loading/searching/results/no-results/
-    unavailable states, cancellable debounce, catalogue retry, modern value
-    navigation, accessible rows, recent persistence/clear, and German strings.
-  - Evidence: nine focused tests and full CI pass; total XCTest count is 43.
-  - Pending acceptance: interactive light/dark and accessibility-size Simulator
-    inspection after the locked macOS host is available.
-- [ ] **TV-UI-012 - Map journey.**
-  - Outcome: stations, selection, and navigation remain readable without visual
-    clutter or redundant requests.
-  - Paths: `MapStationsView.swift` and related map/view-model tests.
-  - Dependencies: TV-UI-002.
-  - Acceptance: loading, permission failure, annotation selection, and station
-    navigation work.
-  - Completed implementation: bounded nearest-marker state model, Vienna-centre
-    fallback, catalogue loading/empty/failure/retry, permission/denied/locating/
-    error banners, accessible selection card, haptics, reduced motion, and value
-    navigation to departures.
-  - Evidence: six focused tests, embedded German/English permission rationales,
-    and full CI pass; total XCTest count is 49.
-  - Pending acceptance: interactive light/dark and accessibility-size Simulator
-    inspection after the locked macOS host is available.
-- [ ] **TV-UI-013 - Disruptions journey.**
-  - Outcome: alerts are grouped and prioritised with understandable empty/error
-    states.
-  - Paths: `DisruptionsView.swift`, `DisruptionRow.swift`, related tests.
-  - Dependencies: TV-UI-002.
-  - Acceptance: severity, affected lines, details, retry, and empty state remain
-    understandable with accessibility labels.
-  - Completed implementation: official feed categories split service,
-    accessibility, and stop-change information; service alerts drive the badge,
-    exact duplicates are removed, and line/search filters, details, explicit
-    loading/empty/failure/stale-refresh states, and German strings are present.
-  - Evidence: seven focused view-model tests, three feed/cache regressions,
-    warning-free full CI, and 60 passing XCTest cases. Security review found no
-    unresolved Blocking or Important issue.
-  - Pending acceptance: interactive light/dark and accessibility-size Simulator
-    inspection after the locked macOS host is available.
-- [ ] **TV-UI-014 - Favourites journey and product audit.**
-  - Outcome: preserve the existing multiple-station collection and add only the
-    missing quick-switch interaction proven useful by code and flow discovery.
-  - Paths: `FavoritesView.swift`, `FavoritesListViewModel.swift`, related tests.
-  - Dependencies: TV-UI-002.
-  - Acceptance: add, remove, reorder, select, and quick-switch behaviour is
-    explicit; no duplicate storage model is introduced.
-  - Completed implementation: preserved the two existing repositories and Nearby
-    quick access; added stable route identity/order, tested station reorder/remove,
-    per-route unavailable/retry, forced refresh, cancellable polling, modern
-    station navigation, widget exclusion for failed route data, and location-
-    independent dashboard access to saved stations.
-  - Evidence: focused repository and dashboard-state tests, fresh light/dark
-    quick-access renders, and warning-free full CI with 95 passing XCTest cases.
-    Security review found no unresolved Blocking or Important issue.
-  - Pending acceptance: interactive add/select/quick-switch, light/dark, and
-    accessibility-size Simulator inspection after the locked host is available.
-- [ ] **TV-UI-015 - Station detail journey.**
-  - Outcome: departures, line information, favourites, Live Activity, and errors
-    form one coherent detail screen.
-  - Paths: `StationDetailView.swift`, `DepartureLineRow.swift`, related models/tests.
-  - Dependencies: TV-UI-010 through TV-UI-014 where shared navigation applies.
-  - Acceptance: all current actions remain reachable with loading/error feedback.
-  - Completed implementation: explicit loading/loaded/empty/initial-failure and
-    stale-refresh states, deterministic platform merging, transport filters,
-    navigable alerts, reactive station/route favourites, automatic freshness,
-    and discoverable Live Activity start with success/failure feedback.
-  - Correctness fix: Station Detail no longer overwrites the favourites widget
-    with an arbitrary first line from the current station.
-  - Evidence: nine focused tests, warning-free full CI, and 74 passing XCTest
-    cases. SwiftUI/security review found no unresolved Blocking or Important issue.
-  - Pending acceptance: interactive refresh/filter/favourite/Live Activity,
-    light/dark, and accessibility-size Simulator inspection after unlock.
-- [ ] **TV-UI-016 - Onboarding, settings, and secondary surfaces.**
-  - Outcome: onboarding, account/settings, About, widget, and secondary views
-    use the same design language without changing product boundaries.
-  - Paths: the corresponding SwiftUI views, widget views, assets, localisations.
-  - Dependencies: TV-UI-002.
-  - Acceptance: no old visual tokens, hard-coded user strings, or inaccessible
-    controls remain in active secondary flows.
-  - Completed implementation: onboarding and About use the shared adaptive
-    design tokens and Dynamic Type; onboarding scrolls at accessibility sizes;
-    its final step now offers real native Apple entry, confirms an already restored
-    profile, or continues explicitly without an account before location permission;
-    the app and widget share one deterministic favourite-route model; the widget
-    renders the decoded station name, uses safe relative dates, and has a complete
-    embedded German catalogue.
-  - Evidence: focused onboarding-order and route-order regressions,
-    localisation/build inspection, warning-free full CI, and 95 passing XCTest
-    cases. Security review found no
-    unresolved Blocking or Important issue.
-  - Pending acceptance: interactive onboarding/account/About/widget inspection
-    after the locked macOS host is available.
+- [x] Exercise Home, Discover, Map, Alerts, Saved, About, reminder management,
+  Station Detail, context actions, and reminder failure feedback on iPhone 17.
+- [x] Observe a live featured departure across its boundary and capture the Home
+  card after it advances to the next eligible saved route.
+- [x] Inspect representative Home/About/reminder surfaces in dark appearance and
+  accessibility Dynamic Type.
+- [x] Inspect adaptive Home layout on a 13-inch iPad Simulator.
+- [x] Capture final Home, Station Detail, reminder-management, accessibility, and
+  iPad screenshots.
+- [x] Reproduce the warm external-route stack defect and capture inspected
+  before/after iPhone 17 screenshots proving the Discover-root reset.
+- [x] Reproduce the stale-widget freshness defect with a legacy App Group payload
+  and capture Home Screen screenshots proving that the corrected widget reports
+  source age without breaking its live countdown.
+- [x] Capture and inspect the current empty-selection small widget on iPhone 17.
+- [x] Capture and inspect a live small widget showing three real N38 countdowns
+  after the visible-departure scheduling fix.
+- [x] Capture a controlled cached departure showing `now`, observe its removal
+  34 seconds later before network refresh, and restore live N38 data afterward.
+- [x] Capture paired Schwedenplatz Station Detail screenshots before and after a
+  Saved-tab removal, proving the preserved Discover stack clears its stale star.
+- [x] Capture and inspect Home's location retry state in light and dark appearance
+  plus the recovered live departures after a successful Vienna location request.
+- [x] Capture and inspect the final station-card route summary at standard and
+  maximum accessibility Dynamic Type, including its semantic hidden-line count.
+- [x] Capture and inspect paired Lock Screen Live Activity states with the app
+  stopped: one-line `T−1 minute` before departure and `Departed` afterward.
+- [x] Capture matched iPhone 17 cold-launch frames at 0.7 seconds before and after
+  network-monitor correction, plus the settled 1.1-second state.
+- [x] Select Stephansplatz Bus departures and verify the chip plus four matching
+  directions remain synchronized after a live pull-to-refresh.
+- [x] Save four available routes plus one unavailable route, inspect the Saved
+  screen, and decode the live App Group payload to prove all four eligible routes
+  are cached with at most three departures each while the unavailable route is
+  omitted.
+- [x] Select the live U-Bahn Alerts filter, verify the visible
+  `For you · Service · U-Bahn` summary and U3 result persist after
+  pull-to-refresh, and capture the unclipped 368×800 state.
+- [x] Reopen and refresh the unfiltered live Alerts feed after the saved-empty
+  correction, verify both U3 notices remain reachable, and capture the unclipped
+  368×800 search/filter/list state.
+- [x] Reopen live Stephansplatz after the Station Detail empty-snapshot correction,
+  verify both service alerts remain visible above departures, and capture the
+  unclipped 368×800 state.
+- [x] Observe a live featured U3 across its delayed boundary, verify Home advances
+  to the next eligible saved route, and capture the resulting U1 card plus matching
+  accessibility semantics at 368×800.
 
-- [ ] **TV-UI-017 - Optional account access.**
-  - Outcome: anonymous use plus native Apple and email account entry with secure
-    lifecycle handling.
-  - Dependency: explicit email identity provider/backend selection.
-  - Completed slice: native Apple entry, minimal device-only Keychain profile,
-    restore, cancellation, failure, sign-out, and authorized/revoked/transferred
-    credential handling with focused tests. Runtime Apple revocation notifications
-    now clear the local session immediately. The same real Apple boundary is exposed
-    as the final onboarding choice, while a separate anonymous action remains.
-  - Evidence: eleven focused account lifecycle tests, two onboarding-order tests,
-    and warning-free full CI pass; total XCTest count is 90. Security review found
-    no new secret, token, storage, network, dependency, log, or unresolved Critical/
-    High/Important finding. A generic Release device archive confirms the source
-    entitlement and signing team are wired, but the installed provisioning profile
-    does not yet include Sign in with Apple and must be regenerated after the
-    capability is enabled for `wellbe.TrafficVienna`.
-  - Pending slice: real email authentication, server session validation, and
-    remote delete-account behaviour after provider selection.
-  - Provider evaluation: `docs/account-auth-provider-evaluation.md` recommends
-    Firebase Authentication for native Apple, passwordless email links, provider
-    linking, and authenticated client-side deletion. Supabase would require an
-    additional trusted server boundary for its documented Auth Admin deletion.
-    No SDK, project, credential, entitlement, or domain was changed by this
-    recommendation; explicit approval remains required.
-  - Acceptance: sign-in, cancellation, failure, restore, sign-out, revocation,
-    and delete-account paths are real and tested; no local fake authentication.
+## Final validation and handoff
 
-## Phase 3 - Focused refactoring and resilience
+- [x] Full iPhone 17 build and test suite: 212 model/service + 5 UI tests.
+- [x] Static analyzer and repository/OpenCode structural validators.
+- [x] English/German compiler-extraction catalogue comparison.
+- [x] `git diff --check`, security scan, and changed-file review.
+- [x] Synchronize `STATUS.md`, root/memory journals, and architectural decisions.
+- [x] Run `bash scripts/ci.sh` with the required OpenCode runtime: hosted
+  Quality run `30808174894` passed exact published head `ad3a5e94`.
+  The local host still lacks that global CLI, so local wrapper attempts stop at
+  the permission matcher and the live protected PR check remains authoritative
+  after any later publication.
+- [x] Commit reviewed paths, push `codex/system-surfaces-readiness`, and open
+  draft PR #15.
 
-- [ ] **TV-CORE-020 - Remove proven duplication and dead references.**
-  - Outcome: shared UI and state ownership are clear without speculative layers.
-  - Paths: only files identified by completed journey work.
-  - Dependencies: affected Phase 2 slice.
-  - Acceptance: each refactor has a behavioural reason and focused regression test.
-  - Validation: focused tests and full `bash scripts/test.sh`.
-  - Completed slice: removed the unused stop-ID monitor request from the network
-    protocol, production client, and test doubles after a repository-wide reference
-    audit found no app, widget, intent, or test caller. The active DIVA and
-    traffic-info request paths remain unchanged.
-  - Evidence: source search reports zero remaining stop-ID request declarations or
-    calls; protocol conformance, app/widget build, and all 85 XCTest cases pass in
-    full CI.
-- [ ] **TV-CORE-021 - Localisation and accessibility audit.**
-  - Outcome: user-facing text is localisable; Dynamic Type, VoiceOver, contrast,
-    and reduced motion are supported across completed journeys.
-  - Paths: views, localisation resources, accessibility tests.
-  - Dependencies: Phase 2.
-  - Acceptance: no required screen has clipped text or unlabeled controls.
-  - Validation: localisation scan and simulator accessibility inspection.
-  - Completed source audit: app and widget `.stringsdata` extraction matches the
-    committed catalogues with German values for every extracted key; account and
-    empty-state hero symbols scale with Dynamic Type; Nearby distance accessibility
-    text uses locale-aware measurements; saved-data status uses text plus an icon.
-    Shared departure rows now leave fixed columns at accessibility Dynamic Type
-    sizes and expose one localized VoiceOver summary for next/following times,
-    real-time state, disruption, and walking feasibility.
-  - Evidence: `xcstringstool sync` comparison reports zero missing keys/values,
-    both catalogues compile, SwiftUI source scan finds no active `caption2`,
-    `onTapGesture`, `UIScreen.main`, deprecated navigation, or unlabeled icon-only
-    control introduced by the redesign; full CI passes with 95 XCTest cases.
-  - Pending acceptance: interactive accessibility-size and VoiceOver inspection
-    after the macOS host is unlocked.
-- [x] **TV-CORE-022 - Refresh and network lifecycle.**
-  - Outcome: refresh work cancels correctly, avoids duplicate calls, and handles
-    throttling and stale data clearly.
-  - Paths: view models, `MonitorService`, network boundary, focused tests.
-  - Dependencies: Phase 2 discovery.
-  - Acceptance: cancellation, coalescing, throttling, and stale-data tests pass.
-  - Validation: focused tests and reproducible timing evidence where applicable.
-  - Completed implementation: traffic alerts share monitor request coalescing,
-    throttling, rate-limit backoff, and in-memory stale fallback; cancelled Nearby,
-    Favourites, Alerts, and Station Detail tasks cannot publish late responses.
-    Freshness-aware snapshots retain the real successful-update timestamp and
-    explicitly label saved data in all four journeys.
-  - Evidence: concurrent alert refresh, stale fallback, late-cancellation,
-    freshness propagation, widget eligibility, deterministic 0.5-second spacing,
-    and bounded 0.8/1.6-second backoff regressions; warning-free full CI passes
-    with 83 XCTest cases.
-- [x] **TV-CORE-023 - Add dependency injection testability**
-  - Outcome: enable unit testing of view models and services by injecting mock
-    `NetworkManaging` and `MonitorService` instances.
-  - Paths: view models (`NearbyViewModel.swift`, `StationDetailViewModel.swift`, etc.) and services (`MonitorService.swift`).
-  - Dependencies: Phase 2 journeys.
-  - Acceptance: view models accept injected dependencies via initializer; tests can supply mocks without compile errors.
-  - Validation: compile with mock implementations; no runtime failures.
-  - Completed implementation: all journey models depend on the narrow station,
-    location, monitor, traffic-info, repository, storage, and activity protocols
-    they consume; `MonitorService` accepts network and scheduler boundaries.
-    Nearby migrated from `ObservableObject` to modern `@Observable` state.
-  - Evidence: new Nearby mocks prove location-free zero-request behaviour,
-    distance ordering, monitor injection, and freshness propagation; full CI passes
-    warning-free with 85 XCTest cases.
+## External release acceptance
 
-## Phase 4 - Verification and handoff
+- [ ] Produce a signed App Store distribution archive with authorized credentials.
+- [ ] Process the build in App Store Connect and complete metadata/privacy review.
+- [ ] Exercise notifications, widgets, Dynamic Island/Live Activity lifecycle,
+  and background behavior through signed physical-device TestFlight acceptance.
 
-- [x] **TV-VERIFY-030 - Server-side checks.** Run and record
-  `git diff --check`, `bash scripts/validate-repository.sh`, and
-  `bash scripts/validate-opencode.sh` after each coherent batch. Last run:
-  2026-07-18, all exited 0.
-- [x] **TV-VERIFY-031 - macOS build and tests.** Run `bash scripts/ci.sh` on a
-  suitable macOS/Xcode host, including the app and widget targets.
-  - Evidence: full CI exited 0 on iPhone 17 simulator; app/widget build succeeded,
-    the freshness/lifecycle and dead-reference audits passed, and all 95 XCTest
-    cases pass.
-- [ ] **TV-VERIFY-032 - Product inspection.** Exercise every Phase 2 journey in
-  light/dark appearance, accessibility text sizes, and relevant failure states.
-- [ ] **TV-VERIFY-033 - Independent reviews.** Resolve every Blocking/Important
-  reviewer and security-reviewer finding, then rerun affected checks.
-- [ ] **TV-VERIFY-034 - State synchronization.** Make `PROJECT.md`, `SPEC.md`,
-  `BACKLOG.md`, `STATUS.md`, `CHECKS.md`, `DECISIONS.md`, `JOURNAL.md`, and
-  `SECURITY.md` agree with observed evidence.
-
-## Completion
-
-- [ ] Every requested requirement has fresh evidence in `JOURNAL.md` and its
-  executable backlog item is checked only after that evidence exists.
-- [ ] No mandatory check is skipped or masked.
-- [ ] No required TODO, placeholder, broken flow, or unresolved important finding
-  remains.
-- [ ] `STATUS.md` is `COMPLETE` only after the preceding items pass.
+These external items gate App Store submission, not completion of the local audit
+or draft-PR handoff.

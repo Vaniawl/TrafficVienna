@@ -2,49 +2,51 @@ import SwiftUI
 
 struct FavoriteNextDepartureCard: View {
     let item: FeaturedDeparture
-    let action: () -> Void
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
-        Button(action: action) {
-            VStack(alignment: .leading, spacing: Spacing.md) {
-                header
+        VStack(alignment: .leading, spacing: Spacing.md) {
+            header
 
-                Group {
-                    if dynamicTypeSize.isAccessibilitySize {
-                        VStack(alignment: .leading, spacing: Spacing.md) {
-                            route
-                            time
-                        }
-                    } else {
-                        HStack(alignment: .center, spacing: Spacing.md) {
-                            route
-                            Spacer(minLength: Spacing.sm)
-                            time
-                        }
+            Group {
+                if dynamicTypeSize.isAccessibilitySize {
+                    VStack(alignment: .leading, spacing: Spacing.md) {
+                        route
+                        time
+                    }
+                } else {
+                    HStack(alignment: .center, spacing: Spacing.md) {
+                        route
+                        Spacer(minLength: Spacing.sm)
+                        time
                     }
                 }
-
-                Label(item.stopName, systemImage: "mappin.and.ellipse")
-                    .font(.subheadline)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                Label("View favourites", systemImage: "arrow.right")
-                    .font(.subheadline)
-                    .bold()
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(Spacing.lg)
-            .foregroundStyle(DesignColor.inverseText)
-            .background(DesignColor.brandGradient, in: .rect(cornerRadius: CornerRadius.xl))
-            .contentShape(.rect(cornerRadius: CornerRadius.xl))
+
+            Label(item.stopName, systemImage: "mappin.and.ellipse")
+                .font(.subheadline)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Label("View departures", systemImage: "arrow.right")
+                .font(.subheadline)
+                .bold()
         }
-        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(Spacing.md)
+        .foregroundStyle(DesignColor.inverseText)
+        .background(DesignColor.brandGradient, in: .rect(cornerRadius: CornerRadius.lg))
+        .contentShape(.rect(cornerRadius: CornerRadius.lg))
+        .shadow(
+            color: Shadow.sm.color,
+            radius: Shadow.sm.radius,
+            x: Shadow.sm.x,
+            y: Shadow.sm.y
+        )
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(accessibilityLabel))
-        .accessibilityHint(Text("Opens favourites"))
-        .accessibilityInputLabels([Text("Next departure"), Text("View favourites")])
+        .accessibilityHint(Text("Opens live departures"))
+        .accessibilityInputLabels([Text("Next departure"), Text("View departures")])
     }
 
     private var header: some View {
@@ -110,11 +112,11 @@ struct FavoriteNextDepartureCard: View {
             alignment: dynamicTypeSize.isAccessibilitySize ? .leading : .trailing,
             spacing: Spacing.none
         ) {
-            if minutes <= 0 {
+            if let minutes, minutes <= 0 {
                 Text("now")
                     .font(.largeTitle)
                     .bold()
-            } else {
+            } else if let minutes {
                 Text(minutes, format: .number)
                     .font(.largeTitle)
                     .bold()
@@ -126,13 +128,17 @@ struct FavoriteNextDepartureCard: View {
                     )
                 Text("min")
                     .font(.subheadline)
+            } else {
+                Text("—")
+                    .font(.largeTitle)
+                    .bold()
             }
         }
         .animation(Motion.quick(reduceMotion: reduceMotion), value: minutes)
     }
 
-    private var minutes: Int {
-        item.departure.liveMinutes
+    private var minutes: Int? {
+        item.departure.liveMinutes(anchoredAt: item.updatedAt)
     }
 
     private var accessibilityLabel: String {
@@ -142,9 +148,9 @@ struct FavoriteNextDepartureCard: View {
             item.stopName
         ]
 
-        if minutes <= 0 {
+        if let minutes, minutes <= 0 {
             details.append(String(localized: "Next departure now"))
-        } else {
+        } else if let minutes {
             let duration = Measurement(value: Double(minutes), unit: UnitDuration.minutes)
                 .formatted(
                     .measurement(
@@ -154,6 +160,8 @@ struct FavoriteNextDepartureCard: View {
                     )
                 )
             details.append(String(localized: "Next departure in \(duration)"))
+        } else {
+            details.append(String(localized: "No departure time available"))
         }
 
         if item.state == .cached {
@@ -173,8 +181,7 @@ struct FavoriteNextDepartureCard: View {
             stopName: "Stephansplatz",
             departure: DepartureInfo(countdown: 3, planned: "", real: nil, isRealtime: true),
             state: .available
-        ),
-        action: {}
+        )
     )
     .padding()
     .background(DesignColor.background)

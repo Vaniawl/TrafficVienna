@@ -9,10 +9,14 @@ final class DisruptionsViewModel {
     private(set) var isLoadingRequest = false
     private(set) var isShowingSavedData = false
     private(set) var refreshErrorMessage: String?
+    private(set) var relevantLines: Set<String> = []
     var selectedKind: DisruptionKind = .service
+    var selectedScope: DisruptionScope = .relevant
     var categoryFilter: LineCategory?
     var lineFilter = ""
 
+    private var isForceRefreshQueued = false
+    private var hasLoadedSnapshot = false
     private let service: TrafficInfoProviding
 
     init(service: TrafficInfoProviding = MonitorService.shared) {
@@ -23,16 +27,49 @@ final class DisruptionsViewModel {
         infos.count { DisruptionKind(categoryID: $0.categoryID) == .service }
     }
 
+    var badgeCount: Int {
+        let serviceInfos = infos.filter {
+            DisruptionKind(categoryID: $0.categoryID) == .service
+        }
+        guard hasRelevantLines else {
+            return serviceInfos.count
+        }
+        return serviceInfos.filter(isRelevant).count
+    }
+
+    var hasRelevantLines: Bool {
+        !relevantLines.isEmpty
+    }
+
+    var filterSummary: String {
+        var parts = [
+            effectiveScope.title,
+            String(localized: selectedKind.title),
+        ]
+        if let categoryFilter {
+            parts.append(categoryFilter.rawValue)
+        }
+        return parts.joined(separator: " · ")
+    }
+
+    var isShowingRelevantScope: Bool {
+        effectiveScope == .relevant
+    }
+
+    var relevantLineSummary: String {
+        relevantLines.sorted().map { $0.uppercased() }.joined(separator: ", ")
+    }
+
     var dashboardStatus: ServiceDashboardStatus {
         switch state {
         case .loading:
             .loading
         case .failed:
             .unavailable
-        case .loaded where activeServiceCount == 0:
+        case .loaded where dashboardAlertCount == 0:
             .allClear(isSaved: isShowingSavedData)
         case .loaded:
-            .alerts(count: activeServiceCount, isSaved: isShowingSavedData)
+            .alerts(count: dashboardAlertCount, isSaved: isShowingSavedData)
         }
     }
 
@@ -45,6 +82,10 @@ final class DisruptionsViewModel {
 
     var filteredInfos: [TrafficInfo] {
         var result = kindInfos
+
+        if effectiveScope == .relevant {
+            result = result.filter(isRelevant)
+        }
 
         if let categoryFilter {
             result = result.filter { info in
@@ -65,7 +106,9 @@ final class DisruptionsViewModel {
     }
 
     var hasActiveFilters: Bool {
-        categoryFilter != nil || !lineFilter.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        effectiveScope != defaultScope
+            || categoryFilter != nil
+            || !lineFilter.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     var hasAlertsForSelectedKind: Bool {
@@ -77,46 +120,101 @@ final class DisruptionsViewModel {
         categoryFilter = nil
     }
 
+    func selectScope(_ scope: DisruptionScope) {
+        guard scope != .relevant || hasRelevantLines else { return }
+        selectedScope = scope
+    }
+
+    func updateRelevantLines(_ lines: Set<String>) {
+        relevantLines = Set(lines.map(Self.normalizedLine))
+    }
+
     func clearFilters() {
+        selectedScope = hasRelevantLines ? .relevant : .all
         categoryFilter = nil
         lineFilter = ""
     }
 
     func load(force: Bool = false) async {
-        guard !isLoadingRequest else { return }
+        guard !isLoadingRequest else {
+            isForceRefreshQueued = isForceRefreshQueued || force
+            return
+        }
         isLoadingRequest = true
-        if infos.isEmpty {
+        defer {
+            isForceRefreshQueued = false
+            isLoadingRequest = false
+        }
+
+        var nextForceRefresh: Bool? = force
+        while let currentForceRefresh = nextForceRefresh {
+            isForceRefreshQueued = false
+            await loadPass(force: currentForceRefresh)
+            guard !Task.isCancelled else { return }
+            nextForceRefresh = isForceRefreshQueued ? true : nil
+        }
+    }
+
+    private func loadPass(force: Bool) async {
+        if !hasLoadedSnapshot {
             state = .loading
             isShowingSavedData = false
         }
         refreshErrorMessage = nil
-        defer {
-            isLoadingRequest = false
-        }
 
         do {
             let snapshot = try await service.trafficInfoSnapshot(forceRefresh: force)
             guard !Task.isCancelled else { return }
+            guard !isForceRefreshQueued else { return }
             infos = Self.normalized(snapshot.infos)
+            if let categoryFilter,
+               !availableCategories.contains(categoryFilter) {
+                self.categoryFilter = nil
+            }
             isShowingSavedData = snapshot.isStale
             if snapshot.isStale {
                 refreshErrorMessage = String(localized: "Showing saved data from the last successful update.")
             }
+            hasLoadedSnapshot = true
             state = .loaded
         } catch {
+            guard !Task.isCancelled else { return }
+            guard !isForceRefreshQueued else { return }
             let message = error.monitorDisplayMessage
-            if infos.isEmpty {
+            if !hasLoadedSnapshot {
                 state = .failed(message)
                 isShowingSavedData = false
             } else {
                 refreshErrorMessage = message
                 isShowingSavedData = true
+                state = .loaded
             }
         }
     }
 
     private var kindInfos: [TrafficInfo] {
         infos.filter { DisruptionKind(categoryID: $0.categoryID) == selectedKind }
+    }
+
+    private var dashboardAlertCount: Int {
+        hasRelevantLines ? badgeCount : activeServiceCount
+    }
+
+    private var effectiveScope: DisruptionScope {
+        selectedScope == .relevant && !hasRelevantLines ? .all : selectedScope
+    }
+
+    private var defaultScope: DisruptionScope {
+        hasRelevantLines ? .relevant : .all
+    }
+
+    private func isRelevant(_ info: TrafficInfo) -> Bool {
+        guard let lines = info.relatedLines else { return false }
+        return lines.contains { relevantLines.contains(Self.normalizedLine($0)) }
+    }
+
+    private static func normalizedLine(_ line: String) -> String {
+        line.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }
 
     private static func normalized(_ infos: [TrafficInfo]) -> [TrafficInfo] {

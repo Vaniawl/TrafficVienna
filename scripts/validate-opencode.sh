@@ -16,6 +16,15 @@ cfg = json.loads((root / "opencode.json").read_text(encoding="utf-8"))
 
 required = [
     "AGENTS.md",
+    "PROJECT.md",
+    "SPEC.md",
+    "STATUS.md",
+    "BACKLOG.md",
+    "CHECKS.md",
+    "RESTRICTIONS.md",
+    "SECURITY.md",
+    "DECISIONS.md",
+    "JOURNAL.md",
     "docs/CONTEXT.md",
     "docs/REFERENCES.md",
     "memory/DECISIONS.md",
@@ -55,6 +64,27 @@ if cfg.get("$schema") != "https://opencode.ai/config.json":
 plugins = cfg.get("plugin", [])
 if "opencode-mobile" not in plugins:
     raise SystemExit("[validate-opencode] opencode-mobile plugin is not preserved")
+
+agents_rules = (root / "AGENTS.md").read_text(encoding="utf-8")
+if "For broad product, audit, or release work" not in agents_rules:
+    raise SystemExit("[validate-opencode] AGENTS.md missing conditional root-state routing")
+
+state_doc = (root / "docs/opencode/state-files.md").read_text(encoding="utf-8")
+for path in [
+    "PROJECT.md",
+    "SPEC.md",
+    "STATUS.md",
+    "BACKLOG.md",
+    "CHECKS.md",
+    "RESTRICTIONS.md",
+    "SECURITY.md",
+    "DECISIONS.md",
+    "JOURNAL.md",
+]:
+    if f"`{path}`" not in agents_rules:
+        raise SystemExit(f"[validate-opencode] AGENTS.md does not route root state: {path}")
+    if f"`{path}`" not in state_doc:
+        raise SystemExit(f"[validate-opencode] state-files.md missing root state: {path}")
 
 instructions = set(cfg.get("instructions", []))
 for instruction in ["AGENTS.md", "docs/CONTEXT.md", "memory/JOURNAL.md"]:

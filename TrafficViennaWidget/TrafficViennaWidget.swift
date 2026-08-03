@@ -77,10 +77,26 @@ struct Provider: AppIntentTimelineProvider {
     }
 
     func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> SimpleEntry {
-        let (items, lastUpdated) = loadCached()
-        if items.isEmpty {
+        let routes = selectedRoutes(
+            for: configuration,
+            family: context.family
+        )
+        let (cached, lastUpdated) = loadCached()
+        let items = selectedItems(routes: routes, cached: cached)
+
+        switch WidgetSnapshotPolicy.content(
+            hasItems: !items.isEmpty,
+            isPreview: context.isPreview
+        ) {
+        case .placeholder:
             return placeholder(in: context)
-        } else {
+        case .empty:
+            return SimpleEntry(
+                date: .now,
+                items: [],
+                lastUpdated: nil
+            )
+        case .items:
             let now = Date.now
             return SimpleEntry(
                 date: now,
@@ -89,7 +105,10 @@ struct Provider: AppIntentTimelineProvider {
                     fallbackUpdatedAt: lastUpdated,
                     at: now
                 ),
-                lastUpdated: lastUpdated
+                lastUpdated: WidgetFreshness.displayedUpdatedAt(
+                    items: items,
+                    fallback: lastUpdated
+                )
             )
         }
     }
@@ -97,37 +116,65 @@ struct Provider: AppIntentTimelineProvider {
     func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
         let defaults = UserDefaults(suiteName: appGroupID)
         let now = Date.now
-        let lastAttempt = defaults?.object(forKey: widgetLastFetchAttemptKey) as? Date ?? .distantPast
+        let routes = selectedRoutes(
+            for: configuration,
+            family: context.family
+        )
+        let scopedAttemptKey = WidgetRefreshThrottle.attemptKey(
+            baseKey: widgetLastFetchAttemptKey,
+            routes: routes
+        )
+        let lastAttempt = defaults?.object(forKey: scopedAttemptKey) as? Date
         let refreshRequestedAt = defaults?.object(forKey: widgetRefreshRequestedKey) as? Date
-        let hasManualRefresh = refreshRequestedAt.map { $0 > lastAttempt } ?? false
-        let canFetch = hasManualRefresh || now.timeIntervalSince(lastAttempt) >= 300
-
-        var (items, lastUpdated) = loadCached()
+        let canFetch = WidgetRefreshThrottle.shouldFetch(
+            routes: routes,
+            lastAttempt: lastAttempt,
+            refreshRequestedAt: refreshRequestedAt,
+            now: now
+        )
+        var (cached, lastUpdated) = loadCached()
 
         if canFetch {
-            defaults?.set(now, forKey: widgetLastFetchAttemptKey)
-            if let refresh = await fetchFavoritesData(cached: items) {
-                items = refresh.items
+            defaults?.set(now, forKey: scopedAttemptKey)
+            if let refresh = await fetchFavoritesData(
+                routes: routes,
+                cached: cached
+            ) {
+                cached = mergeCache(existing: cached, refreshed: refresh.items)
                 if refresh.isComplete {
                     lastUpdated = now
                 }
-                saveCached(items: items, lastUpdated: lastUpdated)
+                saveCached(items: cached, lastUpdated: lastUpdated)
             }
         }
 
-        let entries = (0..<5).map { minute in
-            let entryDate = now.addingTimeInterval(TimeInterval(minute * 60))
-            return SimpleEntry(
+        let items = selectedItems(routes: routes, cached: cached)
+        let displayDate = WidgetFreshness.displayedUpdatedAt(
+            items: items,
+            fallback: lastUpdated
+        )
+        let futureDate = now.addingTimeInterval(5 * 60)
+        let entryDates = WidgetTimelineSchedule.entryDates(
+            now: now,
+            refreshDate: futureDate,
+            items: items,
+            fallbackUpdatedAt: lastUpdated
+        )
+        let entries = entryDates.map { entryDate in
+            SimpleEntry(
                 date: entryDate,
                 items: WidgetCountdownProjection.items(
                     items,
                     fallbackUpdatedAt: lastUpdated,
                     at: entryDate
                 ),
-                lastUpdated: lastUpdated
+                lastUpdated: displayDate
             )
         }
-        return Timeline(entries: entries, policy: .after(now.addingTimeInterval(5 * 60)))
+        return Timeline(
+            entries: entries,
+            policy: .after(futureDate)
+        )
     }
 
     // MARK: - Cache helpers
@@ -158,11 +205,70 @@ struct Provider: AppIntentTimelineProvider {
         }
     }
 
+    private func selectedRoutes(
+        for configuration: ConfigurationAppIntent,
+        family: WidgetFamily
+    ) -> [FavoriteRoute] {
+        let configured = configuration.routes.map(\.route)
+        let routes = configured.isEmpty ? loadFavoritesFromDefaults() : configured
+        return Array(routes.prefix(routeLimit(for: family)))
+    }
+
+    private func routeLimit(for family: WidgetFamily) -> Int {
+        switch family {
+        case .systemMedium, .systemLarge:
+            3
+        default:
+            1
+        }
+    }
+
+    private func selectedItems(
+        routes: [FavoriteRoute],
+        cached: [WidgetDepartureData]
+    ) -> [WidgetDepartureData] {
+        WidgetDataMerge.ordered(
+            selected: routes.map {
+                WidgetRouteKey(
+                    diva: $0.diva,
+                    lineName: $0.lineName,
+                    destination: $0.destination
+                )
+            },
+            fresh: [],
+            cached: cached
+        )
+    }
+
+    private func mergeCache(
+        existing: [WidgetDepartureData],
+        refreshed: [WidgetDepartureData]
+    ) -> [WidgetDepartureData] {
+        let refreshedKeys = Set(
+            refreshed.map {
+                WidgetRouteKey(
+                    diva: $0.diva,
+                    lineName: $0.lineName,
+                    destination: $0.destination
+                )
+            }
+        )
+        return existing.filter {
+            !refreshedKeys.contains(
+                WidgetRouteKey(
+                    diva: $0.diva,
+                    lineName: $0.lineName,
+                    destination: $0.destination
+                )
+            )
+        } + refreshed
+    }
+
     // MARK: - Fetch during timeline generation
     private func fetchFavoritesData(
+        routes: [FavoriteRoute],
         cached: [WidgetDepartureData]
     ) async -> (items: [WidgetDepartureData], isComplete: Bool)? {
-        let routes = loadFavoritesFromDefaults()
         guard !routes.isEmpty else { return ([], true) }
 
         let selected = Array(routes.prefix(3))
@@ -225,13 +331,15 @@ struct Provider: AppIntentTimelineProvider {
         let minutes = line.departures.departure.map { $0.departureTime.countdown }
         let top = Array(minutes.prefix(3))
         let stopName = monitors.first?.locationStop?.properties.title ?? fav.diva
+        let fetchedAt = Date.now
         return WidgetDepartureData(
             diva: fav.diva,
             lineName: fav.lineName,
             stopName: stopName,
             destination: fav.destination,
             departures: top,
-            fetchedAt: .now
+            fetchedAt: fetchedAt,
+            dataUpdatedAt: fetchedAt
         )
     }
 }
@@ -245,6 +353,29 @@ private struct WidgetLineBadge: View {
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
             .background(LineColors.color(for: line), in: RoundedRectangle(cornerRadius: 5))
+    }
+}
+
+private struct WidgetCountdownText: View {
+    let minutes: Int?
+    let referenceDate: Date
+
+    var body: some View {
+        if let minutes {
+            if minutes <= 0 {
+                Text("now")
+            } else {
+                Text(
+                    timerInterval: referenceDate ... referenceDate.addingTimeInterval(
+                        TimeInterval(minutes * 60)
+                    ),
+                    countsDown: true,
+                    showsHours: false
+                )
+            }
+        } else {
+            Text("–")
+        }
     }
 }
 
@@ -336,20 +467,29 @@ struct TrafficViennaWidgetEntryView: View {
 
             Spacer(minLength: 0)
 
-            HStack(alignment: .firstTextBaseline, spacing: 3) {
-                Text(item.departures.first.map(timeString) ?? "–")
-                    .font(.system(size: 34, weight: .semibold))
-                    .monospacedDigit()
-                    .contentTransition(.numericText(countsDown: true))
-                if let first = item.departures.first, first > 0 {
-                    Text("min").font(.caption).foregroundStyle(.secondary)
-                }
-            }
+            WidgetCountdownText(
+                minutes: item.departures.first,
+                referenceDate: entry.date
+            )
+            .font(.system(size: 30, weight: .semibold))
+            .monospacedDigit()
+            .minimumScaleFactor(0.75)
+            .contentTransition(.numericText(countsDown: true))
+
             if item.departures.count > 1 {
-                let following = item.departures.dropFirst().prefix(2).map(String.init).joined(separator: ", ")
-                Text("\(following) min")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                HStack(spacing: 6) {
+                    ForEach(
+                        Array(item.departures.dropFirst().prefix(2).enumerated()),
+                        id: \.offset
+                    ) { _, minutes in
+                        WidgetCountdownText(
+                            minutes: minutes,
+                            referenceDate: entry.date
+                        )
+                    }
+                }
+                .font(.caption.monospacedDigit())
+                .foregroundStyle(.secondary)
             }
 
             Spacer(minLength: 0)
@@ -366,10 +506,14 @@ struct TrafficViennaWidgetEntryView: View {
                 Spacer()
                 refreshButton
             }
-            ForEach(entry.items.prefix(3).indices, id: \.self) { idx in
-                row(entry.items[idx])
-                if idx != min(2, entry.items.count - 1) {
-                    Divider().opacity(0.25)
+            if entry.items.count == 1, let item = entry.items.first {
+                mediumHero(item)
+            } else {
+                ForEach(entry.items.prefix(3).indices, id: \.self) { idx in
+                    row(entry.items[idx])
+                    if idx != min(2, entry.items.count - 1) {
+                        Divider().opacity(0.25)
+                    }
                 }
             }
             Spacer(minLength: 0)
@@ -393,13 +537,99 @@ struct TrafficViennaWidgetEntryView: View {
                 refreshButton
             }
 
-            ForEach(entry.items.prefix(3).indices, id: \.self) { index in
-                largeRow(entry.items[index])
+            if entry.items.count == 1, let item = entry.items.first {
+                largeHero(item)
+                    .frame(maxHeight: .infinity)
+            } else {
+                ForEach(entry.items.prefix(3).indices, id: \.self) { index in
+                    largeRow(entry.items[index])
+                }
+                Spacer(minLength: 0)
             }
 
-            Spacer(minLength: 0)
             updatedLabel
         }
+    }
+
+    private func mediumHero(_ item: WidgetDepartureData) -> some View {
+        HStack(spacing: 14) {
+            VStack(alignment: .leading, spacing: 3) {
+                WidgetLineBadge(line: item.lineName)
+                Text(item.destination)
+                    .font(.headline)
+                    .lineLimit(1)
+                Text(item.stopName)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            Spacer(minLength: 8)
+            WidgetCountdownText(
+                minutes: item.departures.first,
+                referenceDate: entry.date
+            )
+            .font(.title2.bold())
+            .monospacedDigit()
+            .minimumScaleFactor(0.8)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.horizontal, 4)
+    }
+
+    private func largeHero(_ item: WidgetDepartureData) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 10) {
+                WidgetLineBadge(line: item.lineName)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(item.destination)
+                        .font(.title3.bold())
+                        .lineLimit(1)
+                    Text(item.stopName)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Next departure")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                WidgetCountdownText(
+                    minutes: item.departures.first,
+                    referenceDate: entry.date
+                )
+                .font(.system(size: 46, weight: .bold, design: .rounded))
+                .monospacedDigit()
+                .minimumScaleFactor(0.7)
+            }
+
+            if item.departures.count > 1 {
+                HStack(spacing: 10) {
+                    ForEach(
+                        Array(item.departures.dropFirst().prefix(2).enumerated()),
+                        id: \.offset
+                    ) { _, minutes in
+                        WidgetCountdownText(
+                            minutes: minutes,
+                            referenceDate: entry.date
+                        )
+                        .font(.headline.monospacedDigit())
+                        .frame(maxWidth: .infinity, minHeight: 42)
+                        .background(
+                            Color.primary.opacity(0.06),
+                            in: RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        )
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .padding(16)
+        .background(
+            Color.primary.opacity(0.04),
+            in: RoundedRectangle(cornerRadius: 18, style: .continuous)
+        )
     }
 
     private func largeRow(_ item: WidgetDepartureData) -> some View {
@@ -420,7 +650,10 @@ struct TrafficViennaWidgetEntryView: View {
 
             HStack(spacing: 8) {
                 ForEach(Array(item.departures.prefix(3).enumerated()), id: \.offset) { index, minute in
-                    Text(timeString(minute))
+                    WidgetCountdownText(
+                        minutes: minute,
+                        referenceDate: entry.date
+                    )
                         .font(index == 0 ? .title2.bold() : .headline)
                         .monospacedDigit()
                         .contentTransition(.numericText(countsDown: true))
@@ -451,14 +684,14 @@ struct TrafficViennaWidgetEntryView: View {
                 Text(item.lineName)
                     .font(.caption.bold())
                     .widgetAccentable()
-                Text(item.departures.first.map(timeString) ?? "–")
+                WidgetCountdownText(
+                    minutes: item.departures.first,
+                    referenceDate: entry.date
+                )
                     .font(.title2.bold())
                     .monospacedDigit()
+                    .minimumScaleFactor(0.65)
                     .contentTransition(.numericText(countsDown: true))
-                if item.departures.first.map({ $0 > 0 }) == true {
-                    Text("min")
-                        .font(.system(size: 8, weight: .semibold))
-                }
             }
         }
     }
@@ -475,29 +708,45 @@ struct TrafficViennaWidgetEntryView: View {
                     .font(.caption)
                     .lineLimit(1)
                 if item.departures.count > 1 {
-                    Text("\(item.departures.dropFirst().prefix(2).map(String.init).joined(separator: ", ")) min")
-                        .font(.caption2)
+                    HStack(spacing: 5) {
+                        ForEach(
+                            Array(item.departures.dropFirst().prefix(2).enumerated()),
+                            id: \.offset
+                        ) { _, minutes in
+                            WidgetCountdownText(
+                                minutes: minutes,
+                                referenceDate: entry.date
+                            )
+                        }
+                    }
+                    .font(.caption2.monospacedDigit())
                 }
             }
             Spacer(minLength: 4)
-            VStack(spacing: 0) {
-                Text(item.departures.first.map(timeString) ?? "–")
-                    .font(.title.bold())
-                    .monospacedDigit()
-                    .contentTransition(.numericText(countsDown: true))
-                if item.departures.first.map({ $0 > 0 }) == true {
-                    Text("min").font(.caption2)
-                }
-            }
+            WidgetCountdownText(
+                minutes: item.departures.first,
+                referenceDate: entry.date
+            )
+            .font(.title.bold())
+            .monospacedDigit()
+            .minimumScaleFactor(0.65)
+            .contentTransition(.numericText(countsDown: true))
         }
     }
 
     private var accessoryInlineView: some View {
         let item = entry.items[0]
-        return Label(
-            "\(item.lineName) → \(item.destination): \(item.departures.first.map(timeString) ?? "–") min",
-            systemImage: "tram.fill"
-        )
+        return Label {
+            HStack(spacing: 4) {
+                Text("\(item.lineName) → \(item.destination):")
+                WidgetCountdownText(
+                    minutes: item.departures.first,
+                    referenceDate: entry.date
+                )
+            }
+        } icon: {
+            Image(systemName: "tram.fill")
+        }
     }
 
     private func row(_ item: WidgetDepartureData) -> some View {
@@ -507,21 +756,23 @@ struct TrafficViennaWidgetEntryView: View {
                 .font(.subheadline)
                 .lineLimit(1)
             Spacer(minLength: 4)
-            HStack(alignment: .firstTextBaseline, spacing: 2) {
-                Text(item.departures.first.map(timeString) ?? "–")
-                    .font(.headline)
-                    .monospacedDigit()
-                    .contentTransition(.numericText(countsDown: true))
-                if let first = item.departures.first, first > 0 {
-                    Text("min").font(.caption).foregroundStyle(.secondary)
-                }
-            }
+            WidgetCountdownText(
+                minutes: item.departures.first,
+                referenceDate: entry.date
+            )
+            .font(.headline)
+            .monospacedDigit()
+            .minimumScaleFactor(0.75)
+            .contentTransition(.numericText(countsDown: true))
             if item.departures.count > 1 {
-                Text("\(item.departures[1])")
+                WidgetCountdownText(
+                    minutes: item.departures[1],
+                    referenceDate: entry.date
+                )
                     .font(.caption)
                     .monospacedDigit()
                     .foregroundStyle(.tertiary)
-                    .frame(width: 18, alignment: .trailing)
+                    .frame(width: 44, alignment: .trailing)
             }
         }
     }
@@ -533,21 +784,31 @@ struct TrafficViennaWidgetEntryView: View {
             Image(systemName: "arrow.clockwise").font(.caption)
         }
         .buttonStyle(.plain)
-        .foregroundStyle(.secondary)
+        .foregroundStyle(.primary.opacity(0.65))
         .accessibilityLabel("Refresh")
     }
 
     @ViewBuilder
     private var updatedLabel: some View {
         if let last = entry.lastUpdated {
-            Text("Updated \(last, style: .relative)")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
+            let elapsedMinutes = WidgetFreshness.elapsedWholeMinutes(
+                since: last,
+                at: entry.date
+            )
+            if elapsedMinutes == 0 {
+                Text("Updated just now")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            } else {
+                Text("Updated \(last, style: .relative)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
         }
-    }
-
-    private func timeString(_ minutes: Int) -> String {
-        minutes <= 0 ? String(localized: "now") : "\(minutes)"
     }
 
 }
@@ -577,9 +838,22 @@ struct TrafficViennaWidget: Widget {
 
 // MARK: - Live Activity (Lock Screen + Dynamic Island)
 
-private func clampedRange(to end: Date) -> ClosedRange<Date> {
-    let now = Date.now
-    return now ... max(end, now.addingTimeInterval(1))
+private struct DepartureActivityTimeView: View {
+    let departureDate: Date
+    let isStale: Bool
+
+    var body: some View {
+        if isStale {
+            Text("Departed")
+        } else {
+            // Signed T−/T+ remains truthful even if the stale-state redraw is delayed.
+            HStack(spacing: 0) {
+                Text(verbatim: "T")
+                Text(departureDate, style: .offset)
+            }
+            .accessibilityElement(children: .combine)
+        }
+    }
 }
 
 struct DepartureLiveActivity: Widget {
@@ -593,12 +867,16 @@ struct DepartureLiveActivity: Widget {
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 1) {
-                    Text(timerInterval: clampedRange(to: context.state.departureDate), countsDown: true)
+                    DepartureActivityTimeView(
+                        departureDate: context.state.departureDate,
+                        isStale: context.isStale
+                    )
                         .font(.title2.weight(.semibold))
                         .monospacedDigit()
                         .multilineTextAlignment(.trailing)
-                        .frame(width: 78)
-                    Text("to departure").font(.caption).foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.65)
+                        .frame(width: 108)
                 }
             }
             .padding()
@@ -611,11 +889,16 @@ struct DepartureLiveActivity: Widget {
                         .padding(.leading, 4)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    Text(timerInterval: clampedRange(to: context.state.departureDate), countsDown: true)
+                    DepartureActivityTimeView(
+                        departureDate: context.state.departureDate,
+                        isStale: context.isStale
+                    )
                         .font(.title3.weight(.semibold))
                         .monospacedDigit()
-                        .frame(width: 70)
-                        .foregroundStyle(.green)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.65)
+                        .frame(width: 96)
+                        .foregroundStyle(context.isStale ? Color.secondary : Color.green)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
                     Text("→ \(context.attributes.destination)")
@@ -625,12 +908,31 @@ struct DepartureLiveActivity: Widget {
             } compactLeading: {
                 WidgetLineBadge(line: context.attributes.line)
             } compactTrailing: {
-                Text(timerInterval: clampedRange(to: context.state.departureDate), countsDown: true)
-                    .monospacedDigit()
-                    .frame(width: 44)
-                    .foregroundStyle(.green)
+                if context.isStale {
+                    Image(systemName: "clock.badge.exclamationmark")
+                        .foregroundStyle(.secondary)
+                        .accessibilityLabel("Departure has passed")
+                } else {
+                    DepartureActivityTimeView(
+                        departureDate: context.state.departureDate,
+                        isStale: false
+                    )
+                        .monospacedDigit()
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.65)
+                        .frame(width: 56)
+                        .foregroundStyle(.green)
+                }
             } minimal: {
-                Image(systemName: "tram.fill").foregroundStyle(.green)
+                if context.isStale {
+                    Image(systemName: "clock.badge.exclamationmark")
+                        .foregroundStyle(.secondary)
+                        .accessibilityLabel("Departure has passed")
+                } else {
+                    Image(systemName: "tram.fill")
+                        .foregroundStyle(.green)
+                        .accessibilityLabel("Tracked departure")
+                }
             }
         }
     }
@@ -661,6 +963,18 @@ private let previewItems = [
 }
 
 #Preview(as: .accessoryRectangular) {
+    TrafficViennaWidget()
+} timeline: {
+    SimpleEntry(date: .now, items: previewItems, lastUpdated: .now)
+}
+
+#Preview(as: .accessoryCircular) {
+    TrafficViennaWidget()
+} timeline: {
+    SimpleEntry(date: .now, items: previewItems, lastUpdated: .now)
+}
+
+#Preview(as: .accessoryInline) {
     TrafficViennaWidget()
 } timeline: {
     SimpleEntry(date: .now, items: previewItems, lastUpdated: .now)

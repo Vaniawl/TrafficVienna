@@ -7,9 +7,9 @@ struct StationFreshnessBar: View {
     var body: some View {
         Label {
             if isStale {
-                Text("Saved \(lastUpdated, style: .relative)")
+                Text("Saved at \(lastUpdated, format: .dateTime.hour().minute())")
             } else {
-                Text("Updated \(lastUpdated, style: .relative)")
+                Text("Updated at \(lastUpdated, format: .dateTime.hour().minute())")
             }
         } icon: {
             Image(systemName: isStale ? "clock.badge.exclamationmark" : "dot.radiowaves.left.and.right")
@@ -17,9 +17,7 @@ struct StationFreshnessBar: View {
         }
         .font(.footnote)
         .foregroundStyle(.secondary)
-        .frame(maxWidth: .infinity)
         .padding(.vertical, Spacing.xs)
-        .background(.bar)
         .accessibilityElement(children: .combine)
     }
 }

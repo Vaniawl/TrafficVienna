@@ -8,6 +8,17 @@
 
 import SwiftUI
 
+nonisolated struct StationCardLineSummary: Equatable {
+    let visibleLines: [String]
+    let hiddenCount: Int
+
+    init(lineNames: [String], maximumVisible: Int) {
+        let uniqueLines = Set(lineNames).sorted()
+        visibleLines = Array(uniqueLines.prefix(max(0, maximumVisible)))
+        hiddenCount = uniqueLines.count - visibleLines.count
+    }
+}
+
 struct StationCardView: View {
     let station: Station
     var distance: Double?
@@ -15,6 +26,7 @@ struct StationCardView: View {
     var failed: Bool = false
     var updatedAt: Date? = nil
     var isStale = false
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     private let maxLines = 4
 
@@ -42,41 +54,17 @@ struct StationCardView: View {
     }
 
     private var header: some View {
-        HStack(alignment: .top, spacing: Spacing.sm) {
-            VStack(alignment: .leading, spacing: Spacing.xxs) {
-                Text(station.name)
-                    .font(.headline)
-                    .accessibilityAddTraits(.isHeader)
-                if !lines.isEmpty {
-                    let unique = Set(lines.map(\.name)).sorted()
-                    HStack(spacing: Spacing.xxs) {
-                        ForEach(unique, id: \.self) { name in
-                            LineBadge(line: name, size: .small)
-                                .accessibilityLabel("Line \(name)")
-                        }
-                    }
+        Group {
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: Spacing.sm) {
+                    stationIdentity
+                    stationMetadata(alignment: .leading)
                 }
-            }
-            Spacer()
-            VStack(alignment: .trailing, spacing: Spacing.xxs) {
-                if let distance {
-                    Label(walkText(distance), systemImage: "figure.walk")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .accessibilityLabel("Walking distance")
-                }
-                if let updatedAt {
-                    if isStale {
-                        Label("Saved data", systemImage: "clock.badge.exclamationmark")
-                            .font(.caption)
-                            .foregroundStyle(.orange)
-                            .accessibilityLabel("Saved data from \(RelativeTime.updated(since: updatedAt))")
-                    } else {
-                        Text(updatedText(updatedAt))
-                            .font(.caption)
-                            .foregroundStyle(.tertiary)
-                            .accessibilityLabel("Updated \(RelativeTime.updated(since: updatedAt))")
-                    }
+            } else {
+                HStack(alignment: .top, spacing: Spacing.sm) {
+                    stationIdentity
+                    Spacer()
+                    stationMetadata(alignment: .trailing)
                 }
             }
         }
@@ -84,20 +72,84 @@ struct StationCardView: View {
         .accessibilityLabel("Station \(station.name), \(walkTextForAccessibility)")
     }
 
+    private var stationIdentity: some View {
+        VStack(alignment: .leading, spacing: Spacing.xxs) {
+            Text(station.name)
+                .font(.headline)
+                .accessibilityAddTraits(.isHeader)
+            if !lineSummary.visibleLines.isEmpty {
+                HStack(spacing: Spacing.xxs) {
+                    ForEach(lineSummary.visibleLines, id: \.self) { name in
+                        LineBadge(line: name, size: .small)
+                            .accessibilityLabel("Line \(name)")
+                    }
+                    if lineSummary.hiddenCount > 0 {
+                        Text(verbatim: "+\(lineSummary.hiddenCount)")
+                            .font(.caption.bold())
+                            .foregroundStyle(.secondary)
+                            .fixedSize()
+                            .accessibilityLabel(
+                                "Additional lines: \(lineSummary.hiddenCount)"
+                            )
+                    }
+                }
+            }
+        }
+    }
+
+    private func stationMetadata(alignment: HorizontalAlignment) -> some View {
+        VStack(alignment: alignment, spacing: Spacing.xxs) {
+            if let distance {
+                Label(walkText(distance), systemImage: "figure.walk")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .accessibilityLabel("Walking distance")
+            }
+            if let updatedAt {
+                if isStale {
+                    Label("Saved data", systemImage: "clock.badge.exclamationmark")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                        .accessibilityLabel("Saved data from \(RelativeTime.updated(since: updatedAt))")
+                } else {
+                    Text(updatedText(updatedAt))
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                        .accessibilityLabel(Text(RelativeTime.updated(since: updatedAt)))
+                }
+            }
+        }
+    }
+
+    private var lineSummary: StationCardLineSummary {
+        StationCardLineSummary(
+            lineNames: lines.map(\.name),
+            maximumVisible: dynamicTypeSize.isAccessibilitySize ? 2 : maxLines
+        )
+    }
+
     @ViewBuilder
     private var content: some View {
         if station.diva == nil {
             noLiveDataView
         } else if !lines.isEmpty {
+            let projectionDate = Date.now
             let visible = Array(lines.prefix(maxLines).enumerated())
             VStack(spacing: 0) {
                 ForEach(visible, id: \.offset) { index, line in
+                    let departures = line.departures.departure.compactMap { departure -> (Int, Bool)? in
+                        guard let minutes = departure.departureTime.liveMinutes(
+                            anchoredAt: updatedAt,
+                            now: projectionDate
+                        ) else { return nil }
+                        return (minutes, departure.departureTime.timeReal != nil)
+                    }
                     DepartureLineRow(
                         lineName: line.name,
                         destination: line.towards,
-                        minutes: line.departures.departure.map { $0.departureTime.liveMinutes },
+                        minutes: departures.map(\.0),
                         walkMinutes: walkMinutes,
-                        nextIsLive: line.departures.departure.first?.departureTime.timeReal != nil,
+                        nextIsLive: departures.first?.1 ?? false,
                         showFollowUp: false
                     )
                     .padding(.vertical, Spacing.xs)

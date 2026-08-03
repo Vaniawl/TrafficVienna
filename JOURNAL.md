@@ -1,5 +1,654 @@
 # Journal
 
+## 2026-08-03 - Empty Station Detail snapshots remain truthful
+
+- Reproduced two Station Detail state defects with regression-first coverage. A
+  successful response containing no departures was treated like no successful
+  snapshot, so a later refresh failure replaced it with an initial error. A
+  response containing traffic alerts but no departures entered the departure
+  empty state and hid those alerts. The focused suite failed 29/31 before the fix
+  on the exact expected state mismatches.
+- `StationDetailViewModel` now uses `lastUpdated` as the existing successful
+  snapshot identity and enters the loaded list whenever traffic alerts exist.
+  Refresh failure retains either a loaded or empty successful snapshot, marks it
+  stale, and keeps the refresh error available. This stays inside the existing
+  SwiftUI/MVVM, cache, polling, and public protocol boundaries; no migration or
+  ADR is required.
+- Station Detail now distinguishes current empty data from qualified saved-empty
+  data, exposes retry in both cases, and uses complete German copy. An alert-only
+  list presents the truthful no-departures message while retaining the service
+  alert section instead of suggesting that a transport filter is hiding results.
+- The complete focused Station Detail suite passes 31/31. The exact iPhone 17
+  build and 217/217 tests (212 model/service plus 5 UI) pass with no failures or
+  skips, and Xcode Analyze is clean. Compiler extraction reports 243 app and 29
+  widget source keys, all covered by the 272/35 catalogues with no missing or
+  empty German values; repository/OpenCode validators, shell syntax, scoped
+  boundary review, JSON validation, and `git diff --check` pass.
+- Live iPhone 17 acceptance reopened Stephansplatz and verified both service alerts
+  remain visible above its live departures with no clipping. The inspected
+  368×800 capture is stored at
+  `docs/release/screenshots/audit/station-detail-after-empty-state-fix.jpg`;
+  deterministic tests provide saved-empty and alert-only state evidence. Local CI
+  reaches its passing Python/timeout fixtures and stops only at the known missing
+  global `opencode` CLI, so protected exact-head CI remains the publication
+  authority.
+
+## 2026-08-03 - Empty Alerts snapshots remain truthful
+
+- Reproduced an Alerts state-identity defect: a successful empty feed was
+  indistinguishable from never having loaded, so a later forced refresh replaced
+  the known snapshot with loading and then an initial failure. When retained as
+  saved data, the view also hid that provenance behind an unconditional live
+  `All clear` claim.
+- `DisruptionsViewModel` now records whether any snapshot has succeeded. Later
+  failures retain an empty loaded snapshot and publish a refresh error; the empty
+  view distinguishes current all-clear data from qualified saved-empty data,
+  includes explicit retry, and has complete German copy.
+- The regression failed before the fix across loading, failure, saved-data, and
+  refresh-error assertions. Both new empty-snapshot cases, all 17 disruptions
+  model tests, and the exact 215/215 iPhone 17 suite then passed with no failures
+  or skips. Exact build, Xcode Analyze, repository/OpenCode validators, shell
+  syntax, 240/29 source-key localisation coverage against 270/35 catalogues,
+  scoped boundary checks, and whitespace validation pass.
+- Live iPhone 17 acceptance reopened Alerts, pulled to refresh, and retained both
+  current U3 notices with an unclipped layout. The inspected 368×800 capture is
+  stored at `docs/release/screenshots/audit/alerts-live-after-empty-state-fix.jpg`;
+  deterministic tests provide the saved-empty state evidence. Local CI still
+  stops only at the known missing global `opencode` CLI, so exact-head protected
+  CI remains the publication authority.
+
+## 2026-08-03 - App departures expire after the now grace
+
+- Reproduced a truthfulness defect in the shared app projection: a parseable
+  timestamp 61 seconds after departure still returned `0`, so stale services could
+  remain `now`. Timestamp-free cached countdowns also ignored their source age and
+  could remain featured or be re-synced to the widget as newly projected data.
+- `DepartureClock` now returns an optional projection, prefers a valid real-time
+  then planned timestamp, anchors fallback countdowns to
+  `MonitorSnapshot.updatedAt`, preserves `now` for one minute, and expires the
+  value afterward. Nearby, Station Detail, Saved, featured selection, and widget
+  sync all exclude expired values; network cadence and persistence stay unchanged.
+- The regression first failed with `XCTAssertNil failed: "0"`. Six focused
+  timestamp/fallback/Saved/Station Detail cases then passed, followed by 208/208
+  unit tests. Live iPhone 17 acceptance observed Wiener Linien delay U3 in real
+  time, then verified the featured card and accessibility tree advance to U1 when
+  U3 left the visible window; the unclipped 368×800 capture is stored at
+  `docs/release/screenshots/audit/featured-departure-advanced.jpg`.
+- The final exact iPhone 17 `.xcresult` reports 213/213 with zero failures or
+  skips. Exact app/widget build, Xcode Analyze, repository/OpenCode validators,
+  shell syntax, 238/29 source-key localisation coverage against 268/35 catalogues,
+  scoped secret/endpoint/dependency review, and whitespace checks pass. Local CI
+  reaches its passing Python/timeout fixtures and stops only at the known missing
+  global `opencode` CLI; protected exact-head CI remains required.
+
+## 2026-08-03 - Alerts drop unavailable transport filters
+
+- Reproduced a hidden Alerts filter trap after a successful feed change: a
+  selected category could disappear from the menu while remaining active and
+  filtering every refreshed result out of the list. The regression first failed
+  with the retained `metro` value.
+- `DisruptionsViewModel` now clears only a selected category absent from the
+  normalized successful snapshot. A still-available category and retained-data
+  refresh failures preserve the user's selection. The visible summary also shows
+  the active category, closing the runtime-discovered `All Vienna · Service`
+  versus `All Vienna · Service · U-Bahn` mismatch without new copy or keys.
+- Focused coverage passes 15/15. Live iPhone 17 acceptance selected U-Bahn on the
+  current U3 construction alert and verified that the visible
+  `For you · Service · U-Bahn` summary, count, and result persist after
+  pull-to-refresh; the unclipped 368×800 screenshot is stored in release evidence.
+- The authoritative iPhone 17 `.xcresult` reports 207/207 with zero failures or
+  skips. Exact build, Xcode Analyze, repository/OpenCode validators, shell syntax,
+  238/29 source-key localisation coverage against 268/35 catalogues, scoped
+  boundary review, and whitespace checks pass. Local CI still stops only at the
+  known missing global `opencode` CLI; protected exact-head CI remains required.
+
+## 2026-08-03 - App sync keeps every widget-selectable route
+
+- Reproduced a shared-cache coverage defect: after four available Saved routes
+  loaded, app sync persisted only divas `[1, 2, 3]` instead of
+  `[1, 2, 3, 4]`. A fourth route could therefore remain selectable in a separate
+  widget configuration but lose cached departures whenever the app refreshed.
+- Removed the app-level three-route truncation from the App Group projection.
+  The widget still presents one or three routes according to family, each route
+  still carries at most three departures, and unavailable Saved routes remain
+  excluded. The payload schema, App Group key, endpoints, entitlements, and MVVM
+  ownership are unchanged, so no migration or ADR is required.
+- The focused regression failed before the fix with the exact three-versus-four
+  mismatch and the complete Favorites List suite now passes 19/19. Live iPhone
+  17 inspection created four available Saved routes plus one unavailable route;
+  the decoded `widget_departure` payload contained all four available routes,
+  each with at most three departures, while the Saved screen remained unclipped.
+- The authoritative iPhone 17 `.xcresult` reports 205/205 with zero failures or
+  skips. Exact build, Xcode Analyze, repository/OpenCode validators, shell syntax,
+  238/29 source-key localisation coverage against 268/35 catalogues, scoped
+  boundary review, and whitespace checks pass. Local CI still stops only at the
+  known missing global `opencode` CLI; protected exact-head CI remains required.
+
+## 2026-08-03 - Station Detail drops unavailable transport filters
+
+- Reproduced a hidden filter trap after a successful refresh: if the selected
+  transport category disappeared from the new response, its chip disappeared too
+  while the retained selection filtered every departure out of the list.
+- `StationDetailViewModel` now reconciles the selection with each successful
+  departure snapshot. It clears only a category that is no longer present,
+  preserves a still-valid category, and leaves the current selection untouched
+  when a refresh fails and existing departures remain visible.
+- The invalid-filter regression failed before the fix with the retained `bus`
+  selection. The focused Station Detail suite now passes 28/28, including valid
+  refresh and retained-data failure paths. Live iPhone 17 inspection selected the
+  Bus chip at Stephansplatz and verified that it and four matching directions
+  remain synchronized after pull-to-refresh, without clipping or stale empty rows.
+- The authoritative iPhone 17 `.xcresult` reports 204/204 with zero failures or
+  skips. Exact build, Xcode Analyze, repository/OpenCode validators, shell syntax,
+  238/29 source-key localisation coverage against 268/35 catalogues, scoped
+  boundary review, and whitespace checks pass. Local CI remains bounded only by
+  the missing global `opencode` CLI; protected exact-head CI is still required.
+
+## 2026-08-03 - Connected launches do not flash Offline
+
+- A minimal `NWPathMonitor` reproduction and a matched iPhone 17 cold launch
+  proved that `currentPath` begins as `unsatisfied` before its first satisfied
+  callback. Home therefore flashed a false Offline banner at about 0.7 seconds
+  and removed it by 1.1 seconds on a connected simulator.
+- `NetworkMonitor` now keeps its neutral initial state until the first path
+  callback; real satisfied/unsatisfied updates, the existing overlay, motion,
+  MVVM ownership, endpoints, persistence, and security boundaries are unchanged.
+  The focused regression failed before the fix and now passes.
+- A symbolicated ETTrace launch capture measured about 1.14 seconds of active
+  main-thread work; station catalogue decode/index construction used only about
+  22.5 ms, so the considered asynchronous catalogue rewrite was rejected as
+  unjustified complexity.
+- The authoritative iPhone 17 `.xcresult` reports 202/202 with zero failures or
+  skips. Exact build, Xcode Analyze, repository/OpenCode validators, shell syntax,
+  238/29 source-key localisation coverage against 268/35 catalogues, scoped
+  boundary review, and whitespace checks pass. Matched 1206×2622 screenshots show
+  no Offline banner at 0.7 or 1.1 seconds after the fix. Local CI still stops only
+  at the known missing global `opencode` CLI boundary.
+
+## 2026-08-03 - Filtered screens avoid repeated render work
+
+- A code-first SwiftUI performance audit found that Alerts recomputed its filtered
+  feed three times per render pass, while Alerts transport categories and Station
+  Detail categories/departure groups were each derived twice.
+- `DisruptionsList` and `StationDeparturesList` now take one immutable snapshot of
+  each derived collection at the start of `body`; `DisruptionFilterBar` receives
+  the already-derived count and categories. No observable cache, persistence,
+  endpoint, dependency, copy, or layout changed.
+- Focused filter/detail coverage passes 39/39 and the authoritative iPhone 17
+  `.xcresult` reports 201/201 with zero failures or skips. Exact build, Xcode
+  Analyze, repository/OpenCode validators, 238/28 source-key localization coverage
+  against 268/35 catalogues, scoped boundary review, and whitespace checks pass.
+- Fresh 368×800 Simulator captures verify the Alerts count/empty state, the full
+  Stephansplatz list, and its U-Bahn-filtered state without clipping or stale rows.
+  Local CI still stops only at the known missing global `opencode` CLI boundary;
+  protected exact-head CI remains the publication authority.
+
+## 2026-08-03 - Live Activity becomes stale at departure
+
+- Reproduced a suspended-app lifecycle defect: the Lock Screen countdown clamped
+  to `0:00 to departure`, while ActivityKit content stayed fresh until the
+  two-minute automatic end boundary.
+- Live Activity content now becomes stale at the actual departure time and keeps
+  the existing two-minute end grace. Lock Screen and Dynamic Island surfaces show
+  a localized departed state; signed `T−`/`T+` offset rendering remains truthful
+  if a system stale redraw is delayed.
+- The lifecycle regression failed before the stale-date policy existed and now
+  passes. With the app process stopped, paired iPhone 17 screenshots show
+  `T−1 minute` before departure and `Departed` after it, both on one unclipped row.
+- The authoritative `.xcresult` reports 201/201 with zero failures or skips.
+  Exact build, Xcode Analyze, repository/OpenCode validators, shell syntax,
+  238/29 source-key localisation coverage against 268/35 catalogues, scoped
+  boundary review, and whitespace checks pass. Local CI still stops only at the
+  known missing global `opencode` CLI; protected exact-head CI remains required.
+
+## 2026-08-03 - Station card summaries remain readable at large text
+
+- Reproduced the unbounded fixed route-badge row on compact Home cards; the
+  existing five-line Stephansplatz screenshot was already near the width limit,
+  and maximum Dynamic Type also squeezed station name and metadata into narrow
+  columns.
+- Added a deterministic unique-line summary: standard cards show four badges,
+  accessibility sizes show two, and both preserve omitted information as a
+  localized `+N` accessibility label. Accessibility headers now stack station
+  identity above walking/freshness metadata without changing card navigation,
+  departures, storage, endpoints, or MVVM ownership.
+- The focused regression failed before the summary policy existed and now passes.
+  Final iPhone 17 runtime inspection shows `1A 2A 3A U1 +1` at standard size and
+  `1A 2A +3` with semantic `Additional lines: 3` at maximum Dynamic Type.
+- The authoritative `.xcresult` reports 201/201 with zero failures or skips.
+  Exact build, Xcode Analyze, repository/OpenCode validators, shell syntax,
+  238/27 source-key localisation coverage against 268/32 catalogues, scoped
+  boundary review, and whitespace checks pass. Local CI still stops only at the
+  known missing global `opencode` CLI; protected exact-head CI remains required.
+
+## 2026-08-03 - Widget configuration preserves selected route order
+
+- Traced the multi-route AppEntity restoration path and reproduced that converting
+  the ordered identifier input to a `Set` returned saved routes in local sort order.
+  The focused regression failed with U1/U4 instead of the requested U4/U1 order.
+- Added a shared pure resolution policy used by the widget query. It now traverses
+  identifiers in order, omits unavailable routes, and leaves deterministic
+  suggestion ordering, stable IDs, cache merging, storage, and fetch behavior intact.
+- The focused resolution/order suite passes 4/4; the authoritative iPhone 17
+  `.xcresult` reports 200/200 with zero failures or skips. Exact app/widget build,
+  Xcode Analyze, repository/OpenCode validators, shell syntax, catalogue values,
+  scoped security/dependency review, and whitespace checks pass.
+- The local CI wrapper still reaches only the missing global `opencode` boundary
+  after its Python/timeout fixtures pass. No layout, copy, color, or asset changed,
+  so existing inspected widget screenshots remain pixel-representative; the
+  published commit still requires its own protected Quality run.
+
+## 2026-08-03 - Cancelled refreshes do not create forced successors
+
+- Reproduced that a cancelled station or traffic-info force-refresh waiting
+  behind regular work still started a serial network successor. Both deterministic
+  regressions failed before the service fix.
+- `MonitorService` now checks caller cancellation before creating tracked network
+  work, including the recursive successor, and propagates `CancellationError`
+  instead of converting it into stale-cache success. Live forced callers still
+  receive exactly one coalesced successor.
+- The focused old/new concurrency suite passes 4/4; the authoritative iPhone 17
+  `.xcresult` reports 199/199 with zero failures or skips. Exact build, Xcode
+  Analyze, repository/OpenCode validators, shell syntax, catalogue values,
+  scoped security/dependency review, and whitespace checks pass.
+- The local CI wrapper reaches only the known missing global `opencode` CLI
+  boundary after its Python/timeout fixtures pass. No pixels or copy changed, so
+  existing inspected screenshots remain representative; the published commit
+  still requires its own protected Quality run.
+
+## 2026-08-03 - Fresh `now` widget departures leave on time
+
+- Reproduced that both the direct widget API path and app sync can store a fresh
+  departure as `0`, while timeline scheduling ignored zero and left the rendered
+  `now` value visible until the five-minute network refresh. The deterministic
+  regression failed before the fix.
+- Timeline scheduling now applies the existing one-minute removal grace to every
+  nonnegative visible countdown, including a fresh zero, while negative input
+  remains excluded. Projection, persistence, endpoint, layout, and copy are
+  unchanged.
+- The focused scheduling suite passes 4/4; the authoritative iPhone 17
+  `.xcresult` reports 197/197 with zero failures or skips. Exact build, Xcode
+  Analyze, repository/OpenCode validators, shell syntax, catalogue values,
+  scoped boundary review, and whitespace checks pass.
+- The local CI wrapper reaches only the known missing global `opencode` CLI
+  boundary after its Python/timeout fixtures pass. No pixels changed, so the
+  existing inspected widget screenshots remain representative; the published
+  commit still requires its own protected Quality run.
+
+## 2026-08-03 - Saved route removal is idempotent
+
+- Reproduced that deleting a stale Saved route row called `toggle`, so a route
+  already removed by another view was silently inserted back into persistence.
+  The regression first failed by observing the route restored after deletion.
+- Added an explicit idempotent route-removal operation to the existing favourites
+  repository and used it for destructive Saved actions. Persistence format, App
+  Group key, notification boundary, widget payload, and UI layout are unchanged.
+- Focused Saved and Station Detail coverage passes 44/44; an isolated
+  `UserDefaults` regression also proves repeated removal remains absent. The
+  authoritative iPhone 17 `.xcresult` reports 196/196 with zero failures or skips;
+  exact build, Xcode Analyze, repository/OpenCode validators, localisation
+  catalogue checks, scoped boundary review, and whitespace checks pass.
+- The local CI wrapper reaches only the known missing global `opencode` CLI
+  boundary after its Python/timeout fixtures pass. No pixels or copy changed, so
+  the existing inspected Saved screenshots remain representative; the published
+  commit still requires its own protected Quality run.
+
+## 2026-08-03 - Home location failures are retryable
+
+- Reproduced that `CLError.locationUnknown` released the one-shot request but
+  surfaced no error, leaving authorized Home users in an indefinite `Locating
+  you...` state with no recovery action. The regression first failed on the
+  missing error, and the projected dashboard state did not yet compile.
+- Temporary location failures now expose a localized retry card and a new request
+  clears the error. Retained coordinates and nearby departures remain useful
+  during a later refresh failure instead of being replaced by the fallback.
+- Focused coverage passes 14/14; the authoritative iPhone 17 `.xcresult` reports
+  194/194 with zero failures or skips. Exact build, Xcode Analyze, and localization
+  extraction pass with 237 app and 27 widget source keys fully covered by the
+  committed 267/32-key English/German catalogues.
+- Inspected iPhone 17 screenshots capture the retry state in light and dark mode
+  and live Stephansplatz recovery. No endpoint, dependency, persistence,
+  entitlement, or architecture boundary changed; protected CI remains required
+  after publication.
+
+## 2026-08-03 - Root audit state is a validated contract
+
+- Found that the tracked root product/audit files were declared active by
+  `PROJECT.md` but explicitly described as nonexistent by the OpenCode state
+  contract. Structural validation therefore ignored the same `STATUS`, `BACKLOG`,
+  and decision snapshots used for continued audit work; they had drifted to 189
+  tests, an older CI head, and superseded Apple/OpenCode claims.
+- Registered all nine root audit artifacts, added conditional broad-audit routing
+  to `AGENTS.md`, and added matching structural and reliability assertions. The
+  new validator first failed on the missing routing rule and now passes; narrow
+  tasks remain free to load only relevant root artifacts.
+- Synchronized active evidence to the authoritative 192/192 iPhone 17 result and
+  protected app-code Quality run `30777324747` at `f08662c0`, documented the
+  shared forced-refresh invariant, and marked the removed Apple profile plus the
+  obsolete global-only OpenCode ownership as superseded.
+- Repository/OpenCode validation, shell syntax, root-state existence, and
+  whitespace checks pass. The reliability suite's expanded Python and timeout
+  fixtures pass before the known local missing-`opencode` boundary. No app,
+  widget, UI, copy, localization, endpoint, persistence, entitlement, dependency,
+  or screenshot changed; the documentation/workflow commit still requires its
+  own protected PR check after publication.
+
+## 2026-08-03 - Forced refresh survives lower-intent in-flight work
+
+- Reproduced the shared-service race for both station monitors and traffic info:
+  a forced request behind a regular in-flight request made only one network call
+  and returned the older response instead of a post-regular successor.
+- `MonitorService` now tracks refresh intent and a generation per in-flight task.
+  Regular work remains shareable, equivalent forced callers coalesce, and a
+  forced caller behind regular work receives one serial successor even when the
+  regular request fails. Snapshot caching completes inside the tracked task and
+  generation-guarded cleanup cannot erase a newer successor.
+- Three regressions cover station, traffic-info, concurrent forced callers,
+  successor cache authority, and failed-normal recovery; each passed five repeated
+  runs. The authoritative iPhone 17 `.xcresult` reports 192/192 with zero failures
+  or skips; exact build, Xcode Analyze, repository/OpenCode validators, scoped
+  security, shell syntax, and whitespace checks pass.
+- The local CI wrapper reaches only the known missing global `opencode` CLI
+  boundary after its Python/timeout fixtures pass. No UI, copy, endpoint,
+  persistence, entitlement, or dependency changed, so the existing inspected
+  screenshots remain representative.
+
+## 2026-08-03 - Station Detail favourites follow repository truth
+
+- Reproduced a cross-tab consistency defect: Station Detail cached favourite
+  routes at initialization and inverted that stale set after a Saved-tab change,
+  allowing its station or route control to disagree with persisted state.
+- Station and route favourites now reload from their repositories after local
+  toggles and the existing change notifications. Saved station rows also expose
+  stable accessibility identifiers for the end-to-end regression.
+- Three focused model regressions pass, the new cross-tab UI journey passes, and
+  the authoritative iPhone 17 `.xcresult` reports 189/189 with zero failures or
+  skips. Paired screenshots show Schwedenplatz filled before external removal and
+  cleared after returning to the preserved Discover detail.
+
+## 2026-08-03 - Cached widget departures leave `now` on time
+
+- Reproduced that timeline scheduling discarded both boundaries when a cached
+  departure time was already in the past, even if its one-minute removal boundary
+  was still in the future. The regression first failed with a direct jump from
+  `now` to the five-minute refresh.
+- Departure and removal boundaries are now evaluated independently. The existing
+  `now` presentation remains intact, but its row receives the pending removal
+  entry without changing network cadence, payload, App Group keys, or layout.
+- The focused shared suite passes 58/58 and the authoritative iPhone 17
+  `.xcresult` reports 185/185 with zero failures or skips. Paired 368×800 Home
+  Screen screenshots show cached N38 at `now` and removed 34 seconds later; a
+  final screenshot confirms restoration of live N38 data.
+
+## 2026-08-03 - Widget timelines remove every visible departure
+
+- Reproduced that timeline scheduling considered only the first two countdowns
+  even though small, large, and Lock Screen widgets can render three. The focused
+  regression failed with the third departure's one-minute removal boundary at
+  `now + 240s` missing and a direct jump to the five-minute refresh.
+- The shared schedule now covers the same maximum of three departures enforced by
+  app sync, widget fetch, and presentation. Boundaries remain de-duplicated and
+  clamped to the existing refresh deadline; network cadence and layout are
+  unchanged.
+- The focused shared suite passes 58/58 and the authoritative iPhone 17
+  `.xcresult` reports 184/184 with zero failures or skips. A fresh 368×800 Home
+  Screen screenshot shows a real N38 route with the next two follow-up countdowns
+  visible, without clipping or placeholder data.
+
+## 2026-08-03 - Widget refresh throttles stay configuration-scoped
+
+- Reproduced that the widget's single five-minute attempt timestamp let one
+  selected-route configuration suppress a different widget's first fetch. The
+  new regression failed before the shared selection-scoped policy existed.
+- Timeline attempts now use a deterministic key derived from the canonical route
+  set. Equivalent orderings share a budget, different selections stay
+  independent, manual refresh still bypasses a recent attempt, and an empty
+  selection neither fetches nor advances cache freshness.
+- Full validation also exposed a time-dependent UI-test assumption: the live
+  Stephansplatz feed truthfully had no overnight departures. The Live Activity
+  journey now uses 24-hour Schwedenplatz while the independent Stephansplatz
+  search and cold-notification journeys remain unchanged.
+- The focused widget suite passes 57/57, the hardened Live Activity journey
+  passes, and the authoritative iPhone 17 `.xcresult` reports 183/183 with zero
+  failures or skips. Exact build, Xcode Analyze, localization extraction,
+  repository/OpenCode validators, scoped security, and whitespace checks pass.
+  The local OpenCode fixture reaches only the known missing global CLI boundary;
+  a fresh 368×800 Home Screen widget screenshot was captured and inspected.
+
+## 2026-08-03 - Saved retries cannot be overwritten by polling
+
+- Reproduced a Saved race in which a targeted forced retry published recovered
+  departures and was then overwritten by an older background reload. The
+  deterministic regression failed before the fix and now passes.
+- Full reloads and targeted retries now share one MainActor owner chain. Retries
+  remain route-specific, coalesce by identity, yield to queued full reloads, and
+  are discarded with the owner on cancellation; forced full work subsumes a
+  redundant queued retry.
+- Three regressions cover stale overwrite, cancellation, and forced-pass
+  coalescing. The focused suite passes 16/16 and the authoritative iPhone 17
+  `.xcresult` reports 180/180 with zero failures or skips.
+- Exact build, Xcode Analyze, structural validators, scoped security and diff
+  checks pass. The local wrapper reaches only the known missing global `opencode`
+  CLI boundary after its Python/timeout fixtures pass. A fresh 368×800 Saved
+  screenshot was captured and inspected without layout issues.
+
+## 2026-08-02 - Reminder deletion survives stale system snapshots
+
+- Reproduced a reminder-management race: a system `scheduled()` snapshot started
+  before a swipe delete could finish later and restore the removed row. The
+  deterministic regression failed before the fix and now passes.
+- Extracted the screen state into an injectable MainActor observable model. It
+  serializes overlapping reloads, queues one follow-up, fences reminder snapshots
+  by destructive revision, clears cancel-all optimistically, and reconciles after
+  system removal without publishing cancelled work.
+- Five ViewModel regressions cover exact system-ID cancellation, stale delete,
+  overlapping reloads, task cancellation, and cancel-all reconciliation. The
+  adjacent reminder suites pass 14/14; the authoritative iPhone 17 `.xcresult`
+  reports 177/177 with zero failures or skips.
+- Exact build, Xcode Analyze, compiler/catalogue localisation comparison,
+  repository/OpenCode validators, scoped security review, and whitespace checks
+  pass. No endpoint, persistence, permission, entitlement, dependency, copy, or
+  layout changed. A fresh 368×800 reminder-management screenshot was inspected.
+
+## 2026-08-02 - Live Activity stop survives refresh races
+
+- Reproduced a second lifecycle race: stopping Lock Screen tracking during an
+  in-flight Station Detail refresh cleared local state, but ActivityKit could
+  still report the pending session, so the completed refresh restored it and
+  submitted another update. The deterministic regression first failed with a
+  restored departure ID and two updates instead of one.
+- An end now marks its Activity ID terminal before asynchronous system work
+  begins. Later updates, matching, and restoration ignore that ID. Station Detail
+  also preserves explicit stop intent until system state changes, and now clears
+  local tracking when ActivityKit ends a session independently.
+- Three regressions cover stop-during-refresh, system-ended reconciliation, and
+  update rejection behind a queued end. The focused suites pass 26/26, the UI
+  start/stop journey passes, and the full iPhone 17 result is 172/172 with zero
+  failures or skips.
+- Exact build, Xcode Analyze, localisation extraction, repository/OpenCode
+  validators, scoped security review, and diff checks pass. No UI, copy,
+  endpoint, persistence, permission, entitlement, or dependency changed, so the
+  existing inspected screenshots remain representative.
+
+## 2026-08-02 - Live Activity effects preserve user-action order
+
+- Reproduced that a second ActivityKit operation for one activity could begin
+  while its predecessor was suspended, so a quick refresh/stop sequence had no
+  ordering guarantee.
+- Added a MainActor-owned per-activity operation chain. Updates and ends for one
+  Activity ID now execute in submission order, while unrelated activities remain
+  independent and completed chains are released.
+- The deterministic regression first failed with the second operation starting
+  early. Both ordering/isolation tests now pass; the adjacent Activity/Station
+  Detail slice passes 76/76 and the focused UI start/stop journey passes.
+- The authoritative iPhone 17 result reports 169/169 with zero failures or skips;
+  exact build, Xcode Analyze, scoped security review, and diff checks pass. No UI,
+  endpoint, persistence, permission, entitlement, dependency, or copy changed,
+  so the existing inspected screenshots remain representative.
+
+## 2026-08-02 - Widget freshness reflects the transport source
+
+- Reproduced a stale-data defect: Saved projected cached countdowns at the current
+  time and the widget reused that projection anchor as freshness, so old transport
+  data could appear newly updated.
+- Added an optional per-row `dataUpdatedAt` while retaining `fetchedAt` strictly as
+  the countdown projection anchor. App sync carries MonitorService source time;
+  the widget displays the oldest source across visible live/cached rows.
+- Backward and rollback decoding, mixed rows, App Group persistence, and cached
+  Saved sync have deterministic regressions. The authoritative iPhone 17 result
+  reports 167/167 passing with zero failures or skips; exact build, Xcode Analyze,
+  repository/OpenCode validators, security review, and diff checks pass.
+- Home Screen fixtures captured the legacy view reporting about two minutes and
+  the corrected medium widget reporting about 23 minutes while its countdown
+  remained live. No endpoint, key, entitlement, dependency, localization, copy,
+  or layout changed; rollback is a normal revert with no migration.
+
+## 2026-08-02 - External destinations replace stale target navigation
+
+- Reproduced a warm-routing defect: opening `trafficvienna://search` while
+  Stephansplatz detail was visible selected Discover but left the old detail
+  stack on screen.
+- Root navigation now owns a typed `NavigationPath` for every tab. External Home,
+  Discover, and Saved destinations clear only the target stack; a reminder
+  notification replaces Discover with one resolved station. Ordinary tab
+  selection preserves all paths.
+- Converted Home station links and Discover Map entry to value navigation so the
+  root can reliably reset those stacks. Six deterministic state regressions pass,
+  the focused routing slice passes 11/11, and the authoritative `.xcresult`
+  reports 163/163 with zero failures or skips.
+- Exact build, Xcode analysis, repository/OpenCode validators, scoped security
+  review, and `git diff --check` pass. Inspected 368×800 before/after iPhone 17
+  screenshots prove the warm Search route now lands on the Discover root.
+- No URL grammar, endpoint, persistence key, entitlement, dependency,
+  localization, copy, or layout changed.
+
+## 2026-08-02 - Nearby refresh follows the latest location
+
+- Found that Nearby allowed its 60-second task, location-key restart, and manual
+  refresh to fetch concurrently. An overlapping force refresh could join the
+  service's older in-flight request, a cancelled owner could mark retained data
+  failed, and its replacement location task had no explicit ownership handoff.
+- `NearbyViewModel` now keeps one MainActor-owned chain, captures location per
+  pass, queues the latest location with the strongest force intent, suppresses an
+  obsolete pass, and wakes surviving callers to take ownership after cancellation.
+- Three deterministic regressions first reproduced the failures and now pass;
+  the focused Nearby suite passes 5/5, the adjacent location/dashboard slice
+  passes 17/17, and the authoritative full `.xcresult` reports 157/157 with zero
+  failures or skips. Exact build, Xcode analysis, repository/OpenCode validators,
+  scoped security review, and `git diff --check` pass.
+- No endpoint, protocol, cache, storage, permission, entitlement, dependency,
+  localization, copy, or layout changed. Existing screenshots remain
+  representative because the slice changes only transient refresh ownership.
+
+## 2026-08-02 - Manual refresh survives active polling
+
+- Found that Station Detail and Alerts returned from every overlapping load, so
+  pull-to-refresh could silently lose its cache-bypass intent behind the 60- or
+  120-second background polling task.
+- Each ViewModel now keeps one owner-scoped chain, coalesces overlapping manual
+  requests into one forced follow-up, suppresses the obsolete pass and its error,
+  and discards queued work when the owner task is cancelled.
+- Four deterministic regressions cover forced follow-up, coalescing, obsolete
+  failure suppression, and cancellation. The focused suites pass 34/34; the
+  authoritative full `.xcresult` reports 154/154 passing with zero failures or
+  skips. Exact app/widget build, static analysis, repository/OpenCode validators,
+  scoped security review, and `git diff --check` pass.
+- No endpoint, protocol, cache, storage, entitlement, dependency, localization,
+  copy, or layout changed. Existing screenshots remain representative because
+  this slice changes only transient refresh ownership.
+
+## 2026-08-02 - Saved-route reload consistency
+
+- Found that `FavoritesListViewModel` discarded every reload requested while a
+  sequential monitor pass was in flight. Adding or removing a saved route during
+  that window could let the old pass restore the removed row and widget payload
+  until the next 60-second root refresh.
+- Coalesce overlapping requests into one follow-up pass, retain the strongest
+  queued `forceRefresh` value, revalidate the repository snapshot before commit,
+  and suppress publication from any pass that is already obsolete. Cancellation
+  still ends the owner-scoped chain without publishing or continuing in the
+  background.
+- Three deterministic concurrency regressions cover route replacement, force
+  preservation, and cancellation. The focused Saved suite passes 13/13; the
+  authoritative full `.xcresult` reports 150/150 passing with zero failures or
+  skips. Exact app/widget build, static analysis, repository/OpenCode validators,
+  scoped boundary scan, and `git diff --check` pass.
+- No endpoint, cache format, App Group key, entitlement, dependency, localization,
+  copy, or layout changed. Existing screenshots remain representative because the
+  slice corrects only transient state ownership.
+
+## 2026-08-02 - Truthful empty widget snapshots
+
+- Found that `Provider.snapshot` reused its sample U1/O placeholder whenever no
+  selected cached item existed, including ordinary non-preview snapshots. A newly
+  added or empty widget could therefore briefly display example departures as if
+  they were real.
+- Added a shared `WidgetSnapshotPolicy`: real items always win, sample departures
+  are allowed only for an empty Widget Gallery preview, and an empty runtime
+  snapshot renders the widget's existing empty state.
+- Added three focused regressions covering preview, runtime-empty, and real-item
+  precedence. They pass 3/3; the authoritative full `.xcresult` reports 147/147
+  tests passing with zero failures or skips, and Xcode static analysis succeeds.
+- No endpoint, cache format, App Group key, entitlement, dependency, localization,
+  or populated-widget layout changed. The existing widget screenshots remain
+  representative; this slice changes only the transient empty snapshot path.
+
+## 2026-08-02 - Location revocation privacy hardening
+
+- Made Core Location authorization authoritative over cached coordinates. A
+  denied, restricted, reset, or unknown status now clears the in-memory precise
+  location and resets any one-shot request in flight.
+- Hardened Map independently: unauthorized coordinates cannot mark the user as
+  located, drive nearby-marker projection, or render the user annotation. An
+  explicit user-explored map centre remains usable without location permission.
+- Added two LocationManager regressions and one stale-coordinate Map regression.
+  The focused location/map/dashboard set passes 22/22; the authoritative final
+  `.xcresult` reports 144/144 tests passing with zero failures or skips, and Xcode
+  static analysis succeeds.
+- No coordinate persistence, logging, endpoint, entitlement, dependency, or new
+  localization key was introduced. Manual permission-toggle inspection remains
+  outside this slice because no Simulator was already booted.
+
+## 2026-08-02 - Idempotent departure reminders
+
+- Replaced per-tap UUID notification identifiers with a stable identifier for one
+  station, line, and destination. Scheduling the same route again now updates one
+  pending request instead of accumulating duplicates.
+- Added compatibility cleanup for matching legacy UUID requests without removing
+  reminders for other routes, plus three focused identifier/replacement tests.
+- Focused reminder coverage passes 9/9. The authoritative full `.xcresult` reports
+  141/141 tests passing on iPhone 17 with zero failures or skips; Xcode analysis,
+  repository/OpenCode validators, the scoped scan, and diff checks pass.
+- Interactive duplicate inspection is pending because no Simulator was booted and
+  the debugger workflow does not boot one without an explicit user request.
+
+## 2026-08-02 - Full product audit and system-countdown hardening
+
+- Exercised the four journeys plus Map, About, reminder management, Station
+  Detail, context actions, and reminder feedback on iPhone 17. Inspected key
+  surfaces in light/dark appearance and accessibility Dynamic Type, plus a
+  supplementary 13-inch iPad layout.
+- Fixed ActivityKit restoration, stale-data reminder/Live Activity starts,
+  permission-prompt reminder expiry, safe unexpected reminder feedback, widget
+  body-time formatter allocation, and reminder-row Dynamic Type reflow.
+- Added focused regression coverage and German strings. The iPhone 17 suite at
+  that checkpoint passed without failures or skips, app/widget build succeeded,
+  and Xcode static analysis succeeded.
+- Compiler extraction found 267 app and 31 widget strings with zero missing
+  catalogue keys or German values. Repository/OpenCode structural validators,
+  scoped security scan, and `git diff --check` pass.
+- OpenCode reliability reaches its passing Python/timeout fixtures and both it
+  and `bash scripts/ci.sh` then stop at the global permission matcher because
+  `opencode` is not installed. Available constituent gates were run separately.
+  App Store distribution still requires signed archive,
+  App Store Connect processing, and physical TestFlight acceptance.
+- Published reviewed commit `09879b46` on
+  `codex/system-surfaces-readiness` and opened draft PR #15 against protected
+  `main`; no merge, release, or deployment action was taken.
+- Hosted Quality run `30736703774` installed the pinned OpenCode CLI and passed
+  the complete protected `scripts/ci.sh` gate in 12m56s, closing the local
+  missing-CLI validation gap for the published change set.
+
 ## 2026-07-18 - Map journey, location privacy, and selection UX
 
 - Replaced Map's body-time distance sorting and duplicate selection/sheet state

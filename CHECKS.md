@@ -1,61 +1,38 @@
 # Checks
 
-These are the required validation gates for the active goal. Commands are run
-from the repository root. A check only counts when its real exit code and
-relevant output are observed; `TRAFFICVIENNA_ALLOW_XCODEBUILD_SKIP=1` is local
-diagnostic evidence only.
+Run commands from the repository root. A check counts only when its real exit
+code and relevant output are observed; an Xcode skip is diagnostic evidence only.
 
 | Requirement | Exact command | Evidence required |
 | --- | --- | --- |
-| REQ-TV-001 | `bash scripts/test.sh` | Core regression tests pass on macOS. |
-| REQ-TV-002 | `bash scripts/build.sh` | App compiles, followed by simulator UI/accessibility evidence recorded in `JOURNAL.md`. |
-| REQ-TV-003 | `bash scripts/test.sh` | Focused refactoring regressions and full tests pass. |
-| REQ-TV-004 | `bash scripts/test.sh` | Failure/localisation tests pass and affected UI states are inspected. |
-| REQ-TV-005 | `bash scripts/test.sh` | Cancellation, coalescing, throttling, and performance checks pass. |
-| REQ-TV-006 | `bash scripts/ci.sh` | Full macOS repository, build, test, and whitespace validation exits 0. |
-| REQ-TV-007 | `bash scripts/validate-repository.sh` | State relationships pass, then reviewer and security-reviewer report no Blocking/Important findings. |
-| REQ-TV-008 | `bash scripts/test.sh` | Feature tests for new functionality pass. |
-| REQ-TV-009 | `bash scripts/test.sh` | Account lifecycle tests pass after provider configuration; anonymous use still works. |
+| REQ-TV-001/003/004/005/008/009 | `bash scripts/test.sh` | Full XCTest/XCUITest suite passes on macOS. |
+| REQ-TV-002 | `bash scripts/build.sh` | App/widget compile, followed by simulator light/dark and Dynamic Type inspection. |
+| REQ-TV-006 | `bash scripts/ci.sh` | Repository, build, test, and whitespace gates exit 0. |
+| REQ-TV-007 | `bash scripts/validate-repository.sh && bash scripts/validate-opencode.sh` | Both validators pass and reviews have no unresolved Blocking/Important finding. |
 
-## OpenCode migration checks
-
-```bash
-bash scripts/validate-repository.sh
-bash scripts/validate-opencode.sh
-```
-
-## Safe server-side checks
-
-These checks do not replace Xcode evidence, but they must stay green during
-implementation:
+## Supporting checks
 
 ```bash
 git diff --check
 bash scripts/validate-repository.sh
 bash scripts/validate-opencode.sh
+xcodebuild -scheme TrafficVienna -project TrafficVienna.xcodeproj \
+  -destination 'platform=iOS Simulator,name=iPhone 17' analyze
 ```
+
+Compiler-extracted app/widget string keys must also be compared with their
+committed `.xcstrings` catalogues, including non-empty German values.
 
 ## Platform evidence
 
-The active workspace is on macOS with Xcode. The current branch has direct iPhone
-17 simulator build, widget, XCTest, and full CI evidence. A generic Release device
-archive reaches signing, then fails because the installed profile for
-`wellbe.TrafficVienna` lacks `com.apple.developer.applesignin`. Physical-device
-Sign in with Apple therefore requires enabling the capability for that App ID and
-regenerating the provisioning profile before archive/device acceptance can pass.
+Validation uses the iPhone 17 Simulator. If multiple simulators share that name,
+scripts may use the supported `TRAFFICVIENNA_XCODE_DESTINATION` override with
+the inspected device UUID while preserving the required scheme and project.
 
-The host currently has two available simulators named `iPhone 17`, so the literal
-name-only AGENTS destination is ambiguous. The latest full CI used the repository's
-supported `TRAFFICVIENNA_XCODE_DESTINATION` override with the existing simulator
-UUID `6B367A70-5FF5-4C39-B479-F27457824C34`; no simulator was created or removed.
+Interactive acceptance includes the four tabs, Discover search/map, Alerts,
+Saved, Station Detail, reminder management, relevant failure feedback, system
+light/dark appearance, and an accessibility Dynamic Type size. iPad inspection
+is supplementary layout evidence.
 
-The optional onboarding account step has source/build evidence plus eleven account
-lifecycle and two sequence regressions. This is partial REQ-TV-009 evidence only:
-email provider configuration, remote deletion, physical-device Apple acceptance,
-and interactive onboarding inspection remain required.
-
-The location-independent Nearby dashboard has five presentation-state regressions,
-two existing load/freshness regressions, and fresh light/dark iPhone 17 renders with
-two simulator-only saved stations above an undecided location prompt. Full CI passes
-with 95 tests. Tap navigation, accessibility-size, and VoiceOver acceptance remain
-part of TV-VERIFY-032.
+Unsigned archive evidence can verify packaging but cannot replace distribution
+signing, App Store Connect processing, or physical-device TestFlight acceptance.

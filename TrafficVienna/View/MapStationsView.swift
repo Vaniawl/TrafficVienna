@@ -23,7 +23,7 @@ struct MapStationsView: View {
 
     var body: some View {
         Map(position: $position, selection: $selectedStation) {
-            if locationManager.userLocation != nil {
+            if canShowUserLocation {
                 UserAnnotation()
             }
 
@@ -55,7 +55,8 @@ struct MapStationsView: View {
         .overlay {
             MapContentOverlay(
                 state: viewModel.contentState,
-                retry: retryCatalog
+                retry: retryCatalog,
+                showVienna: showVienna
             )
         }
         .onMapCameraChange(frequency: .onEnd) { context in
@@ -138,6 +139,18 @@ struct MapStationsView: View {
         return viewModel.shouldOfferSearch(at: pendingCameraCenter)
     }
 
+    private var canShowUserLocation: Bool {
+        guard locationManager.userLocation != nil else { return false }
+        switch locationManager.authorizationStatus {
+        case .authorizedAlways, .authorizedWhenInUse:
+            return true
+        case .notDetermined, .denied, .restricted:
+            return false
+        @unknown default:
+            return false
+        }
+    }
+
     private func refresh() {
         viewModel.refresh(
             location: locationManager.userLocation,
@@ -165,6 +178,24 @@ struct MapStationsView: View {
         guard let pendingCameraCenter else { return }
         exploredCenter = pendingCameraCenter
         selectedStation = nil
+        refresh()
+        searchFeedback += 1
+    }
+
+    private func showVienna() {
+        let center = MapStationsViewModel.viennaCenter
+        exploredCenter = center
+        pendingCameraCenter = center
+        selectedStation = nil
+        position = .region(
+            MKCoordinateRegion(
+                center: center.coordinate,
+                span: MKCoordinateSpan(
+                    latitudeDelta: 0.08,
+                    longitudeDelta: 0.08
+                )
+            )
+        )
         refresh()
         searchFeedback += 1
     }

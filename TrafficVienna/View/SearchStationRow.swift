@@ -3,17 +3,34 @@ import SwiftUI
 struct SearchStationRow: View {
     let station: Station
     let systemImage: String
+    var isFavorite = false
+    var distanceText: String?
 
     var body: some View {
         Label {
             VStack(alignment: .leading, spacing: Spacing.xxs) {
-                Text(station.name)
-                    .font(.body)
-                    .foregroundStyle(.primary)
+                HStack(spacing: Spacing.xs) {
+                    Text(station.name)
+                        .font(.body)
+                        .foregroundStyle(.primary)
 
-                Text("Live departures")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    if isFavorite {
+                        Image(systemName: "star.fill")
+                            .font(.caption)
+                            .foregroundStyle(.yellow)
+                            .accessibilityLabel("Saved")
+                    }
+                }
+
+                HStack(spacing: Spacing.xs) {
+                    Text("Live departures")
+                    if let distanceText {
+                        Text("·")
+                        Text(distanceText)
+                    }
+                }
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
             }
         } icon: {
             Image(systemName: systemImage)
@@ -36,7 +53,9 @@ struct SearchStationRow: View {
             lat: 48.2083,
             lon: 16.3731
         ),
-        systemImage: "tram.fill"
+        systemImage: "tram.fill",
+        isFavorite: true,
+        distanceText: "350 m"
     )
     .padding()
 }

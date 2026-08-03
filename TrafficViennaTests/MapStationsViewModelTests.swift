@@ -201,6 +201,30 @@ final class MapStationsViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.locationStatus, .fallback)
     }
 
+    func testDeniedPermissionIgnoresStalePreciseLocation() {
+        let viewModel = makeViewModel(
+            stationStore: StubStationStore(stations: sampleStations)
+        )
+        let staleLocation = CLLocation(latitude: 48.2181, longitude: 16.3915)
+
+        viewModel.refresh(
+            location: staleLocation,
+            authorizationStatus: .denied,
+            locationError: "Location access denied"
+        )
+
+        XCTAssertEqual(viewModel.locationStatus, .permissionDenied)
+        XCTAssertEqual(viewModel.visibleStations.first?.id, 2)
+        XCTAssertEqual(
+            viewModel.searchCenter?.coordinate.latitude,
+            MapStationsViewModel.viennaCenter.coordinate.latitude
+        )
+        XCTAssertEqual(
+            viewModel.searchCenter?.coordinate.longitude,
+            MapStationsViewModel.viennaCenter.coordinate.longitude
+        )
+    }
+
     private func makeViewModel(
         stationStore: StationStoring,
         markerLimit: Int = 60
