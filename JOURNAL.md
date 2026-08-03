@@ -1,5 +1,19 @@
 # Journal
 
+## 2026-08-03 - Cached widget departures leave `now` on time
+
+- Reproduced that timeline scheduling discarded both boundaries when a cached
+  departure time was already in the past, even if its one-minute removal boundary
+  was still in the future. The regression first failed with a direct jump from
+  `now` to the five-minute refresh.
+- Departure and removal boundaries are now evaluated independently. The existing
+  `now` presentation remains intact, but its row receives the pending removal
+  entry without changing network cadence, payload, App Group keys, or layout.
+- The focused shared suite passes 58/58 and the authoritative iPhone 17
+  `.xcresult` reports 185/185 with zero failures or skips. Paired 368×800 Home
+  Screen screenshots show cached N38 at `now` and removed 34 seconds later; a
+  final screenshot confirms restoration of live N38 data.
+
 ## 2026-08-03 - Widget timelines remove every visible departure
 
 - Reproduced that timeline scheduling considered only the first two countdowns

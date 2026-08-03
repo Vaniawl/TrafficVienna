@@ -1,5 +1,25 @@
 # Architectural Decisions
 
+## 2026-08-03 — Widget removal boundaries survive delayed timeline generation
+
+**Context:** Countdown projection deliberately retains zero for one minute so a
+departure can render as `now`. Timeline scheduling previously required the
+departure boundary itself to be in the future before adding either that boundary
+or its one-minute removal entry. A cached timeline generated after departure but
+before removal therefore had no entry to remove `now` until the five-minute
+network refresh.
+
+**Decision:** Evaluate each stored departure boundary and its one-minute removal
+boundary independently. Insert either date only when it lies strictly between the
+timeline's current date and existing refresh deadline; keep de-duplication and the
+three-departure presentation limit unchanged.
+
+**Consequences:** A delayed cached timeline preserves the intended `now` state
+and removes it at the first valid future boundary. Expired boundaries remain
+ignored, the timeline stays bounded, and network cadence, payloads, App Group
+keys, endpoint, entitlement, dependency, localization, copy, and layout do not
+change. Rollback is a normal revert with no migration.
+
 ## 2026-08-03 — Widget timelines cover every rendered departure
 
 **Context:** App Group sync and direct widget fetch both persist at most three

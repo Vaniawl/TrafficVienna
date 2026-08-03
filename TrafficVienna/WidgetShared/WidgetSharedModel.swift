@@ -196,17 +196,14 @@ nonisolated enum WidgetTimelineSchedule {
                 let departureDate = sourceDate.addingTimeInterval(
                     TimeInterval(minutes * 60)
                 )
-                guard departureDate > now, departureDate < refreshDate else {
-                    continue
-                }
+                let removalDate = departureDate.addingTimeInterval(60)
 
-                dates.insert(departureDate)
-                dates.insert(
-                    min(
-                        departureDate.addingTimeInterval(60),
-                        refreshDate
-                    )
-                )
+                if departureDate > now, departureDate < refreshDate {
+                    dates.insert(departureDate)
+                }
+                if removalDate > now, removalDate < refreshDate {
+                    dates.insert(removalDate)
+                }
             }
         }
 

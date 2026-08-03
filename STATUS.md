@@ -6,7 +6,7 @@
 - Stack: native SwiftUI iOS application, widget extension, XCTest, and XCUITest.
 - Current phase: continued reliability improvements on the existing draft PR.
 - Product shell: Home, Discover, Alerts, and Saved; accounts are out of scope.
-- Verified tests: 184/184 pass on iPhone 17 Simulator (180 model/service tests
+- Verified tests: 185/185 pass on iPhone 17 Simulator (181 model/service tests
   and 4 UI tests), with zero failures or skips. App and widget build successfully.
 - Verified visual coverage: four journeys and key secondary surfaces were
   exercised on iPhone 17; Home, Station Detail, and reminder management were
@@ -46,7 +46,9 @@
   empty configurations do not consume the throttle or advance cache freshness.
   Timeline scheduling now covers all three departures that widget layouts can
   render, so the third countdown cannot remain at zero until the next network
-  refresh.
+  refresh. Departure and removal boundaries are evaluated independently, so a
+  cached departure already rendering as `now` still receives its future removal
+  entry instead of lingering until that refresh.
 - Verified quality: Xcode static analysis passes; compiler output contains 236 app
   and 26 widget Localizable source keys, all covered by the committed 267/31-key
   catalogues with 0 missing or empty German values. Both repository structural
@@ -54,8 +56,8 @@
 - Infrastructure limitation: `bash scripts/ci.sh` reaches the permission matcher
   and exits 127 because the required global `opencode` CLI is not installed.
   The reliability script's Python and timeout fixtures pass before the same
-  missing-tool boundary. Hosted Quality run `30771697899` supplied the pinned
-  CLI and passed the previously published complete wrapper at `e93e6a39`.
+  missing-tool boundary. Hosted Quality run `30772786327` supplied the pinned
+  CLI and passed the previously published complete wrapper at `e9975962`.
 - Handoff: draft PR #15 tracks `codex/system-surfaces-readiness` against protected
   `main`; each published update must pass its protected validation.
 - The current slice passes its local gates; protected CI remains the publication
@@ -71,7 +73,9 @@
   an empty selection shows the truthful `No favourites yet` state without
   placeholder content or clipping. A second current small-widget render shows a
   real N38 route with all three countdowns visible and no clipping after the
-  departure-boundary correction.
+  departure-boundary correction. A deterministic cached-row fixture then showed
+  `now` and removed it 34 seconds later, before the five-minute network refresh;
+  a final screenshot confirmed that live N38 data was restored.
 - Focused iPhone 17 UI acceptance opened Stephansplatz, started Lock Screen
   tracking, observed the stop action, and stopped the Live Activity successfully.
   Automated overnight coverage now performs the same start/stop journey at the

@@ -44,7 +44,7 @@ A `Go` requires:
 - The account-only Apple identity surface and entitlement were removed because
   they provided no cross-device feature and prevented the installed profile from
   archiving. A one-time migration deletes the legacy device-only Keychain item.
-- All 184 tests pass with zero failures or skips, including four XCUITest
+- All 185 tests pass with zero failures or skips, including four XCUITest
   journeys through the four-tab shell, Discover map entry, alert filters, Saved,
   and search-to-station navigation. Local reminder planning/decoding, idempotent
   route replacement and legacy cleanup, notification denial recovery, Live
@@ -78,7 +78,9 @@ A `Go` requires:
   refresh budget, and manual refresh still bypasses a recent scoped attempt.
   Timeline scheduling covers all three departures that the widget can render per
   route, including a removal entry one minute after the third departure and
-  before the five-minute refresh deadline.
+  before the five-minute refresh deadline. Departure and removal boundaries are
+  independent, so an older cached departure already projected as `now` still
+  receives its future removal entry.
 - iPhone 17 Pro Max and iPad Pro 13-inch runtime builds complete without
   diagnostics. English, German, location-denied, live-data, Favourites, and
   maximum Accessibility Dynamic Type paths were exercised.
@@ -103,6 +105,9 @@ A `Go` requires:
   reported the roughly 23-minute transport-source age while its countdown kept
   updating. This is Simulator evidence only; production background refresh still
   remains in the physical/TestFlight gate.
+- A second controlled fixture rendered an older cached N38 departure as `now`,
+  then removed it 34 seconds later without waiting for the five-minute network
+  refresh. Live N38 data was fetched and visually confirmed after cleanup.
 - One-shot coalesced location requests replace continuous tracking. The redesigned
   station detail reaches a settled UI state; eight idle Debug Simulator process
   samples measured 0.0% CPU after removing its repeating pulse and 30-second
