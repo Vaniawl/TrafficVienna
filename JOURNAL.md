@@ -1,5 +1,17 @@
 # Journal
 
+## 2026-08-11 - Visual acceptance and Dynamic Type polish
+
+- Exercised the redesigned app on iPhone 17 across light/dark appearances, maximum
+  Accessibility Dynamic Type, Increase Contrast, and Reduce Motion, covering clean
+  onboarding and the primary live navigation routes.
+- Polished the final crowded layouts by stacking departure follow-up times, expanding
+  the service-status message, simplifying accessibility-size search rows, and adapting
+  long station titles without clipping or disabling Dynamic Type.
+- Post-fix runtime inspection found no app-owned crash or fault. Full repository CI
+  passed the app/widget build and 110/110 XCTest cases with `[ci] OK`; the duplicate
+  local iPhone 17 names required selecting the booted simulator by UUID.
+
 ## 2026-08-11 - Premium redesign completion and accessibility hardening
 
 - Replaced overloaded bright-brand text roles with adaptive semantic colours and

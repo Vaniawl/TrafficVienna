@@ -3,46 +3,69 @@ import SwiftUI
 struct ServiceStatusCard: View {
     let status: ServiceDashboardStatus
     let action: () -> Void
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: Spacing.sm) {
-                statusIcon
-
-                VStack(alignment: .leading, spacing: Spacing.xs) {
-                    Text("Service status")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(DesignColor.secondaryText)
-
-                    Text(statusMessage)
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(DesignColor.primaryText)
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    if status.isSaved {
-                        Label("Saved data", systemImage: "clock.badge.exclamationmark")
-                            .font(.footnote)
-                            .foregroundStyle(.orange)
-                    }
-                }
-
-                Spacer(minLength: Spacing.xs)
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(.tertiary)
-                    .accessibilityHidden(true)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(Spacing.md)
-            .premiumSurface()
-            .contentShape(.rect(cornerRadius: CornerRadius.lg))
+            content
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(Spacing.md)
+                .premiumSurface()
+                .contentShape(.rect(cornerRadius: CornerRadius.lg))
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(accessibilityLabel))
         .accessibilityHint(Text("Opens alerts"))
         .accessibilityInputLabels([Text("Service status"), Text("Alerts")])
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if dynamicTypeSize.isAccessibilitySize {
+            VStack(alignment: .leading, spacing: Spacing.sm) {
+                HStack {
+                    statusIcon
+                    Spacer(minLength: Spacing.sm)
+                    disclosureIndicator
+                }
+
+                statusDetails
+            }
+        } else {
+            HStack(spacing: Spacing.sm) {
+                statusIcon
+                statusDetails
+                Spacer(minLength: Spacing.xs)
+                disclosureIndicator
+            }
+        }
+    }
+
+    private var statusDetails: some View {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
+            Text("Service status")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(DesignColor.secondaryText)
+
+            Text(statusMessage)
+                .font(.body.weight(.semibold))
+                .foregroundStyle(DesignColor.primaryText)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if status.isSaved {
+                Label("Saved data", systemImage: "clock.badge.exclamationmark")
+                    .font(.footnote)
+                    .foregroundStyle(.orange)
+            }
+        }
+    }
+
+    private var disclosureIndicator: some View {
+        Image(systemName: "chevron.right")
+            .font(.system(size: 14, weight: .semibold))
+            .foregroundStyle(.tertiary)
+            .accessibilityHidden(true)
     }
 
     @ViewBuilder

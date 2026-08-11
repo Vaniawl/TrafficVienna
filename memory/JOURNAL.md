@@ -1,5 +1,24 @@
 # Journal
 
+## 2026-08-11 — Visual acceptance and Dynamic Type polish
+
+- Re-ran the complete iPhone 17 visual acceptance flow across clean onboarding,
+  Nearby, Search, live station details, alert detail, Map selection, Favourites,
+  About, and Privacy in light/dark appearances, Increase Contrast, maximum
+  Accessibility Dynamic Type, and Reduce Motion.
+- Fixed the remaining maximum-Dynamic-Type crowding by stacking departure follow-up
+  times, giving the service-status message full width, simplifying accessibility-size
+  search rows, and adapting station-title typography. Post-fix inspection found no
+  clipped essential content, overlap, navigation jump, or uncontrolled motion.
+- Runtime inspection found no app-owned fault or crash; the only logged errors were
+  known Simulator framework noise for accessibility, keyboard haptics, MapKit, and
+  rendering startup. Simulator appearance, contrast, text size, motion, and location
+  overrides were restored after the matrix.
+- Full `scripts/ci.sh` passed with the explicit booted iPhone 17 UUID after the default
+  name-only destination was ambiguous between two local simulators. App/widget build,
+  repository/OpenCode/reliability validation, 110/110 XCTest cases, and diff validation
+  all passed, ending `[ci] OK`.
+
 ## 2026-08-11 — Premium redesign completion and accessibility hardening
 
 - Audited the complete premium redesign in source and on an iPhone 17 Simulator.

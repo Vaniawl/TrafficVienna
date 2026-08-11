@@ -59,7 +59,11 @@ struct StationCardView: View {
     private var stationIdentity: some View {
         VStack(alignment: .leading, spacing: Spacing.xxs) {
             Text(station.name)
-                .font(.headline.weight(.semibold))
+                .font(
+                    dynamicTypeSize.isAccessibilitySize
+                        ? .body.weight(.semibold)
+                        : .headline.weight(.semibold)
+                )
                 .foregroundStyle(DesignColor.primaryText)
                 .fixedSize(horizontal: false, vertical: true)
                 .accessibilityAddTraits(.isHeader)

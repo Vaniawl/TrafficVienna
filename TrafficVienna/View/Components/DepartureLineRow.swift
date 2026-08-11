@@ -157,10 +157,11 @@ struct DepartureLineRow: View {
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
-            HStack(alignment: .firstTextBaseline, spacing: Spacing.sm) {
-                glyph(status: status, next: next)
-
-                nextTime(next: next, status: status)
+            VStack(alignment: .leading, spacing: Spacing.xs) {
+                HStack(alignment: .firstTextBaseline, spacing: Spacing.sm) {
+                    glyph(status: status, next: next)
+                    nextTime(next: next, status: status)
+                }
 
                 if showFollowUp {
                     followUp
