@@ -1,5 +1,19 @@
 # Journal
 
+## 2026-08-11 — Premium dashboard app redesign
+
+- Implemented the approved calm premium dashboard direction across onboarding,
+  root navigation, Nearby, Search, Map, station details, Alerts, Favourites,
+  About, Privacy, and every loading, empty, offline, saved-data, and error state.
+- Replaced the former red-led surfaces with an adaptive warm canvas, mint-to-green
+  hero treatment, deep-green accents, ink primary actions, 18/24-point continuous
+  corners, subtle borders, restrained shadows, and reusable premium surface/button
+  primitives. Official transport line colours and existing product actions remain
+  unchanged; no speculative booking, payment, account, or ticket features were added.
+- Verified the complete app and widget build, passed the full XCTest suite, and ran
+  one final iPhone 17 visual smoke check in dark mode. The smoke check exposed and
+  closed a low-contrast onboarding icon before the final successful build.
+
 ## 2026-08-11 — Ultra-flat Nearby explorations
 
 - Generated two additional Superdesign branches from the Native Timetable

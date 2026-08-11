@@ -8,8 +8,11 @@ struct SearchResultsList: View {
             NavigationLink(value: station) {
                 SearchStationRow(station: station, systemImage: "tram.fill")
             }
+            .listRowBackground(DesignColor.cardBackground)
         }
-        .listStyle(.plain)
-        .scrollContentBackground(.visible)
+        .listStyle(.insetGrouped)
+        .listSectionSpacing(Spacing.md)
+        .scrollContentBackground(.hidden)
+        .background(DesignColor.background)
     }
 }

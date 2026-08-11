@@ -8,7 +8,8 @@ struct FavoriteStationsQuickAccessView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             Text("Quick access")
-                .font(.headline)
+                .font(.title3.weight(.bold))
+                .foregroundStyle(DesignColor.primaryText)
 
             ScrollView(.horizontal) {
                 LazyHStack(spacing: Spacing.sm) {

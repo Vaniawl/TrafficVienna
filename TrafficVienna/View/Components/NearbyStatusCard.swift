@@ -21,16 +21,12 @@ struct NearbyStatusCard: View {
         } actions: {
             if let actionTitle, let action {
                 Button(actionTitle, action: action)
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(PremiumPrimaryButtonStyle())
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, Spacing.lg)
-        .background(DesignColor.cardBackground, in: .rect(cornerRadius: CornerRadius.lg))
-        .overlay {
-            RoundedRectangle(cornerRadius: CornerRadius.lg)
-                .stroke(DesignColor.border, lineWidth: 1)
-        }
+        .padding(Spacing.lg)
+        .premiumSurface(elevated: true)
         .accessibilityElement(children: .contain)
     }
 }

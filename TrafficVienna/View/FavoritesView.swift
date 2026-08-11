@@ -30,6 +30,8 @@ struct FavoritesView: View {
                     if !viewModel.items.isEmpty { linesSection }
                 }
                 .listStyle(.insetGrouped)
+                .listSectionSpacing(Spacing.md)
+                .scrollContentBackground(.hidden)
             }
         }
         .navigationTitle("Favourites")
@@ -52,7 +54,8 @@ struct FavoritesView: View {
             viewModel.loadStations()
             await viewModel.loadFavorites(forceRefresh: true)
         }
-        .background(Color(.systemBackground))
+        .background(DesignColor.background)
+        .tint(DesignColor.brandDark)
     }
 
     private var stationsSection: some View {
@@ -73,6 +76,7 @@ struct FavoritesView: View {
                     }
                     .padding(.vertical, Spacing.xs)
                 }
+                .listRowBackground(DesignColor.cardBackground)
             }
             .onMove { viewModel.moveStations(fromOffsets: $0, toOffset: $1) }
             .onDelete { offsets in
@@ -104,6 +108,7 @@ struct FavoritesView: View {
                     }
                 }
                 .padding(.vertical, Spacing.xs)
+                .listRowBackground(DesignColor.cardBackground)
                 .swipeActions(edge: .trailing) {
                     Button(role: .destructive) {
                         viewModel.remove(item.route)

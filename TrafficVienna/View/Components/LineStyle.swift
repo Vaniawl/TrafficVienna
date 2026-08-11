@@ -14,7 +14,10 @@ struct LineBadge: View {
             .fixedSize()
             .padding(.horizontal, size == .small ? 7 : 9)
             .padding(.vertical, size == .small ? 2 : 3)
-            .background(LineColors.color(for: line), in: RoundedRectangle(cornerRadius: 6))
+            .background(
+                LineColors.color(for: line),
+                in: RoundedRectangle(cornerRadius: 7, style: .continuous)
+            )
     }
 }
 

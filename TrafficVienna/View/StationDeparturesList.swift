@@ -18,6 +18,7 @@ struct StationDeparturesList: View {
                         NavigationLink(value: info) {
                             DisruptionRow(info: info)
                         }
+                        .listRowBackground(DesignColor.cardBackground)
                     }
                 }
             }
@@ -42,11 +43,15 @@ struct StationDeparturesList: View {
                 } else {
                     ForEach(viewModel.groups) { group in
                         StationDepartureRow(viewModel: viewModel, group: group)
+                            .listRowBackground(DesignColor.cardBackground)
                     }
                 }
             }
         }
         .listStyle(.insetGrouped)
+        .listSectionSpacing(Spacing.md)
+        .scrollContentBackground(.hidden)
+        .background(DesignColor.background)
         .safeAreaInset(edge: .bottom) {
             if let lastUpdated = viewModel.lastUpdated {
                 StationFreshnessBar(

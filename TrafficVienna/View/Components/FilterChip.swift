@@ -16,11 +16,18 @@ struct FilterChip: View {
         } label: {
             Text(title)
                 .font(.caption)
-                .bold(isSelected)
+                .fontWeight(isSelected ? .semibold : .regular)
                 .padding(.horizontal, Spacing.sm)
                 .frame(minHeight: 44)
-                .background(isSelected ? color : Color.appChipBg, in: Capsule())
-                .foregroundStyle(isSelected ? .white : .secondary)
+                .background(
+                    isSelected ? color : DesignColor.cardBackground,
+                    in: Capsule()
+                )
+                .overlay {
+                    Capsule()
+                        .stroke(isSelected ? Color.clear : DesignColor.border, lineWidth: 1)
+                }
+                .foregroundStyle(isSelected ? .white : DesignColor.secondaryText)
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(isSelected ? .isSelected : [])

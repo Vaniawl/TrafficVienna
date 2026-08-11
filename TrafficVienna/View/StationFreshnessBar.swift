@@ -20,6 +20,9 @@ struct StationFreshnessBar: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, Spacing.xs)
         .background(.bar)
+        .overlay(alignment: .top) {
+            Divider().overlay(DesignColor.border)
+        }
         .accessibilityElement(children: .combine)
     }
 }

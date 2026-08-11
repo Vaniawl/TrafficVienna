@@ -8,8 +8,8 @@ struct SearchStationRow: View {
         Label {
             VStack(alignment: .leading, spacing: Spacing.xxs) {
                 Text(station.name)
-                    .font(.body)
-                    .foregroundStyle(.primary)
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(DesignColor.primaryText)
 
                 Text("Live departures")
                     .font(.subheadline)
@@ -17,9 +17,9 @@ struct SearchStationRow: View {
             }
         } icon: {
             Image(systemName: systemImage)
-                .foregroundStyle(.appAccent)
+                .foregroundStyle(DesignColor.brandDark)
                 .frame(width: 36, height: 36)
-                .background(.appChipBg, in: .circle)
+                .background(DesignColor.brand.opacity(0.12), in: .circle)
                 .accessibilityHidden(true)
         }
         .padding(.vertical, Spacing.xs)

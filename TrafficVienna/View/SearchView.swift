@@ -36,7 +36,7 @@ struct SearchView: View {
                     Text("The stop catalogue could not be loaded.")
                 } actions: {
                     Button("Try again", systemImage: "arrow.clockwise", action: retry)
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(PremiumPrimaryButtonStyle())
                 }
 
             case .idle where viewModel.recentStations.isEmpty:
@@ -75,6 +75,7 @@ struct SearchView: View {
         )
         .scrollDismissesKeyboard(.immediately)
         .background(DesignColor.background)
+        .tint(DesignColor.brandDark)
         .animation(Motion.quick(reduceMotion: reduceMotion), value: viewModel.status)
         .task(id: viewModel.query) {
             await viewModel.updateSearch()

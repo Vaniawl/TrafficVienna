@@ -19,20 +19,19 @@ struct OnboardingView: View {
             VStack(spacing: Spacing.sm) {
                 Button(action: advance) {
                     Text(step.next == nil ? "Start exploring" : "Continue")
-                        .frame(maxWidth: .infinity)
                 }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
+                .buttonStyle(PremiumPrimaryButtonStyle())
 
                 Text("No account required. Your favourites stay on this device.")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(DesignColor.secondaryText)
                     .multilineTextAlignment(.center)
             }
             .padding(.horizontal, Spacing.xl)
-            .padding(.bottom, Spacing.xl)
+            .padding(.bottom, Spacing.lg)
         }
         .background(DesignColor.background)
+        .tint(DesignColor.brandDark)
         .sensoryFeedback(.selection, trigger: step)
     }
 

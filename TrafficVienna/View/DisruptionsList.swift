@@ -53,12 +53,16 @@ struct DisruptionsList: View {
                         NavigationLink(value: info) {
                             DisruptionRow(info: info)
                         }
+                        .listRowBackground(DesignColor.cardBackground)
                     }
                 } header: {
                     Text("Alerts: \(viewModel.filteredInfos.count)")
                 }
             }
         }
-        .listStyle(.plain)
+        .listStyle(.insetGrouped)
+        .listSectionSpacing(Spacing.md)
+        .scrollContentBackground(.hidden)
+        .background(DesignColor.background)
     }
 }

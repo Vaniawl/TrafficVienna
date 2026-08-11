@@ -14,7 +14,8 @@ struct MapStationSelectionCard: View {
 
                     Text(station.name)
                         .font(.title3)
-                        .bold()
+                        .fontWeight(.bold)
+                        .foregroundStyle(DesignColor.primaryText)
                         .accessibilityAddTraits(.isHeader)
                 }
 
@@ -29,17 +30,10 @@ struct MapStationSelectionCard: View {
                 Label("View departures", systemImage: "clock.arrow.circlepath")
                     .frame(maxWidth: .infinity)
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
+            .buttonStyle(PremiumPrimaryButtonStyle())
         }
         .padding(Spacing.lg)
-        .background(.regularMaterial, in: .rect(cornerRadius: CornerRadius.xl))
-        .shadow(
-            color: Shadow.lg.color,
-            radius: Shadow.lg.radius,
-            x: Shadow.lg.x,
-            y: Shadow.lg.y
-        )
+        .premiumSurface(cornerRadius: CornerRadius.xl, elevated: true)
         .accessibilityElement(children: .contain)
     }
 }

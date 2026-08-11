@@ -12,12 +12,16 @@ struct DisruptionDetailView: View {
             VStack(alignment: .leading, spacing: Spacing.xl) {
                 Label(kind.title, systemImage: kind.symbol)
                     .font(.subheadline)
-                    .bold()
-                    .foregroundStyle(.appAccent)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(DesignColor.brandDark)
+                    .padding(.horizontal, Spacing.sm)
+                    .padding(.vertical, Spacing.xs)
+                    .background(DesignColor.brand.opacity(0.12), in: Capsule())
 
                 Text(info.title)
                     .font(.title2)
-                    .bold()
+                    .fontWeight(.bold)
+                    .foregroundStyle(DesignColor.primaryText)
 
                 if let lines = info.relatedLines, !lines.isEmpty {
                     VStack(alignment: .leading, spacing: Spacing.sm) {
@@ -39,6 +43,9 @@ struct DisruptionDetailView: View {
                     Text(description)
                         .font(.body)
                         .textSelection(.enabled)
+                        .padding(Spacing.md)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .premiumSurface()
                 }
 
                 LabeledContent("Source", value: "Wiener Linien")

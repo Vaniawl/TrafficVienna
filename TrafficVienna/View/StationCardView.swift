@@ -30,12 +30,7 @@ struct StationCardView: View {
         }
         .padding(Spacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(DesignColor.cardBackground,
-                    in: RoundedRectangle(cornerRadius: CornerRadius.lg))
-        .shadow(color: Shadow.md.color,
-                radius: Shadow.md.radius,
-                x: Shadow.md.x,
-                y: Shadow.md.y)
+        .premiumSurface(elevated: true)
         .contentShape(.rect(cornerRadius: CornerRadius.lg))
         .accessibilityElement(children: .contain)
         .accessibilityLabel(stationAccessibilityLabel)
@@ -45,7 +40,8 @@ struct StationCardView: View {
         HStack(alignment: .top, spacing: Spacing.sm) {
             VStack(alignment: .leading, spacing: Spacing.xxs) {
                 Text(station.name)
-                    .font(.headline)
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(DesignColor.primaryText)
                     .accessibilityAddTraits(.isHeader)
                 if !lines.isEmpty {
                     let unique = Set(lines.map(\.name)).sorted()
@@ -103,7 +99,9 @@ struct StationCardView: View {
                     .padding(.vertical, Spacing.xs)
                     .accessibilityElement(children: .contain)
                     .accessibilityLabel("Line \(line.name) to \(line.towards)")
-                    if index < visible.count - 1 { Divider() }
+                    if index < visible.count - 1 {
+                        Divider().overlay(DesignColor.separator)
+                    }
                 }
             }
         } else if failed {
@@ -129,7 +127,9 @@ struct StationCardView: View {
             ForEach(0..<3, id: \.self) { index in
                 DepartureLineRow(lineName: "00", destination: "Loading station", minutes: [0, 0])
                     .padding(.vertical, Spacing.xs)
-                if index < 2 { Divider() }
+                if index < 2 {
+                    Divider().overlay(DesignColor.separator)
+                }
             }
         }
         .redacted(reason: .placeholder)

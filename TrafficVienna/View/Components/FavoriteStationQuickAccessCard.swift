@@ -16,7 +16,8 @@ struct FavoriteStationQuickAccessCard: View {
             }
 
             Text(station.name)
-                .font(dynamicTypeSize.isAccessibilitySize ? .body : .headline)
+                .font(dynamicTypeSize.isAccessibilitySize ? .body : .headline.weight(.semibold))
+                .foregroundStyle(DesignColor.primaryText)
                 .lineLimit(dynamicTypeSize.isAccessibilitySize ? 1 : 2)
                 .minimumScaleFactor(dynamicTypeSize.isAccessibilitySize ? 0.7 : 1)
                 .fixedSize(horizontal: false, vertical: true)
@@ -44,11 +45,7 @@ struct FavoriteStationQuickAccessCard: View {
         }
         .frame(maxWidth: .infinity, minHeight: 132, alignment: .topLeading)
         .padding(Spacing.md)
-        .background(DesignColor.cardBackground, in: .rect(cornerRadius: CornerRadius.lg))
-        .overlay {
-            RoundedRectangle(cornerRadius: CornerRadius.lg)
-                .stroke(DesignColor.border, lineWidth: 1)
-        }
+        .premiumSurface()
         .contentShape(.rect(cornerRadius: CornerRadius.lg))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(

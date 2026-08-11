@@ -13,14 +13,23 @@ struct DisruptionKindPicker: View {
                     } label: {
                         Label(kind.title, systemImage: kind.symbol)
                             .font(.subheadline)
-                            .bold(selection == kind)
+                            .fontWeight(selection == kind ? .semibold : .regular)
                             .padding(.horizontal, Spacing.md)
                             .frame(minHeight: 44)
-                            .foregroundStyle(selection == kind ? Color.white : Color.primary)
+                            .foregroundStyle(
+                                selection == kind ? Color.white : DesignColor.primaryText
+                            )
                             .background(
-                                selection == kind ? Color.appAccent : Color.appChipBg,
+                                selection == kind ? DesignColor.brandDark : DesignColor.cardBackground,
                                 in: Capsule()
                             )
+                            .overlay {
+                                Capsule()
+                                    .stroke(
+                                        selection == kind ? Color.clear : DesignColor.border,
+                                        lineWidth: 1
+                                    )
+                            }
                     }
                     .buttonStyle(.plain)
                     .accessibilityAddTraits(selection == kind ? .isSelected : [])

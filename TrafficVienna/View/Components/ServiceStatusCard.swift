@@ -6,16 +6,17 @@ struct ServiceStatusCard: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: Spacing.md) {
+            HStack(spacing: Spacing.sm) {
                 statusIcon
 
                 VStack(alignment: .leading, spacing: Spacing.xs) {
                     Text("Service status")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(DesignColor.secondaryText)
 
                     Text(statusMessage)
-                        .font(.headline)
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(DesignColor.primaryText)
                         .fixedSize(horizontal: false, vertical: true)
 
                     if status.isSaved {
@@ -34,11 +35,7 @@ struct ServiceStatusCard: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(Spacing.md)
-            .background(DesignColor.cardBackground, in: .rect(cornerRadius: CornerRadius.lg))
-            .overlay {
-                RoundedRectangle(cornerRadius: CornerRadius.lg)
-                    .stroke(DesignColor.border, lineWidth: 1)
-            }
+            .premiumSurface()
             .contentShape(.rect(cornerRadius: CornerRadius.lg))
         }
         .buttonStyle(.plain)

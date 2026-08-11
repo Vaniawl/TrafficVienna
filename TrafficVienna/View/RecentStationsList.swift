@@ -14,6 +14,7 @@ struct RecentStationsList: View {
                             systemImage: "clock.arrow.circlepath"
                         )
                     }
+                    .listRowBackground(DesignColor.cardBackground)
                 }
             } header: {
                 HStack {
@@ -29,6 +30,8 @@ struct RecentStationsList: View {
             }
         }
         .listStyle(.insetGrouped)
-        .scrollContentBackground(.visible)
+        .listSectionSpacing(Spacing.md)
+        .scrollContentBackground(.hidden)
+        .background(DesignColor.background)
     }
 }

@@ -76,6 +76,8 @@ struct MapStationsView: View {
                             action: searchThisArea
                         )
                         .buttonStyle(.borderedProminent)
+                        .buttonBorderShape(.capsule)
+                        .tint(DesignColor.primaryText)
                         .controlSize(.regular)
                         .accessibilityHint("Updates stops around the centre of the map")
                         .transition(Motion.stateTransition(reduceMotion: reduceMotion))
@@ -118,6 +120,7 @@ struct MapStationsView: View {
             refresh()
         }
         .background(DesignColor.background)
+        .tint(DesignColor.brandDark)
     }
 
     private var refreshContext: MapRefreshContext {

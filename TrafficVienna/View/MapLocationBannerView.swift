@@ -25,8 +25,7 @@ struct MapLocationBannerView: View {
                     systemImage: "location.fill",
                     action: requestLocation
                 )
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
+                .buttonStyle(PremiumPrimaryButtonStyle())
 
             case .permissionDenied:
                 Label("Location is off", systemImage: "location.slash")
@@ -42,6 +41,8 @@ struct MapLocationBannerView: View {
                 }
                 Button("Open Settings", systemImage: "gear", action: openSettings)
                     .buttonStyle(.bordered)
+                    .buttonBorderShape(.capsule)
+                    .tint(DesignColor.brandDark)
                     .controlSize(.large)
 
             case .locating:
@@ -65,6 +66,8 @@ struct MapLocationBannerView: View {
                 }
                 Button("Retry location", systemImage: "arrow.clockwise", action: requestLocation)
                     .buttonStyle(.bordered)
+                    .buttonBorderShape(.capsule)
+                    .tint(DesignColor.brandDark)
                     .controlSize(.large)
 
             case .located:
@@ -73,12 +76,6 @@ struct MapLocationBannerView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Spacing.md)
-        .background(.regularMaterial, in: .rect(cornerRadius: CornerRadius.lg))
-        .shadow(
-            color: Shadow.sm.color,
-            radius: Shadow.sm.radius,
-            x: Shadow.sm.x,
-            y: Shadow.sm.y
-        )
+        .premiumSurface(elevated: true)
     }
 }

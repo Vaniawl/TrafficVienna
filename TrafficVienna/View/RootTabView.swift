@@ -80,6 +80,9 @@ struct RootTabView: View {
                 .task {
                     await refreshDisruptionsContinuously()
                 }
+                .tint(DesignColor.brandDark)
+                .toolbarBackground(DesignColor.cardBackground, for: .tabBar)
+                .toolbarBackground(.visible, for: .tabBar)
                 .transition(Motion.stateTransition(reduceMotion: reduceMotion))
             } else {
                 OnboardingView {
@@ -89,6 +92,7 @@ struct RootTabView: View {
                 .transition(Motion.stateTransition(reduceMotion: reduceMotion))
             }
         }
+        .background(DesignColor.background)
         .animation(Motion.standard(reduceMotion: reduceMotion), value: hasOnboarded)
         .onOpenURL { url in
             shortcutRouter.handle(deepLinkURL: url)

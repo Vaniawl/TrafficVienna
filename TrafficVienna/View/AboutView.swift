@@ -23,8 +23,14 @@ struct AboutView: View {
                 Section {
                     VStack(spacing: Spacing.md) {
                         RoundedRectangle(cornerRadius: CornerRadius.lg)
-                            .fill(Color.appAccent)
+                            .fill(DesignColor.brandGradient)
                             .frame(width: 72, height: 72)
+                            .shadow(
+                                color: Shadow.lg.color,
+                                radius: Shadow.lg.radius,
+                                x: Shadow.lg.x,
+                                y: Shadow.lg.y
+                            )
                             .overlay {
                                 Image(systemName: "tram.fill")
                                     .font(.title)
@@ -74,6 +80,9 @@ struct AboutView: View {
                         .foregroundStyle(.secondary)
                 }
             }
+            .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
+            .background(DesignColor.background)
             .navigationTitle("About")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -81,6 +90,7 @@ struct AboutView: View {
                     Button("Done") { dismiss() }
                 }
             }
+            .tint(DesignColor.brandDark)
         }
     }
 }

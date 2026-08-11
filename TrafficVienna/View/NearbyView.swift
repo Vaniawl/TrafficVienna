@@ -70,7 +70,7 @@ struct NearbyView: View {
 
     private var stationList: some View {
         ScrollView {
-            LazyVStack(spacing: Spacing.md) {
+            LazyVStack(spacing: Spacing.lg) {
                 if let featuredDeparture = favoritesViewModel.featuredDeparture {
                     FavoriteNextDepartureCard(
                         item: featuredDeparture,
@@ -128,6 +128,8 @@ struct NearbyView: View {
                         action: refresh
                     )
                 case .stations:
+                    nearbyStationsHeader
+
                     if vm.isLoading {
                         skeletonView
                     }
@@ -171,7 +173,8 @@ struct NearbyView: View {
                 }
             }
             .padding(.horizontal, horizontalSizeClass == .regular ? Spacing.xxxl : Spacing.md)
-            .padding(.vertical, Spacing.sm)
+            .padding(.top, Spacing.sm)
+            .padding(.bottom, Spacing.xxl)
         }
         .refreshable { await vm.load(force: true) }
         .animation(
@@ -180,6 +183,24 @@ struct NearbyView: View {
         )
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Nearby stations")
+    }
+
+    private var nearbyStationsHeader: some View {
+        HStack(alignment: .firstTextBaseline) {
+            Text("Nearby stations")
+                .font(.title3.weight(.bold))
+                .foregroundStyle(DesignColor.primaryText)
+
+            Spacer()
+
+            Text(vm.items.count, format: .number)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(DesignColor.brandDark)
+                .padding(.horizontal, Spacing.sm)
+                .padding(.vertical, Spacing.xxs)
+                .background(DesignColor.brand.opacity(0.12), in: Capsule())
+        }
+        .accessibilityElement(children: .combine)
     }
 
     private var dashboardState: NearbyDashboardState {
@@ -212,7 +233,7 @@ struct NearbyView: View {
     }
 
     private var skeletonView: some View {
-        VStack(spacing: Spacing.md) {
+        VStack(spacing: Spacing.sm) {
             ForEach(0..<3, id: \.self) { index in
                 StationCardView(
                     station: Station(id: index, diva: 60201435, name: "Loading station",
@@ -223,7 +244,6 @@ struct NearbyView: View {
                     updatedAt: nil,
                     isStale: false
                 )
-                if index < 2 { Divider() }
             }
         }
         .redacted(reason: .placeholder)

@@ -21,7 +21,7 @@ struct StationDetailView: View {
                     Text(message)
                 } actions: {
                     Button("Try again", systemImage: "arrow.clockwise", action: retry)
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(PremiumPrimaryButtonStyle())
                 }
 
             case .empty:
@@ -78,6 +78,7 @@ struct StationDetailView: View {
             await viewModel.load(forceRefresh: true)
         }
         .background(DesignColor.background)
+        .tint(DesignColor.brandDark)
     }
 
     private func refresh() {

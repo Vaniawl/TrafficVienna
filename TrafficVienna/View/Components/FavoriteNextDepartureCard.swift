@@ -38,6 +38,16 @@ struct FavoriteNextDepartureCard: View {
             .padding(Spacing.lg)
             .foregroundStyle(DesignColor.inverseText)
             .background(DesignColor.brandGradient, in: .rect(cornerRadius: CornerRadius.xl))
+            .overlay {
+                RoundedRectangle(cornerRadius: CornerRadius.xl, style: .continuous)
+                    .stroke(.white.opacity(0.22), lineWidth: 1)
+            }
+            .shadow(
+                color: Shadow.lg.color,
+                radius: Shadow.lg.radius,
+                x: Shadow.lg.x,
+                y: Shadow.lg.y
+            )
             .contentShape(.rect(cornerRadius: CornerRadius.xl))
         }
         .buttonStyle(.plain)
@@ -66,7 +76,7 @@ struct FavoriteNextDepartureCard: View {
 
     private var headerTitle: some View {
         Label("Next departure", systemImage: "clock.fill")
-            .font(.headline)
+            .font(.subheadline.weight(.semibold))
             .fixedSize(horizontal: false, vertical: true)
     }
 
@@ -93,14 +103,14 @@ struct FavoriteNextDepartureCard: View {
         VStack(alignment: .leading, spacing: Spacing.xs) {
             Text(item.route.lineName)
                 .font(.title2)
-                .bold()
+                .fontWeight(.bold)
                 .padding(.horizontal, Spacing.sm)
                 .padding(.vertical, Spacing.xs)
                 .foregroundStyle(.black)
                 .background(.white, in: .rect(cornerRadius: CornerRadius.sm))
 
             Text(item.route.destination)
-                .font(.headline)
+                .font(.title3.weight(.semibold))
                 .fixedSize(horizontal: false, vertical: true)
         }
     }
@@ -113,11 +123,11 @@ struct FavoriteNextDepartureCard: View {
             if minutes <= 0 {
                 Text("now")
                     .font(.largeTitle)
-                    .bold()
+                    .fontWeight(.bold)
             } else {
                 Text(minutes, format: .number)
                     .font(.largeTitle)
-                    .bold()
+                    .fontWeight(.bold)
                     .monospacedDigit()
                     .contentTransition(
                         reduceMotion
