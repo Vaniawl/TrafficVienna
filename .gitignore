@@ -29,3 +29,6 @@ fastlane/screenshots
 
 # IDE
 .idea/
+
+# Superdesign temporary component templates
+.superdesign/tmp/

@@ -1,5 +1,17 @@
 # Journal
 
+## 2026-08-11 — Superdesign fallback for product redesign
+
+- Switched the design-review surface from the rate-limited Figma MCP workflow
+  to the authenticated Superdesign canvas without changing production SwiftUI.
+- Added a reusable repository analysis and target design system covering the
+  real five-tab information architecture, current tokens, mint/green redesign
+  palette, SF Pro typography, motion, accessibility, and truthful data states.
+- Created a pixel-faithful Nearby baseline plus two mobile redesign branches.
+  The calm dashboard branch is the recommended starting point because it keeps
+  the native tab vocabulary and groups nearby stops more clearly; both drafts
+  remain reviewable on the shared Superdesign canvas before implementation.
+
 ## 2026-07-29 — Protected App Store release integration
 
 - Merged release-readiness PR #10 into the stacked product branch, waited for
