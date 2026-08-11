@@ -1,6 +1,19 @@
 # Journal
 
-## 2026-08-11 — Stabilized post-push XCTest execution
+## 2026-08-11 — Isolated the hosted unit-test runtime
+
+- The next GitHub Quality run disproved App Intents as the allocator-crash root
+  cause: the identical invalid-free address later appeared in an unrelated
+  favourites test, while both UI smoke journeys passed.
+- The hosted unit-test process had been constructing the complete SwiftUI scene,
+  including rendering, location/network services, and repeating dashboard tasks.
+  `TrafficViennaApp` now detects the system XCTest host environment and uses an
+  inert scene for unit tests; explicit `-ui-testing` launches retain the real app.
+- Added regression coverage for hosted-unit, ordinary, and UI-acceptance launches.
+  The complete local run passed 115 unit/integration tests and two UI smoke journeys
+  (117/117) and ended `scripts/ci.sh` with `[ci] OK`.
+
+## 2026-08-11 — Investigated post-push XCTest execution
 
 - Investigated two failed GitHub Quality attempts after the UI acceptance push.
   Both failures were XCTest host instability: the first aborted one unit test during

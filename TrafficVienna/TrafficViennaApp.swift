@@ -15,11 +15,15 @@ struct TrafficViennaApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootTabView()
-                .tint(.appAccent)
-                .task {
-                    LegacyAccountProfileCleanup.run()
-                }
+            if AppLaunchContext.usesInertUnitTestScene {
+                EmptyView()
+            } else {
+                RootTabView()
+                    .tint(.appAccent)
+                    .task {
+                        LegacyAccountProfileCleanup.run()
+                    }
+            }
         }
     }
 }

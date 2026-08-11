@@ -1,5 +1,24 @@
 # Architectural Decisions
 
+## 2026-08-11 — Hosted unit tests use an inert application scene
+
+**Context:** GitHub's app-hosted unit process repeatedly aborted in libmalloc at
+the same address, first during shortcut-router tests and later during an unrelated
+favourites test. Before the tests began, that process constructed the full SwiftUI
+scene and started renderer, location, network, and repeating dashboard work. The
+separate UI-test runner completed both product journeys successfully.
+
+**Decision:** When the app process contains the system XCTest configuration or
+bundle environment and is not an explicit `-ui-testing` launch, render an
+`EmptyView` instead of `RootTabView`. Keep model/service assertions in the hosted
+unit bundle, and require regression tests for hosted-unit, normal, and UI-test
+launch classification. UI acceptance continues to launch the complete product.
+
+**Consequences:** Unit tests no longer run unrelated application lifecycle work,
+which makes failures attributable to the code under test and reduces headless-CI
+renderer coupling. Production, previews, and UI journeys keep their existing root
+scene and launch tasks; the smoke suite remains the guard for that separation.
+
 ## 2026-08-11 — App Intents is an adapter around the navigation router
 
 **Context:** The shortcut router and its pure destination/persistence behaviour
@@ -7,6 +26,8 @@ shared a source file with `AppEnum`, `OpenIntent`, and `AppShortcutsProvider`.
 GitHub's hosted XCTest process repeatedly aborted while loading the focused router
 tests, even after their preferences dependency was replaced with an in-memory
 store, while the same assertions were stable across local host relaunches.
+Separating the files narrowed the boundary but did not remove the hosted crash,
+which later reproduced in an unrelated favourites test.
 
 **Decision:** Keep destination mapping, pending-navigation state, and the narrow
 storage protocol in `TrafficViennaShortcutRouter.swift`. Keep only the App Intents
@@ -14,8 +35,8 @@ conformance and system shortcut declarations in `TrafficViennaAppIntents.swift`.
 The production router continues to default to `UserDefaults.standard`, and tests
 inject an in-memory implementation.
 
-**Consequences:** Navigation routing can be unit-tested without sharing its source
-object with App Intents metadata registration. The public shortcut behaviour and
+**Consequences:** Navigation routing has a clearer adapter boundary even though
+that separation was not the CI-stability fix. The public shortcut behaviour and
 cold-launch persistence remain unchanged, while future integrations can depend on
 the router without importing App Intents concerns.
 
