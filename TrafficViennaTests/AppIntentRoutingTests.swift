@@ -3,19 +3,8 @@ import XCTest
 
 @MainActor
 final class AppIntentRoutingTests: XCTestCase {
-    private var defaults: StubShortcutDestinationStore!
-
-    override func setUp() {
-        super.setUp()
-        defaults = StubShortcutDestinationStore()
-    }
-
-    override func tearDown() {
-        defaults = nil
-        super.tearDown()
-    }
-
     func testRequestIsPersistedAndRestoredForColdLaunch() {
+        let defaults = StubShortcutDestinationStore()
         let router = TrafficViennaShortcutRouter(defaults: defaults)
         router.request(.search)
 
@@ -26,6 +15,7 @@ final class AppIntentRoutingTests: XCTestCase {
     }
 
     func testConsumeReturnsDestinationAndClearsPersistence() {
+        let defaults = StubShortcutDestinationStore()
         let router = TrafficViennaShortcutRouter(defaults: defaults)
         router.request(.favourites)
 
@@ -35,6 +25,7 @@ final class AppIntentRoutingTests: XCTestCase {
     }
 
     func testSupportedDeepLinksRoundTripAndRoute() throws {
+        let defaults = StubShortcutDestinationStore()
         let router = TrafficViennaShortcutRouter(defaults: defaults)
 
         for destination in TrafficViennaDestination.allCases {
@@ -46,6 +37,7 @@ final class AppIntentRoutingTests: XCTestCase {
     }
 
     func testDeepLinkRejectsUnknownOrParameterizedRoutes() throws {
+        let defaults = StubShortcutDestinationStore()
         let router = TrafficViennaShortcutRouter(defaults: defaults)
         let rejectedURLs = [
             "https://favourites",

@@ -18,6 +18,8 @@ launch classification. UI acceptance continues to launch the complete product.
 which makes failures attributable to the code under test and reduces headless-CI
 renderer coupling. Production, previews, and UI journeys keep their existing root
 scene and launch tasks; the smoke suite remains the guard for that separation.
+This isolation improved the test boundary but did not by itself remove the hosted
+allocator failure; shared XCTest fixture lifecycle state was addressed separately.
 
 ## 2026-08-11 — App Intents is an adapter around the navigation router
 

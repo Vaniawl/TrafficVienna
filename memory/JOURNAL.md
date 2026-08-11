@@ -12,6 +12,11 @@
 - Added regression coverage for hosted-unit, ordinary, and UI-acceptance launches.
   The complete local run passed 115 unit/integration tests and two UI smoke journeys
   (117/117) and ended `scripts/ci.sh` with `[ci] OK`.
+- A second GitHub run still failed at the start of every shortcut-router method,
+  before its first assertion. The remaining shared pre-test path was the
+  `@MainActor` XCTest `setUp`/`tearDown` state. Each method now owns its in-memory
+  store locally instead. Ten separate host relaunches passed all 40 focused tests,
+  followed by another clean 117/117 local CI run.
 
 ## 2026-08-11 — Investigated post-push XCTest execution
 
