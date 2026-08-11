@@ -1,5 +1,20 @@
 # Journal
 
+## 2026-08-11 — Fixed the hosted XCTest actor-deinit crash
+
+- Downloaded the failed GitHub run's result bundle and 18 symbolicated `.ips`
+  reports. Every crash shared the same Swift runtime path:
+  `swift_task_deinitOnExecutorImpl` → `TaskLocal::StopLookupScope`, while releasing
+  a main-actor-isolated object at the end of a synchronous XCTest method.
+- Converted the remaining synchronous methods in `@MainActor` XCTest cases to
+  async tests so object destruction stays inside XCTest's concurrency context.
+  This is test-only and does not alter production isolation or app behaviour.
+- All 115 unit/integration tests passed locally after the change. The affected
+  router, favourites, legacy-cleanup, map, recent-search, and search suites all
+  completed without allocator errors. Both UI smoke journeys also passed on the
+  uncontended second iPhone 17 Simulator; an earlier first-Simulator onboarding
+  run was interrupted by another local application's automation session.
+
 ## 2026-08-11 — Isolated the hosted unit-test runtime
 
 - The next GitHub Quality run disproved App Intents as the allocator-crash root

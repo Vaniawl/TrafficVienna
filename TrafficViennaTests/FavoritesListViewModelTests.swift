@@ -3,7 +3,7 @@ import XCTest
 
 @MainActor
 final class FavoritesListViewModelTests: XCTestCase {
-    func testStationsLoadMoveAndPersistOrder() {
+    func testStationsLoadMoveAndPersistOrder() async {
         let stations = StubFavoriteStationsRepository(stations: [station(1, "A"), station(2, "B")])
         let viewModel = makeViewModel(stationsRepo: stations)
         viewModel.loadStations()
@@ -14,7 +14,7 @@ final class FavoritesListViewModelTests: XCTestCase {
         XCTAssertEqual(stations.stations.map(\.name), ["B", "A"])
     }
 
-    func testRemovingStationUpdatesRepositoryAndViewState() {
+    func testRemovingStationUpdatesRepositoryAndViewState() async {
         let stations = StubFavoriteStationsRepository(stations: [station(1, "A")])
         let viewModel = makeViewModel(stationsRepo: stations)
         viewModel.loadStations()
@@ -123,7 +123,7 @@ final class FavoritesListViewModelTests: XCTestCase {
         XCTAssertNil(viewModel.featuredDeparture)
     }
 
-    func testToggleStationUsesSharedRepositoryAndRefreshesViewState() {
+    func testToggleStationUsesSharedRepositoryAndRefreshesViewState() async {
         let stations = StubFavoriteStationsRepository()
         let viewModel = makeViewModel(stationsRepo: stations)
         let favorite = station(1, "A")

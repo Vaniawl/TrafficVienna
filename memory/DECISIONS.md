@@ -1,5 +1,25 @@
 # Architectural Decisions
 
+## 2026-08-11 — Main-actor XCTest methods use async execution
+
+**Context:** The GitHub failure artifact contained 18 symbolicated crash reports.
+They all aborted in `swift_task_deinitOnExecutorImpl` and
+`TaskLocal::StopLookupScope` while a main-actor-isolated object was released at the
+end of a synchronous XCTest method. The same runtime signature reproduced across
+unrelated router, favourites, migration, and map types, disproving business logic,
+fixtures, App Intents metadata, and application-scene startup as root causes.
+
+**Decision:** Declare every test method in an `@MainActor` XCTest case as async,
+including methods whose assertions are otherwise synchronous. Keep production
+types and their actor isolation unchanged. Retain crash-artifact collection in CI
+for any future unexpected XCTest exit.
+
+**Consequences:** XCTest now owns a valid concurrency context through local-object
+destruction, avoiding the affected synchronous actor-deinit runtime path. Test
+meaning, assertions, and production behaviour are unchanged. New synchronous
+methods must not be added to `@MainActor` XCTest cases until the upstream runtime
+defect is proven fixed on the repository's supported Xcode/Simulator matrix.
+
 ## 2026-08-11 — Hosted unit tests use an inert application scene
 
 **Context:** GitHub's app-hosted unit process repeatedly aborted in libmalloc at

@@ -3,7 +3,7 @@ import XCTest
 
 @MainActor
 final class AppIntentRoutingTests: XCTestCase {
-    func testRequestIsPersistedAndRestoredForColdLaunch() {
+    func testRequestIsPersistedAndRestoredForColdLaunch() async {
         let defaults = StubShortcutDestinationStore()
         let router = TrafficViennaShortcutRouter(defaults: defaults)
         router.request(.search)
@@ -14,7 +14,7 @@ final class AppIntentRoutingTests: XCTestCase {
         XCTAssertEqual(restored.pendingDestination?.appTab, .search)
     }
 
-    func testConsumeReturnsDestinationAndClearsPersistence() {
+    func testConsumeReturnsDestinationAndClearsPersistence() async {
         let defaults = StubShortcutDestinationStore()
         let router = TrafficViennaShortcutRouter(defaults: defaults)
         router.request(.favourites)
@@ -24,7 +24,7 @@ final class AppIntentRoutingTests: XCTestCase {
         XCTAssertNil(defaults.string(forKey: TrafficViennaShortcutRouter.pendingDestinationKey))
     }
 
-    func testSupportedDeepLinksRoundTripAndRoute() throws {
+    func testSupportedDeepLinksRoundTripAndRoute() async throws {
         let defaults = StubShortcutDestinationStore()
         let router = TrafficViennaShortcutRouter(defaults: defaults)
 
@@ -36,7 +36,7 @@ final class AppIntentRoutingTests: XCTestCase {
         }
     }
 
-    func testDeepLinkRejectsUnknownOrParameterizedRoutes() throws {
+    func testDeepLinkRejectsUnknownOrParameterizedRoutes() async throws {
         let defaults = StubShortcutDestinationStore()
         let router = TrafficViennaShortcutRouter(defaults: defaults)
         let rejectedURLs = [

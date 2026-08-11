@@ -4,7 +4,7 @@ import XCTest
 
 @MainActor
 final class RecentSearchesStoreTests: XCTestCase {
-    func testPersistsUniqueMostRecentStationsWithinLimitAndClears() {
+    func testPersistsUniqueMostRecentStationsWithinLimitAndClears() async {
         let suiteName = "TrafficViennaTests.RecentSearches.\(UUID().uuidString)"
         guard let defaults = UserDefaults(suiteName: suiteName) else {
             XCTFail("Could not create isolated UserDefaults suite")
