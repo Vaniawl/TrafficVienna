@@ -24,6 +24,14 @@ extension TrafficViennaDestination {
     }
 }
 
+protocol ShortcutDestinationStoring: AnyObject {
+    func string(forKey defaultName: String) -> String?
+    func set(_ value: Any?, forKey defaultName: String)
+    func removeObject(forKey defaultName: String)
+}
+
+extension UserDefaults: ShortcutDestinationStoring {}
+
 /// Persists intent-driven navigation so it also survives a cold app launch.
 @MainActor
 final class TrafficViennaShortcutRouter: ObservableObject {
@@ -32,9 +40,9 @@ final class TrafficViennaShortcutRouter: ObservableObject {
 
     @Published private(set) var pendingDestination: TrafficViennaDestination?
 
-    private let defaults: UserDefaults
+    private let defaults: ShortcutDestinationStoring
 
-    init(defaults: UserDefaults = .standard) {
+    init(defaults: ShortcutDestinationStoring = UserDefaults.standard) {
         self.defaults = defaults
         pendingDestination = defaults.string(forKey: Self.pendingDestinationKey)
             .flatMap(TrafficViennaDestination.init(rawValue:))

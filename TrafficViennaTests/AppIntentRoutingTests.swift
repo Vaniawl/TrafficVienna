@@ -3,16 +3,14 @@ import XCTest
 
 @MainActor
 final class AppIntentRoutingTests: XCTestCase {
-    private var defaults: UserDefaults!
+    private var defaults: StubShortcutDestinationStore!
 
     override func setUp() {
         super.setUp()
-        defaults = UserDefaults(suiteName: "AppIntentRoutingTests")
-        defaults.removePersistentDomain(forName: "AppIntentRoutingTests")
+        defaults = StubShortcutDestinationStore()
     }
 
     override func tearDown() {
-        defaults.removePersistentDomain(forName: "AppIntentRoutingTests")
         defaults = nil
         super.tearDown()
     }
@@ -62,5 +60,21 @@ final class AppIntentRoutingTests: XCTestCase {
             XCTAssertFalse(router.handle(deepLinkURL: url), value)
             XCTAssertNil(router.pendingDestination)
         }
+    }
+}
+
+private final class StubShortcutDestinationStore: ShortcutDestinationStoring {
+    private var values: [String: Any] = [:]
+
+    func string(forKey defaultName: String) -> String? {
+        values[defaultName] as? String
+    }
+
+    func set(_ value: Any?, forKey defaultName: String) {
+        values[defaultName] = value
+    }
+
+    func removeObject(forKey defaultName: String) {
+        values.removeValue(forKey: defaultName)
     }
 }

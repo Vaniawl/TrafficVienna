@@ -9,6 +9,11 @@
 - Disabled unit-bundle parallelization in the shared TrafficVienna scheme without
   removing tests or weakening assertions. All 112 unit/integration tests then passed
   serially, including every test falsely attributed to the clone failures.
+- A subsequent serial GitHub run isolated a deterministic allocator abort in
+  `AppIntentRoutingTests.setUp()` while creating and clearing a real `UserDefaults`
+  suite. The shortcut router now depends on a narrow storage protocol; production
+  still uses `UserDefaults.standard`, while the unit test uses an in-memory stub.
+  Ten separate host relaunches passed all 40 focused assertions before the full run.
 - A separate local smoke failure was traced to another workspace shutting down the
   shared simulator mid-query. Re-running on the second iPhone 17 UUID completed the
   full 114/114 suite and ended `scripts/ci.sh` with `[ci] OK`.
