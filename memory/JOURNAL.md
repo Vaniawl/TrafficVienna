@@ -1,5 +1,16 @@
 # Journal
 
+## 2026-08-11 — Two additional Nearby design directions
+
+- Branched two new Superdesign drafts from the reviewed calm dashboard instead
+  of changing or implementing the earlier option.
+- The Native Timetable direction removes the dominant gradient, uses mint only
+  for live/state emphasis, keeps favourites compact, and consolidates nearby
+  departures into one iOS-style grouped timetable.
+- The Contrast Transit Pass direction explores an ink hero with mint live cues
+  and an edge-to-edge timetable sheet. Its decorative QR and invented platform
+  label are explicitly rejected for production; no SwiftUI code was changed.
+
 ## 2026-08-11 — Superdesign fallback for product redesign
 
 - Switched the design-review surface from the rate-limited Figma MCP workflow
