@@ -57,6 +57,7 @@ struct DisruptionsList: View {
                     }
                 } header: {
                     Text("Alerts: \(viewModel.filteredInfos.count)")
+                        .foregroundStyle(DesignColor.secondaryText)
                 }
             }
         }

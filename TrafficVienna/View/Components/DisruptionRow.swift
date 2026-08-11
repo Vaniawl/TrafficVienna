@@ -35,7 +35,7 @@ struct DisruptionRow: View {
                 if let description = info.description, !description.isEmpty {
                     Text(description)
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(DesignColor.secondaryText)
                         .lineLimit(2)
                 }
             }
@@ -91,9 +91,9 @@ struct DisruptionRow: View {
     private var iconColor: Color {
         switch kind {
         case .service:
-            .orange
+            DesignColor.warning
         case .accessibility:
-            .blue
+            DesignColor.info
         case .stopChange:
             .appAccent
         }

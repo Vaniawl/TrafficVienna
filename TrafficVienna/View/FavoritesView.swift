@@ -60,7 +60,7 @@ struct FavoritesView: View {
     }
 
     private var stationsSection: some View {
-        Section("Stations") {
+        Section {
             ForEach(viewModel.stations) { station in
                 NavigationLink(value: Station(
                     id: station.id,
@@ -84,11 +84,14 @@ struct FavoritesView: View {
             .onDelete { offsets in
                 offsets.map { viewModel.stations[$0].id }.forEach(viewModel.removeStation)
             }
+        } header: {
+            Text("Stations")
+                .foregroundStyle(DesignColor.secondaryText)
         }
     }
 
     private var linesSection: some View {
-        Section("Lines") {
+        Section {
             ForEach(viewModel.items) { item in
                 VStack(alignment: .leading, spacing: Spacing.xs) {
                     DepartureLineRow(
@@ -119,6 +122,9 @@ struct FavoritesView: View {
                     }
                 }
             }
+        } header: {
+            Text("Lines")
+                .foregroundStyle(DesignColor.secondaryText)
         }
     }
 

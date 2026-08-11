@@ -51,11 +51,4 @@ final class TrafficViennaAppStoreScreenshotTests: TrafficViennaUITestCase {
         waitForLoadingToFinish()
         attachScreenshot(named: "05-favourites")
     }
-
-    private func attachScreenshot(named name: String) {
-        let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
-        attachment.name = name
-        attachment.lifetime = .keepAlways
-        add(attachment)
-    }
 }

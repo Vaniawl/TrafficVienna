@@ -18,8 +18,8 @@ struct MapLocationBannerView: View {
                         .font(.headline)
                 }
                 Text("Use your location to show the closest stops.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(.body)
+                    .foregroundStyle(DesignColor.primaryText)
                 Button(
                     "Use my location",
                     systemImage: "location.fill",
@@ -32,12 +32,12 @@ struct MapLocationBannerView: View {
                     .font(.headline)
                 if isExploringArea {
                     Text("This area stays available. Enable location in Settings for nearby stops.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .font(.body)
+                        .foregroundStyle(DesignColor.primaryText)
                 } else {
                     Text("Vienna centre stays available. Enable location in Settings for nearby stops.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .font(.body)
+                        .foregroundStyle(DesignColor.primaryText)
                 }
                 Button("Open Settings", systemImage: "gear", action: openSettings)
                     .buttonStyle(.bordered)
@@ -57,12 +57,12 @@ struct MapLocationBannerView: View {
                     .font(.headline)
                 if isExploringArea {
                     Text("Showing this area while location recovers.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .font(.body)
+                        .foregroundStyle(DesignColor.primaryText)
                 } else {
                     Text("Showing Vienna centre while location recovers.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .font(.body)
+                        .foregroundStyle(DesignColor.primaryText)
                 }
                 Button("Retry location", systemImage: "arrow.clockwise", action: requestLocation)
                     .buttonStyle(.bordered)

@@ -1,0 +1,99 @@
+import XCTest
+
+@MainActor
+final class TrafficViennaAdaptiveLayoutTests: TrafficViennaUITestCase {
+    func testPrimaryScreensFitConfiguredAccessibilitySettings() {
+        launchApp(seedFavourites: true)
+
+        waitForIdentifier("nearby-screen")
+        attachScreenshot(named: "adaptive-nearby")
+
+        selectTab(1, expecting: "search-screen")
+        attachScreenshot(named: "adaptive-search")
+
+        let searchField = app.searchFields.firstMatch
+        XCTAssertTrue(searchField.waitForExistence(timeout: 10))
+        searchField.tap()
+        searchField.typeText("Stephansplatz")
+        waitForIdentifier("station-row-1085621741").tap()
+
+        waitForIdentifier("station-detail-screen", timeout: 20)
+        waitForLoadingToFinish()
+        assertVisibleButtonsMeetMinimumHitArea()
+        attachScreenshot(named: "adaptive-station-detail")
+
+        if app.tabBars.firstMatch.exists {
+            app.navigationBars.buttons.firstMatch.tap()
+            waitForIdentifier("search-screen")
+
+            selectTab(2, expecting: "stations-map", timeout: 20)
+            attachScreenshot(named: "adaptive-map")
+
+            selectTab(3, expecting: "alerts-screen", timeout: 20)
+            verifyAlertsLayout()
+
+            selectTab(4, expecting: "favourites-screen")
+            verifyFavouritesLayout()
+        } else {
+            launchApp(seedFavourites: true, initialTab: "map")
+            waitForIdentifier("stations-map", timeout: 20)
+            attachScreenshot(named: "adaptive-map")
+
+            launchApp(seedFavourites: true, initialTab: "alerts")
+            waitForIdentifier("alerts-screen", timeout: 20)
+            verifyAlertsLayout()
+
+            launchApp(seedFavourites: true, initialTab: "favourites")
+            waitForIdentifier("favourites-screen")
+            verifyFavouritesLayout()
+        }
+    }
+
+    private func verifyAlertsLayout() {
+        waitForLoadingToFinish()
+        for label in ["Service", "Accessibility", "Stop changes"] {
+            let button = app.buttons[label].firstMatch
+            XCTAssertTrue(button.waitForExistence(timeout: 10), "Missing full filter label: \(label)")
+            XCTAssertGreaterThanOrEqual(button.frame.height, 44)
+        }
+        attachScreenshot(named: "adaptive-alerts")
+    }
+
+    private func verifyFavouritesLayout() {
+        waitForIdentifier("favourite-station-row-1085621741")
+        waitForLoadingToFinish()
+        attachScreenshot(named: "adaptive-favourites")
+    }
+
+    private func assertVisibleButtonsMeetMinimumHitArea(
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let buttons = app.buttons
+        let navigationBarFrame = app.navigationBars.firstMatch.frame
+        var inspected = 0
+
+        for index in 0..<buttons.count {
+            let button = buttons.element(boundBy: index)
+            guard button.exists, button.isHittable else { continue }
+            guard !button.frame.intersects(navigationBarFrame) else { continue }
+            inspected += 1
+            XCTAssertGreaterThanOrEqual(
+                button.frame.width,
+                44,
+                "Button is narrower than 44 pt: \(button.debugDescription)",
+                file: file,
+                line: line
+            )
+            XCTAssertGreaterThanOrEqual(
+                button.frame.height,
+                44,
+                "Button is shorter than 44 pt: \(button.debugDescription)",
+                file: file,
+                line: line
+            )
+        }
+
+        XCTAssertGreaterThan(inspected, 0, "Expected visible buttons", file: file, line: line)
+    }
+}

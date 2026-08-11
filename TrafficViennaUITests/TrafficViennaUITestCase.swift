@@ -14,7 +14,8 @@ class TrafficViennaUITestCase: XCTestCase {
         locale: String = "en_US",
         skipOnboarding: Bool = true,
         seedFavourites: Bool = false,
-        requestLocation: Bool = false
+        requestLocation: Bool = false,
+        initialTab: String? = nil
     ) {
         var arguments = [
             "-ui-testing",
@@ -31,6 +32,9 @@ class TrafficViennaUITestCase: XCTestCase {
         }
         if requestLocation {
             arguments.append("-ui-testing-request-location")
+        }
+        if let initialTab {
+            arguments.append(contentsOf: ["-ui-testing-tab", initialTab])
         }
 
         app.launchArguments = arguments
@@ -64,10 +68,18 @@ class TrafficViennaUITestCase: XCTestCase {
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> XCUIElement {
-        let tab = app.tabBars.buttons.element(boundBy: index)
+        let tabLabels = ["Nearby", "Search", "Map", "Alerts", "Favourites"]
+        guard tabLabels.indices.contains(index) else {
+            XCTFail("Unsupported tab index \(index)", file: file, line: line)
+            return app.buttons.firstMatch
+        }
+
+        let indexedTab = app.tabBars.buttons.element(boundBy: index)
+        let labelledTab = app.buttons[tabLabels[index]].firstMatch
+        let tab = indexedTab.exists ? indexedTab : labelledTab
         XCTAssertTrue(
             tab.waitForExistence(timeout: 10),
-            "Expected tab at index \(index)",
+            "Expected tab at index \(index) (\(tabLabels[index]))",
             file: file,
             line: line
         )
@@ -131,5 +143,12 @@ class TrafficViennaUITestCase: XCTestCase {
             file: file,
             line: line
         )
+    }
+
+    func attachScreenshot(named name: String) {
+        let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
     }
 }

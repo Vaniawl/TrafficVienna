@@ -5,8 +5,8 @@ enum DesignColor {
     static let brandDeep = Color(hex: 0x21B66F)
     static let brandDark = Color(hex: 0x087A5B)
     static let accentText = Color.adaptive(light: 0x087A5B, dark: 0x41C7AD)
-    static let heroStart = brandDark
-    static let heroEnd = Color(hex: 0x07553E)
+    static let heroStart = Color(hex: 0x00664B)
+    static let heroEnd = Color(hex: 0x003F30)
     static let brandGradient = LinearGradient(
         colors: [heroStart, heroEnd],
         startPoint: .topLeading,
@@ -19,8 +19,8 @@ enum DesignColor {
     static let elevatedBackground = Color.adaptive(light: 0xFFFFFF, dark: 0x202321)
 
     static let primaryText = Color.adaptive(light: 0x101114, dark: 0xF5F6F4)
-    static let secondaryText = Color.adaptive(light: 0x656B70, dark: 0xAEB4B0)
-    static let tertiaryText = Color.adaptive(light: 0x969B9F, dark: 0x7D8580)
+    static let secondaryText = Color.adaptive(light: 0x4F5559, dark: 0xAEB4B0)
+    static let tertiaryText = Color.adaptive(light: 0x5E6468, dark: 0x9AA19C)
     static let inverseText = Color.white
 
     static let border = Color.adaptive(light: 0xE7E9E8, dark: 0x303431)

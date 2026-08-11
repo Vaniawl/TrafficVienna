@@ -14,7 +14,7 @@ struct StationDepartureRow: View {
                 nextIsLive: group.isLive
             )
 
-            Menu("More actions", systemImage: "ellipsis.circle") {
+            Menu {
                 Button("Track on Lock Screen", systemImage: "bell.badge") {
                     viewModel.startTracking(group)
                 }
@@ -25,9 +25,13 @@ struct StationDepartureRow: View {
                 ) {
                     viewModel.toggleFavorite(group)
                 }
+            } label: {
+                Image(systemName: "ellipsis.circle")
+                    .frame(width: 44, height: 44)
+                    .contentShape(.rect)
             }
-            .labelStyle(.iconOnly)
-            .frame(minWidth: 44, minHeight: 44)
+            .accessibilityLabel("More actions for line \(group.line) to \(group.destination)")
+            .accessibilityIdentifier("departure-actions-\(group.line)-\(group.destination)")
         }
         .padding(.vertical, Spacing.xs)
     }

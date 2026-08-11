@@ -38,7 +38,7 @@ struct FavoriteStationQuickAccessCard: View {
                 Image(systemName: "arrow.right")
                     .font(.system(size: 14, weight: .semibold))
             }
-                .foregroundStyle(.secondary)
+                .foregroundStyle(DesignColor.primaryText)
                 .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
         }

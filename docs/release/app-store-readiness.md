@@ -5,6 +5,10 @@ Status date: 11 August 2026
 Current verdict: **No-Go** until every blocking item below has observed evidence.
 This file is intentionally stricter than a successful Simulator build.
 
+The narrower local UI/UX verdict is **Go**. Its tested boundary and evidence are
+recorded in `local-ui-readiness.md`; it intentionally excludes the App Store gates
+below.
+
 ## Acceptance boundary
 
 A `Go` requires:
@@ -46,15 +50,16 @@ A `Go` requires:
 - The account-only Apple identity surface and entitlement were removed because
   they provided no cross-device feature and prevented the installed profile from
   archiving. A one-time migration deletes the legacy device-only Keychain item.
-- All 112 tests in the standard scheme pass with zero failures or skips: 110
+- All 114 tests in the standard scheme pass with zero failures or skips: 112
   unit/integration tests plus deterministic XCUITest smoke journeys for onboarding,
   primary tabs, station search, and station detail. The cleanup migration is
   covered for success, missing-item, and retry-after-failure paths; colour
   regressions enforce 4.5:1 hero and semantic-text contrast.
-- A fresh iPhone 17 product-acceptance run exercised every redesigned route and
-  inspected high-risk live dashboards/onboarding in dark appearance, maximum
-  Accessibility Dynamic Type, and Increase Contrast. It exposed and closed
-  contrast and horizontal-wrapping defects before the final CI pass.
+- A fresh isolated local-acceptance matrix passed Xcode accessibility audits and
+  smoke journeys on iPhone 17, then exercised every primary route on iPhone 17 and
+  iPad Pro 13-inch (M5) in dark appearance, maximum Accessibility Dynamic Type,
+  Increase Contrast, and Reduce Motion. It exposed and closed contrast, hit-area,
+  and horizontal-wrapping defects before the final pass.
 - iPhone 17 Pro Max and iPad Pro 13-inch runtime builds complete without
   diagnostics. English, German, location-denied, live-data, Favourites, and
   maximum Accessibility Dynamic Type paths were exercised.
@@ -101,6 +106,8 @@ A `Go` requires:
 
 ```sh
 bash scripts/test.sh
+
+bash scripts/run-local-ui-acceptance.sh
 
 bash scripts/capture-app-store-screenshots.sh
 

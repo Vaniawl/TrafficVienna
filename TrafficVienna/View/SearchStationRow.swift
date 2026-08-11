@@ -34,7 +34,7 @@ struct SearchStationRow: View {
 
             Text("Live departures")
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(DesignColor.secondaryText)
                 .fixedSize(horizontal: false, vertical: true)
         }
     }

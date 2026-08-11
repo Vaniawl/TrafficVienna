@@ -70,9 +70,9 @@ struct StationCardView: View {
 
             if !uniqueLineNames.isEmpty {
                 if dynamicTypeSize.isAccessibilitySize {
-                    Text(verbatim: uniqueLineNames.joined(separator: ", "))
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(.secondary)
+                        Text(verbatim: uniqueLineNames.joined(separator: ", "))
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(DesignColor.secondaryText)
                         .fixedSize(horizontal: false, vertical: true)
                 } else {
                     HStack(spacing: Spacing.xxs) {
@@ -91,7 +91,7 @@ struct StationCardView: View {
             if let distance {
                 Label(walkText(distance), systemImage: "figure.walk")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(DesignColor.secondaryText)
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityLabel("Walking distance")
             }
@@ -105,7 +105,7 @@ struct StationCardView: View {
                 } else {
                     Text(updatedText(updatedAt))
                         .font(.caption)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(DesignColor.tertiaryText)
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityLabel("Updated \(RelativeTime.updated(since: updatedAt))")
                 }

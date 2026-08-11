@@ -10,9 +10,9 @@
          <BuildActionEntry
             buildForTesting = "YES"
             buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "AF8F2D672EBDE79300E69513"
@@ -27,20 +27,8 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      shouldAutocreateTestPlan = "YES">
+      shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "AF20B2422EC254DF004B34AC"
-               BuildableName = "TrafficViennaTests.xctest"
-               BlueprintName = "TrafficViennaTests"
-               ReferencedContainer = "container:TrafficVienna.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
          <TestableReference
             skipped = "NO"
             parallelizable = "NO">
@@ -51,18 +39,6 @@
                BlueprintName = "TrafficViennaUITests"
                ReferencedContainer = "container:TrafficVienna.xcodeproj">
             </BuildableReference>
-            <SkippedTests>
-               <Test Identifier = "TrafficViennaAppStoreScreenshotTests/testCaptureEnglishScreenshots()">
-               </Test>
-               <Test Identifier = "TrafficViennaAppStoreScreenshotTests/testCaptureGermanScreenshots()">
-               </Test>
-               <Test Identifier = "TrafficViennaAccessibilityAuditTests/testOnboardingPassesAccessibilityAudit()">
-               </Test>
-               <Test Identifier = "TrafficViennaAccessibilityAuditTests/testPrimaryScreensPassAccessibilityAudit()">
-               </Test>
-               <Test Identifier = "TrafficViennaAdaptiveLayoutTests/testPrimaryScreensFitConfiguredAccessibilitySettings()">
-               </Test>
-            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>
@@ -76,8 +52,7 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <BuildableProductRunnable runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AF8F2D672EBDE79300E69513"
@@ -93,8 +68,7 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <BuildableProductRunnable runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AF8F2D672EBDE79300E69513"
@@ -104,8 +78,7 @@
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
-   <AnalyzeAction
-      buildConfiguration = "Debug">
+   <AnalyzeAction buildConfiguration = "Debug">
    </AnalyzeAction>
    <ArchiveAction
       buildConfiguration = "Release"

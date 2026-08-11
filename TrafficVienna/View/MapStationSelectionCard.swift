@@ -10,7 +10,7 @@ struct MapStationSelectionCard: View {
                 VStack(alignment: .leading, spacing: Spacing.xxs) {
                     Text("Selected stop")
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(DesignColor.secondaryText)
 
                     Text(station.name)
                         .font(.title3)

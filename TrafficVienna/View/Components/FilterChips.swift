@@ -10,7 +10,7 @@ struct FilterChips: View {
                 FilterChip(
                     title: String(localized: "All").uppercased(),
                     category: nil,
-                    color: .appAccent,
+                    color: DesignColor.brandDark,
                     selection: $selection
                 )
 

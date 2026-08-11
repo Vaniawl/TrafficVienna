@@ -46,7 +46,7 @@ struct ServiceStatusCard: View {
         VStack(alignment: .leading, spacing: Spacing.xs) {
             Text("Service status")
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(DesignColor.secondaryText)
+                .foregroundStyle(DesignColor.primaryText)
 
             Text(statusMessage)
                 .font(.body.weight(.semibold))

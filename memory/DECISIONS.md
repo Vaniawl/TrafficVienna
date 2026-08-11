@@ -1,5 +1,27 @@
 # Architectural Decisions
 
+## 2026-08-11 — Local accessibility acceptance is an isolated matrix
+
+**Context:** The standard smoke scheme proved navigation but did not continuously
+exercise Xcode's accessibility audit or the combined worst-case layout of dark
+appearance, maximum Accessibility Dynamic Type, Increase Contrast, and Reduce
+Motion on both form factors. Xcode 26.5 also emits intermittent findings for
+framework-owned or numerically compliant elements.
+
+**Decision:** Keep the stable smoke journeys in the standard scheme and place the
+heavier audits in `TrafficViennaLocalAcceptance`. A repository script creates exact
+temporary iPhone and iPad destinations, runs standard accessibility audits plus the
+combined maximum-accessibility layout scenario, preserves result bundles, and
+deletes the devices on exit. Framework exceptions must be audit-type and
+element/region-specific, retain diagnostic attachments, and have independent
+visual, layout, or numeric evidence; all other resolvable findings fail.
+
+**Consequences:** Daily CI remains deterministic while a single local command
+reproduces the high-risk UI matrix without mutating developer simulators. The
+local `Go` verdict is limited to Simulator UI/UX and cannot be promoted to an App
+Store `Go` without signing, App Store Connect, physical-device, TestFlight, and
+Apple-processing evidence.
+
 ## 2026-08-11 — Deterministic UI acceptance remains a debug-only boundary
 
 **Context:** Unit coverage did not prove complete onboarding, tab navigation, or

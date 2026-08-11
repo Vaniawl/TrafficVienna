@@ -40,11 +40,7 @@ struct SearchView: View {
                 }
 
             case .idle where viewModel.recentStations.isEmpty:
-                ContentUnavailableView(
-                    "Search Vienna",
-                    systemImage: "magnifyingglass",
-                    description: Text("Enter a stop name to see live departures.")
-                )
+                emptySearchView
 
             case .idle:
                 RecentStationsList(
@@ -87,6 +83,27 @@ struct SearchView: View {
         Task {
             await viewModel.retry()
         }
+    }
+
+    private var emptySearchView: some View {
+        VStack(spacing: Spacing.sm) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 56, weight: .regular))
+                .foregroundStyle(DesignColor.secondaryText)
+                .accessibilityHidden(true)
+
+            Text("Search Vienna")
+                .font(.title2.weight(.semibold))
+                .foregroundStyle(DesignColor.primaryText)
+
+            Text("Enter a stop name to see live departures.")
+                .font(.body)
+                .foregroundStyle(DesignColor.secondaryText)
+                .multilineTextAlignment(.center)
+        }
+        .padding(Spacing.xl)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityElement(children: .combine)
     }
 }
 

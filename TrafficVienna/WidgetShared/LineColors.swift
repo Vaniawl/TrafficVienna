@@ -89,4 +89,13 @@ enum LineColors {
         case .tram:  return Color(hex: 0xE2002A) // tram red
         }
     }
+
+    static func foregroundColor(for line: String) -> Color {
+        switch line.uppercased().trimmingCharacters(in: .whitespaces) {
+        case "U2", "U3", "U4":
+            .black
+        default:
+            .white
+        }
+    }
 }

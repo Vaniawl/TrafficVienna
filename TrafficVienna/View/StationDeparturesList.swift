@@ -13,13 +13,13 @@ struct StationDeparturesList: View {
             }
 
             if !viewModel.trafficInfos.isEmpty {
-                Section("Service alerts") {
-                    ForEach(viewModel.trafficInfos) { info in
-                        NavigationLink(value: info) {
-                            DisruptionRow(info: info)
-                        }
-                        .listRowBackground(DesignColor.cardBackground)
+                sectionHeading("Service alerts")
+
+                ForEach(viewModel.trafficInfos) { info in
+                    NavigationLink(value: info) {
+                        DisruptionRow(info: info)
                     }
+                    .listRowBackground(DesignColor.cardBackground)
                 }
             }
 
@@ -32,19 +32,19 @@ struct StationDeparturesList: View {
                 .listRowBackground(Color.clear)
             }
 
-            Section("Departures") {
-                if viewModel.groups.isEmpty {
-                    ContentUnavailableView(
-                        "No matching departures",
-                        systemImage: "line.3.horizontal.decrease.circle",
-                        description: Text("Choose another transport type.")
-                    )
-                    .listRowBackground(Color.clear)
-                } else {
-                    ForEach(viewModel.groups) { group in
-                        StationDepartureRow(viewModel: viewModel, group: group)
-                            .listRowBackground(DesignColor.cardBackground)
-                    }
+            sectionHeading("Departures")
+
+            if viewModel.groups.isEmpty {
+                ContentUnavailableView(
+                    "No matching departures",
+                    systemImage: "line.3.horizontal.decrease.circle",
+                    description: Text("Choose another transport type.")
+                )
+                .listRowBackground(Color.clear)
+            } else {
+                ForEach(viewModel.groups) { group in
+                    StationDepartureRow(viewModel: viewModel, group: group)
+                        .listRowBackground(DesignColor.cardBackground)
                 }
             }
         }
@@ -60,5 +60,22 @@ struct StationDeparturesList: View {
                 )
             }
         }
+    }
+
+    private func sectionHeading(_ title: LocalizedStringKey) -> some View {
+        Text(title)
+            .font(.headline)
+            .foregroundStyle(DesignColor.primaryText)
+            .accessibilityAddTraits(.isHeader)
+            .listRowInsets(
+                EdgeInsets(
+                    top: Spacing.md,
+                    leading: Spacing.md,
+                    bottom: Spacing.xs,
+                    trailing: Spacing.md
+                )
+            )
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
     }
 }

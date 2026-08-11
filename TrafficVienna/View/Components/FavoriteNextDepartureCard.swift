@@ -88,14 +88,14 @@ struct FavoriteNextDepartureCard: View {
                 .fixedSize()
                 .padding(.horizontal, Spacing.sm)
                 .padding(.vertical, Spacing.xs)
-                .background(.white.opacity(0.16), in: Capsule())
+                .background(.black.opacity(0.16), in: Capsule())
         } else if item.departure.isRealtime {
             Label("Live", systemImage: "dot.radiowaves.left.and.right")
                 .font(.footnote)
                 .fixedSize()
                 .padding(.horizontal, Spacing.sm)
                 .padding(.vertical, Spacing.xs)
-                .background(.white.opacity(0.16), in: Capsule())
+                .background(.black.opacity(0.16), in: Capsule())
         }
     }
 

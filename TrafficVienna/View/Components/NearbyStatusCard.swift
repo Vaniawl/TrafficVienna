@@ -8,17 +8,27 @@ struct NearbyStatusCard: View {
     let action: (() -> Void)?
 
     var body: some View {
-        ContentUnavailableView {
+        VStack(spacing: Spacing.md) {
             if let icon {
                 Label(title, systemImage: icon)
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(DesignColor.primaryText)
             } else {
-                ProgressView()
-                    .accessibilityHidden(true)
-                Text(title)
+                HStack(spacing: Spacing.sm) {
+                    ProgressView()
+                        .accessibilityHidden(true)
+                    Text(title)
+                }
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(DesignColor.primaryText)
             }
-        } description: {
+
             Text(message)
-        } actions: {
+                .font(.body)
+                .foregroundStyle(DesignColor.primaryText)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+
             if let actionTitle, let action {
                 Button(actionTitle, action: action)
                     .buttonStyle(PremiumPrimaryButtonStyle())
@@ -27,7 +37,7 @@ struct NearbyStatusCard: View {
         .frame(maxWidth: .infinity)
         .padding(Spacing.lg)
         .premiumSurface(elevated: true)
-        .accessibilityElement(children: .contain)
+        .accessibilityElement(children: action == nil ? .combine : .contain)
     }
 }
 

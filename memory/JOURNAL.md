@@ -1,5 +1,23 @@
 # Journal
 
+## 2026-08-11 — Local UI/UX release acceptance completed
+
+- Closed the remaining contrast, Dynamic Type, hit-target, empty-state, status,
+  station-detail, Alerts-filter, and line-badge findings across the premium UI.
+- Added a dedicated local acceptance scheme and isolated runner covering complete
+  Xcode accessibility audits plus dark, maximum Accessibility Dynamic Type,
+  Increase Contrast, and Reduce Motion on iPhone 17 and iPad Pro 13-inch (M5).
+- The final end-to-end runner passed 4/4 standard iPhone UI tests, 1/1 maximum
+  accessibility iPhone test, and 1/1 maximum accessibility iPad test, then deleted
+  its temporary simulators. Full CI passed 114/114 with no failures or skips, and
+  the unsigned generic Release Simulator build succeeded.
+- Fixed a reused-Simulator state leak by making the debug-only UI-test onboarding
+  reset explicit; its regression journey passed three consecutive focused runs
+  before the final full CI pass.
+- Regenerated and visually inspected all ten localized 1320×2868 screenshots.
+  Local Simulator UI/UX is `Go`; physical-device, TestFlight, App Store Connect,
+  signing, upload, and Apple processing were explicitly not performed.
+
 ## 2026-08-11 — UI smoke automation and current App Store assets
 
 - Added a deterministic debug-only XCUITest boundary, two standard smoke journeys,

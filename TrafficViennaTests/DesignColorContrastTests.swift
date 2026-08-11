@@ -47,6 +47,45 @@ final class DesignColorContrastTests: XCTestCase {
         }
     }
 
+    func testTextHierarchyMeetsContrastOnSupportedSurfaces() throws {
+        for traits in [
+            UITraitCollection(userInterfaceStyle: .light),
+            UITraitCollection(userInterfaceStyle: .dark),
+        ] {
+            for foreground in [
+                DesignColor.primaryText,
+                DesignColor.secondaryText,
+                DesignColor.tertiaryText,
+            ] {
+                for background in [
+                    DesignColor.background,
+                    DesignColor.cardBackground,
+                    DesignColor.elevatedBackground,
+                ] {
+                    try assertContrast(
+                        foreground: foreground,
+                        background: background,
+                        traits: traits,
+                        atLeast: minimumTextContrast
+                    )
+                }
+            }
+        }
+    }
+
+    func testLineBadgesChooseReadableForegroundColors() throws {
+        let traits = UITraitCollection(userInterfaceStyle: .light)
+
+        for line in ["U1", "U2", "U3", "U4", "U6", "U7", "S1", "D", "13A", "N25"] {
+            try assertContrast(
+                foreground: LineColors.foregroundColor(for: line),
+                background: LineColors.color(for: line),
+                traits: traits,
+                atLeast: minimumTextContrast
+            )
+        }
+    }
+
     private func assertContrast(
         foreground: Color,
         background: Color,

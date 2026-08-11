@@ -42,9 +42,14 @@ enum UITestLaunchConfiguration {
 
         if arguments.contains("-ui-testing-reset") {
             resetLocalState()
+            UserDefaults.standard.set(
+                arguments.contains("-ui-testing-skip-onboarding"),
+                forKey: "hasOnboarded"
+            )
         }
 
-        if arguments.contains("-ui-testing-skip-onboarding") {
+        if !arguments.contains("-ui-testing-reset"),
+           arguments.contains("-ui-testing-skip-onboarding") {
             UserDefaults.standard.set(true, forKey: "hasOnboarded")
         }
 
