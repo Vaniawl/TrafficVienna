@@ -143,24 +143,19 @@ struct DepartureLineRow: View {
 
     private func accessibilitySizeLayout(next: Int?, status: CatchStatus?) -> some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
-            HStack(alignment: .firstTextBaseline, spacing: Spacing.sm) {
+            HStack(alignment: .center, spacing: Spacing.sm) {
                 LineBadge(line: lineName)
-
-                Text(destination)
-                    .font(.body.weight(.medium))
-                    .foregroundStyle(.secondary)
-                    .lineLimit(3)
-                    .minimumScaleFactor(0.8)
-                    .dynamicTypeSize(...DynamicTypeSize.accessibility2)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                Spacer(minLength: 0)
 
                 if hasDisruption {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundStyle(.orange)
                 }
             }
+
+            Text(destination)
+                .font(.body.weight(.medium))
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
 
             HStack(alignment: .firstTextBaseline, spacing: Spacing.sm) {
                 glyph(status: status, next: next)

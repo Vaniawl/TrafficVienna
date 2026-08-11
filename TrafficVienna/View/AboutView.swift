@@ -90,7 +90,7 @@ struct AboutView: View {
                     Button("Done") { dismiss() }
                 }
             }
-            .tint(DesignColor.brandDark)
+            .tint(DesignColor.accentText)
         }
     }
 }

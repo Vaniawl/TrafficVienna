@@ -15,11 +15,11 @@ struct OnboardingPageView: View {
                     Text(step.eyebrow)
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundStyle(DesignColor.brandDark)
+                        .foregroundStyle(DesignColor.accentText)
 
                     Text(step.title)
                         .font(.largeTitle)
-                        .fontWeight(.bold)
+                        .bold()
                         .foregroundStyle(DesignColor.primaryText)
                         .fixedSize(horizontal: false, vertical: true)
 
@@ -76,7 +76,8 @@ struct OnboardingPageView: View {
                         .foregroundStyle(.white.opacity(0.78))
 
                     Text(step.title)
-                        .font(.title2.weight(.bold))
+                        .font(.title2)
+                        .bold()
                         .foregroundStyle(.white)
                         .lineLimit(2)
 

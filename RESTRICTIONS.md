@@ -1,19 +1,22 @@
 # Restrictions
 
-- Work only in `/home/skyphoenix/projects/TrafficVienna`.
-- Do not read `.env`, private keys, credentials, tokens, SSH configuration,
-  GitHub CLI configuration, or unrelated project data.
-- Local `codex/*` feature branches and task-owned commits are allowed after
-  checks pass. Keep the existing personal identity and `origin` unchanged.
-- Never commit on `main`, push, create or edit a PR or issue, merge, rebase,
-  reset, tag, release, deploy, or modify production infrastructure.
-- Do not run nested OpenCode or reconfigure global models, prompts, or
-  permissions from this project.
-- Do not add an external dependency, service, analytics SDK, backend, or network
-  destination unless the user explicitly requests it.
-- Do not replace the existing architecture, remove a user journey, or widen
-  product scope beyond the current request without asking the user.
-- Do not mask failures with `|| true`, forced success, ignored exit codes, or an
-  Xcode skip presented as completion evidence.
-- Do not declare `COMPLETE` while any requested backlog item, required test,
-  review finding, TODO, placeholder, or validation gap remains.
+- Work only in `/Users/ivandovhosheia/Swift/TrafficVienna`; do not read unrelated
+  projects, `.env`, private keys, tokens, SSH material, or credential contents.
+- Start code/doc tasks from updated `main` on a focused `codex/*` branch. Never
+  push directly to `main`, force-push, auto-merge, or rewrite shared history.
+- Commit only task-owned files with explicit paths; never stage caches, screenshots,
+  secrets, DerivedData, or unrelated worktree changes.
+- After checks pass, push the feature branch and create or update a **draft** PR.
+  Merge, ready-for-review, tag, signing configuration, App Store Connect mutation,
+  upload, submit, release, deploy, and production infrastructure require explicit
+  approval.
+- Use OpenCode as the native agent engine. Do not add a custom orchestrator runtime
+  or change global models, prompts, permissions, or global memory from this project.
+- Do not add an external dependency, service, analytics SDK, backend, identity,
+  payment, or network destination unless explicitly requested.
+- Preserve SwiftUI/MVVM, the widget target, Xcode structure, and useful product
+  journeys unless the active task explicitly changes them.
+- Do not mask failures with forced success, ignored exit codes, or Xcode skips
+  presented as completion evidence.
+- “Product complete” and “App Store ready” are distinct. External release gates
+  remain open until they have observed evidence.

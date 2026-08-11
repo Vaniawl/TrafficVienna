@@ -4,8 +4,11 @@ enum DesignColor {
     static let brand = Color(hex: 0x41C7AD)
     static let brandDeep = Color(hex: 0x21B66F)
     static let brandDark = Color(hex: 0x087A5B)
+    static let accentText = Color.adaptive(light: 0x087A5B, dark: 0x41C7AD)
+    static let heroStart = brandDark
+    static let heroEnd = Color(hex: 0x07553E)
     static let brandGradient = LinearGradient(
-        colors: [brand, brandDeep],
+        colors: [heroStart, heroEnd],
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )
@@ -23,10 +26,10 @@ enum DesignColor {
     static let border = Color.adaptive(light: 0xE7E9E8, dark: 0x303431)
     static let separator = Color.adaptive(light: 0xECEEED, dark: 0x292D2A)
 
-    static let success = Color(hex: 0x21B66F)
-    static let warning = Color(hex: 0xE59B2F)
-    static let error = Color(hex: 0xD84A4A)
-    static let info = Color(hex: 0x3478C7)
+    static let success = Color.adaptive(light: 0x087A5B, dark: 0x41C7AD)
+    static let warning = Color.adaptive(light: 0x8A4D00, dark: 0xFFB55C)
+    static let error = Color.adaptive(light: 0xB42318, dark: 0xFF8A80)
+    static let info = Color.adaptive(light: 0x245FA3, dark: 0x73A7E8)
 }
 
 private extension Color {

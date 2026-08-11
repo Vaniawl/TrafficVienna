@@ -49,9 +49,6 @@ struct DisruptionRow: View {
             VStack(alignment: .leading, spacing: Spacing.xs) {
                 Text(info.title)
                     .font(.body.weight(.semibold))
-                    .lineLimit(3)
-                    .minimumScaleFactor(0.8)
-                    .dynamicTypeSize(...DynamicTypeSize.accessibility2)
                     .fixedSize(horizontal: false, vertical: true)
 
                 lineBadges

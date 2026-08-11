@@ -103,7 +103,7 @@ struct FavoriteNextDepartureCard: View {
         VStack(alignment: .leading, spacing: Spacing.xs) {
             Text(item.route.lineName)
                 .font(.title2)
-                .fontWeight(.bold)
+                .bold()
                 .padding(.horizontal, Spacing.sm)
                 .padding(.vertical, Spacing.xs)
                 .foregroundStyle(.black)
@@ -123,11 +123,11 @@ struct FavoriteNextDepartureCard: View {
             if minutes <= 0 {
                 Text("now")
                     .font(.largeTitle)
-                    .fontWeight(.bold)
+                    .bold()
             } else {
                 Text(minutes, format: .number)
                     .font(.largeTitle)
-                    .fontWeight(.bold)
+                    .bold()
                     .monospacedDigit()
                     .contentTransition(
                         reduceMotion

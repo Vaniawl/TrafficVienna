@@ -80,7 +80,7 @@ struct RootTabView: View {
                 .task {
                     await refreshDisruptionsContinuously()
                 }
-                .tint(DesignColor.brandDark)
+                .tint(DesignColor.accentText)
                 .toolbarBackground(DesignColor.cardBackground, for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
                 .transition(Motion.stateTransition(reduceMotion: reduceMotion))

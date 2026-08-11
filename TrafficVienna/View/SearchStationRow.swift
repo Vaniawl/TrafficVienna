@@ -17,7 +17,7 @@ struct SearchStationRow: View {
             }
         } icon: {
             Image(systemName: systemImage)
-                .foregroundStyle(DesignColor.brandDark)
+                .foregroundStyle(DesignColor.accentText)
                 .frame(width: 36, height: 36)
                 .background(DesignColor.brand.opacity(0.12), in: .circle)
                 .accessibilityHidden(true)

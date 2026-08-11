@@ -1,6 +1,6 @@
 # App Store readiness
 
-Status date: 29 July 2026
+Status date: 11 August 2026
 
 Current verdict: **No-Go** until every blocking item below has observed evidence.
 This file is intentionally stricter than a successful Simulator build.
@@ -26,10 +26,12 @@ A `Go` requires:
 
 - Xcode 26.6 with the iOS 26.5 SDK satisfies Apple’s SDK 26 upload requirement.
 - The deployment target is iOS 26.0 for iPhone and iPad.
-- A clean generic unsigned Release archive packages an arm64 app and arm64
-  widget. Inspection of the built products confirms `Traffic Vienna`, version
-  `1.0` build `1`, minimum iOS `26.0`, the expected app/widget bundle IDs, and
-  `ITSAppUsesNonExemptEncryption = NO`.
+- A fresh clean generic unsigned Release archive of the premium branch succeeds at
+  `/tmp/TrafficVienna-20260811-premium.xcarchive` and packages arm64 app and widget
+  executables. Inspection confirms `Traffic Vienna`, version `1.0` build `1`,
+  minimum iOS `26.0`, the expected app/widget bundle IDs,
+  `ITSAppUsesNonExemptEncryption = NO`, and both privacy manifests. Source/project
+  search confirms the current product has no account/auth capability reference.
 - The app icon contains 1024×1024 light, dark, and tinted RGB assets.
 - The packaged 120×120 iPhone and 152×152 iPad icons contain no alpha.
 - The app and widget declare their actual App Group entitlement.
@@ -44,8 +46,13 @@ A `Go` requires:
 - The account-only Apple identity surface and entitlement were removed because
   they provided no cross-device feature and prevented the installed profile from
   archiving. A one-time migration deletes the legacy device-only Keychain item.
-- All 108 XCTest cases pass with zero failures or skips. The cleanup migration is
-  covered for success, missing-item, and retry-after-failure paths.
+- All 110 XCTest cases pass with zero failures or skips. The cleanup migration is
+  covered for success, missing-item, and retry-after-failure paths; new colour
+  regressions enforce 4.5:1 hero and semantic-text contrast.
+- A fresh iPhone 17 product-acceptance run exercised every redesigned route and
+  inspected high-risk live dashboards/onboarding in dark appearance, maximum
+  Accessibility Dynamic Type, and Increase Contrast. It exposed and closed
+  contrast and horizontal-wrapping defects before the final CI pass.
 - iPhone 17 Pro Max and iPad Pro 13-inch runtime builds complete without
   diagnostics. English, German, location-denied, live-data, Favourites, and
   maximum Accessibility Dynamic Type paths were exercised.
@@ -90,7 +97,7 @@ A `Go` requires:
 
 ```sh
 xcodebuild -scheme TrafficVienna -project TrafficVienna.xcodeproj \
-  -destination 'platform=iOS Simulator,name=iPhone 17' test
+  -destination 'platform=iOS Simulator,id=6B367A70-5FF5-4C39-B479-F27457824C34' test
 
 xcodebuild -scheme TrafficVienna -project TrafficVienna.xcodeproj \
   -configuration Release -destination 'generic/platform=iOS' \

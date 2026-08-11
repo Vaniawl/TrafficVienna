@@ -52,7 +52,7 @@ struct DisruptionsView: View {
             await viewModel.load(force: true)
         }
         .background(DesignColor.background)
-        .tint(DesignColor.brandDark)
+        .tint(DesignColor.accentText)
         .animation(Motion.quick(reduceMotion: reduceMotion), value: viewModel.state)
     }
 

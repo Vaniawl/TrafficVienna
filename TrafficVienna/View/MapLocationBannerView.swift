@@ -42,7 +42,7 @@ struct MapLocationBannerView: View {
                 Button("Open Settings", systemImage: "gear", action: openSettings)
                     .buttonStyle(.bordered)
                     .buttonBorderShape(.capsule)
-                    .tint(DesignColor.brandDark)
+                    .tint(DesignColor.accentText)
                     .controlSize(.large)
 
             case .locating:
@@ -67,7 +67,7 @@ struct MapLocationBannerView: View {
                 Button("Retry location", systemImage: "arrow.clockwise", action: requestLocation)
                     .buttonStyle(.bordered)
                     .buttonBorderShape(.capsule)
-                    .tint(DesignColor.brandDark)
+                    .tint(DesignColor.accentText)
                     .controlSize(.large)
 
             case .located:

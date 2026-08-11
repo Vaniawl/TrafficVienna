@@ -120,7 +120,7 @@ struct MapStationsView: View {
             refresh()
         }
         .background(DesignColor.background)
-        .tint(DesignColor.brandDark)
+        .tint(DesignColor.accentText)
     }
 
     private var refreshContext: MapRefreshContext {

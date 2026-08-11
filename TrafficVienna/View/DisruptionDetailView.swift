@@ -13,14 +13,14 @@ struct DisruptionDetailView: View {
                 Label(kind.title, systemImage: kind.symbol)
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundStyle(DesignColor.brandDark)
+                    .foregroundStyle(DesignColor.accentText)
                     .padding(.horizontal, Spacing.sm)
                     .padding(.vertical, Spacing.xs)
                     .background(DesignColor.brand.opacity(0.12), in: Capsule())
 
                 Text(info.title)
                     .font(.title2)
-                    .fontWeight(.bold)
+                    .bold()
                     .foregroundStyle(DesignColor.primaryText)
 
                 if let lines = info.relatedLines, !lines.isEmpty {

@@ -52,7 +52,7 @@ struct PrivacyPolicyView: View {
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
         .background(DesignColor.background)
-        .tint(DesignColor.brandDark)
+        .tint(DesignColor.accentText)
         .navigationTitle("Privacy")
         .navigationBarTitleDisplayMode(.inline)
     }

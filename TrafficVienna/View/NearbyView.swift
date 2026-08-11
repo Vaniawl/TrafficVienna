@@ -188,14 +188,15 @@ struct NearbyView: View {
     private var nearbyStationsHeader: some View {
         HStack(alignment: .firstTextBaseline) {
             Text("Nearby stations")
-                .font(.title3.weight(.bold))
+                .font(.title3)
+                .bold()
                 .foregroundStyle(DesignColor.primaryText)
 
             Spacer()
 
             Text(vm.items.count, format: .number)
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(DesignColor.brandDark)
+                .foregroundStyle(DesignColor.accentText)
                 .padding(.horizontal, Spacing.sm)
                 .padding(.vertical, Spacing.xxs)
                 .background(DesignColor.brand.opacity(0.12), in: Capsule())

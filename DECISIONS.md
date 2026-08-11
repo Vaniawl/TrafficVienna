@@ -1,5 +1,27 @@
 # Decisions
 
+## 2026-08-11 - Separate brand fills, hero surfaces, and semantic text colours
+
+The premium visual system keeps bright mint for decorative brand fills, uses a
+deeper green hero gradient whenever content is white, and uses appearance-aware
+semantic text colours for links and statuses. A single bright brand colour cannot
+serve all three roles while meeting contrast in both appearances.
+
+White hero text and semantic text roles must maintain at least 4.5:1 contrast in
+their supported appearances. `DesignColorContrastTests` is the regression gate;
+Dynamic Type layouts must wrap or stack instead of shrinking essential content.
+
+## 2026-08-11 - Repository workflow and anonymous release supersede old root notes
+
+`AGENTS.md`, `docs/opencode/`, and the project-local memory files define the current
+workflow. Validated task work is handed off through a pushed `codex/*` branch and
+draft PR; merge, ready-for-review, release, and deployment still require explicit
+approval. No custom orchestrator runtime is added.
+
+The 29 July anonymous-release decision supersedes the 18 July device-only Apple
+profile and provider-planning notes. No account UI or auth entitlement exists in
+the current product; only the tested legacy Keychain cleanup remains.
+
 ## 2026-07-18 - Map derives bounded markers and keeps location ephemeral
 
 Map rendering consumes a bounded, distance-sorted station projection from an
@@ -24,7 +46,7 @@ Filtering remains local and anonymous. Recent station identifiers remain in the
 existing App Group defaults because they are non-sensitive UI history, while the
 store protocol makes ordering, limits, persistence, and clearing testable.
 
-## 2026-07-18 - Store only a minimal device-local Apple profile
+## 2026-07-18 - Store only a minimal device-local Apple profile (superseded)
 
 The optional Apple account surface uses `AuthenticationServices` directly. The
 app stores only the stable Apple user identifier and the one-time name/email
@@ -37,7 +59,7 @@ missing, transferred, or unknown states clear the local session. Email login,
 cross-device identity, and remote account deletion remain outside this slice
 until a backend/provider is explicitly selected and configured.
 
-## 2026-07-18 - One adaptive visual identity; accounts require a real identity boundary
+## 2026-07-18 - One adaptive visual identity; accounts require a real identity boundary (identity portion superseded)
 
 TrafficVienna uses one minimalist Vienna-red visual system and follows the
 device's light/dark appearance. Runtime accent presets and user-selectable design
@@ -51,7 +73,7 @@ AuthenticationServices flow, but email sign-in and cross-device account data
 require an explicitly selected backend/provider, secure token validation,
 Keychain storage, migration, and sign-out/delete-account behaviour.
 
-## 2026-07-16 - Use global native OpenCode ownership
+## 2026-07-16 - Use global native OpenCode ownership (superseded)
 
 TrafficVienna no longer defines project-local agents, models, permissions,
 plugins, or GitHub workflow. The global orchestrator owns coordination;
@@ -59,7 +81,7 @@ specialists use the global `gpt-oss-120b` and implementer uses global
 `coder-next`. The repository binds only its context and template skills. This
 prevents project history from reactivating obsolete routes or permissions.
 
-## 2026-07-16 - Local implementation with explicit Git boundaries
+## 2026-07-16 - Local implementation with explicit Git boundaries (superseded)
 
 Autonomous work may read and edit the active workspace and run defined local
 checks. Local feature branches and local commits are allowed when they contain

@@ -1,5 +1,24 @@
 # Architectural Decisions
 
+## 2026-08-11 — Contrast-safe premium colour roles
+
+**Context:** The premium redesign reused a bright mint/green brand colour for
+white-on-gradient heroes and semantic text. Runtime inspection showed that the
+white hero content and some dark-mode statuses could not both satisfy readable
+contrast with one static colour. Maximum Dynamic Type also exposed horizontal
+card layouts that shrank or clipped essential transport content.
+
+**Decision:** Separate decorative brand fills, dark hero endpoints, and
+appearance-aware semantic text colours. Require at least 4.5:1 for white hero text
+and semantic text against their supported backgrounds. At accessibility sizes,
+station, departure, disruption, and favourite-card content wraps or stacks instead
+of relying on minimum scale factors or Dynamic Type clamps.
+
+**Consequences:** The premium mint identity remains visible without being used in
+roles it cannot support. `DesignColorContrastTests` prevents palette regressions,
+and Simulator acceptance remains required for layout behaviour that numeric colour
+tests cannot prove.
+
 ## 2026-07-29 — Protected main is the release integration boundary
 
 **Context:** Quality CI covered pull requests and `main` pushes, but the default

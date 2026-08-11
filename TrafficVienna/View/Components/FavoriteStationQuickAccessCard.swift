@@ -9,7 +9,7 @@ struct FavoriteStationQuickAccessCard: View {
             if !dynamicTypeSize.isAccessibilitySize {
                 Image(systemName: "star.fill")
                     .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(DesignColor.brand)
+                    .foregroundStyle(DesignColor.accentText)
                     .frame(width: 44, height: 44)
                     .background(DesignColor.brand.opacity(0.12), in: Circle())
                     .accessibilityHidden(true)
@@ -18,8 +18,7 @@ struct FavoriteStationQuickAccessCard: View {
             Text(station.name)
                 .font(dynamicTypeSize.isAccessibilitySize ? .body : .headline.weight(.semibold))
                 .foregroundStyle(DesignColor.primaryText)
-                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 1 : 2)
-                .minimumScaleFactor(dynamicTypeSize.isAccessibilitySize ? 0.7 : 1)
+                .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
                 .fixedSize(horizontal: false, vertical: true)
 
             if !dynamicTypeSize.isAccessibilitySize {

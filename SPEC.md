@@ -71,12 +71,12 @@ quick-switching interaction only when discovery identifies a concrete missing
 user journey. New features must preserve current journeys and MVVM boundaries
 and must be delivered as small, testable slices.
 
-### REQ-TV-009 - Add optional, truthful account access
+### REQ-TV-009 - Keep the release anonymous and remove obsolete identity data
 
-Anonymous use remains available. Add native Sign in with Apple and email access
-only through a real identity boundary with secure credential storage, error and
-revocation handling, sign-out, and delete-account behaviour. Email sign-in must
-not be simulated locally; it requires a selected provider/backend.
+No account surface, authentication entitlement, or remote identity dependency is
+part of the current product. Anonymous transport use must remain complete. A
+one-time, retryable migration removes the obsolete device-only Keychain profile
+without touching favourites, recents, widget data, location, or server data.
 
 
 `PROJECT.md`, `SPEC.md`, `BACKLOG.md`, `STATUS.md`, `CHECKS.md`,

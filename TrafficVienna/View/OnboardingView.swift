@@ -31,7 +31,7 @@ struct OnboardingView: View {
             .padding(.bottom, Spacing.lg)
         }
         .background(DesignColor.background)
-        .tint(DesignColor.brandDark)
+        .tint(DesignColor.accentText)
         .sensoryFeedback(.selection, trigger: step)
     }
 

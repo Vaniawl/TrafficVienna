@@ -14,7 +14,7 @@ struct MapStationSelectionCard: View {
 
                     Text(station.name)
                         .font(.title3)
-                        .fontWeight(.bold)
+                        .bold()
                         .foregroundStyle(DesignColor.primaryText)
                         .accessibilityAddTraits(.isHeader)
                 }

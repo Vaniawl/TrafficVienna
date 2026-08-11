@@ -1,5 +1,20 @@
 # Journal
 
+## 2026-08-11 - Premium redesign completion and accessibility hardening
+
+- Replaced overloaded bright-brand text roles with adaptive semantic colours and
+  a deeper hero gradient; added automated 4.5:1 contrast regressions.
+- Fixed real maximum-Dynamic-Type clipping in station, departure, disruption, and
+  favourite quick-access content by allowing wrapping and accessibility-specific
+  stacking instead of shrinking essential labels.
+- Exercised every redesigned route on iPhone 17 and inspected high-risk live
+  dashboards/onboarding in dark appearance, maximum Accessibility Dynamic Type,
+  and Increase Contrast. All 110 tests and the complete repository CI passed.
+- Synchronized the root backlog, status, checks, security, restrictions, workflow,
+  and release docs with the anonymous current product. Local work is draft-PR ready;
+  distribution signing, App Store Connect, upload, and physical/TestFlight smoke
+  remain explicit release blockers.
+
 ## 2026-07-18 - Map journey, location privacy, and selection UX
 
 - Replaced Map's body-time distance sorting and duplicate selection/sheet state

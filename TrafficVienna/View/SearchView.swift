@@ -75,7 +75,7 @@ struct SearchView: View {
         )
         .scrollDismissesKeyboard(.immediately)
         .background(DesignColor.background)
-        .tint(DesignColor.brandDark)
+        .tint(DesignColor.accentText)
         .animation(Motion.quick(reduceMotion: reduceMotion), value: viewModel.status)
         .task(id: viewModel.query) {
             await viewModel.updateSearch()

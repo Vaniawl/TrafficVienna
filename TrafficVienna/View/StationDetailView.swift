@@ -78,7 +78,7 @@ struct StationDetailView: View {
             await viewModel.load(forceRefresh: true)
         }
         .background(DesignColor.background)
-        .tint(DesignColor.brandDark)
+        .tint(DesignColor.accentText)
     }
 
     private func refresh() {

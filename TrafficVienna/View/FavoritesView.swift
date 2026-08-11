@@ -55,7 +55,7 @@ struct FavoritesView: View {
             await viewModel.loadFavorites(forceRefresh: true)
         }
         .background(DesignColor.background)
-        .tint(DesignColor.brandDark)
+        .tint(DesignColor.accentText)
     }
 
     private var stationsSection: some View {

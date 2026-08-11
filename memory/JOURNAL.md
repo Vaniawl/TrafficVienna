@@ -1,5 +1,28 @@
 # Journal
 
+## 2026-08-11 — Premium redesign completion and accessibility hardening
+
+- Audited the complete premium redesign in source and on an iPhone 17 Simulator.
+  Search, Map with live nearby stations, live Alerts, Favourites, About, Privacy,
+  Nearby, and clean-launch onboarding were exercised; high-risk dashboard and
+  onboarding states were also inspected in dark appearance, maximum Accessibility
+  Dynamic Type, and Increase Contrast.
+- Replaced low-contrast white-on-mint heroes with deeper contrast-safe endpoints,
+  introduced adaptive semantic text colours, and added two automated contrast tests
+  enforcing 4.5:1 in supported light/dark appearances.
+- Fixed maximum-Dynamic-Type horizontal clipping in station cards and wrapping in
+  departure/disruption/favourite content. Post-fix inspection confirmed essential
+  station, line, destination, distance, and alert text stays horizontally contained.
+- Restored three Xcode-generated localisation catalogue changes that contained no
+  intended product-string delta. The final worktree contains only task-owned source,
+  tests, product state, workflow documentation, and project-local memory changes.
+- Full `scripts/ci.sh` passed repository/OpenCode/reliability validation, app/widget
+  build, 110/110 XCTest cases, diff validation, and ended `[ci] OK`.
+- Independent SwiftUI and security/release reviews found no unresolved
+  Critical/High/Blocking/Important code issue after the fixes. Local product work
+  is draft-PR ready; signing, App Store Connect, upload, and physical/TestFlight
+  evidence remain external No-Go gates.
+
 ## 2026-08-11 — Premium dashboard app redesign
 
 - Implemented the approved calm premium dashboard direction across onboarding,
