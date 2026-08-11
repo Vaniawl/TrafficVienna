@@ -1,5 +1,18 @@
 # Journal
 
+## 2026-08-11 — Stabilized post-push XCTest execution
+
+- Investigated two failed GitHub Quality attempts after the UI acceptance push.
+  Both failures were XCTest host instability: the first aborted one unit test during
+  bootstrap, while the second cycled simulator clones and reported 21 unrelated tests
+  as failed in `0.000s` despite passing replacements on new processes.
+- Disabled unit-bundle parallelization in the shared TrafficVienna scheme without
+  removing tests or weakening assertions. All 112 unit/integration tests then passed
+  serially, including every test falsely attributed to the clone failures.
+- A separate local smoke failure was traced to another workspace shutting down the
+  shared simulator mid-query. Re-running on the second iPhone 17 UUID completed the
+  full 114/114 suite and ended `scripts/ci.sh` with `[ci] OK`.
+
 ## 2026-08-11 — Published local UI acceptance and post-push review
 
 - Pushed the deterministic UI acceptance and accessibility hardening commits to
