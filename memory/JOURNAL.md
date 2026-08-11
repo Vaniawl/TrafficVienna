@@ -1,5 +1,16 @@
 # Journal
 
+## 2026-08-11 — Ultra-flat Nearby explorations
+
+- Generated two additional Superdesign branches from the Native Timetable
+  draft after the user authorized autonomous direction selection.
+- Ultra-flat Metric Feed removes gradients, cards, shadows, and decorative
+  containers while preserving named favourite-station shortcuts and the real
+  service/departure hierarchy; it is the stronger production candidate.
+- Ultra-flat Departure Stream makes the countdown the dominant full-width
+  metric and turns stations into ledger rows. It is more radical but collapses
+  favourite stations into one summary action. No SwiftUI code was changed.
+
 ## 2026-08-11 — Two additional Nearby design directions
 
 - Branched two new Superdesign drafts from the reviewed calm dashboard instead
