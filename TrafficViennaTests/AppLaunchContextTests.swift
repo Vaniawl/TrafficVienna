@@ -2,11 +2,11 @@ import XCTest
 @testable import TrafficVienna
 
 final class AppLaunchContextTests: XCTestCase {
-    func testSharedUnitTestSchemeUsesInertHostScene() {
+    func testSharedUnitTestSchemeUsesInertHostScene() async {
         XCTAssertTrue(AppLaunchContext.usesInertUnitTestScene)
     }
 
-    func testUIAcceptanceArgumentKeepsTheRealAppScene() {
+    func testUIAcceptanceArgumentKeepsTheRealAppScene() async {
         XCTAssertFalse(
             AppLaunchContext.usesInertUnitTestScene(
                 arguments: [AppLaunchContext.uiTestingArgument],
@@ -15,7 +15,7 @@ final class AppLaunchContextTests: XCTestCase {
         )
     }
 
-    func testNormalLaunchKeepsTheRealAppScene() {
+    func testNormalLaunchKeepsTheRealAppScene() async {
         XCTAssertFalse(
             AppLaunchContext.usesInertUnitTestScene(
                 arguments: [],

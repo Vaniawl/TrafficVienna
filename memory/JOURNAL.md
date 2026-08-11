@@ -6,14 +6,18 @@
   reports. Every crash shared the same Swift runtime path:
   `swift_task_deinitOnExecutorImpl` → `TaskLocal::StopLookupScope`, while releasing
   a main-actor-isolated object at the end of a synchronous XCTest method.
-- Converted the remaining synchronous methods in `@MainActor` XCTest cases to
-  async tests so object destruction stays inside XCTest's concurrency context.
-  This is test-only and does not alter production isolation or app behaviour.
+- Converted every unit-test method to async execution so object destruction stays
+  inside XCTest's concurrency context. The first hosted verification proved the
+  target-wide scope when the identical crash moved from the explicitly annotated
+  suites to `TrafficViennaTests`, whose isolation comes from the target default.
+  Repository validation now rejects new synchronous unit-test methods while that
+  default remains `MainActor`. This does not alter production isolation or app
+  behaviour.
 - All 115 unit/integration tests passed locally after the change. The affected
-  router, favourites, legacy-cleanup, map, recent-search, and search suites all
-  completed without allocator errors. Both UI smoke journeys also passed on the
-  uncontended second iPhone 17 Simulator; an earlier first-Simulator onboarding
-  run was interrupted by another local application's automation session.
+  suites completed without allocator errors. Both UI smoke journeys also passed
+  on the uncontended second iPhone 17 Simulator; an earlier first-Simulator
+  onboarding run was interrupted by another local application's automation
+  session.
 
 ## 2026-08-11 — Isolated the hosted unit-test runtime
 

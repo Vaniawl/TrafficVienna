@@ -6,7 +6,7 @@ import XCTest
 final class DesignColorContrastTests: XCTestCase {
     private let minimumTextContrast = 4.5
 
-    func testHeroGradientSupportsWhiteText() throws {
+    func testHeroGradientSupportsWhiteText() async throws {
         let light = UITraitCollection(userInterfaceStyle: .light)
 
         try assertContrast(
@@ -23,7 +23,7 @@ final class DesignColorContrastTests: XCTestCase {
         )
     }
 
-    func testSemanticTextColorsMeetContrastInLightAndDarkAppearances() throws {
+    func testSemanticTextColorsMeetContrastInLightAndDarkAppearances() async throws {
         let roles = [
             DesignColor.accentText,
             DesignColor.success,
@@ -47,7 +47,7 @@ final class DesignColorContrastTests: XCTestCase {
         }
     }
 
-    func testTextHierarchyMeetsContrastOnSupportedSurfaces() throws {
+    func testTextHierarchyMeetsContrastOnSupportedSurfaces() async throws {
         for traits in [
             UITraitCollection(userInterfaceStyle: .light),
             UITraitCollection(userInterfaceStyle: .dark),
@@ -73,7 +73,7 @@ final class DesignColorContrastTests: XCTestCase {
         }
     }
 
-    func testLineBadgesChooseReadableForegroundColors() throws {
+    func testLineBadgesChooseReadableForegroundColors() async throws {
         let traits = UITraitCollection(userInterfaceStyle: .light)
 
         for line in ["U1", "U2", "U3", "U4", "U6", "U7", "S1", "D", "13A", "N25"] {

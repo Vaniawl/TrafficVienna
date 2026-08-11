@@ -37,4 +37,11 @@ if ! grep -q "BlueprintName = \"TrafficViennaTests\"" "$ROOT/TrafficVienna.xcode
   exit 1
 fi
 
+sync_unit_tests="$({ grep -R -nE '^[[:space:]]+func test.*\)( throws)? \{' "$ROOT/TrafficViennaTests" --include='*.swift' || true; })"
+if [[ -n "$sync_unit_tests" ]]; then
+  echo "[validate-repository] unit tests must stay async while default actor isolation is MainActor:" >&2
+  echo "$sync_unit_tests" >&2
+  exit 1
+fi
+
 echo "[validate-repository] OK"

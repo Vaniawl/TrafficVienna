@@ -6,14 +6,14 @@ final class TrafficViennaTests: XCTestCase {
 
     // MARK: - StationStore
 
-    func testLoadStationsNotEmpty() {
+    func testLoadStationsNotEmpty() async {
         let store = StationStore()
 
         XCTAssertEqual(store.loadState, .loaded)
         XCTAssertGreaterThan(store.stations.count, 0)
     }
 
-    func testIndexedStationSearchMatchesCatalogOrder() {
+    func testIndexedStationSearchMatchesCatalogOrder() async {
         let store = StationStore()
         let expected = store.stations.filter {
             $0.name.folding(options: .diacriticInsensitive, locale: .current)
@@ -26,7 +26,7 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(store.stationsSuggestion(matching: "Schotten"), expected)
     }
 
-    func testIndexedStationSearchFoldsDiacritics() {
+    func testIndexedStationSearchFoldsDiacritics() async {
         let store = StationStore()
 
         XCTAssertTrue(
@@ -39,7 +39,7 @@ final class TrafficViennaTests: XCTestCase {
         )
     }
 
-    func testIndexedNearbySearchMatchesFullDistanceScan() {
+    func testIndexedNearbySearchMatchesFullDistanceScan() async {
         let store = StationStore()
         let center = CLLocation(latitude: 48.2082, longitude: 16.3738)
         let radius = 1_500.0
@@ -56,56 +56,56 @@ final class TrafficViennaTests: XCTestCase {
 
     // MARK: - RouteMatching
 
-    func testNormalizeTrimsWhitespace() {
+    func testNormalizeTrimsWhitespace() async {
         XCTAssertEqual(RouteMatching.normalize("  Praterstern  "), "praterstern")
     }
 
-    func testNormalizeLowercases() {
+    func testNormalizeLowercases() async {
         XCTAssertEqual(RouteMatching.normalize("Leopoldau"), "leopoldau")
     }
 
-    func testNormalizeStripsTrailingU() {
+    func testNormalizeStripsTrailingU() async {
         XCTAssertEqual(RouteMatching.normalize("Kagran U"), "kagran")
     }
 
-    func testNormalizeStripsTrailingS() {
+    func testNormalizeStripsTrailingS() async {
         XCTAssertEqual(RouteMatching.normalize("Meidling S"), "meidling")
     }
 
-    func testNormalizeDoesNotStripMidStringU() {
+    func testNormalizeDoesNotStripMidStringU() async {
         XCTAssertEqual(RouteMatching.normalize("Wien Mitte"), "wien mitte")
     }
 
-    func testNormalizeCollapsesInternalWhitespace() {
+    func testNormalizeCollapsesInternalWhitespace() async {
         XCTAssertEqual(RouteMatching.normalize("Wien   Mitte"), "wien mitte")
     }
 
-    func testNormalizeFoldsDiacritics() {
+    func testNormalizeFoldsDiacritics() async {
         XCTAssertEqual(RouteMatching.normalize("Franz-Josefs-Bahnhof"), "franz-josefs-bahnhof")
     }
 
-    func testMatchesExact() {
+    func testMatchesExact() async {
         XCTAssertTrue(RouteMatching.matches(
             lineName: "U1", towards: "Leopoldau",
             favoriteLine: "U1", favoriteDestination: "Leopoldau"
         ))
     }
 
-    func testMatchesWithTrailingMarker() {
+    func testMatchesWithTrailingMarker() async {
         XCTAssertTrue(RouteMatching.matches(
             lineName: "U1", towards: "Leopoldau U",
             favoriteLine: "U1", favoriteDestination: "Leopoldau"
         ))
     }
 
-    func testMatchesDifferentLineFails() {
+    func testMatchesDifferentLineFails() async {
         XCTAssertFalse(RouteMatching.matches(
             lineName: "U1", towards: "Leopoldau",
             favoriteLine: "U2", favoriteDestination: "Leopoldau"
         ))
     }
 
-    func testMatchesDifferentDestinationFails() {
+    func testMatchesDifferentDestinationFails() async {
         XCTAssertFalse(RouteMatching.matches(
             lineName: "U1", towards: "Leopoldau",
             favoriteLine: "U1", favoriteDestination: "Kagran"
@@ -114,24 +114,24 @@ final class TrafficViennaTests: XCTestCase {
 
     // MARK: - DepartureClock
 
-    func testLiveMinutesFallback() {
+    func testLiveMinutesFallback() async {
         let result = DepartureClock.liveMinutes(realtime: nil, planned: nil, fallback: 42)
         XCTAssertEqual(result, 42)
     }
 
-    func testLiveMinutesFromRealTime() {
+    func testLiveMinutesFromRealTime() async {
         let future = ISO8601DateFormatter().string(from: Date().addingTimeInterval(300))
         let result = DepartureClock.liveMinutes(realtime: future, planned: nil, fallback: 99)
         XCTAssertEqual(result, 5)
     }
 
-    func testLiveMinutesFromPlanned() {
+    func testLiveMinutesFromPlanned() async {
         let future = ISO8601DateFormatter().string(from: Date().addingTimeInterval(120))
         let result = DepartureClock.liveMinutes(realtime: nil, planned: future, fallback: 99)
         XCTAssertEqual(result, 2)
     }
 
-    func testLiveMinutesNeverNegative() {
+    func testLiveMinutesNeverNegative() async {
         let past = ISO8601DateFormatter().string(from: Date().addingTimeInterval(-60))
         let result = DepartureClock.liveMinutes(realtime: nil, planned: past, fallback: 0)
         XCTAssertEqual(result, 0)
@@ -139,7 +139,7 @@ final class TrafficViennaTests: XCTestCase {
 
     // MARK: - DepartureTime liveMinutes
 
-    func testDepartureTimeLiveMinutesFallback() {
+    func testDepartureTimeLiveMinutesFallback() async {
         let dt = DepartureTime(countdown: 7, timePlanned: nil, timeReal: nil)
         XCTAssertEqual(dt.liveMinutes, 7)
     }
@@ -269,7 +269,7 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(callCount, 3)
     }
 
-    func testTrafficInfoDecodesFeedCategory() throws {
+    func testTrafficInfoDecodesFeedCategory() async throws {
         let json = """
         {
           "data": {
@@ -293,35 +293,35 @@ final class TrafficViennaTests: XCTestCase {
 
     // MARK: - LineColors
 
-    func testLineColorsU1() {
+    func testLineColorsU1() async {
         let color = LineColors.color(for: "U1")
         XCTAssertNotNil(color)
     }
 
-    func testLineCategoryOfU1() {
+    func testLineCategoryOfU1() async {
         XCTAssertEqual(LineCategory.of("U1"), .metro)
     }
 
-    func testLineCategoryOfS1() {
+    func testLineCategoryOfS1() async {
         XCTAssertEqual(LineCategory.of("S1"), .sbahn)
     }
 
-    func testLineCategoryOf13A() {
+    func testLineCategoryOf13A() async {
         XCTAssertEqual(LineCategory.of("13A"), .bus)
     }
 
-    func testLineCategoryOfN25() {
+    func testLineCategoryOfN25() async {
         XCTAssertEqual(LineCategory.of("N25"), .night)
     }
 
-    func testLineCategoryOfTram() {
+    func testLineCategoryOfTram() async {
         XCTAssertEqual(LineCategory.of("O"), .tram)
         XCTAssertEqual(LineCategory.of("D"), .tram)
     }
 
     // MARK: - WidgetDepartureData
 
-    func testWidgetDepartureDataCodable() {
+    func testWidgetDepartureDataCodable() async {
         let fetchedAt = Date(timeIntervalSince1970: 1_000)
         let data = WidgetDepartureData(
             diva: "60200195",
@@ -339,7 +339,7 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(decoded.fetchedAt, fetchedAt)
     }
 
-    func testWidgetDepartureDataDecodesLegacyPayload() throws {
+    func testWidgetDepartureDataDecodesLegacyPayload() async throws {
         let legacy = """
         {
           "lineName": "U1",
@@ -359,7 +359,7 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(decoded.departures, [2, 5, 12])
     }
 
-    func testWidgetCountdownProjectionUsesEachRowsFetchTime() {
+    func testWidgetCountdownProjectionUsesEachRowsFetchTime() async {
         let now = Date(timeIntervalSince1970: 10_000)
         let items = [
             WidgetDepartureData(
@@ -388,7 +388,7 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(projected[1].departures, [1, 6])
     }
 
-    func testWidgetDataMergePreservesSelectedOrderAndCachedFailures() {
+    func testWidgetDataMergePreservesSelectedOrderAndCachedFailures() async {
         let selected = [
             WidgetRouteKey(lineName: "U4", destination: "Heiligenstadt"),
             WidgetRouteKey(lineName: "U1", destination: "Leopoldau"),
@@ -420,7 +420,7 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(merged.map(\.departures), [[5], [2]])
     }
 
-    func testWidgetDataMergeKeepsSameRouteAtDifferentStopsDistinct() {
+    func testWidgetDataMergeKeepsSameRouteAtDifferentStopsDistinct() async {
         let selected = [
             WidgetRouteKey(diva: "1", lineName: "U1", destination: "Leopoldau"),
             WidgetRouteKey(diva: "2", lineName: "U1", destination: "Leopoldau"),
@@ -452,7 +452,7 @@ final class TrafficViennaTests: XCTestCase {
         XCTAssertEqual(merged.map(\.departures), [[2], [4]])
     }
 
-    func testFavoriteRouteOrderIsSharedAndDeterministic() {
+    func testFavoriteRouteOrderIsSharedAndDeterministic() async {
         let routes = [
             FavoriteRoute(diva: "2", lineName: "U4", destination: "Heiligenstadt"),
             FavoriteRoute(diva: "1", lineName: "U1", destination: "Leopoldau"),

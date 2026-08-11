@@ -3,7 +3,7 @@ import XCTest
 @testable import TrafficVienna
 
 final class NearbyDashboardStateTests: XCTestCase {
-    func testDeniedLocationKeepsTheDashboardInLocationDeniedState() {
+    func testDeniedLocationKeepsTheDashboardInLocationDeniedState() async {
         let state = NearbyDashboardState(
             authorizationStatus: .denied,
             hasLocation: false,
@@ -13,7 +13,7 @@ final class NearbyDashboardStateTests: XCTestCase {
         XCTAssertEqual(state, .locationDenied)
     }
 
-    func testUndecidedPermissionRequestsLocationWithoutPretendingToLocate() {
+    func testUndecidedPermissionRequestsLocationWithoutPretendingToLocate() async {
         let state = NearbyDashboardState(
             authorizationStatus: .notDetermined,
             hasLocation: false,
@@ -23,7 +23,7 @@ final class NearbyDashboardStateTests: XCTestCase {
         XCTAssertEqual(state, .permissionRequired)
     }
 
-    func testAuthorizedLocationWithoutCoordinatesShowsLocatingState() {
+    func testAuthorizedLocationWithoutCoordinatesShowsLocatingState() async {
         let state = NearbyDashboardState(
             authorizationStatus: .authorizedWhenInUse,
             hasLocation: false,
@@ -33,7 +33,7 @@ final class NearbyDashboardStateTests: XCTestCase {
         XCTAssertEqual(state, .locating)
     }
 
-    func testAuthorizedLocationWithoutNearbyStationsShowsEmptyState() {
+    func testAuthorizedLocationWithoutNearbyStationsShowsEmptyState() async {
         let state = NearbyDashboardState(
             authorizationStatus: .authorizedWhenInUse,
             hasLocation: true,
@@ -43,7 +43,7 @@ final class NearbyDashboardStateTests: XCTestCase {
         XCTAssertEqual(state, .noStations)
     }
 
-    func testAuthorizedLocationWithStationsShowsDepartureContent() {
+    func testAuthorizedLocationWithStationsShowsDepartureContent() async {
         let state = NearbyDashboardState(
             authorizationStatus: .authorizedWhenInUse,
             hasLocation: true,
