@@ -1,5 +1,17 @@
 # Journal
 
+## 2026-08-11 — Published local UI acceptance and post-push review
+
+- Pushed the deterministic UI acceptance and accessibility hardening commits to
+  `codex/premium-dashboard-app-redesign`; remote SHA matched local `712ef553`.
+- Updated draft PR #16 with the current 114-test result, isolated iPhone/iPad
+  accessibility matrix, screenshot evidence, local `Go`, and external App Store
+  `No-Go` boundary.
+- Re-reviewed all ten English/German release screenshots and scanned the SwiftUI
+  view layer for deprecated styling, unsafe tap handling, fixed interactive hit
+  areas, and non-value-bound animation. No new app-owned UI/UX blocker was found;
+  the fixed-size matches are decorative icons or bounded line badges.
+
 ## 2026-08-11 — Local UI/UX release acceptance completed
 
 - Closed the remaining contrast, Dynamic Type, hit-target, empty-state, status,
