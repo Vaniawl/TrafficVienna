@@ -28,7 +28,23 @@ else
 fi
 
 set +e
-xcodebuild -scheme TrafficVienna -project TrafficVienna.xcodeproj -destination "$destination" test 2>&1 | tee "$test_log"
+xcodebuild_arguments=(
+  -scheme TrafficVienna
+  -project TrafficVienna.xcodeproj
+  -destination "$destination"
+)
+
+if [[ -n "${TRAFFICVIENNA_TEST_RESULT_BUNDLE_PATH:-}" ]]; then
+  if [[ -e "$TRAFFICVIENNA_TEST_RESULT_BUNDLE_PATH" ]]; then
+    echo "[test] result bundle path already exists: $TRAFFICVIENNA_TEST_RESULT_BUNDLE_PATH" >&2
+    exit 64
+  fi
+  xcodebuild_arguments+=(
+    -resultBundlePath "$TRAFFICVIENNA_TEST_RESULT_BUNDLE_PATH"
+  )
+fi
+
+xcodebuild "${xcodebuild_arguments[@]}" test 2>&1 | tee "$test_log"
 status=${PIPESTATUS[0]}
 set -e
 

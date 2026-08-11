@@ -17,6 +17,11 @@
   `@MainActor` XCTest `setUp`/`tearDown` state. Each method now owns its in-memory
   store locally instead. Ten separate host relaunches passed all 40 focused tests,
   followed by another clean 117/117 local CI run.
+- A third GitHub run reproduced the exact same invalid-free address after the
+  shared fixture lifecycle was removed, disproving that hypothesis as well. CI now
+  writes an explicit XCTest result bundle and uploads it plus any matching crash
+  reports on failure. The optional result-bundle path completed a clean 117/117
+  local run and produced a valid `.xcresult` without changing normal local usage.
 
 ## 2026-08-11 — Investigated post-push XCTest execution
 
