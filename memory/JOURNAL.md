@@ -1,5 +1,21 @@
 # Journal
 
+## 2026-08-11 — Residual release-gap audit
+
+- Confirmed the premium branch and draft PR remain clean with protected Quality CI
+  successful; no unresolved local build, XCTest, crash, or inspected layout failure
+  was found.
+- Found one concrete release-asset mismatch: all ten localized App Store screenshots
+  were last committed on 29 July and still show the superseded red interface, so they
+  must be regenerated from the current mint/green premium build before upload.
+- Confirmed the Xcode project has app, unit-test, and widget targets but no UI-test
+  target. The 110 XCTest cases cover models, services, routing, performance, and
+  contrast; full navigation and visual regression acceptance remains manual.
+- The name-only iPhone 17 commands in `AGENTS.md` are locally ambiguous because two
+  matching simulators exist; the documented explicit UUID remains required on this
+  host. Distribution signing, App Store Connect, Apple processing, and physical
+  TestFlight system-surface evidence remain the release blockers.
+
 ## 2026-08-11 — Visual acceptance and Dynamic Type polish
 
 - Re-ran the complete iPhone 17 visual acceptance flow across clean onboarding,
