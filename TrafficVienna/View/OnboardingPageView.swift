@@ -41,6 +41,7 @@ struct OnboardingPageView: View {
                 isPresented = true
             }
         }
+        .accessibilityIdentifier("onboarding-page-\(step.rawValue)")
         .accessibilityElement(children: .combine)
     }
 

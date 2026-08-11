@@ -181,6 +181,7 @@ struct NearbyView: View {
             Motion.standard(reduceMotion: reduceMotion),
             value: favoritesViewModel.featuredDeparture?.id
         )
+        .accessibilityIdentifier("nearby-screen")
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Nearby stations")
     }
@@ -201,6 +202,7 @@ struct NearbyView: View {
                 .padding(.vertical, Spacing.xxs)
                 .background(DesignColor.brand.opacity(0.12), in: Capsule())
         }
+        .accessibilityIdentifier("nearby-stations-header")
         .accessibilityElement(children: .combine)
     }
 
@@ -249,6 +251,7 @@ struct NearbyView: View {
         }
         .redacted(reason: .placeholder)
         .shimmer()
+        .accessibilityIdentifier("nearby-loading-skeleton")
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Loading stations")
     }

@@ -9,6 +9,10 @@ import SwiftUI
 
 @main
 struct TrafficViennaApp: App {
+    init() {
+        UITestLaunchConfiguration.prepare()
+    }
+
     var body: some Scene {
         WindowGroup {
             RootTabView()

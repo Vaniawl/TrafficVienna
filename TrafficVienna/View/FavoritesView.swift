@@ -34,6 +34,7 @@ struct FavoritesView: View {
                 .scrollContentBackground(.hidden)
             }
         }
+        .accessibilityIdentifier("favourites-screen")
         .navigationTitle("Favourites")
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -76,6 +77,7 @@ struct FavoritesView: View {
                     }
                     .padding(.vertical, Spacing.xs)
                 }
+                .accessibilityIdentifier("favourite-station-row-\(station.id)")
                 .listRowBackground(DesignColor.cardBackground)
             }
             .onMove { viewModel.moveStations(fromOffsets: $0, toOffset: $1) }

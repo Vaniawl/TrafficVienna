@@ -168,7 +168,9 @@ privacy report before submission.
 
 Equivalent localized 6.9-inch sets are prepared in
 `docs/release/screenshots/en-US/` and `docs/release/screenshots/de-AT/`. Every
-file is a 1320×2868 JPEG without alpha:
+file is a 1320×2868 JPEG without alpha. The current sets were regenerated from
+the premium build and visually inspected on 11 August 2026. Recreate both
+localized sets with `bash scripts/capture-app-store-screenshots.sh`:
 
 1. `01-nearby.jpg` — nearby stops and live departures;
 2. `02-station-detail.jpg` — full departure board and service context;

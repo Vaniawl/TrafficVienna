@@ -52,6 +52,7 @@ struct MapStationsView: View {
                 showsTraffic: false
             )
         )
+        .accessibilityIdentifier("stations-map")
         .overlay {
             MapContentOverlay(
                 state: viewModel.contentState,

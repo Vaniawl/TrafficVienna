@@ -1,5 +1,16 @@
 # Journal
 
+## 2026-08-11 - UI smoke automation and current store screenshots
+
+- Added deterministic debug-only UI launch preparation, primary navigation and
+  onboarding XCUITest smoke coverage, exact duplicate-Simulator resolution, and a
+  separate localized App Store screenshot pipeline.
+- Regenerated and visually accepted all ten current `en-US`/`de-AT` screenshots;
+  fixed a captured Nearby loading placeholder and compact-width Alerts filter
+  clipping before acceptance.
+- Standard validation now passes 112/112 tests (110 unit/integration and two UI
+  smoke journeys) while live screenshot capture remains outside normal CI.
+
 ## 2026-08-11 - Visual acceptance and Dynamic Type polish
 
 - Exercised the redesigned app on iPhone 17 across light/dark appearances, maximum

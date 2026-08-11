@@ -35,6 +35,7 @@ struct StationDetailView: View {
                 StationDeparturesList(viewModel: viewModel)
             }
         }
+        .accessibilityIdentifier("station-detail-screen")
         .navigationTitle(viewModel.station.name)
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(for: TrafficInfo.self, destination: DisruptionDetailView.init)

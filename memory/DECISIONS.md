@@ -1,5 +1,26 @@
 # Architectural Decisions
 
+## 2026-08-11 — Deterministic UI acceptance remains a debug-only boundary
+
+**Context:** Unit coverage did not prove complete onboarding, tab navigation, or
+the release screenshots. The committed screenshots showed a superseded design,
+two local Simulators shared the documented `iPhone 17` name, and live-data capture
+could expose transient loading UI or flaky tab taps.
+
+**Decision:** Add a dedicated XCUITest target with debug-only launch preparation;
+production launches retain their existing state, animations, and location flow.
+The standard scheme runs two seeded smoke journeys and skips the two live App Store
+capture methods. A separate `TrafficViennaScreenshots` scheme creates localized
+attachments, while the repository script owns an isolated iPhone 17 Pro Max,
+stable status bar/location settings, image export, and technical validation. Build
+and test scripts resolve an exact available Simulator UUID instead of a name-only
+destination.
+
+**Consequences:** Standard validation now proves 110 unit/integration tests plus
+two UI journeys without depending on live screenshot generation. Release assets
+are reproducible and visually reviewable, while signing, App Store Connect, and
+physical/TestFlight behavior remain explicit external gates.
+
 ## 2026-08-11 — Contrast-safe premium colour roles
 
 **Context:** The premium redesign reused a bright mint/green brand colour for

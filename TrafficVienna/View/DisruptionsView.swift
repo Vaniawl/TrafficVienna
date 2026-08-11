@@ -33,6 +33,7 @@ struct DisruptionsView: View {
             }
         }
         .id(viewModel.state)
+        .accessibilityIdentifier("alerts-screen")
         .transition(Motion.stateTransition(reduceMotion: reduceMotion))
         .navigationTitle("Alerts")
         .navigationDestination(for: TrafficInfo.self, destination: DisruptionDetailView.init)

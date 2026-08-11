@@ -8,7 +8,7 @@ struct RootTabView: View {
     @StateObject private var networkMonitor = NetworkMonitor()
     @StateObject private var shortcutRouter = TrafficViennaShortcutRouter.shared
     @AppStorage("hasOnboarded") private var hasOnboarded = false
-    @State private var selectedTab: AppTab = .nearby
+    @State private var selectedTab = UITestLaunchConfiguration.initialTab
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
@@ -93,9 +93,20 @@ struct RootTabView: View {
             }
         }
         .background(DesignColor.background)
+        .transaction { transaction in
+            if UITestLaunchConfiguration.disablesAnimations {
+                transaction.animation = nil
+                transaction.disablesAnimations = true
+            }
+        }
         .animation(Motion.standard(reduceMotion: reduceMotion), value: hasOnboarded)
         .onOpenURL { url in
             shortcutRouter.handle(deepLinkURL: url)
+        }
+        .task {
+            if UITestLaunchConfiguration.shouldRequestLocation {
+                locationManager.requestLocationIfNeeded()
+            }
         }
     }
 

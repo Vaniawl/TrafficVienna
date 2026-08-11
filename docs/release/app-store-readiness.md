@@ -46,8 +46,10 @@ A `Go` requires:
 - The account-only Apple identity surface and entitlement were removed because
   they provided no cross-device feature and prevented the installed profile from
   archiving. A one-time migration deletes the legacy device-only Keychain item.
-- All 110 XCTest cases pass with zero failures or skips. The cleanup migration is
-  covered for success, missing-item, and retry-after-failure paths; new colour
+- All 112 tests in the standard scheme pass with zero failures or skips: 110
+  unit/integration tests plus deterministic XCUITest smoke journeys for onboarding,
+  primary tabs, station search, and station detail. The cleanup migration is
+  covered for success, missing-item, and retry-after-failure paths; colour
   regressions enforce 4.5:1 hero and semantic-text contrast.
 - A fresh iPhone 17 product-acceptance run exercised every redesigned route and
   inspected high-risk live dashboards/onboarding in dark appearance, maximum
@@ -60,9 +62,11 @@ A `Go` requires:
   device build selects the expected development identity and widget provisioning
   profile, compiles successfully to the signing phase, and reproduces the same
   non-interactive Keychain error at widget `codesign`.
-- Ten localized 6.9-inch screenshots are prepared at 1320×2868 JPEG with no
-  alpha: Nearby, Station Detail, Map, Alerts, and Favourites in both `en-US`
-  and `de-AT`.
+- Ten localized 6.9-inch screenshots were regenerated from the current premium
+  build at 1320×2868 JPEG with no alpha: Nearby, Station Detail, Map, Alerts, and
+  Favourites in both `en-US` and `de-AT`. Both isolated capture tests passed and
+  every image was visually inspected; no placeholder, overlay, clipping, or stale
+  red-design asset remains.
 - App Store metadata copy is within Apple’s field limits: subtitles 23/21
   characters, promotional text 129/126, descriptions 1106/1345, and keywords
   80/72 for English/German.
@@ -96,8 +100,9 @@ A `Go` requires:
 ## Repeatable evidence commands
 
 ```sh
-xcodebuild -scheme TrafficVienna -project TrafficVienna.xcodeproj \
-  -destination 'platform=iOS Simulator,id=6B367A70-5FF5-4C39-B479-F27457824C34' test
+bash scripts/test.sh
+
+bash scripts/capture-app-store-screenshots.sh
 
 xcodebuild -scheme TrafficVienna -project TrafficVienna.xcodeproj \
   -configuration Release -destination 'generic/platform=iOS' \

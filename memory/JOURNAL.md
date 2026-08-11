@@ -1,5 +1,20 @@
 # Journal
 
+## 2026-08-11 — UI smoke automation and current App Store assets
+
+- Added a deterministic debug-only XCUITest boundary, two standard smoke journeys,
+  stable tab-selection verification, and a separate localized screenshot scheme.
+  The production launch path is unchanged.
+- Added exact Simulator UUID resolution for duplicate `iPhone 17` names and made
+  the documented build/test entry points use repository scripts.
+- Regenerated all ten `en-US`/`de-AT` premium screenshots on an isolated iPhone 17
+  Pro Max. Visual QA caught and closed a Nearby loading placeholder plus clipped
+  Alerts filters; final images are aligned, localized, 1320×2868 JPEGs without
+  alpha, and free of stale red-design content.
+- The standard scheme now correctly excludes the live capture methods. Its final
+  result is 112/112 passed with zero failures or skips: 110 unit/integration tests
+  and two XCUITest smoke journeys.
+
 ## 2026-08-11 — Residual release-gap audit
 
 - Confirmed the premium branch and draft PR remain clean with protected Quality CI

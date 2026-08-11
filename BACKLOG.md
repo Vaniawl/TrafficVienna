@@ -41,7 +41,8 @@ Status date: 11 August 2026
 - [x] **TV-CORE-020/021/022:** dead code, dependency seams, resilience, freshness,
   localisation, accessibility, and indexed performance are verified.
 - [x] **TV-VERIFY-030:** repository and OpenCode validation pass.
-- [x] **TV-VERIFY-031:** app/widget build and 110/110 XCTest cases pass.
+- [x] **TV-VERIFY-031:** app/widget build and 112/112 standard tests pass:
+  110 unit/integration tests plus two XCUITest smoke journeys.
 - [x] **TV-VERIFY-032:** all redesigned routes were exercised locally; high-risk
   live Nearby/Alerts and onboarding states were also inspected in dark appearance,
   maximum Accessibility Dynamic Type, and Increase Contrast. Contrast and layout
@@ -50,6 +51,11 @@ Status date: 11 August 2026
   unresolved Critical/High/Blocking/Important code finding after the fixes.
 - [x] **TV-VERIFY-034:** root state, workflow docs, project journal, decisions, and
   release checklist describe the current anonymous premium build.
+- [x] **TV-VERIFY-035:** deterministic debug-only UI launch state, exact Simulator
+  resolution, primary-tab/onboarding smoke coverage, and a separate localized
+  App Store screenshot pipeline are implemented. All ten current premium
+  screenshots were regenerated and visually inspected; Nearby loading placeholders
+  and compact-width Alerts filter clipping were fixed before acceptance.
 
 ## External release gates — intentionally not product backlog
 

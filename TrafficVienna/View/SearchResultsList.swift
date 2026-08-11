@@ -8,6 +8,7 @@ struct SearchResultsList: View {
             NavigationLink(value: station) {
                 SearchStationRow(station: station, systemImage: "tram.fill")
             }
+            .accessibilityIdentifier("station-row-\(station.id)")
             .listRowBackground(DesignColor.cardBackground)
         }
         .listStyle(.insetGrouped)

@@ -20,13 +20,11 @@ fi
 test_log="$(mktemp)"
 trap 'rm -f "$test_log"' EXIT
 
-destination="${TRAFFICVIENNA_XCODE_DESTINATION:-platform=iOS Simulator,name=iPhone 17}"
-
-if ! xcrun simctl list devices available | grep -q "iPhone 17"; then
-  if [[ -z "${TRAFFICVIENNA_XCODE_DESTINATION:-}" ]]; then
-    echo "[test] iPhone 17 simulator unavailable; skipping XCTest because no concrete CI simulator is configured"
-    exit 0
-  fi
+if [[ -n "${TRAFFICVIENNA_XCODE_DESTINATION:-}" ]]; then
+  destination="$TRAFFICVIENNA_XCODE_DESTINATION"
+else
+  simulator_id="$(bash scripts/resolve-simulator-id.sh)"
+  destination="platform=iOS Simulator,id=$simulator_id"
 fi
 
 set +e

@@ -60,6 +60,7 @@ struct SearchView: View {
             }
         }
         .id(viewModel.status)
+        .accessibilityIdentifier("search-screen")
         .transition(Motion.stateTransition(reduceMotion: reduceMotion))
         .navigationTitle("Search")
         .navigationDestination(for: Station.self) { station in
