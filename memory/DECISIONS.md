@@ -1,5 +1,24 @@
 # Architectural Decisions
 
+## 2026-08-11 — App Intents is an adapter around the navigation router
+
+**Context:** The shortcut router and its pure destination/persistence behaviour
+shared a source file with `AppEnum`, `OpenIntent`, and `AppShortcutsProvider`.
+GitHub's hosted XCTest process repeatedly aborted while loading the focused router
+tests, even after their preferences dependency was replaced with an in-memory
+store, while the same assertions were stable across local host relaunches.
+
+**Decision:** Keep destination mapping, pending-navigation state, and the narrow
+storage protocol in `TrafficViennaShortcutRouter.swift`. Keep only the App Intents
+conformance and system shortcut declarations in `TrafficViennaAppIntents.swift`.
+The production router continues to default to `UserDefaults.standard`, and tests
+inject an in-memory implementation.
+
+**Consequences:** Navigation routing can be unit-tested without sharing its source
+object with App Intents metadata registration. The public shortcut behaviour and
+cold-launch persistence remain unchanged, while future integrations can depend on
+the router without importing App Intents concerns.
+
 ## 2026-08-11 — Local accessibility acceptance is an isolated matrix
 
 **Context:** The standard smoke scheme proved navigation but did not continuously
