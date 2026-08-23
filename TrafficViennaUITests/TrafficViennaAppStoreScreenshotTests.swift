@@ -40,6 +40,7 @@ final class TrafficViennaAppStoreScreenshotTests: TrafficViennaUITestCase {
         waitForIdentifier("search-screen")
 
         selectTab(2, expecting: "stations-map", timeout: 20)
+        waitForMapTilesToRender()
         attachScreenshot(named: "03-map")
 
         selectTab(3, expecting: "alerts-screen", timeout: 20)
@@ -50,5 +51,9 @@ final class TrafficViennaAppStoreScreenshotTests: TrafficViennaUITestCase {
         waitForIdentifier("favourite-station-row-1085621741")
         waitForLoadingToFinish()
         attachScreenshot(named: "05-favourites")
+    }
+
+    private func waitForMapTilesToRender() {
+        RunLoop.current.run(until: Date().addingTimeInterval(6))
     }
 }

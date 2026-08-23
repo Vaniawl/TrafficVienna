@@ -46,6 +46,7 @@ struct FavoriteStationQuickAccessCard: View {
         .padding(Spacing.md)
         .premiumSurface()
         .contentShape(.rect(cornerRadius: CornerRadius.lg))
+        .accessibilityIdentifier("favourite-quick-access-\(station.id)")
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(
             Text(verbatim: station.name + ". " + String(localized: "View departures"))

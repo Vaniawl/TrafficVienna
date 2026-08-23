@@ -21,8 +21,8 @@ as submission gates rather than assumed complete.
 | Content rights | Wiener Linien Open Data, attributed in-app under CC BY 4.0 |
 | Price | Free |
 
-The privacy URL becomes valid on `main` only after the release-readiness change
-is merged. It must return HTTP 200 before submission.
+The privacy URL is published on `main`. Recheck that it returns HTTP 200 before
+submission because availability is an external release gate.
 
 ## English (U.S.)
 

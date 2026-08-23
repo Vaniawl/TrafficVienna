@@ -39,11 +39,13 @@ protocol FavoriteStationsStoring: Sendable {
 }
 
 nonisolated final class UserDefaultsFavoriteStationsRepository: FavoriteStationsStoring {
-    private let key = "favorite_stations"
+    private let key = TrafficViennaStorage.favoriteStations
     // UserDefaults is thread-safe but not Sendable; opt out explicitly.
     private nonisolated(unsafe) let storage: UserDefaults
 
-    init(storage: UserDefaults = UserDefaults(suiteName: "group.wellbe.TrafficVienna") ?? .standard) {
+    init(
+        storage: UserDefaults = UserDefaults(suiteName: TrafficViennaStorage.appGroupID) ?? .standard
+    ) {
         self.storage = storage
     }
 

@@ -1,5 +1,44 @@
 # Architectural Decisions
 
+## 2026-08-23 — Validation fails closed and project dependencies stay minimal
+
+**Context:** The standard test script treated Xcode's "no test bundles" result as
+success, so a broken scheme could silently bypass XCTest. The repository also
+tracked a 469 MB `node_modules` tree for an optional mobile/tunnel plugin that was
+not part of the documented OpenCode workflow and brought high-severity dependency
+findings plus tunnel executables into source control.
+
+**Decision:** Treat any missing or empty XCTest wiring as a failure. Repository
+validation must prove the UI target and both smoke methods are present and enabled,
+and its own regression script must demonstrate that skipped or missing smoke tests
+are rejected. Keep OpenCode as the native workflow without the unused mobile
+plugin, remove the project Node manifests and vendored modules, ignore
+`node_modules`, and fail validation if that directory is tracked again.
+
+**Consequences:** A green test command now proves that XCTest actually ran, while
+dependency and tunnel attack surface are removed from the repository. Restoring
+the optional mobile plugin would require a separate reviewed decision, fresh
+dependency/security evidence, and a non-vendored installation boundary.
+
+## 2026-08-23 — Shared widget storage and release artifacts have one owner
+
+**Context:** App, widget, App Intent, and UI-test reset code duplicated App Group
+identifiers and preference keys. The reset missed widget fetch/refresh state, and
+the screenshot script could mutate an existing developer Simulator or replace the
+published set before proving all ten files were valid.
+
+**Decision:** Define App Group identifiers, widget kind, shared preference keys,
+and reset keys in `TrafficViennaStorage`. All app/widget consumers use that
+contract, and debug UI-test reset clears the complete shared state. Release
+screenshots always use a temporary Simulator and staging directory, wait for map
+tiles, validate the complete localized set, and only then atomically replace the
+published assets.
+
+**Consequences:** Shared-state changes are reviewable in one place and reset
+coverage detects stale widget state. Screenshot failure cannot leave a partial
+release set or alter a developer's Simulator, and the committed English/German
+Map images consistently contain rendered cartography.
+
 ## 2026-08-11 — Main-actor XCTest methods use async execution
 
 **Context:** The GitHub failure artifact contained 18 symbolicated crash reports.

@@ -19,11 +19,11 @@ struct RefreshFavoritesIntent: AppIntent {
     
     func perform() async throws -> some IntentResult {
         // Mark the time a refresh was requested (for debugging/throttling if needed)
-        let defaults = UserDefaults(suiteName: "group.wellbe.TrafficVienna")
-        defaults?.set(Date.now, forKey: "widget_refresh_requested_at")
+        let defaults = UserDefaults(suiteName: TrafficViennaStorage.appGroupID)
+        defaults?.set(Date.now, forKey: TrafficViennaStorage.widgetRefreshRequestedAt)
 
         // Ask the system to reload our widget timelines
-        WidgetCenter.shared.reloadTimelines(ofKind: "TrafficViennaWidget")
+        WidgetCenter.shared.reloadTimelines(ofKind: TrafficViennaStorage.widgetKind)
         return .result()
     }
 }

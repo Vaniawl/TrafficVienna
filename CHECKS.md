@@ -13,10 +13,11 @@ git diff --check
 ```
 
 `scripts/ci.sh` covers repository/OpenCode/reliability validation, the app and
-widget build, the standard test scheme, and final diff validation. The standard
-scheme contains 110 unit/integration tests and two deterministic XCUITest smoke
-journeys. The two live-data App Store capture methods are intentionally isolated
-in `TrafficViennaScreenshots` and run only through the screenshot script.
+widget build, negative shared-scheme regression checks, the standard test scheme,
+and final diff validation. The standard scheme contains 117 unit/integration tests
+and two deterministic XCUITest smoke journeys. The two live-data App Store capture
+methods are intentionally isolated in `TrafficViennaScreenshots` and run only
+through the screenshot script.
 
 Direct test equivalents are:
 
@@ -29,8 +30,9 @@ xcodebuild -scheme TrafficVienna -project TrafficVienna.xcodeproj \
 
 ## Current evidence
 
-- 11 August 2026: full `scripts/ci.sh` exited 0 and ended `[ci] OK`.
-- Standard test result: 112 passed, 0 failed, 0 skipped: 110 unit/integration
+- 23 August 2026: local repository/OpenCode validators, negative scheme-wiring
+  regressions, app/widget build, and the standard suite pass.
+- Standard test result: 119 passed, 0 failed, 0 skipped: 117 unit/integration
   tests and two XCUITest smoke journeys.
 - Ten current premium App Store screenshots were generated on an isolated iPhone
   17 Pro Max in `en-US` and `de-AT`. Both capture tests passed, every JPEG is
@@ -39,7 +41,7 @@ xcodebuild -scheme TrafficVienna -project TrafficVienna.xcodeproj \
   Accessibility Dynamic Type, Increase Contrast, live data, location, empty state,
   and tested failure-state boundaries.
 - `DesignColorContrastTests` enforces WCAG AA 4.5:1 for white hero text and
-  appearance-aware semantic text colours.
+  appearance-aware semantic text and transport-line badge colours.
 - An unsigned generic Release archive is the repeatable local packaging gate.
   Distribution signing, App Store Connect, upload, and physical/TestFlight
   acceptance remain separate release gates.

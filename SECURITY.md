@@ -43,8 +43,11 @@ explicit approval.
 
 ## Current review result
 
-The changed premium-design and accessibility files introduce no new endpoint,
-storage, dependency, secret, entitlement, command execution, or tenancy boundary.
-After adaptive contrast and Dynamic Type fixes, independent review has no unresolved
-Critical, High, Blocking, or Important code finding. This is not a claim of App
-Store compliance; release evidence remains governed by the release checklist.
+The native app changes introduce no new endpoint, secret, entitlement, command
+execution, or tenancy boundary. The 23 August repository audit found that the
+unused `opencode-mobile` developer plugin had committed its vulnerable dependency
+tree, tunnel executables, and a test key fixture. The plugin, manifests, and tracked
+`node_modules` tree are removed, `node_modules/` is ignored, and repository
+validation now rejects any tracked copy. The remaining OpenCode configuration has
+no project-local Node dependency. This is not a claim of App Store compliance;
+release evidence remains governed by the release checklist.

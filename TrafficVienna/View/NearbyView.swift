@@ -59,10 +59,18 @@ struct NearbyView: View {
                 }
             }
         }
-        .task {
+        .task(id: refreshContext) {
+            await vm.load(force: false)
+            guard vm.hasLocation, !vm.items.isEmpty else { return }
+
             while !Task.isCancelled {
+                do {
+                    try await Task.sleep(for: .seconds(60))
+                } catch {
+                    return
+                }
                 await vm.load(force: false)
-                try? await Task.sleep(for: .seconds(vm.items.isEmpty ? 5 : 60))
+                guard vm.hasLocation, !vm.items.isEmpty else { return }
             }
         }
         .background(DesignColor.background)
@@ -103,6 +111,7 @@ struct NearbyView: View {
                         actionTitle: "Open Settings",
                         action: openSettings
                     )
+                    .accessibilityIdentifier("nearby-status-card")
                 case .permissionRequired:
                     NearbyStatusCard(
                         icon: "location",
@@ -111,6 +120,7 @@ struct NearbyView: View {
                         actionTitle: "Allow location",
                         action: locationManager.requestLocationIfNeeded
                     )
+                    .accessibilityIdentifier("nearby-status-card")
                 case .locating:
                     NearbyStatusCard(
                         icon: nil,
@@ -119,6 +129,7 @@ struct NearbyView: View {
                         actionTitle: nil,
                         action: nil
                     )
+                    .accessibilityIdentifier("nearby-status-card")
                 case .noStations:
                     NearbyStatusCard(
                         icon: "tram.fill",
@@ -127,6 +138,7 @@ struct NearbyView: View {
                         actionTitle: "Refresh",
                         action: refresh
                     )
+                    .accessibilityIdentifier("nearby-status-card")
                 case .stations:
                     nearbyStationsHeader
 
@@ -214,6 +226,15 @@ struct NearbyView: View {
         )
     }
 
+    private var refreshContext: NearbyRefreshContext {
+        let coordinate = locationManager.userLocation?.coordinate
+        return NearbyRefreshContext(
+            authorization: locationManager.authorizationStatus.rawValue,
+            latitudeBucket: coordinate.map { Int(($0.latitude * 1_000).rounded()) },
+            longitudeBucket: coordinate.map { Int(($0.longitude * 1_000).rounded()) }
+        )
+    }
+
     private func stationShareText(_ station: Station) -> String {
         "\(station.name) — live departures on Traffic Vienna"
     }
@@ -252,9 +273,15 @@ struct NearbyView: View {
         .redacted(reason: .placeholder)
         .shimmer()
         .accessibilityIdentifier("nearby-loading-skeleton")
-        .accessibilityElement(children: .contain)
+        .accessibilityElement(children: .ignore)
         .accessibilityLabel("Loading stations")
     }
+}
+
+private struct NearbyRefreshContext: Equatable {
+    let authorization: Int32
+    let latitudeBucket: Int?
+    let longitudeBucket: Int?
 }
 
 #Preview {

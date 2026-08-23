@@ -1,7 +1,6 @@
 import SwiftUI
 
 enum UITestLaunchConfiguration {
-    private static let appGroupID = "group.wellbe.TrafficVienna"
     private static let arguments = ProcessInfo.processInfo.arguments
 
     static var initialTab: AppTab {
@@ -77,17 +76,20 @@ enum UITestLaunchConfiguration {
             forKey: TrafficViennaShortcutRouter.pendingDestinationKey
         )
 
-        guard let sharedDefaults = UserDefaults(suiteName: appGroupID) else { return }
-        [
-            "favorite_routes",
-            "favorite_stations",
-            "recent_search_ids",
-            "widget_data",
-        ].forEach(sharedDefaults.removeObject(forKey:))
+        guard let sharedDefaults = UserDefaults(suiteName: TrafficViennaStorage.appGroupID) else {
+            return
+        }
+        resetSharedState(in: sharedDefaults)
+    }
+
+    static func resetSharedState(in defaults: UserDefaults) {
+        TrafficViennaStorage.resettableSharedKeys.forEach(defaults.removeObject(forKey:))
     }
 
     private static func seedFavourites() {
-        guard let sharedDefaults = UserDefaults(suiteName: appGroupID) else { return }
+        guard let sharedDefaults = UserDefaults(suiteName: TrafficViennaStorage.appGroupID) else {
+            return
+        }
 
         let station = FavoriteStation(
             id: 1_085_621_741,
@@ -102,11 +104,11 @@ enum UITestLaunchConfiguration {
 
         sharedDefaults.set(
             try? JSONEncoder().encode([station]),
-            forKey: "favorite_stations"
+            forKey: TrafficViennaStorage.favoriteStations
         )
         sharedDefaults.set(
             try? JSONEncoder().encode(Set([route])),
-            forKey: "favorite_routes"
+            forKey: TrafficViennaStorage.favoriteRoutes
         )
     }
 #endif

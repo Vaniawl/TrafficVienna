@@ -30,5 +30,8 @@ fastlane/screenshots
 # IDE
 .idea/
 
+# Node-based local tooling
+node_modules/
+
 # Superdesign temporary component templates
 .superdesign/tmp/

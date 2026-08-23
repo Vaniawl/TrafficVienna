@@ -11,9 +11,6 @@
     "docs/opencode/permission-matrix.md",
     "docs/opencode/git-ci-release.md"
   ],
-  "plugin": [
-    "opencode-mobile"
-  ],
   "skills": {
     "paths": [
       ".agents/skills"

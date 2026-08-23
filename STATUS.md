@@ -10,17 +10,19 @@
   Wiener Linien data, location, App Shortcuts, widget, and Live Activity.
 - Identity boundary: no account UI, authentication entitlement, backend, or remote
   session. A tested one-time migration removes obsolete device-only Keychain data.
-- Validation: `bash scripts/ci.sh` exited 0 with repository/OpenCode/reliability
-  checks, app/widget build, 112/112 standard tests (110 unit/integration plus two
-  XCUITest smoke journeys), and `[ci] OK` on 11 August 2026.
-- Visual acceptance: all redesigned routes were exercised on iPhone 17. Dark,
-  maximum Accessibility Dynamic Type, and Increase Contrast checks covered the
-  highest-risk live dashboards and onboarding. The run exposed and closed hero
-  contrast plus Station/Departure/Disruption wrapping defects. Ten current
-  localized App Store screenshots were also regenerated on iPhone 17 Pro Max and
-  visually accepted after removing a Nearby loading placeholder and compact-width
-  Alerts filter clipping.
-- Review: SwiftUI and security/release audits found no unresolved
-  Critical/High/Blocking/Important code finding after the fixes.
+- Validation: repository/OpenCode/reliability and negative scheme-wiring checks,
+  app/widget build, and 119/119 standard tests (117 unit/integration plus two
+  XCUITest smoke journeys) pass locally on 23 August 2026. Protected remote CI is
+  re-observed after the current draft-PR update.
+- Visual acceptance: the isolated matrix passed 4/4 standard iPhone journeys plus
+  1/1 maximum-accessibility iPhone and 1/1 maximum-accessibility iPad journeys.
+  Dark appearance, maximum Accessibility Dynamic Type, Increase Contrast, and
+  Reduce Motion covered every primary route. Ten current localized App Store
+  screenshots were regenerated on an isolated iPhone 17 Pro Max, validated at
+  1320×2868, and visually accepted after waiting for complete MapKit rendering.
+- Review: independent SwiftUI, state/CI, and architecture/release audits exposed
+  widget contrast, VoiceOver, refresh-loop, fail-open test, screenshot atomicity,
+  and developer-tool supply-chain findings. The confirmed local findings are fixed;
+  the draft stays No-Go for merge until the current validation and protected CI pass.
 - Remaining work: only the external release gates and protected PR/CI lifecycle;
   these do not authorize merge, ready-for-review, upload, submit, or release.

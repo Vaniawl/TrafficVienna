@@ -33,8 +33,6 @@ struct StationCardView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .premiumSurface(elevated: true)
         .contentShape(.rect(cornerRadius: CornerRadius.lg))
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel(stationAccessibilityLabel)
     }
 
     private var header: some View {
@@ -52,7 +50,7 @@ struct StationCardView: View {
                 }
             }
         }
-        .accessibilityElement(children: .contain)
+        .accessibilityElement(children: .ignore)
         .accessibilityLabel("Station \(station.name), \(walkTextForAccessibility)")
     }
 
@@ -134,8 +132,6 @@ struct StationCardView: View {
                         showFollowUp: false
                     )
                     .padding(.vertical, Spacing.xs)
-                    .accessibilityElement(children: .contain)
-                    .accessibilityLabel("Line \(line.name) to \(line.towards)")
                     if index < visible.count - 1 {
                         Divider().overlay(DesignColor.separator)
                     }
@@ -171,6 +167,7 @@ struct StationCardView: View {
         }
         .redacted(reason: .placeholder)
         .shimmer()
+        .accessibilityHidden(true)
     }
 
     private func label(_ text: String, color: Color = .secondary) -> some View {
@@ -178,17 +175,6 @@ struct StationCardView: View {
             .font(.subheadline)
             .foregroundStyle(color)
             .padding(.vertical, Spacing.xs)
-    }
-
-    private var stationAccessibilityLabel: String {
-        let walkText = walkMinutes.map {
-            String(localized: "Walking approximately \($0) minutes")
-        } ?? String(localized: "Distance unknown")
-        let linesText = lines.isEmpty
-            ? String(localized: "No departures loaded")
-            : String(localized: "Departures available")
-        let freshness = isStale ? String(localized: "Showing saved data.") : ""
-        return "\(station.name). \(walkText). \(linesText). \(freshness)"
     }
 
     private var walkTextForAccessibility: String {

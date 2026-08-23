@@ -14,6 +14,7 @@ struct ServiceStatusCard: View {
                 .contentShape(.rect(cornerRadius: CornerRadius.lg))
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("service-status-card")
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(accessibilityLabel))
         .accessibilityHint(Text("Opens alerts"))

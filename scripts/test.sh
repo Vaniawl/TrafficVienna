@@ -17,9 +17,6 @@ if ! command -v xcodebuild >/dev/null 2>&1; then
   exit 127
 fi
 
-test_log="$(mktemp)"
-trap 'rm -f "$test_log"' EXIT
-
 if [[ -n "${TRAFFICVIENNA_XCODE_DESTINATION:-}" ]]; then
   destination="$TRAFFICVIENNA_XCODE_DESTINATION"
 else
@@ -27,7 +24,6 @@ else
   destination="platform=iOS Simulator,id=$simulator_id"
 fi
 
-set +e
 xcodebuild_arguments=(
   -scheme TrafficVienna
   -project TrafficVienna.xcodeproj
@@ -44,17 +40,4 @@ if [[ -n "${TRAFFICVIENNA_TEST_RESULT_BUNDLE_PATH:-}" ]]; then
   )
 fi
 
-xcodebuild "${xcodebuild_arguments[@]}" test 2>&1 | tee "$test_log"
-status=${PIPESTATUS[0]}
-set -e
-
-if [[ "$status" -eq 0 ]]; then
-  exit 0
-fi
-
-if grep -q "There are no test bundles available to test" "$test_log"; then
-  echo "[test] no runnable XCTest bundle is configured for the TrafficVienna scheme; skipping XCTest"
-  exit 0
-fi
-
-exit "$status"
+xcodebuild "${xcodebuild_arguments[@]}" test

@@ -22,12 +22,14 @@ protocol FavoritesRepository: Sendable {
 
 nonisolated final class UserDefaultsFavoritesRepository: FavoritesRepository {
     // Key for storing favorites
-    private let key = "favorite_routes"
+    private let key = TrafficViennaStorage.favoriteRoutes
     // Shared storage APP GROUP. UserDefaults is thread-safe but not marked
     // Sendable, so we opt out of the check explicitly.
     private nonisolated(unsafe) let storage: UserDefaults
     
-    init(storage: UserDefaults = UserDefaults(suiteName: "group.wellbe.TrafficVienna") ?? .standard) {
+    init(
+        storage: UserDefaults = UserDefaults(suiteName: TrafficViennaStorage.appGroupID) ?? .standard
+    ) {
         self.storage = storage
     }
     

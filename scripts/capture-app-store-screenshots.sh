@@ -12,29 +12,40 @@ for command_name in jq sips xcodebuild xcrun; do
 done
 
 trafficvienna_temp_dir="$(mktemp -d /tmp/trafficvienna-screenshots.XXXXXX)"
-trafficvienna_screenshot_device="${TRAFFICVIENNA_SCREENSHOT_SIMULATOR_ID:-}"
-trafficvienna_created_device=0
+trafficvienna_screenshots_parent="$root/docs/release"
+mkdir -p "$trafficvienna_screenshots_parent"
+trafficvienna_staging_dir="$(
+  mktemp -d "$trafficvienna_screenshots_parent/.screenshots-stage.XXXXXX"
+)"
+trafficvienna_output_dir="$trafficvienna_screenshots_parent/screenshots"
+trafficvienna_backup_dir=""
+trafficvienna_screenshot_device=""
 
 cleanup() {
-  if [[ "$trafficvienna_created_device" == "1" ]]; then
+  if [[ -n "$trafficvienna_screenshot_device" ]]; then
     xcrun simctl shutdown "$trafficvienna_screenshot_device" >/dev/null 2>&1 || true
     xcrun simctl delete "$trafficvienna_screenshot_device" >/dev/null 2>&1 || true
-  else
-    xcrun simctl status_bar "$trafficvienna_screenshot_device" clear >/dev/null 2>&1 || true
   fi
   /bin/rm -rf -- "$trafficvienna_temp_dir"
+  if [[ -n "$trafficvienna_staging_dir" ]]; then
+    /bin/rm -rf -- "$trafficvienna_staging_dir"
+  fi
+  if [[ -n "$trafficvienna_backup_dir" && -d "$trafficvienna_backup_dir" ]]; then
+    if [[ ! -e "$trafficvienna_output_dir" ]]; then
+      mv "$trafficvienna_backup_dir" "$trafficvienna_output_dir"
+    else
+      /bin/rm -rf -- "$trafficvienna_backup_dir"
+    fi
+  fi
 }
 trap cleanup EXIT
 
-if [[ -z "$trafficvienna_screenshot_device" ]]; then
-  trafficvienna_screenshot_device="$(
-    xcrun simctl create \
-      "TrafficVienna App Store Screenshots $$" \
-      com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro-Max \
-      com.apple.CoreSimulator.SimRuntime.iOS-26-5
-  )"
-  trafficvienna_created_device=1
-fi
+trafficvienna_screenshot_device="$(
+  xcrun simctl create \
+    "TrafficVienna App Store Screenshots $$" \
+    com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro-Max \
+    com.apple.CoreSimulator.SimRuntime.iOS-26-5
+)"
 
 xcrun simctl boot "$trafficvienna_screenshot_device" >/dev/null 2>&1 || true
 xcrun simctl bootstatus "$trafficvienna_screenshot_device" -b
@@ -71,7 +82,7 @@ capture_locale() {
   local test_method="$2"
   local result_bundle="$trafficvienna_temp_dir/$locale_directory.xcresult"
   local attachments_directory="$trafficvienna_temp_dir/$locale_directory-attachments"
-  local output_directory="docs/release/screenshots/$locale_directory"
+  local output_directory="$trafficvienna_staging_dir/$locale_directory"
 
   xcodebuild \
     -scheme TrafficViennaScreenshots \
@@ -118,7 +129,7 @@ capture_locale() {
 capture_locale en-US testCaptureEnglishScreenshots
 capture_locale de-AT testCaptureGermanScreenshots
 
-for screenshot in docs/release/screenshots/{en-US,de-AT}/*.jpg; do
+for screenshot in "$trafficvienna_staging_dir"/{en-US,de-AT}/*.jpg; do
   width="$(sips -g pixelWidth "$screenshot" | awk '/pixelWidth/ { print $2 }')"
   height="$(sips -g pixelHeight "$screenshot" | awk '/pixelHeight/ { print $2 }')"
   alpha="$(sips -g hasAlpha "$screenshot" | awk '/hasAlpha/ { print $2 }')"
@@ -129,5 +140,30 @@ for screenshot in docs/release/screenshots/{en-US,de-AT}/*.jpg; do
     exit 1
   fi
 done
+
+trafficvienna_screenshot_count="$(
+  find "$trafficvienna_staging_dir" -type f -name '*.jpg' | wc -l | tr -d ' '
+)"
+if [[ "$trafficvienna_screenshot_count" != "10" ]]; then
+  printf 'error: expected 10 App Store screenshots, found %s\n' \
+    "$trafficvienna_screenshot_count" >&2
+  exit 1
+fi
+
+if [[ -d "$trafficvienna_output_dir" ]]; then
+  trafficvienna_backup_dir="$trafficvienna_screenshots_parent/.screenshots-backup.$$"
+  mv "$trafficvienna_output_dir" "$trafficvienna_backup_dir"
+fi
+
+if ! mv "$trafficvienna_staging_dir" "$trafficvienna_output_dir"; then
+  printf 'error: could not publish the validated App Store screenshot set\n' >&2
+  exit 1
+fi
+trafficvienna_staging_dir=""
+
+if [[ -n "$trafficvienna_backup_dir" ]]; then
+  /bin/rm -rf -- "$trafficvienna_backup_dir"
+  trafficvienna_backup_dir=""
+fi
 
 printf 'Captured 10 current App Store screenshots in docs/release/screenshots/.\n'

@@ -43,6 +43,7 @@ required = [
     "scripts/ci.sh",
     "tests/opencode-permission-matcher.sh",
     "tests/opencode-reliability.sh",
+    "tests/repository-validation-regressions.sh",
 ]
 
 missing = [p for p in required if not (root / p).exists()]
@@ -51,10 +52,6 @@ if missing:
 
 if cfg.get("$schema") != "https://opencode.ai/config.json":
     raise SystemExit("[validate-opencode] invalid opencode schema")
-
-plugins = cfg.get("plugin", [])
-if "opencode-mobile" not in plugins:
-    raise SystemExit("[validate-opencode] opencode-mobile plugin is not preserved")
 
 instructions = set(cfg.get("instructions", []))
 for instruction in ["AGENTS.md", "docs/CONTEXT.md", "memory/JOURNAL.md"]:

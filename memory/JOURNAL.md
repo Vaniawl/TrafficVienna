@@ -1,5 +1,29 @@
 # Journal
 
+## 2026-08-23 — Completed the independent UI/UX and release-hardening pass
+
+- Ran three independent audits covering SwiftUI/UI/UX, state and CI wiring, and
+  architecture/release risk. Closed the confirmed findings: widget line contrast
+  and refresh hit area, duplicate VoiceOver containers, decorative accessibility
+  noise, Nearby refresh spinning, repeated filtering, incomplete shared-state
+  reset, fail-open XCTest handling, and partial screenshot publication.
+- Centralized App Group/widget keys in `TrafficViennaStorage`, added reset and
+  no-nearby-network regressions, tightened label-specific accessibility-audit
+  exceptions, and added full-window geometry assertions for the high-risk Nearby
+  cards at maximum Dynamic Type. The isolated matrix passed 4/4 standard iPhone,
+  1/1 maximum-accessibility iPhone, and 1/1 maximum-accessibility iPad scenarios.
+- Removed the unused `opencode-mobile` plugin and its 26,502 tracked dependency
+  files (about 469 MB), removed the project Node manifests, ignored vendored
+  modules, and added a repository guard plus negative scheme-wiring regression.
+  The small untracked remainder was moved recoverably to the macOS Trash.
+- Rebuilt and visually inspected all ten English/German 1320×2868 App Store
+  screenshots. Added a MapKit render-settle gate so both localized Map captures
+  contain complete cartography; screenshot publication now uses an isolated
+  Simulator, staging validation, and atomic replacement.
+- Final `scripts/ci.sh` passed: repository/OpenCode/reliability and negative
+  validator checks, app/widget build, 117 unit/integration tests, and two standard
+  UI smoke journeys (119/119 total, zero failures or skips).
+
 ## 2026-08-11 — Fixed the hosted XCTest actor-deinit crash
 
 - Downloaded the failed GitHub run's result bundle and 18 symbolicated `.ips`

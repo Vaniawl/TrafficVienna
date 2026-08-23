@@ -1,6 +1,6 @@
 # Local UI readiness
 
-Status date: 11 August 2026
+Status date: 23 August 2026
 
 Verdict: **Go** for the approved local iOS Simulator UI/UX scope.
 
@@ -12,7 +12,7 @@ from this acceptance pass and remain tracked in `app-store-readiness.md`.
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
-| Standard repository validation | Pass | `bash scripts/ci.sh`: 114/114 tests, zero failures and zero skips; repository and OpenCode validators ended `[ci] OK`. |
+| Standard repository validation | Pass | 119/119 standard tests, zero failures and zero skips; repository/OpenCode and negative scheme-wiring validators pass. |
 | Standard iPhone UI acceptance | Pass | iPhone 17 / iOS 26.5: onboarding, primary routes, search, station detail, and full Xcode accessibility audits; 4/4 tests. |
 | Maximum iPhone accessibility layout | Pass | iPhone 17 / iOS 26.5: dark appearance, maximum Accessibility Dynamic Type, Increase Contrast, and Reduce Motion; 1/1 test. |
 | Maximum iPad accessibility layout | Pass | iPad Pro 13-inch (M5) / iOS 26.5 with the same accessibility configuration; 1/1 test. |
@@ -26,9 +26,10 @@ The complete Simulator matrix is reproducible with:
 bash scripts/run-local-ui-acceptance.sh
 ```
 
-The final observed result bundles are under
-`/tmp/TrafficViennaLocalAcceptance-Final3-20260811-174100/`. The runner creates
-isolated devices, uses exact UUID destinations, and deletes those devices on exit.
+Set `TRAFFICVIENNA_ACCEPTANCE_OUTPUT` to keep result bundles at a chosen timestamped
+path; otherwise the runner creates `/tmp/TrafficViennaLocalAcceptance-<timestamp>/`.
+It creates isolated devices, uses exact UUID destinations, and deletes those
+devices on exit.
 
 ## Closed findings
 
@@ -38,12 +39,15 @@ isolated devices, uses exact UUID destinations, and deletes those devices on exi
   Type.
 - Kept required app-owned controls at least 44×44 points and gave station actions
   stable accessibility labels and identifiers.
+- Corrected widget line-badge contrast, expanded the refresh target, removed
+  duplicate StationCard VoiceOver containers, and hid placeholder rows.
 - Made the debug-only UI-test reset write the onboarding state explicitly, so
   reused CI simulators cannot leak a previously completed onboarding journey.
 - Replaced system empty-state layouts that did not scale reliably with explicit,
   scroll-safe SwiftUI layouts.
 - Regenerated and visually reviewed every localized release screenshot from the
   final premium UI.
+- Made screenshot publication staged and all-or-nothing on an isolated Simulator.
 
 ## Audit exceptions
 

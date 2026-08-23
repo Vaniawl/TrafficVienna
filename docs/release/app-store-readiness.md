@@ -50,7 +50,7 @@ A `Go` requires:
 - The account-only Apple identity surface and entitlement were removed because
   they provided no cross-device feature and prevented the installed profile from
   archiving. A one-time migration deletes the legacy device-only Keychain item.
-- All 114 tests in the standard scheme pass with zero failures or skips: 112
+- All 119 tests in the standard scheme pass with zero failures or skips: 117
   unit/integration tests plus deterministic XCUITest smoke journeys for onboarding,
   primary tabs, station search, and station detail. The cleanup migration is
   covered for success, missing-item, and retry-after-failure paths; colour

@@ -6,6 +6,7 @@ final class TrafficViennaAdaptiveLayoutTests: TrafficViennaUITestCase {
         launchApp(seedFavourites: true)
 
         waitForIdentifier("nearby-screen")
+        verifyNearbyLayout()
         attachScreenshot(named: "adaptive-nearby")
 
         selectTab(1, expecting: "search-screen")
@@ -59,6 +60,18 @@ final class TrafficViennaAdaptiveLayoutTests: TrafficViennaUITestCase {
         attachScreenshot(named: "adaptive-alerts")
     }
 
+    private func verifyNearbyLayout() {
+        for identifier in [
+            "service-status-card",
+            "favourite-quick-access-1085621741",
+            "nearby-status-card",
+        ] {
+            let element = waitForIdentifier(identifier)
+            bringIntoView(element)
+            assertInsideWindow(element)
+        }
+    }
+
     private func verifyFavouritesLayout() {
         waitForIdentifier("favourite-station-row-1085621741")
         waitForLoadingToFinish()
@@ -95,5 +108,43 @@ final class TrafficViennaAdaptiveLayoutTests: TrafficViennaUITestCase {
         }
 
         XCTAssertGreaterThan(inspected, 0, "Expected visible buttons", file: file, line: line)
+    }
+
+    private func bringIntoView(_ element: XCUIElement) {
+        let window = app.windows.firstMatch
+        XCTAssertTrue(window.exists, "Expected app window")
+        let visibleFrame = window.frame.insetBy(dx: -1, dy: -1)
+
+        for _ in 0..<8 {
+            if element.isHittable, visibleFrame.contains(element.frame) {
+                return
+            }
+
+            if element.frame.minY < visibleFrame.minY {
+                app.swipeDown()
+            } else {
+                app.swipeUp()
+            }
+        }
+
+        XCTAssertTrue(
+            element.isHittable && visibleFrame.contains(element.frame),
+            "Expected element to be fully visible: \(element.identifier)"
+        )
+    }
+
+    private func assertInsideWindow(
+        _ element: XCUIElement,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let window = app.windows.firstMatch
+        XCTAssertTrue(window.exists, "Expected app window", file: file, line: line)
+        XCTAssertTrue(
+            window.frame.insetBy(dx: -1, dy: -1).contains(element.frame),
+            "Element extends outside the app window: \(element.debugDescription)",
+            file: file,
+            line: line
+        )
     }
 }

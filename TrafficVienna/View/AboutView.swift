@@ -37,6 +37,7 @@ struct AboutView: View {
                                     .bold()
                                     .foregroundStyle(.white)
                             }
+                            .accessibilityHidden(true)
                         Text("Traffic Vienna")
                             .font(.title2)
                             .bold()

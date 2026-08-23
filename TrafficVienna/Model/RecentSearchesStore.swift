@@ -11,15 +11,16 @@ final class RecentSearchesStore: RecentSearchesStoring {
     private let defaults: UserDefaults
 
     init(
-        defaults: UserDefaults? = UserDefaults(suiteName: "group.wellbe.TrafficVienna"),
-        key: String = "recent_search_ids",
+        defaults: UserDefaults? = UserDefaults(suiteName: TrafficViennaStorage.appGroupID),
+        key: String = TrafficViennaStorage.recentSearchIDs,
         maxCount: Int = 8
     ) {
-        let groupID = "group.wellbe.TrafficVienna"
         if let defaults {
             self.defaults = defaults
         } else {
-            log.error("RecentSearchesStore: App Group \(groupID) unavailable, falling back to standard")
+            log.error(
+                "RecentSearchesStore: App Group \(TrafficViennaStorage.appGroupID) unavailable, falling back to standard"
+            )
             self.defaults = .standard
         }
         self.key = key

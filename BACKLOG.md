@@ -1,6 +1,6 @@
 # Backlog
 
-Status date: 11 August 2026
+Status date: 23 August 2026
 
 ## Product requirements
 
@@ -41,8 +41,8 @@ Status date: 11 August 2026
 - [x] **TV-CORE-020/021/022:** dead code, dependency seams, resilience, freshness,
   localisation, accessibility, and indexed performance are verified.
 - [x] **TV-VERIFY-030:** repository and OpenCode validation pass.
-- [x] **TV-VERIFY-031:** app/widget build and 112/112 standard tests pass:
-  110 unit/integration tests plus two XCUITest smoke journeys.
+- [x] **TV-VERIFY-031:** app/widget build and 119/119 standard tests pass:
+  117 unit/integration tests plus two XCUITest smoke journeys.
 - [x] **TV-VERIFY-032:** all redesigned routes were exercised locally; high-risk
   live Nearby/Alerts and onboarding states were also inspected in dark appearance,
   maximum Accessibility Dynamic Type, and Increase Contrast. Contrast and layout
@@ -56,6 +56,19 @@ Status date: 11 August 2026
   App Store screenshot pipeline are implemented. All ten current premium
   screenshots were regenerated and visually inspected; Nearby loading placeholders
   and compact-width Alerts filter clipping were fixed before acceptance.
+- [x] **TV-VERIFY-036:** widget line badges use the shared accessible foreground,
+  refresh has a 44×44 target, Station/Nearby placeholders no longer pollute
+  VoiceOver, and maximum Dynamic Type has explicit in-window assertions.
+- [x] **TV-VERIFY-037:** XCTest wiring fails closed, repository validation protects
+  both standard UI smoke journeys, and negative validator regressions run in CI.
+- [x] **TV-VERIFY-038:** App Group keys have one app/widget source of truth and the
+  deterministic UI reset removes every cached widget/fetch/refresh value.
+- [x] **TV-VERIFY-039:** the unused vulnerable `opencode-mobile` dependency and
+  tracked `node_modules` tree were removed; repository validation prevents their
+  return without changing the native OpenCode workflow contract.
+- [x] **TV-VERIFY-040:** screenshot capture always uses an isolated Simulator,
+  validates both locales in staging, and publishes the ten-image set only after
+  every asset passes.
 
 ## External release gates — intentionally not product backlog
 

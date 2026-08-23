@@ -26,10 +26,10 @@ nonisolated final class WidgetSyncManager: WidgetSyncing {
     // MARK: - Initialization
     
     init(
-        appGroupID: String = "group.wellbe.TrafficVienna",
-        widgetKind: String = "TrafficViennaWidget",
-        dataKey: String = "widget_departure",
-        lastUpdatedKey: String = "widget_last_updated"
+        appGroupID: String = TrafficViennaStorage.appGroupID,
+        widgetKind: String = TrafficViennaStorage.widgetKind,
+        dataKey: String = TrafficViennaStorage.widgetDepartures,
+        lastUpdatedKey: String = TrafficViennaStorage.widgetLastUpdated
     ) {
         self.appGroupID = appGroupID
         self.widgetKind = widgetKind
