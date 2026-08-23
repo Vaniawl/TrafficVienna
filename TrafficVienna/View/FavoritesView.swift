@@ -30,8 +30,11 @@ struct FavoritesView: View {
                     if !viewModel.items.isEmpty { linesSection }
                 }
                 .listStyle(.insetGrouped)
+                .listSectionSpacing(Spacing.md)
+                .scrollContentBackground(.hidden)
             }
         }
+        .accessibilityIdentifier("favourites-screen")
         .navigationTitle("Favourites")
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -52,11 +55,12 @@ struct FavoritesView: View {
             viewModel.loadStations()
             await viewModel.loadFavorites(forceRefresh: true)
         }
-        .background(Color(.systemBackground))
+        .background(DesignColor.background)
+        .tint(DesignColor.accentText)
     }
 
     private var stationsSection: some View {
-        Section("Stations") {
+        Section {
             ForEach(viewModel.stations) { station in
                 NavigationLink(value: Station(
                     id: station.id,
@@ -73,16 +77,21 @@ struct FavoritesView: View {
                     }
                     .padding(.vertical, Spacing.xs)
                 }
+                .accessibilityIdentifier("favourite-station-row-\(station.id)")
+                .listRowBackground(DesignColor.cardBackground)
             }
             .onMove { viewModel.moveStations(fromOffsets: $0, toOffset: $1) }
             .onDelete { offsets in
                 offsets.map { viewModel.stations[$0].id }.forEach(viewModel.removeStation)
             }
+        } header: {
+            Text("Stations")
+                .foregroundStyle(DesignColor.secondaryText)
         }
     }
 
     private var linesSection: some View {
-        Section("Lines") {
+        Section {
             ForEach(viewModel.items) { item in
                 VStack(alignment: .leading, spacing: Spacing.xs) {
                     DepartureLineRow(
@@ -104,6 +113,7 @@ struct FavoritesView: View {
                     }
                 }
                 .padding(.vertical, Spacing.xs)
+                .listRowBackground(DesignColor.cardBackground)
                 .swipeActions(edge: .trailing) {
                     Button(role: .destructive) {
                         viewModel.remove(item.route)
@@ -112,6 +122,9 @@ struct FavoritesView: View {
                     }
                 }
             }
+        } header: {
+            Text("Lines")
+                .foregroundStyle(DesignColor.secondaryText)
         }
     }
 

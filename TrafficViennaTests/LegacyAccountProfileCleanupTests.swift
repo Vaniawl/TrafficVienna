@@ -5,7 +5,7 @@ import XCTest
 
 @MainActor
 final class LegacyAccountProfileCleanupTests: XCTestCase {
-    func testSuccessfulCleanupRunsOnlyOnce() throws {
+    func testSuccessfulCleanupRunsOnlyOnce() async throws {
         let defaults = try makeDefaults()
         let deleter = StubLegacyAccountProfileDeleter(status: errSecSuccess)
 
@@ -16,7 +16,7 @@ final class LegacyAccountProfileCleanupTests: XCTestCase {
         XCTAssertTrue(defaults.bool(forKey: LegacyAccountProfileCleanup.completionKey))
     }
 
-    func testMissingLegacyItemCompletesMigration() throws {
+    func testMissingLegacyItemCompletesMigration() async throws {
         let defaults = try makeDefaults()
         let deleter = StubLegacyAccountProfileDeleter(status: errSecItemNotFound)
 
@@ -26,7 +26,7 @@ final class LegacyAccountProfileCleanupTests: XCTestCase {
         XCTAssertTrue(defaults.bool(forKey: LegacyAccountProfileCleanup.completionKey))
     }
 
-    func testFailedCleanupRetriesOnNextLaunch() throws {
+    func testFailedCleanupRetriesOnNextLaunch() async throws {
         let defaults = try makeDefaults()
         let deleter = StubLegacyAccountProfileDeleter(status: errSecInteractionNotAllowed)
 

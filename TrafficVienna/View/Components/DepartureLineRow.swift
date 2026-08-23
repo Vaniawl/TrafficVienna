@@ -81,7 +81,7 @@ struct DepartureLineRow: View {
 
             Text(destination)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(DesignColor.secondaryText)
                 .lineLimit(1)
                 .fixedSize(horizontal: true, vertical: false)
 
@@ -114,7 +114,7 @@ struct DepartureLineRow: View {
 
                 Text(destination)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(DesignColor.secondaryText)
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
 
@@ -143,18 +143,8 @@ struct DepartureLineRow: View {
 
     private func accessibilitySizeLayout(next: Int?, status: CatchStatus?) -> some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
-            HStack(alignment: .firstTextBaseline, spacing: Spacing.sm) {
+            HStack(alignment: .center, spacing: Spacing.sm) {
                 LineBadge(line: lineName)
-
-                Text(destination)
-                    .font(.body.weight(.medium))
-                    .foregroundStyle(.secondary)
-                    .lineLimit(3)
-                    .minimumScaleFactor(0.8)
-                    .dynamicTypeSize(...DynamicTypeSize.accessibility2)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                Spacer(minLength: 0)
 
                 if hasDisruption {
                     Image(systemName: "exclamationmark.triangle.fill")
@@ -162,10 +152,16 @@ struct DepartureLineRow: View {
                 }
             }
 
-            HStack(alignment: .firstTextBaseline, spacing: Spacing.sm) {
-                glyph(status: status, next: next)
+            Text(destination)
+                .font(.body.weight(.medium))
+                .foregroundStyle(DesignColor.secondaryText)
+                .fixedSize(horizontal: false, vertical: true)
 
-                nextTime(next: next, status: status)
+            VStack(alignment: .leading, spacing: Spacing.xs) {
+                HStack(alignment: .firstTextBaseline, spacing: Spacing.sm) {
+                    glyph(status: status, next: next)
+                    nextTime(next: next, status: status)
+                }
 
                 if showFollowUp {
                     followUp
@@ -180,7 +176,7 @@ struct DepartureLineRow: View {
             if next <= 0 {
                 Text("now")
                     .font(.title3.weight(.semibold))
-                    .foregroundStyle(.green)
+                    .foregroundStyle(DesignColor.success)
             } else {
                 HStack(alignment: .firstTextBaseline, spacing: Spacing.xxs) {
                     Text("\(next)")
@@ -194,11 +190,11 @@ struct DepartureLineRow: View {
                         .foregroundStyle(timeColor(status))
                     Text("min")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(DesignColor.secondaryText)
                 }
             }
         } else {
-            Text("—").foregroundStyle(.tertiary)
+            Text("—").foregroundStyle(DesignColor.tertiaryText)
         }
     }
 
@@ -220,7 +216,7 @@ struct DepartureLineRow: View {
             Text(rest.map(String.init).joined(separator: " · "))
                 .font(.caption)
                 .monospacedDigit()
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(DesignColor.tertiaryText)
         }
     }
 
@@ -304,16 +300,16 @@ struct DepartureLineRow: View {
     private func statusColor(_ status: CatchStatus?) -> Color {
         switch status {
         case .comfortable: return .green
-        case .hurry:       return .orange
-        case .missed:      return .secondary
-        case nil:          return .secondary
+        case .hurry:       return DesignColor.warning
+        case .missed:      return DesignColor.secondaryText
+        case nil:          return DesignColor.secondaryText
         }
     }
 
     private func timeColor(_ status: CatchStatus?) -> Color {
         switch status {
-        case .missed: return .secondary
-        case .hurry:  return .orange
+        case .missed: return DesignColor.secondaryText
+        case .hurry:  return DesignColor.warning
         default:      return .primary
         }
     }

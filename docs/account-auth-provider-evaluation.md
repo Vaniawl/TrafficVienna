@@ -1,7 +1,13 @@
 # Account authentication provider evaluation
 
-Status: recommendation only. No provider SDK, project, credential, domain, or
-remote account has been added to TrafficVienna.
+Status: **superseded historical evaluation**. The 29 July 2026 anonymous-release
+decision removed the device-only account surface and entitlement. No provider SDK,
+project, credential, domain, backend, or remote account is part of TrafficVienna.
+
+This document is retained only as prior research. It is not an active backlog,
+recommendation, or implementation plan. Identity may return only when a concrete
+cross-device product feature is approved with its full security and deletion
+lifecycle.
 
 ## Product boundary
 
@@ -75,8 +81,7 @@ in the app.
 
 ## Approval gate
 
-Provider adoption changes the dependency graph and requires external Firebase,
-Apple Developer, Hosting-domain, and private-relay configuration. Those mutations
-remain paused until the user explicitly approves Firebase Authentication (or chooses
-another provider). The current native Apple/device-only session stays intact until
-the real replacement is configured and tested.
+Provider adoption would change the dependency graph and require external identity,
+Apple Developer, hosting-domain, and private-relay configuration. None is currently
+authorized or required. There is no native Apple/device-only session to preserve;
+the current app remains anonymous and only removes obsolete legacy Keychain data.

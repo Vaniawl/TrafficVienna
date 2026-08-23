@@ -9,12 +9,15 @@ struct LineBadge: View {
     var body: some View {
         Text(line)
             .font(size == .small ? .caption.bold() : .subheadline.bold())
-            .foregroundStyle(.white)
+            .foregroundStyle(LineColors.foregroundColor(for: line))
             .lineLimit(1)
             .fixedSize()
             .padding(.horizontal, size == .small ? 7 : 9)
             .padding(.vertical, size == .small ? 2 : 3)
-            .background(LineColors.color(for: line), in: RoundedRectangle(cornerRadius: 6))
+            .background(
+                LineColors.color(for: line),
+                in: RoundedRectangle(cornerRadius: 7, style: .continuous)
+            )
     }
 }
 

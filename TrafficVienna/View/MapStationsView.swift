@@ -28,16 +28,7 @@ struct MapStationsView: View {
             }
 
             ForEach(viewModel.visibleStations) { station in
-                Marker(
-                    station.name,
-                    systemImage: "tram.fill",
-                    coordinate: CLLocationCoordinate2D(
-                        latitude: station.lat,
-                        longitude: station.lon
-                    )
-                )
-                .tint(.appAccent)
-                .tag(station)
+                stationMarker(for: station)
             }
         }
         .mapControls {
@@ -52,6 +43,7 @@ struct MapStationsView: View {
                 showsTraffic: false
             )
         )
+        .accessibilityIdentifier("stations-map")
         .overlay {
             MapContentOverlay(
                 state: viewModel.contentState,
@@ -76,6 +68,8 @@ struct MapStationsView: View {
                             action: searchThisArea
                         )
                         .buttonStyle(.borderedProminent)
+                        .buttonBorderShape(.capsule)
+                        .tint(DesignColor.primaryText)
                         .controlSize(.regular)
                         .accessibilityHint("Updates stops around the centre of the map")
                         .transition(Motion.stateTransition(reduceMotion: reduceMotion))
@@ -118,6 +112,21 @@ struct MapStationsView: View {
             refresh()
         }
         .background(DesignColor.background)
+        .tint(DesignColor.accentText)
+    }
+
+    private func stationMarker(for station: Station) -> some MapContent {
+        let coordinate = CLLocationCoordinate2D(
+            latitude: station.lat,
+            longitude: station.lon
+        )
+        return Marker(
+            "Stop \(station.name)",
+            systemImage: "tram.fill",
+            coordinate: coordinate
+        )
+        .tint(.appAccent)
+        .tag(station)
     }
 
     private var refreshContext: MapRefreshContext {

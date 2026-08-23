@@ -32,7 +32,7 @@
       <Testables>
          <TestableReference
             skipped = "NO"
-            parallelizable = "YES">
+            parallelizable = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "AF20B2422EC254DF004B34AC"
@@ -40,6 +40,29 @@
                BlueprintName = "TrafficViennaTests"
                ReferencedContainer = "container:TrafficVienna.xcodeproj">
             </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B10000062F01000100000001"
+               BuildableName = "TrafficViennaUITests.xctest"
+               BlueprintName = "TrafficViennaUITests"
+               ReferencedContainer = "container:TrafficVienna.xcodeproj">
+            </BuildableReference>
+            <SkippedTests>
+               <Test Identifier = "TrafficViennaAppStoreScreenshotTests/testCaptureEnglishScreenshots()">
+               </Test>
+               <Test Identifier = "TrafficViennaAppStoreScreenshotTests/testCaptureGermanScreenshots()">
+               </Test>
+               <Test Identifier = "TrafficViennaAccessibilityAuditTests/testOnboardingPassesAccessibilityAudit()">
+               </Test>
+               <Test Identifier = "TrafficViennaAccessibilityAuditTests/testPrimaryScreensPassAccessibilityAudit()">
+               </Test>
+               <Test Identifier = "TrafficViennaAdaptiveLayoutTests/testPrimaryScreensFitConfiguredAccessibilitySettings()">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>

@@ -4,6 +4,9 @@ struct DisruptionsList: View {
     @Bindable var viewModel: DisruptionsViewModel
 
     var body: some View {
+        let availableCategories = viewModel.availableCategories
+        let filteredInfos = viewModel.filteredInfos
+
         List {
             DisruptionKindPicker(
                 selection: viewModel.selectedKind,
@@ -19,9 +22,9 @@ struct DisruptionsList: View {
                     .listRowBackground(Color.orange.opacity(0.12))
             }
 
-            if viewModel.availableCategories.count > 1 {
+            if availableCategories.count > 1 {
                 FilterChips(
-                    categories: viewModel.availableCategories,
+                    categories: availableCategories,
                     selection: $viewModel.categoryFilter
                 )
                 .listRowInsets(EdgeInsets(top: Spacing.xs, leading: 0, bottom: Spacing.xs, trailing: 0))
@@ -35,7 +38,7 @@ struct DisruptionsList: View {
                     description: Text("Choose another alert type to see other service information.")
                 )
                 .listRowBackground(Color.clear)
-            } else if viewModel.filteredInfos.isEmpty {
+            } else if filteredInfos.isEmpty {
                 ContentUnavailableView {
                     Label("No matching alerts", systemImage: "line.3.horizontal.decrease.circle")
                 } description: {
@@ -49,16 +52,21 @@ struct DisruptionsList: View {
                 .listRowBackground(Color.clear)
             } else {
                 Section {
-                    ForEach(viewModel.filteredInfos) { info in
+                    ForEach(filteredInfos) { info in
                         NavigationLink(value: info) {
                             DisruptionRow(info: info)
                         }
+                        .listRowBackground(DesignColor.cardBackground)
                     }
                 } header: {
-                    Text("Alerts: \(viewModel.filteredInfos.count)")
+                    Text("Alerts: \(filteredInfos.count)")
+                        .foregroundStyle(DesignColor.secondaryText)
                 }
             }
         }
-        .listStyle(.plain)
+        .listStyle(.insetGrouped)
+        .listSectionSpacing(Spacing.md)
+        .scrollContentBackground(.hidden)
+        .background(DesignColor.background)
     }
 }

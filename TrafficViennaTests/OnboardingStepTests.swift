@@ -2,7 +2,7 @@ import XCTest
 @testable import TrafficVienna
 
 final class OnboardingStepTests: XCTestCase {
-    func testStepsFollowTheCompleteOnboardingJourney() {
+    func testStepsFollowTheCompleteOnboardingJourney() async {
         var steps: [OnboardingStep] = []
         var step: OnboardingStep? = .departures
 
@@ -15,7 +15,7 @@ final class OnboardingStepTests: XCTestCase {
         XCTAssertEqual(steps, OnboardingStep.allCases)
     }
 
-    func testPersonalisationIsTheFinalStep() {
+    func testPersonalisationIsTheFinalStep() async {
         XCTAssertNil(OnboardingStep.personal.next)
     }
 }

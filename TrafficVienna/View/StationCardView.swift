@@ -15,6 +15,7 @@ struct StationCardView: View {
     var failed: Bool = false
     var updatedAt: Date? = nil
     var isStale = false
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     private let maxLines = 4
 
@@ -30,58 +31,88 @@ struct StationCardView: View {
         }
         .padding(Spacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(DesignColor.cardBackground,
-                    in: RoundedRectangle(cornerRadius: CornerRadius.lg))
-        .shadow(color: Shadow.md.color,
-                radius: Shadow.md.radius,
-                x: Shadow.md.x,
-                y: Shadow.md.y)
+        .premiumSurface(elevated: true)
         .contentShape(.rect(cornerRadius: CornerRadius.lg))
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel(stationAccessibilityLabel)
     }
 
     private var header: some View {
-        HStack(alignment: .top, spacing: Spacing.sm) {
-            VStack(alignment: .leading, spacing: Spacing.xxs) {
-                Text(station.name)
-                    .font(.headline)
-                    .accessibilityAddTraits(.isHeader)
-                if !lines.isEmpty {
-                    let unique = Set(lines.map(\.name)).sorted()
+        Group {
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: Spacing.sm) {
+                    stationIdentity
+                    stationMetadata(alignment: .leading)
+                }
+            } else {
+                HStack(alignment: .top, spacing: Spacing.sm) {
+                    stationIdentity
+                    Spacer()
+                    stationMetadata(alignment: .trailing)
+                }
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Station \(station.name), \(walkTextForAccessibility)")
+    }
+
+    private var stationIdentity: some View {
+        VStack(alignment: .leading, spacing: Spacing.xxs) {
+            Text(station.name)
+                .font(
+                    dynamicTypeSize.isAccessibilitySize
+                        ? .body.weight(.semibold)
+                        : .headline.weight(.semibold)
+                )
+                .foregroundStyle(DesignColor.primaryText)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityAddTraits(.isHeader)
+
+            if !uniqueLineNames.isEmpty {
+                if dynamicTypeSize.isAccessibilitySize {
+                        Text(verbatim: uniqueLineNames.joined(separator: ", "))
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(DesignColor.secondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                } else {
                     HStack(spacing: Spacing.xxs) {
-                        ForEach(unique, id: \.self) { name in
+                        ForEach(uniqueLineNames, id: \.self) { name in
                             LineBadge(line: name, size: .small)
                                 .accessibilityLabel("Line \(name)")
                         }
                     }
                 }
             }
-            Spacer()
-            VStack(alignment: .trailing, spacing: Spacing.xxs) {
-                if let distance {
-                    Label(walkText(distance), systemImage: "figure.walk")
+        }
+    }
+
+    private func stationMetadata(alignment: HorizontalAlignment) -> some View {
+        VStack(alignment: alignment, spacing: Spacing.xxs) {
+            if let distance {
+                Label(walkText(distance), systemImage: "figure.walk")
+                    .font(.caption)
+                    .foregroundStyle(DesignColor.secondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityLabel("Walking distance")
+            }
+            if let updatedAt {
+                if isStale {
+                    Label("Saved data", systemImage: "clock.badge.exclamationmark")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .accessibilityLabel("Walking distance")
-                }
-                if let updatedAt {
-                    if isStale {
-                        Label("Saved data", systemImage: "clock.badge.exclamationmark")
-                            .font(.caption)
-                            .foregroundStyle(.orange)
-                            .accessibilityLabel("Saved data from \(RelativeTime.updated(since: updatedAt))")
-                    } else {
-                        Text(updatedText(updatedAt))
-                            .font(.caption)
-                            .foregroundStyle(.tertiary)
-                            .accessibilityLabel("Updated \(RelativeTime.updated(since: updatedAt))")
-                    }
+                        .foregroundStyle(.orange)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityLabel("Saved data from \(RelativeTime.updated(since: updatedAt))")
+                } else {
+                    Text(updatedText(updatedAt))
+                        .font(.caption)
+                        .foregroundStyle(DesignColor.tertiaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityLabel("Updated \(RelativeTime.updated(since: updatedAt))")
                 }
             }
         }
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel("Station \(station.name), \(walkTextForAccessibility)")
+    }
+
+    private var uniqueLineNames: [String] {
+        Set(lines.map(\.name)).sorted()
     }
 
     @ViewBuilder
@@ -101,9 +132,9 @@ struct StationCardView: View {
                         showFollowUp: false
                     )
                     .padding(.vertical, Spacing.xs)
-                    .accessibilityElement(children: .contain)
-                    .accessibilityLabel("Line \(line.name) to \(line.towards)")
-                    if index < visible.count - 1 { Divider() }
+                    if index < visible.count - 1 {
+                        Divider().overlay(DesignColor.separator)
+                    }
                 }
             }
         } else if failed {
@@ -129,11 +160,14 @@ struct StationCardView: View {
             ForEach(0..<3, id: \.self) { index in
                 DepartureLineRow(lineName: "00", destination: "Loading station", minutes: [0, 0])
                     .padding(.vertical, Spacing.xs)
-                if index < 2 { Divider() }
+                if index < 2 {
+                    Divider().overlay(DesignColor.separator)
+                }
             }
         }
         .redacted(reason: .placeholder)
         .shimmer()
+        .accessibilityHidden(true)
     }
 
     private func label(_ text: String, color: Color = .secondary) -> some View {
@@ -141,17 +175,6 @@ struct StationCardView: View {
             .font(.subheadline)
             .foregroundStyle(color)
             .padding(.vertical, Spacing.xs)
-    }
-
-    private var stationAccessibilityLabel: String {
-        let walkText = walkMinutes.map {
-            String(localized: "Walking approximately \($0) minutes")
-        } ?? String(localized: "Distance unknown")
-        let linesText = lines.isEmpty
-            ? String(localized: "No departures loaded")
-            : String(localized: "Departures available")
-        let freshness = isStale ? String(localized: "Showing saved data.") : ""
-        return "\(station.name). \(walkText). \(linesText). \(freshness)"
     }
 
     private var walkTextForAccessibility: String {

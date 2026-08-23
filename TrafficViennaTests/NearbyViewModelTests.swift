@@ -46,6 +46,25 @@ final class NearbyViewModelTests: XCTestCase {
         XCTAssertFalse(viewModel.isLoading)
         XCTAssertFalse(viewModel.isRefreshing)
     }
+
+    func testLoadWithNoNearbyStationsDoesNotRequestNetwork() async {
+        let monitor = NearbyMonitorProvider()
+        let viewModel = NearbyViewModel(
+            store: NearbyStationStore(stations: []),
+            location: NearbyLocationProvider(
+                userLocation: CLLocation(latitude: 48.2082, longitude: 16.3738)
+            ),
+            service: monitor
+        )
+
+        await viewModel.load()
+        let requestedDivas = await monitor.requestedDivas
+
+        XCTAssertTrue(viewModel.items.isEmpty)
+        XCTAssertTrue(requestedDivas.isEmpty)
+        XCTAssertFalse(viewModel.isLoading)
+        XCTAssertFalse(viewModel.isRefreshing)
+    }
 }
 
 @MainActor

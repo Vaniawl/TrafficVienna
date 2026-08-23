@@ -1,5 +1,169 @@
 # Architectural Decisions
 
+## 2026-08-23 — Validation fails closed and project dependencies stay minimal
+
+**Context:** The standard test script treated Xcode's "no test bundles" result as
+success, so a broken scheme could silently bypass XCTest. The repository also
+tracked a 469 MB `node_modules` tree for an optional mobile/tunnel plugin that was
+not part of the documented OpenCode workflow and brought high-severity dependency
+findings plus tunnel executables into source control.
+
+**Decision:** Treat any missing or empty XCTest wiring as a failure. Repository
+validation must prove the UI target and both smoke methods are present and enabled,
+and its own regression script must demonstrate that skipped or missing smoke tests
+are rejected. Keep OpenCode as the native workflow without the unused mobile
+plugin, remove the project Node manifests and vendored modules, ignore
+`node_modules`, and fail validation if that directory is tracked again.
+
+**Consequences:** A green test command now proves that XCTest actually ran, while
+dependency and tunnel attack surface are removed from the repository. Restoring
+the optional mobile plugin would require a separate reviewed decision, fresh
+dependency/security evidence, and a non-vendored installation boundary.
+
+## 2026-08-23 — Shared widget storage and release artifacts have one owner
+
+**Context:** App, widget, App Intent, and UI-test reset code duplicated App Group
+identifiers and preference keys. The reset missed widget fetch/refresh state, and
+the screenshot script could mutate an existing developer Simulator or replace the
+published set before proving all ten files were valid.
+
+**Decision:** Define App Group identifiers, widget kind, shared preference keys,
+and reset keys in `TrafficViennaStorage`. All app/widget consumers use that
+contract, and debug UI-test reset clears the complete shared state. Release
+screenshots always use a temporary Simulator and staging directory, wait for map
+tiles, validate the complete localized set, and only then atomically replace the
+published assets.
+
+**Consequences:** Shared-state changes are reviewable in one place and reset
+coverage detects stale widget state. Screenshot failure cannot leave a partial
+release set or alter a developer's Simulator, and the committed English/German
+Map images consistently contain rendered cartography.
+
+## 2026-08-11 — Main-actor XCTest methods use async execution
+
+**Context:** The GitHub failure artifact contained 18 symbolicated crash reports.
+They all aborted in `swift_task_deinitOnExecutorImpl` and
+`TaskLocal::StopLookupScope` while a main-actor-isolated object was released at the
+end of a synchronous XCTest method. The same runtime signature reproduced across
+unrelated router, favourites, migration, and map types, disproving business logic,
+fixtures, App Intents metadata, and application-scene startup as root causes.
+
+**Decision:** Declare every method in the unit-test target as async, including
+methods whose assertions are otherwise synchronous, because the target's default
+actor isolation is `MainActor` even without an explicit annotation. Enforce that
+contract in repository validation. Keep production types and their actor isolation
+unchanged, and retain crash-artifact collection in CI for future unexpected exits.
+
+**Consequences:** XCTest now owns a valid concurrency context through local-object
+destruction, avoiding the affected synchronous actor-deinit runtime path. Test
+meaning, assertions, and production behaviour are unchanged. New synchronous unit
+test methods remain blocked until the upstream runtime defect is proven fixed on
+the repository's supported Xcode/Simulator matrix.
+
+## 2026-08-11 — Hosted unit tests use an inert application scene
+
+**Context:** GitHub's app-hosted unit process repeatedly aborted in libmalloc at
+the same address, first during shortcut-router tests and later during an unrelated
+favourites test. Before the tests began, that process constructed the full SwiftUI
+scene and started renderer, location, network, and repeating dashboard work. The
+separate UI-test runner completed both product journeys successfully.
+
+**Decision:** When the app process contains the system XCTest configuration or
+bundle environment and is not an explicit `-ui-testing` launch, render an
+`EmptyView` instead of `RootTabView`. Keep model/service assertions in the hosted
+unit bundle, and require regression tests for hosted-unit, normal, and UI-test
+launch classification. UI acceptance continues to launch the complete product.
+
+**Consequences:** Unit tests no longer run unrelated application lifecycle work,
+which makes failures attributable to the code under test and reduces headless-CI
+renderer coupling. Production, previews, and UI journeys keep their existing root
+scene and launch tasks; the smoke suite remains the guard for that separation.
+This isolation improved the test boundary but did not by itself remove the hosted
+allocator failure; shared XCTest fixture lifecycle state was addressed separately.
+
+## 2026-08-11 — App Intents is an adapter around the navigation router
+
+**Context:** The shortcut router and its pure destination/persistence behaviour
+shared a source file with `AppEnum`, `OpenIntent`, and `AppShortcutsProvider`.
+GitHub's hosted XCTest process repeatedly aborted while loading the focused router
+tests, even after their preferences dependency was replaced with an in-memory
+store, while the same assertions were stable across local host relaunches.
+Separating the files narrowed the boundary but did not remove the hosted crash,
+which later reproduced in an unrelated favourites test.
+
+**Decision:** Keep destination mapping, pending-navigation state, and the narrow
+storage protocol in `TrafficViennaShortcutRouter.swift`. Keep only the App Intents
+conformance and system shortcut declarations in `TrafficViennaAppIntents.swift`.
+The production router continues to default to `UserDefaults.standard`, and tests
+inject an in-memory implementation.
+
+**Consequences:** Navigation routing has a clearer adapter boundary even though
+that separation was not the CI-stability fix. The public shortcut behaviour and
+cold-launch persistence remain unchanged, while future integrations can depend on
+the router without importing App Intents concerns.
+
+## 2026-08-11 — Local accessibility acceptance is an isolated matrix
+
+**Context:** The standard smoke scheme proved navigation but did not continuously
+exercise Xcode's accessibility audit or the combined worst-case layout of dark
+appearance, maximum Accessibility Dynamic Type, Increase Contrast, and Reduce
+Motion on both form factors. Xcode 26.5 also emits intermittent findings for
+framework-owned or numerically compliant elements.
+
+**Decision:** Keep the stable smoke journeys in the standard scheme and place the
+heavier audits in `TrafficViennaLocalAcceptance`. A repository script creates exact
+temporary iPhone and iPad destinations, runs standard accessibility audits plus the
+combined maximum-accessibility layout scenario, preserves result bundles, and
+deletes the devices on exit. Framework exceptions must be audit-type and
+element/region-specific, retain diagnostic attachments, and have independent
+visual, layout, or numeric evidence; all other resolvable findings fail.
+
+**Consequences:** Daily CI remains deterministic while a single local command
+reproduces the high-risk UI matrix without mutating developer simulators. The
+local `Go` verdict is limited to Simulator UI/UX and cannot be promoted to an App
+Store `Go` without signing, App Store Connect, physical-device, TestFlight, and
+Apple-processing evidence.
+
+## 2026-08-11 — Deterministic UI acceptance remains a debug-only boundary
+
+**Context:** Unit coverage did not prove complete onboarding, tab navigation, or
+the release screenshots. The committed screenshots showed a superseded design,
+two local Simulators shared the documented `iPhone 17` name, and live-data capture
+could expose transient loading UI or flaky tab taps.
+
+**Decision:** Add a dedicated XCUITest target with debug-only launch preparation;
+production launches retain their existing state, animations, and location flow.
+The standard scheme runs two seeded smoke journeys and skips the two live App Store
+capture methods. A separate `TrafficViennaScreenshots` scheme creates localized
+attachments, while the repository script owns an isolated iPhone 17 Pro Max,
+stable status bar/location settings, image export, and technical validation. Build
+and test scripts resolve an exact available Simulator UUID instead of a name-only
+destination.
+
+**Consequences:** Standard validation now proves 110 unit/integration tests plus
+two UI journeys without depending on live screenshot generation. Release assets
+are reproducible and visually reviewable, while signing, App Store Connect, and
+physical/TestFlight behavior remain explicit external gates.
+
+## 2026-08-11 — Contrast-safe premium colour roles
+
+**Context:** The premium redesign reused a bright mint/green brand colour for
+white-on-gradient heroes and semantic text. Runtime inspection showed that the
+white hero content and some dark-mode statuses could not both satisfy readable
+contrast with one static colour. Maximum Dynamic Type also exposed horizontal
+card layouts that shrank or clipped essential transport content.
+
+**Decision:** Separate decorative brand fills, dark hero endpoints, and
+appearance-aware semantic text colours. Require at least 4.5:1 for white hero text
+and semantic text against their supported backgrounds. At accessibility sizes,
+station, departure, disruption, and favourite-card content wraps or stacks instead
+of relying on minimum scale factors or Dynamic Type clamps.
+
+**Consequences:** The premium mint identity remains visible without being used in
+roles it cannot support. `DesignColorContrastTests` prevents palette regressions,
+and Simulator acceptance remains required for layout behaviour that numeric colour
+tests cannot prove.
+
 ## 2026-07-29 — Protected main is the release integration boundary
 
 **Context:** Quality CI covered pull requests and `main` pushes, but the default

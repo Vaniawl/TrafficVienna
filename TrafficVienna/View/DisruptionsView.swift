@@ -18,7 +18,7 @@ struct DisruptionsView: View {
                     Text(message)
                 } actions: {
                     Button("Try again", systemImage: "arrow.clockwise", action: retry)
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(PremiumPrimaryButtonStyle())
                 }
 
             case .loaded where viewModel.infos.isEmpty:
@@ -33,6 +33,7 @@ struct DisruptionsView: View {
             }
         }
         .id(viewModel.state)
+        .accessibilityIdentifier("alerts-screen")
         .transition(Motion.stateTransition(reduceMotion: reduceMotion))
         .navigationTitle("Alerts")
         .navigationDestination(for: TrafficInfo.self, destination: DisruptionDetailView.init)
@@ -52,6 +53,7 @@ struct DisruptionsView: View {
             await viewModel.load(force: true)
         }
         .background(DesignColor.background)
+        .tint(DesignColor.accentText)
         .animation(Motion.quick(reduceMotion: reduceMotion), value: viewModel.state)
     }
 

@@ -35,7 +35,7 @@ struct DisruptionRow: View {
                 if let description = info.description, !description.isEmpty {
                     Text(description)
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(DesignColor.secondaryText)
                         .lineLimit(2)
                 }
             }
@@ -49,9 +49,6 @@ struct DisruptionRow: View {
             VStack(alignment: .leading, spacing: Spacing.xs) {
                 Text(info.title)
                     .font(.body.weight(.semibold))
-                    .lineLimit(3)
-                    .minimumScaleFactor(0.8)
-                    .dynamicTypeSize(...DynamicTypeSize.accessibility2)
                     .fixedSize(horizontal: false, vertical: true)
 
                 lineBadges
@@ -94,9 +91,9 @@ struct DisruptionRow: View {
     private var iconColor: Color {
         switch kind {
         case .service:
-            .orange
+            DesignColor.warning
         case .accessibility:
-            .blue
+            DesignColor.info
         case .stopChange:
             .appAccent
         }

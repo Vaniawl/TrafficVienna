@@ -15,7 +15,7 @@ final class SearchViewModelTests: XCTestCase {
         XCTAssertTrue(stationStore.requestedQueries.isEmpty)
     }
 
-    func testFailedCatalogueStartsUnavailable() {
+    func testFailedCatalogueStartsUnavailable() async {
         let viewModel = makeViewModel(
             stationStore: StubStationStore(
                 stations: [],
@@ -90,7 +90,7 @@ final class SearchViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.results.map(\.name), ["Karlsplatz"])
     }
 
-    func testRecentStationsFollowStoredOrderAndCanBeCleared() {
+    func testRecentStationsFollowStoredOrderAndCanBeCleared() async {
         let recentSearches = StubRecentSearchesStore(ids: [2, 1])
         let viewModel = SearchViewModel(
             stationStore: StubStationStore(stations: sampleStations),

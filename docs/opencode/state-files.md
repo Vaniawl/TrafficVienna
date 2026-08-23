@@ -2,32 +2,39 @@
 
 ## Purpose
 
-OpenCode state is repository-local and human-readable. Git history, explicit
-checkpoint files, and memory files are the source of truth. State files must not
-contain secrets, credentials, private keys, tokens, signing material, or
-production data.
+TrafficVienna state is repository-local, human-readable, and reviewable in Git.
+No state file may contain secrets, credentials, private keys, tokens, signing
+material, production data, or copied global memory.
 
-## State File Responsibilities
+## Responsibilities
 
 | File | Purpose | Update rule |
 |---|---|---|
-| `memory/JOURNAL.md` | newest-first task summaries and validation evidence | append one dated entry per meaningful task; do not duplicate an existing heading |
-| `memory/DECISIONS.md` | durable architecture and workflow decisions | append one dated decision per decision; update only to correct stale evidence |
-| `docs/opencode/checkpoints/*.md` | durable recovery checkpoints for long tasks | write a new checkpoint or update the current task checkpoint atomically |
-| `docs/opencode/task-contract.md` | required task contract fields and definition of done | update when workflow contract changes |
+| `PROJECT.md` | product, audience, architecture, and scope boundaries | update when product boundaries change |
+| `SPEC.md` | active requirements and definition of done | update before or with a scope change |
+| `BACKLOG.md` | requirement/slice completion and remaining gates | keep evidence-based; separate product from release work |
+| `STATUS.md` | concise current product and release verdict | never call Simulator success App Store readiness |
+| `CHECKS.md` | exact repeatable validation commands and latest evidence | update when commands or host constraints change |
+| `SECURITY.md` | current trust boundaries and review result | update for every new data/service boundary |
+| `RESTRICTIONS.md` | repository, Git, publication, and release limits | keep aligned with `AGENTS.md` |
+| `DECISIONS.md` | concise root decision mirror | add newest decisions and mark superseded claims |
+| `JOURNAL.md` | concise root task evidence | add newest-first after each task |
+| `memory/JOURNAL.md` | detailed newest-first task evidence required by `AGENTS.md` | prepend one dated entry per meaningful task |
+| `memory/DECISIONS.md` | durable architecture and workflow decisions required by `AGENTS.md` | prepend only real decisions |
+| `docs/opencode/checkpoints/*.md` | recovery checkpoints for long unfinished tasks | one owner per task; update atomically |
+| `docs/opencode/task-contract.md` | reusable task/definition-of-done contract | update when workflow contract changes |
 | `docs/opencode/git-ci-release.md` | GitHub handoff, CI, release, and rollback rules | update when handoff rules change |
-| `docs/opencode/permission-matrix.md` | permission expectations and safety gates | update when permissions change |
-| `docs/opencode/model-matrix.md` | exact model inventory and agent assignments | update after model inventory changes |
+| `docs/opencode/permission-matrix.md` | permission expectations and safety gates | update when repository permissions change |
+| `docs/opencode/model-matrix.md` | supported OpenCode model inventory | update after verified inventory changes |
 
-`STATUS.md`, `CHECKS.md`, `DECISIONS.md`, `JOURNAL.md`, `BACKLOG.md`, `SPEC.md`,
-and `RESTRICTIONS.md` are not root-level TrafficVienna state files today. Their
-responsibilities are covered by `memory/`, `AGENTS.md`, and `docs/opencode/`.
-If any of those root-level files are introduced later, they must be added to this
-table and to the reliability suite.
+Current source, Git state, and observed command results override older narrative
+claims. Root state provides the concise active view; project-local `memory/` keeps
+the detailed evidence and decisions mandated by `AGENTS.md`. Neither is an
+authorization database, and global Codex memory must not be copied or modified.
 
 ## Checkpoint Schema
 
-Each active-task checkpoint must include:
+Each unfinished long-running task checkpoint records:
 
 - `Task ID`
 - `Goal`
@@ -41,17 +48,14 @@ Each active-task checkpoint must include:
 - `Next Action`
 - `Definition Of Done Status`
 
-Checkpoint writes should be atomic where practical: write a temporary file in the
-same directory, validate it, then move it into place. Concurrent subagents must
-not write the same checkpoint. The orchestrator owns checkpoint files unless a
-task contract explicitly delegates a unique checkpoint path.
+Completed tasks are not restored as active. Concurrent subagents must not write
+the same checkpoint.
 
-## Recovery Rules
+## Recovery rules
 
-- Completed tasks must not be restored as active.
-- Unfinished tasks resume from the latest valid checkpoint only.
+- Resume only from the newest valid checkpoint and current Git state.
 - Invalid or incomplete checkpoints are rejected.
-- Stale checkpoints remain distinguishable by task ID and timestamp.
-- Re-running the same update must not duplicate journal or decision entries.
-- Project state must never mix TrafficVienna with another repository or OpenCode
-  project.
+- Reject cross-project state.
+- Do not duplicate journal headings or decisions when retrying an update.
+- Preserve finished work and unrelated user changes.
+- Never use state files to bypass branch, review, credential, or release gates.

@@ -21,8 +21,8 @@ as submission gates rather than assumed complete.
 | Content rights | Wiener Linien Open Data, attributed in-app under CC BY 4.0 |
 | Price | Free |
 
-The privacy URL becomes valid on `main` only after the release-readiness change
-is merged. It must return HTTP 200 before submission.
+The privacy URL is published on `main`. Recheck that it returns HTTP 200 before
+submission because availability is an external release gate.
 
 ## English (U.S.)
 
@@ -168,7 +168,9 @@ privacy report before submission.
 
 Equivalent localized 6.9-inch sets are prepared in
 `docs/release/screenshots/en-US/` and `docs/release/screenshots/de-AT/`. Every
-file is a 1320×2868 JPEG without alpha:
+file is a 1320×2868 JPEG without alpha. The current sets were regenerated from
+the premium build and visually inspected on 11 August 2026. Recreate both
+localized sets with `bash scripts/capture-app-store-screenshots.sh`:
 
 1. `01-nearby.jpg` — nearby stops and live departures;
 2. `02-station-detail.jpg` — full departure board and service context;

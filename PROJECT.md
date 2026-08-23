@@ -41,14 +41,15 @@ home-screen widget and Live Activity.
 
 The active goal may improve design, accessibility, maintainability,
 performance, failure handling, and test coverage while preserving useful
-behaviour. Android, ticket sales, route planning, and production deployment are
-outside the current scope. Optional accounts are now in scope, but email
-authentication and server-side synchronisation require an explicit provider
-decision and secure configuration before implementation can be complete.
+behaviour. Android, ticket sales, route planning, accounts, server-side sync,
+and production deployment are outside the current scope. Traffic information,
+favourites, recents, widgets, and Live Activities remain anonymous and local.
+The app retains only an idempotent migration that removes obsolete device-only
+account data from earlier builds.
 
 ## Sources of truth
 
-The root state files define the active goal. Current source and observed command
-results override older narrative documentation. `docs/CONTEXT.md` and
-`docs/REFERENCES.md` provide product background. Files under `memory/` are
-historical and are not autonomous workflow state.
+The root product state files define the active goal; `AGENTS.md` and
+`docs/opencode/` define the workflow. Current source and observed command results
+override older narrative documentation. `memory/JOURNAL.md` and
+`memory/DECISIONS.md` retain newest-first project evidence and durable decisions.

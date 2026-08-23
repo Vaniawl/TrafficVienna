@@ -1,5 +1,257 @@
 # Journal
 
+## 2026-08-23 — Hardened hosted search-field focus
+
+- GitHub Quality run `32640360459` reproduced a hosted-only UI failure after the
+  search field accepted a tap but never acquired keyboard focus; XCTest then
+  exhausted all three `typeText` event retries. The 117 unit/integration tests
+  and onboarding smoke journey had passed before this focused failure.
+- Added one shared UI-test input path that targets the editable part of the
+  system search field, verifies real keyboard focus, and retries the focus
+  gesture before typing. Smoke, accessibility, adaptive-layout, and localized
+  screenshot journeys now use the same guarded interaction.
+- The previously failing route passed once in isolation and then 3/3 repeated
+  iterations on Xcode 26.6. A complete `scripts/ci.sh` run subsequently passed
+  all validators, build steps, 117 unit/integration tests, and both UI smoke
+  journeys (119/119 total).
+
+## 2026-08-23 — Completed the independent UI/UX and release-hardening pass
+
+- Ran three independent audits covering SwiftUI/UI/UX, state and CI wiring, and
+  architecture/release risk. Closed the confirmed findings: widget line contrast
+  and refresh hit area, duplicate VoiceOver containers, decorative accessibility
+  noise, Nearby refresh spinning, repeated filtering, incomplete shared-state
+  reset, fail-open XCTest handling, and partial screenshot publication.
+- Centralized App Group/widget keys in `TrafficViennaStorage`, added reset and
+  no-nearby-network regressions, tightened label-specific accessibility-audit
+  exceptions, and added full-window geometry assertions for the high-risk Nearby
+  cards at maximum Dynamic Type. The isolated matrix passed 4/4 standard iPhone,
+  1/1 maximum-accessibility iPhone, and 1/1 maximum-accessibility iPad scenarios.
+- Removed the unused `opencode-mobile` plugin and its 26,502 tracked dependency
+  files (about 469 MB), removed the project Node manifests, ignored vendored
+  modules, and added a repository guard plus negative scheme-wiring regression.
+  The small untracked remainder was moved recoverably to the macOS Trash.
+- Rebuilt and visually inspected all ten English/German 1320×2868 App Store
+  screenshots. Added a MapKit render-settle gate so both localized Map captures
+  contain complete cartography; screenshot publication now uses an isolated
+  Simulator, staging validation, and atomic replacement.
+- Final `scripts/ci.sh` passed: repository/OpenCode/reliability and negative
+  validator checks, app/widget build, 117 unit/integration tests, and two standard
+  UI smoke journeys (119/119 total, zero failures or skips).
+
+## 2026-08-11 — Fixed the hosted XCTest actor-deinit crash
+
+- Downloaded the failed GitHub run's result bundle and 18 symbolicated `.ips`
+  reports. Every crash shared the same Swift runtime path:
+  `swift_task_deinitOnExecutorImpl` → `TaskLocal::StopLookupScope`, while releasing
+  a main-actor-isolated object at the end of a synchronous XCTest method.
+- Converted every unit-test method to async execution so object destruction stays
+  inside XCTest's concurrency context. The first hosted verification proved the
+  target-wide scope when the identical crash moved from the explicitly annotated
+  suites to `TrafficViennaTests`, whose isolation comes from the target default.
+  Repository validation now rejects new synchronous unit-test methods while that
+  default remains `MainActor`. This does not alter production isolation or app
+  behaviour.
+- All 115 unit/integration tests passed locally after the change. The affected
+  suites completed without allocator errors. Both UI smoke journeys also passed
+  on the uncontended second iPhone 17 Simulator; an earlier first-Simulator
+  onboarding run was interrupted by another local application's automation
+  session.
+
+## 2026-08-11 — Isolated the hosted unit-test runtime
+
+- The next GitHub Quality run disproved App Intents as the allocator-crash root
+  cause: the identical invalid-free address later appeared in an unrelated
+  favourites test, while both UI smoke journeys passed.
+- The hosted unit-test process had been constructing the complete SwiftUI scene,
+  including rendering, location/network services, and repeating dashboard tasks.
+  `TrafficViennaApp` now detects the system XCTest host environment and uses an
+  inert scene for unit tests; explicit `-ui-testing` launches retain the real app.
+- Added regression coverage for hosted-unit, ordinary, and UI-acceptance launches.
+  The complete local run passed 115 unit/integration tests and two UI smoke journeys
+  (117/117) and ended `scripts/ci.sh` with `[ci] OK`.
+- A second GitHub run still failed at the start of every shortcut-router method,
+  before its first assertion. The remaining shared pre-test path was the
+  `@MainActor` XCTest `setUp`/`tearDown` state. Each method now owns its in-memory
+  store locally instead. Ten separate host relaunches passed all 40 focused tests,
+  followed by another clean 117/117 local CI run.
+- A third GitHub run reproduced the exact same invalid-free address after the
+  shared fixture lifecycle was removed, disproving that hypothesis as well. CI now
+  writes an explicit XCTest result bundle and uploads it plus any matching crash
+  reports on failure. The optional result-bundle path completed a clean 117/117
+  local run and produced a valid `.xcresult` without changing normal local usage.
+
+## 2026-08-11 — Investigated post-push XCTest execution
+
+- Investigated two failed GitHub Quality attempts after the UI acceptance push.
+  Both failures were XCTest host instability: the first aborted one unit test during
+  bootstrap, while the second cycled simulator clones and reported 21 unrelated tests
+  as failed in `0.000s` despite passing replacements on new processes.
+- Disabled unit-bundle parallelization in the shared TrafficVienna scheme without
+  removing tests or weakening assertions. All 112 unit/integration tests then passed
+  serially, including every test falsely attributed to the clone failures.
+- A subsequent serial GitHub run reproduced one deterministic allocator abort in
+  `AppIntentRoutingTests`. Replacing the real preferences suite with an in-memory
+  store narrowed the failure but did not remove it on GitHub. The pure navigation
+  router is now compiled separately from the App Intents adapter so its unit tests
+  do not load App Intents metadata from the same source file. Production still uses
+  `UserDefaults.standard`; ten host relaunches passed all 40 focused assertions,
+  followed by a clean 114/114 full local CI run.
+- A separate local smoke failure was traced to another workspace shutting down the
+  shared simulator mid-query. Re-running on the second iPhone 17 UUID completed the
+  full 114/114 suite and ended `scripts/ci.sh` with `[ci] OK`.
+
+## 2026-08-11 — Published local UI acceptance and post-push review
+
+- Pushed the deterministic UI acceptance and accessibility hardening commits to
+  `codex/premium-dashboard-app-redesign`; remote SHA matched local `712ef553`.
+- Updated draft PR #16 with the current 114-test result, isolated iPhone/iPad
+  accessibility matrix, screenshot evidence, local `Go`, and external App Store
+  `No-Go` boundary.
+- Re-reviewed all ten English/German release screenshots and scanned the SwiftUI
+  view layer for deprecated styling, unsafe tap handling, fixed interactive hit
+  areas, and non-value-bound animation. No new app-owned UI/UX blocker was found;
+  the fixed-size matches are decorative icons or bounded line badges.
+
+## 2026-08-11 — Local UI/UX release acceptance completed
+
+- Closed the remaining contrast, Dynamic Type, hit-target, empty-state, status,
+  station-detail, Alerts-filter, and line-badge findings across the premium UI.
+- Added a dedicated local acceptance scheme and isolated runner covering complete
+  Xcode accessibility audits plus dark, maximum Accessibility Dynamic Type,
+  Increase Contrast, and Reduce Motion on iPhone 17 and iPad Pro 13-inch (M5).
+- The final end-to-end runner passed 4/4 standard iPhone UI tests, 1/1 maximum
+  accessibility iPhone test, and 1/1 maximum accessibility iPad test, then deleted
+  its temporary simulators. Full CI passed 114/114 with no failures or skips, and
+  the unsigned generic Release Simulator build succeeded.
+- Fixed a reused-Simulator state leak by making the debug-only UI-test onboarding
+  reset explicit; its regression journey passed three consecutive focused runs
+  before the final full CI pass.
+- Regenerated and visually inspected all ten localized 1320×2868 screenshots.
+  Local Simulator UI/UX is `Go`; physical-device, TestFlight, App Store Connect,
+  signing, upload, and Apple processing were explicitly not performed.
+
+## 2026-08-11 — UI smoke automation and current App Store assets
+
+- Added a deterministic debug-only XCUITest boundary, two standard smoke journeys,
+  stable tab-selection verification, and a separate localized screenshot scheme.
+  The production launch path is unchanged.
+- Added exact Simulator UUID resolution for duplicate `iPhone 17` names and made
+  the documented build/test entry points use repository scripts.
+- Regenerated all ten `en-US`/`de-AT` premium screenshots on an isolated iPhone 17
+  Pro Max. Visual QA caught and closed a Nearby loading placeholder plus clipped
+  Alerts filters; final images are aligned, localized, 1320×2868 JPEGs without
+  alpha, and free of stale red-design content.
+- The standard scheme now correctly excludes the live capture methods. Its final
+  result is 112/112 passed with zero failures or skips: 110 unit/integration tests
+  and two XCUITest smoke journeys.
+
+## 2026-08-11 — Residual release-gap audit
+
+- Confirmed the premium branch and draft PR remain clean with protected Quality CI
+  successful; no unresolved local build, XCTest, crash, or inspected layout failure
+  was found.
+- Found one concrete release-asset mismatch: all ten localized App Store screenshots
+  were last committed on 29 July and still show the superseded red interface, so they
+  must be regenerated from the current mint/green premium build before upload.
+- Confirmed the Xcode project has app, unit-test, and widget targets but no UI-test
+  target. The 110 XCTest cases cover models, services, routing, performance, and
+  contrast; full navigation and visual regression acceptance remains manual.
+- The name-only iPhone 17 commands in `AGENTS.md` are locally ambiguous because two
+  matching simulators exist; the documented explicit UUID remains required on this
+  host. Distribution signing, App Store Connect, Apple processing, and physical
+  TestFlight system-surface evidence remain the release blockers.
+
+## 2026-08-11 — Visual acceptance and Dynamic Type polish
+
+- Re-ran the complete iPhone 17 visual acceptance flow across clean onboarding,
+  Nearby, Search, live station details, alert detail, Map selection, Favourites,
+  About, and Privacy in light/dark appearances, Increase Contrast, maximum
+  Accessibility Dynamic Type, and Reduce Motion.
+- Fixed the remaining maximum-Dynamic-Type crowding by stacking departure follow-up
+  times, giving the service-status message full width, simplifying accessibility-size
+  search rows, and adapting station-title typography. Post-fix inspection found no
+  clipped essential content, overlap, navigation jump, or uncontrolled motion.
+- Runtime inspection found no app-owned fault or crash; the only logged errors were
+  known Simulator framework noise for accessibility, keyboard haptics, MapKit, and
+  rendering startup. Simulator appearance, contrast, text size, motion, and location
+  overrides were restored after the matrix.
+- Full `scripts/ci.sh` passed with the explicit booted iPhone 17 UUID after the default
+  name-only destination was ambiguous between two local simulators. App/widget build,
+  repository/OpenCode/reliability validation, 110/110 XCTest cases, and diff validation
+  all passed, ending `[ci] OK`.
+
+## 2026-08-11 — Premium redesign completion and accessibility hardening
+
+- Audited the complete premium redesign in source and on an iPhone 17 Simulator.
+  Search, Map with live nearby stations, live Alerts, Favourites, About, Privacy,
+  Nearby, and clean-launch onboarding were exercised; high-risk dashboard and
+  onboarding states were also inspected in dark appearance, maximum Accessibility
+  Dynamic Type, and Increase Contrast.
+- Replaced low-contrast white-on-mint heroes with deeper contrast-safe endpoints,
+  introduced adaptive semantic text colours, and added two automated contrast tests
+  enforcing 4.5:1 in supported light/dark appearances.
+- Fixed maximum-Dynamic-Type horizontal clipping in station cards and wrapping in
+  departure/disruption/favourite content. Post-fix inspection confirmed essential
+  station, line, destination, distance, and alert text stays horizontally contained.
+- Restored three Xcode-generated localisation catalogue changes that contained no
+  intended product-string delta. The final worktree contains only task-owned source,
+  tests, product state, workflow documentation, and project-local memory changes.
+- Full `scripts/ci.sh` passed repository/OpenCode/reliability validation, app/widget
+  build, 110/110 XCTest cases, diff validation, and ended `[ci] OK`.
+- Independent SwiftUI and security/release reviews found no unresolved
+  Critical/High/Blocking/Important code issue after the fixes. Local product work
+  is draft-PR ready; signing, App Store Connect, upload, and physical/TestFlight
+  evidence remain external No-Go gates.
+
+## 2026-08-11 — Premium dashboard app redesign
+
+- Implemented the approved calm premium dashboard direction across onboarding,
+  root navigation, Nearby, Search, Map, station details, Alerts, Favourites,
+  About, Privacy, and every loading, empty, offline, saved-data, and error state.
+- Replaced the former red-led surfaces with an adaptive warm canvas, mint-to-green
+  hero treatment, deep-green accents, ink primary actions, 18/24-point continuous
+  corners, subtle borders, restrained shadows, and reusable premium surface/button
+  primitives. Official transport line colours and existing product actions remain
+  unchanged; no speculative booking, payment, account, or ticket features were added.
+- Verified the complete app and widget build, passed the full XCTest suite, and ran
+  one final iPhone 17 visual smoke check in dark mode. The smoke check exposed and
+  closed a low-contrast onboarding icon before the final successful build.
+
+## 2026-08-11 — Ultra-flat Nearby explorations
+
+- Generated two additional Superdesign branches from the Native Timetable
+  draft after the user authorized autonomous direction selection.
+- Ultra-flat Metric Feed removes gradients, cards, shadows, and decorative
+  containers while preserving named favourite-station shortcuts and the real
+  service/departure hierarchy; it is the stronger production candidate.
+- Ultra-flat Departure Stream makes the countdown the dominant full-width
+  metric and turns stations into ledger rows. It is more radical but collapses
+  favourite stations into one summary action. No SwiftUI code was changed.
+
+## 2026-08-11 — Two additional Nearby design directions
+
+- Branched two new Superdesign drafts from the reviewed calm dashboard instead
+  of changing or implementing the earlier option.
+- The Native Timetable direction removes the dominant gradient, uses mint only
+  for live/state emphasis, keeps favourites compact, and consolidates nearby
+  departures into one iOS-style grouped timetable.
+- The Contrast Transit Pass direction explores an ink hero with mint live cues
+  and an edge-to-edge timetable sheet. Its decorative QR and invented platform
+  label are explicitly rejected for production; no SwiftUI code was changed.
+
+## 2026-08-11 — Superdesign fallback for product redesign
+
+- Switched the design-review surface from the rate-limited Figma MCP workflow
+  to the authenticated Superdesign canvas without changing production SwiftUI.
+- Added a reusable repository analysis and target design system covering the
+  real five-tab information architecture, current tokens, mint/green redesign
+  palette, SF Pro typography, motion, accessibility, and truthful data states.
+- Created a pixel-faithful Nearby baseline plus two mobile redesign branches.
+  The calm dashboard branch is the recommended starting point because it keeps
+  the native tab vocabulary and groups nearby stops more clearly; both drafts
+  remain reviewable on the shared Superdesign canvas before implementation.
+
 ## 2026-07-29 — Protected App Store release integration
 
 - Merged release-readiness PR #10 into the stacked product branch, waited for

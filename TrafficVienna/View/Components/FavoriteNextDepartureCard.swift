@@ -38,6 +38,16 @@ struct FavoriteNextDepartureCard: View {
             .padding(Spacing.lg)
             .foregroundStyle(DesignColor.inverseText)
             .background(DesignColor.brandGradient, in: .rect(cornerRadius: CornerRadius.xl))
+            .overlay {
+                RoundedRectangle(cornerRadius: CornerRadius.xl, style: .continuous)
+                    .stroke(.white.opacity(0.22), lineWidth: 1)
+            }
+            .shadow(
+                color: Shadow.lg.color,
+                radius: Shadow.lg.radius,
+                x: Shadow.lg.x,
+                y: Shadow.lg.y
+            )
             .contentShape(.rect(cornerRadius: CornerRadius.xl))
         }
         .buttonStyle(.plain)
@@ -66,7 +76,7 @@ struct FavoriteNextDepartureCard: View {
 
     private var headerTitle: some View {
         Label("Next departure", systemImage: "clock.fill")
-            .font(.headline)
+            .font(.subheadline.weight(.semibold))
             .fixedSize(horizontal: false, vertical: true)
     }
 
@@ -78,14 +88,14 @@ struct FavoriteNextDepartureCard: View {
                 .fixedSize()
                 .padding(.horizontal, Spacing.sm)
                 .padding(.vertical, Spacing.xs)
-                .background(.white.opacity(0.16), in: Capsule())
+                .background(.black.opacity(0.16), in: Capsule())
         } else if item.departure.isRealtime {
             Label("Live", systemImage: "dot.radiowaves.left.and.right")
                 .font(.footnote)
                 .fixedSize()
                 .padding(.horizontal, Spacing.sm)
                 .padding(.vertical, Spacing.xs)
-                .background(.white.opacity(0.16), in: Capsule())
+                .background(.black.opacity(0.16), in: Capsule())
         }
     }
 
@@ -100,7 +110,7 @@ struct FavoriteNextDepartureCard: View {
                 .background(.white, in: .rect(cornerRadius: CornerRadius.sm))
 
             Text(item.route.destination)
-                .font(.headline)
+                .font(.title3.weight(.semibold))
                 .fixedSize(horizontal: false, vertical: true)
         }
     }

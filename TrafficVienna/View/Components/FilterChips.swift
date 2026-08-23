@@ -6,11 +6,11 @@ struct FilterChips: View {
 
     var body: some View {
         ScrollView(.horizontal) {
-            HStack(spacing: Spacing.xxs) {
+            HStack(spacing: Spacing.xs) {
                 FilterChip(
                     title: String(localized: "All").uppercased(),
                     category: nil,
-                    color: .appAccent,
+                    color: DesignColor.brandDark,
                     selection: $selection
                 )
 

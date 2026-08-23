@@ -15,7 +15,7 @@ final class StationStorePerformanceTests: XCTestCase {
         super.tearDown()
     }
 
-    func testOneHundredIndexedSearchesPerformance() {
+    func testOneHundredIndexedSearchesPerformance() async {
         let queries = ["schotten", "wien", "ring", "platz", "dorf"]
         var resultCount = 0
 
@@ -30,7 +30,7 @@ final class StationStorePerformanceTests: XCTestCase {
         XCTAssertGreaterThan(resultCount, 0)
     }
 
-    func testOneHundredIndexedSpatialQueriesPerformance() {
+    func testOneHundredIndexedSpatialQueriesPerformance() async {
         let center = CLLocation(latitude: 48.2082, longitude: 16.3738)
         var resultCount = 0
 

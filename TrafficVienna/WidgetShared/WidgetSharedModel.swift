@@ -7,6 +7,29 @@
 
 import Foundation
 
+nonisolated enum TrafficViennaStorage {
+    static let appGroupID = "group.wellbe.TrafficVienna"
+    static let widgetKind = "TrafficViennaWidget"
+
+    static let favoriteRoutes = "favorite_routes"
+    static let favoriteStations = "favorite_stations"
+    static let recentSearchIDs = "recent_search_ids"
+    static let widgetDepartures = "widget_departure"
+    static let widgetLastUpdated = "widget_last_updated"
+    static let widgetLastFetchAttempt = "widget_last_fetch_attempt"
+    static let widgetRefreshRequestedAt = "widget_refresh_requested_at"
+
+    static let resettableSharedKeys = [
+        favoriteRoutes,
+        favoriteStations,
+        recentSearchIDs,
+        widgetDepartures,
+        widgetLastUpdated,
+        widgetLastFetchAttempt,
+        widgetRefreshRequestedAt,
+    ]
+}
+
 nonisolated struct WidgetDepartureData: Codable, Equatable, Sendable {
     let diva: String?
     let lineName: String

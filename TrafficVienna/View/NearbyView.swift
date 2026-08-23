@@ -59,10 +59,18 @@ struct NearbyView: View {
                 }
             }
         }
-        .task {
+        .task(id: refreshContext) {
+            await vm.load(force: false)
+            guard vm.hasLocation, !vm.items.isEmpty else { return }
+
             while !Task.isCancelled {
+                do {
+                    try await Task.sleep(for: .seconds(60))
+                } catch {
+                    return
+                }
                 await vm.load(force: false)
-                try? await Task.sleep(for: .seconds(vm.items.isEmpty ? 5 : 60))
+                guard vm.hasLocation, !vm.items.isEmpty else { return }
             }
         }
         .background(DesignColor.background)
@@ -70,7 +78,7 @@ struct NearbyView: View {
 
     private var stationList: some View {
         ScrollView {
-            LazyVStack(spacing: Spacing.md) {
+            LazyVStack(spacing: Spacing.lg) {
                 if let featuredDeparture = favoritesViewModel.featuredDeparture {
                     FavoriteNextDepartureCard(
                         item: featuredDeparture,
@@ -103,6 +111,7 @@ struct NearbyView: View {
                         actionTitle: "Open Settings",
                         action: openSettings
                     )
+                    .accessibilityIdentifier("nearby-status-card")
                 case .permissionRequired:
                     NearbyStatusCard(
                         icon: "location",
@@ -111,6 +120,7 @@ struct NearbyView: View {
                         actionTitle: "Allow location",
                         action: locationManager.requestLocationIfNeeded
                     )
+                    .accessibilityIdentifier("nearby-status-card")
                 case .locating:
                     NearbyStatusCard(
                         icon: nil,
@@ -119,6 +129,7 @@ struct NearbyView: View {
                         actionTitle: nil,
                         action: nil
                     )
+                    .accessibilityIdentifier("nearby-status-card")
                 case .noStations:
                     NearbyStatusCard(
                         icon: "tram.fill",
@@ -127,7 +138,10 @@ struct NearbyView: View {
                         actionTitle: "Refresh",
                         action: refresh
                     )
+                    .accessibilityIdentifier("nearby-status-card")
                 case .stations:
+                    nearbyStationsHeader
+
                     if vm.isLoading {
                         skeletonView
                     }
@@ -171,15 +185,37 @@ struct NearbyView: View {
                 }
             }
             .padding(.horizontal, horizontalSizeClass == .regular ? Spacing.xxxl : Spacing.md)
-            .padding(.vertical, Spacing.sm)
+            .padding(.top, Spacing.sm)
+            .padding(.bottom, Spacing.xxl)
         }
         .refreshable { await vm.load(force: true) }
         .animation(
             Motion.standard(reduceMotion: reduceMotion),
             value: favoritesViewModel.featuredDeparture?.id
         )
+        .accessibilityIdentifier("nearby-screen")
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Nearby stations")
+    }
+
+    private var nearbyStationsHeader: some View {
+        HStack(alignment: .firstTextBaseline) {
+            Text("Nearby stations")
+                .font(.title3)
+                .bold()
+                .foregroundStyle(DesignColor.primaryText)
+
+            Spacer()
+
+            Text(vm.items.count, format: .number)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(DesignColor.accentText)
+                .padding(.horizontal, Spacing.sm)
+                .padding(.vertical, Spacing.xxs)
+                .background(DesignColor.brand.opacity(0.12), in: Capsule())
+        }
+        .accessibilityIdentifier("nearby-stations-header")
+        .accessibilityElement(children: .combine)
     }
 
     private var dashboardState: NearbyDashboardState {
@@ -187,6 +223,15 @@ struct NearbyView: View {
             authorizationStatus: locationManager.authorizationStatus,
             hasLocation: vm.hasLocation,
             hasStations: !vm.items.isEmpty
+        )
+    }
+
+    private var refreshContext: NearbyRefreshContext {
+        let coordinate = locationManager.userLocation?.coordinate
+        return NearbyRefreshContext(
+            authorization: locationManager.authorizationStatus.rawValue,
+            latitudeBucket: coordinate.map { Int(($0.latitude * 1_000).rounded()) },
+            longitudeBucket: coordinate.map { Int(($0.longitude * 1_000).rounded()) }
         )
     }
 
@@ -212,7 +257,7 @@ struct NearbyView: View {
     }
 
     private var skeletonView: some View {
-        VStack(spacing: Spacing.md) {
+        VStack(spacing: Spacing.sm) {
             ForEach(0..<3, id: \.self) { index in
                 StationCardView(
                     station: Station(id: index, diva: 60201435, name: "Loading station",
@@ -223,14 +268,20 @@ struct NearbyView: View {
                     updatedAt: nil,
                     isStale: false
                 )
-                if index < 2 { Divider() }
             }
         }
         .redacted(reason: .placeholder)
         .shimmer()
-        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("nearby-loading-skeleton")
+        .accessibilityElement(children: .ignore)
         .accessibilityLabel("Loading stations")
     }
+}
+
+private struct NearbyRefreshContext: Equatable {
+    let authorization: Int32
+    let latitudeBucket: Int?
+    let longitudeBucket: Int?
 }
 
 #Preview {

@@ -15,16 +15,6 @@ struct SimpleEntry: TimelineEntry {
     let items: [WidgetDepartureData] // up to 3
     let lastUpdated: Date?
 }
-// Shared constants and keys
-private let appGroupID = "group.wellbe.TrafficVienna"
-private let widgetKind = "TrafficViennaWidget"
-private let widgetDataKey = "widget_departure"
-private let widgetLastUpdatedKey = "widget_last_updated"
-private let widgetLastFetchAttemptKey = "widget_last_fetch_attempt"
-private let widgetRefreshRequestedKey = "widget_refresh_requested_at"
-
-private let favoritesKey = "favorite_routes"
-
 private struct FavoriteStationGroup {
     let diva: Int
     var favourites: [FavoriteRoute]
@@ -56,8 +46,8 @@ private func fetchMonitorData(diva: Int, includeArea: Bool) async throws -> Moni
 }
 
 private func loadFavoritesFromDefaults() -> [FavoriteRoute] {
-    let defaults = UserDefaults(suiteName: appGroupID)
-    guard let data = defaults?.data(forKey: favoritesKey),
+    let defaults = UserDefaults(suiteName: TrafficViennaStorage.appGroupID)
+    guard let data = defaults?.data(forKey: TrafficViennaStorage.favoriteRoutes),
           let decoded = try? JSONDecoder().decode(Set<FavoriteRoute>.self, from: data)
     else { return [] }
     return decoded.sorted()
@@ -95,17 +85,21 @@ struct Provider: AppIntentTimelineProvider {
     }
 
     func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
-        let defaults = UserDefaults(suiteName: appGroupID)
+        let defaults = UserDefaults(suiteName: TrafficViennaStorage.appGroupID)
         let now = Date.now
-        let lastAttempt = defaults?.object(forKey: widgetLastFetchAttemptKey) as? Date ?? .distantPast
-        let refreshRequestedAt = defaults?.object(forKey: widgetRefreshRequestedKey) as? Date
+        let lastAttempt = defaults?.object(
+            forKey: TrafficViennaStorage.widgetLastFetchAttempt
+        ) as? Date ?? .distantPast
+        let refreshRequestedAt = defaults?.object(
+            forKey: TrafficViennaStorage.widgetRefreshRequestedAt
+        ) as? Date
         let hasManualRefresh = refreshRequestedAt.map { $0 > lastAttempt } ?? false
         let canFetch = hasManualRefresh || now.timeIntervalSince(lastAttempt) >= 300
 
         var (items, lastUpdated) = loadCached()
 
         if canFetch {
-            defaults?.set(now, forKey: widgetLastFetchAttemptKey)
+            defaults?.set(now, forKey: TrafficViennaStorage.widgetLastFetchAttempt)
             if let refresh = await fetchFavoritesData(cached: items) {
                 items = refresh.items
                 if refresh.isComplete {
@@ -132,29 +126,29 @@ struct Provider: AppIntentTimelineProvider {
 
     // MARK: - Cache helpers
     private func loadCached() -> ([WidgetDepartureData], Date?) {
-        let defaults = UserDefaults(suiteName: appGroupID)
+        let defaults = UserDefaults(suiteName: TrafficViennaStorage.appGroupID)
         var items: [WidgetDepartureData] = []
         var last: Date? = nil
-        if let data = defaults?.data(forKey: widgetDataKey),
+        if let data = defaults?.data(forKey: TrafficViennaStorage.widgetDepartures),
            let decoded = try? JSONDecoder().decode([WidgetDepartureData].self, from: data) {
             items = decoded
         }
-        if let d = defaults?.object(forKey: widgetLastUpdatedKey) as? Date {
+        if let d = defaults?.object(forKey: TrafficViennaStorage.widgetLastUpdated) as? Date {
             last = d
         }
         return (items, last)
     }
 
     private func saveCached(items: [WidgetDepartureData], lastUpdated: Date?) {
-        let defaults = UserDefaults(suiteName: appGroupID)
+        let defaults = UserDefaults(suiteName: TrafficViennaStorage.appGroupID)
         let encoder = JSONEncoder()
         if let data = try? encoder.encode(items) {
-            defaults?.set(data, forKey: widgetDataKey)
+            defaults?.set(data, forKey: TrafficViennaStorage.widgetDepartures)
         }
         if let lastUpdated {
-            defaults?.set(lastUpdated, forKey: widgetLastUpdatedKey)
+            defaults?.set(lastUpdated, forKey: TrafficViennaStorage.widgetLastUpdated)
         } else {
-            defaults?.removeObject(forKey: widgetLastUpdatedKey)
+            defaults?.removeObject(forKey: TrafficViennaStorage.widgetLastUpdated)
         }
     }
 
@@ -241,7 +235,7 @@ private struct WidgetLineBadge: View {
     var body: some View {
         Text(line)
             .font(.caption.bold())
-            .foregroundStyle(.white)
+            .foregroundStyle(LineColors.foregroundColor(for: line))
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
             .background(LineColors.color(for: line), in: RoundedRectangle(cornerRadius: 5))
@@ -532,6 +526,8 @@ struct TrafficViennaWidgetEntryView: View {
         Button(intent: RefreshFavoritesIntent()) {
             Image(systemName: "arrow.clockwise").font(.caption)
         }
+        .frame(minWidth: 44, minHeight: 44)
+        .contentShape(.rect)
         .buttonStyle(.plain)
         .foregroundStyle(.secondary)
         .accessibilityLabel("Refresh")

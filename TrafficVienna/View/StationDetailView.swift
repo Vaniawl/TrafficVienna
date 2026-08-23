@@ -21,7 +21,7 @@ struct StationDetailView: View {
                     Text(message)
                 } actions: {
                     Button("Try again", systemImage: "arrow.clockwise", action: retry)
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(PremiumPrimaryButtonStyle())
                 }
 
             case .empty:
@@ -35,6 +35,7 @@ struct StationDetailView: View {
                 StationDeparturesList(viewModel: viewModel)
             }
         }
+        .accessibilityIdentifier("station-detail-screen")
         .navigationTitle(viewModel.station.name)
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(for: TrafficInfo.self, destination: DisruptionDetailView.init)
@@ -78,6 +79,7 @@ struct StationDetailView: View {
             await viewModel.load(forceRefresh: true)
         }
         .background(DesignColor.background)
+        .tint(DesignColor.accentText)
     }
 
     private func refresh() {

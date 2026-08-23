@@ -3,21 +3,8 @@ import XCTest
 
 @MainActor
 final class AppIntentRoutingTests: XCTestCase {
-    private var defaults: UserDefaults!
-
-    override func setUp() {
-        super.setUp()
-        defaults = UserDefaults(suiteName: "AppIntentRoutingTests")
-        defaults.removePersistentDomain(forName: "AppIntentRoutingTests")
-    }
-
-    override func tearDown() {
-        defaults.removePersistentDomain(forName: "AppIntentRoutingTests")
-        defaults = nil
-        super.tearDown()
-    }
-
-    func testRequestIsPersistedAndRestoredForColdLaunch() {
+    func testRequestIsPersistedAndRestoredForColdLaunch() async {
+        let defaults = StubShortcutDestinationStore()
         let router = TrafficViennaShortcutRouter(defaults: defaults)
         router.request(.search)
 
@@ -27,7 +14,8 @@ final class AppIntentRoutingTests: XCTestCase {
         XCTAssertEqual(restored.pendingDestination?.appTab, .search)
     }
 
-    func testConsumeReturnsDestinationAndClearsPersistence() {
+    func testConsumeReturnsDestinationAndClearsPersistence() async {
+        let defaults = StubShortcutDestinationStore()
         let router = TrafficViennaShortcutRouter(defaults: defaults)
         router.request(.favourites)
 
@@ -36,7 +24,8 @@ final class AppIntentRoutingTests: XCTestCase {
         XCTAssertNil(defaults.string(forKey: TrafficViennaShortcutRouter.pendingDestinationKey))
     }
 
-    func testSupportedDeepLinksRoundTripAndRoute() throws {
+    func testSupportedDeepLinksRoundTripAndRoute() async throws {
+        let defaults = StubShortcutDestinationStore()
         let router = TrafficViennaShortcutRouter(defaults: defaults)
 
         for destination in TrafficViennaDestination.allCases {
@@ -47,7 +36,8 @@ final class AppIntentRoutingTests: XCTestCase {
         }
     }
 
-    func testDeepLinkRejectsUnknownOrParameterizedRoutes() throws {
+    func testDeepLinkRejectsUnknownOrParameterizedRoutes() async throws {
+        let defaults = StubShortcutDestinationStore()
         let router = TrafficViennaShortcutRouter(defaults: defaults)
         let rejectedURLs = [
             "https://favourites",
@@ -62,5 +52,21 @@ final class AppIntentRoutingTests: XCTestCase {
             XCTAssertFalse(router.handle(deepLinkURL: url), value)
             XCTAssertNil(router.pendingDestination)
         }
+    }
+}
+
+private final class StubShortcutDestinationStore: ShortcutDestinationStoring {
+    private var values: [String: Any] = [:]
+
+    func string(forKey defaultName: String) -> String? {
+        values[defaultName] as? String
+    }
+
+    func set(_ value: Any?, forKey defaultName: String) {
+        values[defaultName] = value
+    }
+
+    func removeObject(forKey defaultName: String) {
+        values.removeValue(forKey: defaultName)
     }
 }

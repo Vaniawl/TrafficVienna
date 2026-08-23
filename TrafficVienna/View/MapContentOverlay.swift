@@ -10,7 +10,7 @@ struct MapContentOverlay: View {
             ProgressView("Loading stops…")
                 .controlSize(.large)
                 .padding(Spacing.lg)
-                .background(.regularMaterial, in: .rect(cornerRadius: CornerRadius.lg))
+                .premiumSurface(elevated: true)
 
         case .unavailable:
             ContentUnavailableView {
@@ -19,10 +19,10 @@ struct MapContentOverlay: View {
                 Text("The stop catalogue could not be loaded.")
             } actions: {
                 Button("Try again", systemImage: "arrow.clockwise", action: retry)
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
+                    .buttonStyle(PremiumPrimaryButtonStyle())
             }
-            .background(.regularMaterial)
+            .padding(Spacing.md)
+            .premiumSurface(elevated: true)
 
         case .empty:
             ContentUnavailableView(
@@ -30,7 +30,8 @@ struct MapContentOverlay: View {
                 systemImage: "tram.fill",
                 description: Text("No stops are available near this location.")
             )
-            .background(.regularMaterial)
+            .padding(Spacing.md)
+            .premiumSurface(elevated: true)
 
         case .ready:
             EmptyView()

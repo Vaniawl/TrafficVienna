@@ -4,7 +4,7 @@ import XCTest
 
 @MainActor
 final class MapStationsViewModelTests: XCTestCase {
-    func testLoadedCatalogueSortsNearestStationsAndAppliesMarkerLimit() {
+    func testLoadedCatalogueSortsNearestStationsAndAppliesMarkerLimit() async {
         let store = StubStationStore(stations: sampleStations)
         let viewModel = makeViewModel(
             stationStore: store,
@@ -21,7 +21,7 @@ final class MapStationsViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.visibleStations.map(\.id), [2, 3])
     }
 
-    func testCurrentLocationReordersVisibleStations() {
+    func testCurrentLocationReordersVisibleStations() async {
         let viewModel = makeViewModel(
             stationStore: StubStationStore(stations: sampleStations)
         )
@@ -37,7 +37,7 @@ final class MapStationsViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.locationStatus, .located)
     }
 
-    func testExplicitMapCenterOverridesCurrentLocationWithoutChangingPermissionStatus() {
+    func testExplicitMapCenterOverridesCurrentLocationWithoutChangingPermissionStatus() async {
         let viewModel = makeViewModel(
             stationStore: StubStationStore(stations: sampleStations)
         )
@@ -63,7 +63,7 @@ final class MapStationsViewModelTests: XCTestCase {
         )
     }
 
-    func testSearchAreaOfferRequiresMeaningfulCameraMovement() {
+    func testSearchAreaOfferRequiresMeaningfulCameraMovement() async {
         let viewModel = makeViewModel(
             stationStore: StubStationStore(stations: sampleStations)
         )
@@ -86,7 +86,7 @@ final class MapStationsViewModelTests: XCTestCase {
         )
     }
 
-    func testNearbyMarkersAreThinnedToRemainTappable() {
+    func testNearbyMarkersAreThinnedToRemainTappable() async {
         let closelySpaced = [
             Station(id: 1, diva: 1, name: "A", lat: 48.20820, lon: 16.37380),
             Station(id: 2, diva: 2, name: "B", lat: 48.20825, lon: 16.37385),
@@ -109,7 +109,7 @@ final class MapStationsViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.visibleStations.map(\.id), [1, 3])
     }
 
-    func testLoadingCatalogueShowsLoadingState() {
+    func testLoadingCatalogueShowsLoadingState() async {
         let viewModel = makeViewModel(
             stationStore: StubStationStore(
                 stations: [],
@@ -127,7 +127,7 @@ final class MapStationsViewModelTests: XCTestCase {
         XCTAssertTrue(viewModel.visibleStations.isEmpty)
     }
 
-    func testFailedCatalogueShowsUnavailableAndRetryReloads() {
+    func testFailedCatalogueShowsUnavailableAndRetryReloads() async {
         let store = StubStationStore(
             stations: sampleStations,
             loadState: .failed,
@@ -153,7 +153,7 @@ final class MapStationsViewModelTests: XCTestCase {
         XCTAssertFalse(viewModel.visibleStations.isEmpty)
     }
 
-    func testLoadedCatalogueWithoutStationsShowsEmptyState() {
+    func testLoadedCatalogueWithoutStationsShowsEmptyState() async {
         let viewModel = makeViewModel(
             stationStore: StubStationStore(stations: [])
         )
@@ -167,7 +167,7 @@ final class MapStationsViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.contentState, .empty)
     }
 
-    func testLocationPermissionStatesAreExplicit() {
+    func testLocationPermissionStatesAreExplicit() async {
         let viewModel = makeViewModel(
             stationStore: StubStationStore(stations: sampleStations)
         )

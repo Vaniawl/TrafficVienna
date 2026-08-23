@@ -24,18 +24,12 @@ alerts, favourites, widgets, and Live Activities in one privacy-conscious app.
 ## Build and test
 
 ```sh
-xcodebuild \
-  -scheme TrafficVienna \
-  -project TrafficVienna.xcodeproj \
-  -destination 'platform=iOS Simulator,name=iPhone 17' \
-  build
-
-xcodebuild \
-  -scheme TrafficVienna \
-  -project TrafficVienna.xcodeproj \
-  -destination 'platform=iOS Simulator,name=iPhone 17' \
-  test
+bash scripts/build.sh
+bash scripts/test.sh
 ```
+
+The scripts validate repository/OpenCode contracts and resolve an exact available
+`iPhone 17` UUID, avoiding ambiguous name-only destinations.
 
 The app reads the bundled Wiener Linien station catalogue and fetches live
 departure and disruption data from the official Wiener Linien realtime API.
