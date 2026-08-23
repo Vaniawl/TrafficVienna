@@ -13,9 +13,7 @@ final class TrafficViennaAdaptiveLayoutTests: TrafficViennaUITestCase {
         attachScreenshot(named: "adaptive-search")
 
         let searchField = app.searchFields.firstMatch
-        XCTAssertTrue(searchField.waitForExistence(timeout: 10))
-        searchField.tap()
-        searchField.typeText("Stephansplatz")
+        focusAndType("Stephansplatz", into: searchField)
         waitForIdentifier("station-row-1085621741").tap()
 
         waitForIdentifier("station-detail-screen", timeout: 20)

@@ -123,6 +123,43 @@ class TrafficViennaUITestCase: XCTestCase {
         )
     }
 
+    func focusAndType(
+        _ text: String,
+        into element: XCUIElement,
+        timeout: TimeInterval = 10,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        XCTAssertTrue(
+            element.waitForExistence(timeout: timeout),
+            "Expected text input before typing",
+            file: file,
+            line: line
+        )
+
+        let focusPredicate = NSPredicate(format: "hasKeyboardFocus == true")
+        for _ in 0..<3 {
+            element.coordinate(
+                withNormalizedOffset: CGVector(dx: 0.75, dy: 0.5)
+            ).tap()
+
+            let focusExpectation = XCTNSPredicateExpectation(
+                predicate: focusPredicate,
+                object: element
+            )
+            if XCTWaiter.wait(for: [focusExpectation], timeout: 2) == .completed {
+                element.typeText(text)
+                return
+            }
+        }
+
+        XCTFail(
+            "Text input did not receive keyboard focus",
+            file: file,
+            line: line
+        )
+    }
+
     func waitForIdentifierToDisappear(
         _ identifier: String,
         timeout: TimeInterval = 30,

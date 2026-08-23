@@ -26,9 +26,7 @@ final class TrafficViennaAppStoreScreenshotTests: TrafficViennaUITestCase {
         selectTab(1, expecting: "search-screen")
 
         let searchField = app.searchFields.firstMatch
-        XCTAssertTrue(searchField.waitForExistence(timeout: 10))
-        searchField.tap()
-        searchField.typeText("Stephansplatz")
+        focusAndType("Stephansplatz", into: searchField)
 
         let result = waitForIdentifier("station-row-1085621741")
         result.tap()

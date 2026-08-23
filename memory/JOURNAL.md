@@ -1,5 +1,20 @@
 # Journal
 
+## 2026-08-23 — Hardened hosted search-field focus
+
+- GitHub Quality run `32640360459` reproduced a hosted-only UI failure after the
+  search field accepted a tap but never acquired keyboard focus; XCTest then
+  exhausted all three `typeText` event retries. The 117 unit/integration tests
+  and onboarding smoke journey had passed before this focused failure.
+- Added one shared UI-test input path that targets the editable part of the
+  system search field, verifies real keyboard focus, and retries the focus
+  gesture before typing. Smoke, accessibility, adaptive-layout, and localized
+  screenshot journeys now use the same guarded interaction.
+- The previously failing route passed once in isolation and then 3/3 repeated
+  iterations on Xcode 26.6. A complete `scripts/ci.sh` run subsequently passed
+  all validators, build steps, 117 unit/integration tests, and both UI smoke
+  journeys (119/119 total).
+
 ## 2026-08-23 — Completed the independent UI/UX and release-hardening pass
 
 - Ran three independent audits covering SwiftUI/UI/UX, state and CI wiring, and
