@@ -26,8 +26,8 @@ files.
 
 ## Preservation
 
-The staged baseline is recorded at
-`/private/tmp/apple-template-adoption-20260913/baseline.json`. A preservation verifier
-compares every pre-existing file and permits changes only to the explicit integration
-paths. Product Swift, tests, Xcode project data, resources, entitlements, and signing files
-must remain byte-identical.
+The framework was installed on 2026-09-13 in commit `e6eade9a` on top of product
+commit `d7d44d5e31e0ed2bd0aaf5e9d26e8eab40bea7d3`. The installed Git tree matches the independently reviewed staging tree.
+A pre-install working-tree hash comparison found no unexpected changes to pre-existing
+files. Recall's existing uncommitted product work, when present, stays outside this adoption
+commit. See `docs/agent-framework-installation.md` for current validation and publication.

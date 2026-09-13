@@ -1,5 +1,12 @@
 # Journal
 
+## 2026-09-13 — Shared Apple agent framework installed
+
+- Installed the reviewed 19-role framework in a focused `codex/apple-agent-template` branch, stacked on the existing system-surfaces-readiness work. The fetched current main is already its ancestor; the existing product branch and draft PR remain intact.
+- Preserved native OpenCode models, agents and sequential workflow; added the framework orchestrator as af-orchestrator and two missing deny patterns.
+- Repository validation and 37 portable framework tests pass (one GNU timeout skip). A fresh preservation check found no unexpected changes across 248 non-cache baseline files. Product code, Xcode and signing are unchanged.
+- Native verification and draft-PR publication are tracked in docs/agent-framework-installation.md. Existing tracked node_modules E18 debt remains a Candidate.
+
 ## 2026-08-03 - Empty Station Detail snapshots remain truthful
 
 - Reproduced two Station Detail state defects with regression-first coverage. A
