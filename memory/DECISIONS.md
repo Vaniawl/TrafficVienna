@@ -1,5 +1,9 @@
 # Architectural Decisions
 
+## 2026-09-13 — Preserve the project OpenCode engine during framework adoption
+
+Install the shared canonical roles alongside the existing OpenCode workflow, with project-owned configuration and the af-orchestrator alias. Existing models, permissions, product architecture and current system-surfaces branch remain unchanged. This is a continuation on the current branch lineage after verifying it contains fetched main; handoff uses a stacked draft PR to keep this tooling diff isolated. See docs/adr/0001-agent-framework-adoption.md for the adapter and rollback contract.
+
 ## 2026-08-03 — App departures expire from their source snapshot
 
 **Context:** The app projected parseable departure timestamps with a nonnegative

@@ -1,0 +1,25 @@
+project:
+  name: "TrafficVienna"
+  slug: "traffic-vienna"
+  description: "A native SwiftUI app for Vienna public transport departures, disruptions, saved routes, widgets, and Live Activities."
+  owner: "TrafficVienna project owner"
+  status: active
+technology:
+  language: "Swift 6"
+  runtime: "iOS / Xcode 26+"
+  build_command: "./scripts/build.sh"
+  test_command: "./scripts/test.sh"
+agent_framework:
+  skills:
+    - architecture-review
+    - feature-slice
+    - resource-safety
+    - security-review
+    - ui-ux-review
+    - ios-development
+    - ios-testing
+    - ios-quality
+  opencode:
+    preserve_project_config: true
+    role_aliases:
+      orchestrator: af-orchestrator
