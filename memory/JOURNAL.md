@@ -4,8 +4,10 @@
 
 - Installed the reviewed 19-role framework in a focused `codex/apple-agent-template` branch, stacked on the existing system-surfaces-readiness work. The fetched current main is already its ancestor; the existing product branch and draft PR remain intact.
 - Preserved native OpenCode models, agents and sequential workflow; added the framework orchestrator as af-orchestrator and two missing deny patterns.
-- Repository validation and 37 portable framework tests pass (one GNU timeout skip). A fresh preservation check found no unexpected changes across 248 non-cache baseline files. Product code, Xcode and signing are unchanged.
+- Repository validation and 45 portable framework tests pass (one GNU timeout skip). A fresh preservation check found no unexpected changes across 248 non-cache baseline files. Product code, Xcode and signing are unchanged.
 - iOS build and 217/217 native tests pass, as do isolated OpenCode permission/reliability checks. Draft PR #17 is published; installation evidence is in docs/agent-framework-installation.md. The hosted scanner now distinguishes Git-ignored runtime dependency caches from tracked/unignored provider files, with regression coverage; existing tracked node_modules E18 debt remains separate.
+
+- Hosted Quality run 34766985572 passed on exact code 053ad29f, including actual native build/XCTest and framework/OpenCode gates. The final documentation-only completion records this tested SHA separately and marks the approved adoption complete.
 
 ## 2026-08-03 - Empty Station Detail snapshots remain truthful
 

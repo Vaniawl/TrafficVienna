@@ -2,11 +2,11 @@
 
 ## Now — Agent framework adoption (approved 2026-09-13)
 
-- [ ] Install the canonical 19-role framework and iOS skills without changing application
+- [x] Install the canonical 19-role framework and iOS skills without changing application
       code, product scope, or the established OpenCode workflow.
-- [ ] Preserve existing OpenCode models, permissions, commands, sequential delegation, and
+- [x] Preserve existing OpenCode models, permissions, commands, sequential delegation, and
       validators through an explicit non-conflicting adapter.
-- [ ] Add framework validation and record provenance, rollback, path scope, and baseline
+- [x] Add framework validation and record provenance, rollback, path scope, and baseline
       preservation evidence.
 
 
