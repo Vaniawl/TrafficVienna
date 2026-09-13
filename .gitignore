@@ -29,3 +29,15 @@ fastlane/screenshots
 
 # IDE
 .idea/
+
+# Agent framework development tools
+.venv/
+__pycache__/
+*.py[cod]
+agent-framework/evals/results.local.json
+
+# Agent framework local state
+agent-framework/runs/
+.claude/settings.local.json
+.env
+.kimi-code/local.toml

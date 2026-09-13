@@ -1,5 +1,15 @@
 # Backlog
 
+## Now — Agent framework adoption (approved 2026-09-13)
+
+- [ ] Install the canonical 19-role framework and iOS skills without changing application
+      code, product scope, or the established OpenCode workflow.
+- [ ] Preserve existing OpenCode models, permissions, commands, sequential delegation, and
+      validators through an explicit non-conflicting adapter.
+- [ ] Add framework validation and record provenance, rollback, path scope, and baseline
+      preservation evidence.
+
+
 ## Requirement coverage
 
 - [x] **REQ-TV-001 — Core journeys.** The four-tab shell, Discover search/map,
@@ -206,3 +216,8 @@
 
 These external items gate App Store submission, not completion of the local audit
 or draft-PR handoff.
+
+## Candidates
+
+- [ ] Stop tracking `node_modules/` and reinstall from the lockfile so security eval E18 can reject sensitive-looking dependency fixtures without a baseline exception.
+Unapproved ideas and findings remain here until the product owner selects them for active scope.
