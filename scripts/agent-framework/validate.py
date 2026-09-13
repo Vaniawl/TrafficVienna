@@ -10,6 +10,9 @@ Exit 0 = valid (warnings allowed). Exit 1 = violations. Dependency: PyYAML.
 from __future__ import annotations
 
 import json
+import os
+import subprocess
+import tempfile
 import re
 import sys
 import tomllib
@@ -583,23 +586,84 @@ def check_schemas():
             err(f"{p.relative_to(REPO_ROOT)}: invalid JSON: {e}")
 
 
+def _visible_dependency_files(roots: list[Path]) -> list[Path] | None:
+    """Git authorizes cache exclusion only in this exact worktree; failures scan all.
+
+    One bounded Git listing covers all dependency roots. Ignored trees are pruned by
+    Git, but tracked files remain listed even when an ignore rule also matches them.
+    File-backed output avoids capturing an arbitrarily large index in memory.
+    """
+    try:
+        top = subprocess.run(
+            ["git", "-C", str(REPO_ROOT), "rev-parse", "--show-toplevel"],
+            stdin=subprocess.DEVNULL, capture_output=True, timeout=10, check=True,
+        ).stdout.decode().strip()
+        if Path(top).resolve() != REPO_ROOT.resolve():
+            return None
+        with tempfile.TemporaryFile() as output:
+            subprocess.run(
+                ["git", "-C", str(REPO_ROOT), "ls-files", "--cached", "--others",
+                 "--exclude-standard", "-z", "--",
+                 *(str(p.relative_to(REPO_ROOT)) for p in roots)],
+                stdin=subprocess.DEVNULL, stdout=output, stderr=subprocess.DEVNULL,
+                timeout=10, check=True,
+            )
+            if output.tell() > 8 * 1024 * 1024:
+                return None
+            output.seek(0)
+            names = output.read().split(b"\0")
+        files = []
+        for name in names:
+            if not name:
+                continue
+            relative = Path(os.fsdecode(name))
+            candidate = REPO_ROOT / relative
+            if relative.is_absolute() or ".." in relative.parts:
+                return None
+            if not any(candidate.is_relative_to(root) for root in roots):
+                return None
+            # Nested repositories and tracked gitlinks may be emitted as one directory.
+            # Their contents are not enumerated: preserve the complete old scan.
+            if candidate.is_dir():
+                return None
+            files.append(candidate)
+        return files
+    except (OSError, UnicodeError, subprocess.SubprocessError):
+        return None
+
+
+def _secret_scan_files(roots: list[Path]):
+    dependencies = []
+    for root in roots:
+        if not root.exists():
+            continue
+        for directory, dirs, files in os.walk(root, followlinks=False):
+            if "node_modules" in dirs and not (Path(directory) / "node_modules").is_symlink():
+                dependencies.append(Path(directory) / "node_modules")
+                dirs.remove("node_modules")
+            for name in files:
+                yield Path(directory) / name
+    if dependencies:
+        visible = _visible_dependency_files(dependencies)
+        if visible is None:
+            # Archives, unavailable Git and failed inspection retain the old scan.
+            for root in dependencies:
+                yield from root.rglob("*")
+        else:
+            yield from visible
+
+
 def check_secrets():
     scan_roots = [FRAMEWORK_DIR, REPO_ROOT / ".claude", REPO_ROOT / ".codex", REPO_ROOT / ".kimi-code",
                   REPO_ROOT / ".opencode", REPO_ROOT / ".agents", REPO_ROOT / ".aiassistant"]
-    for root in scan_roots:
-        if not root.exists():
+    for f in _secret_scan_files(scan_roots):
+        if not f.is_file() or f.suffix in {".png", ".jpg", ".svg"} or "runs" in f.parts:
             continue
-        for f in root.rglob("*"):
-            if not f.is_file() or f.suffix in {".png", ".jpg", ".svg"} or "runs" in f.parts:
-                continue
-            try:
-                text = f.read_text(encoding="utf-8", errors="ignore")
-            except OSError:
-                continue
-            for pat in SECRET_PATTERNS:
-                if pat.search(text):
-                    err(f"possible secret in {f.relative_to(REPO_ROOT)} (pattern: {pat.pattern[:40]}...)")
-                    break
+        text = f.read_text(encoding="utf-8", errors="ignore")
+        for pat in SECRET_PATTERNS:
+            if pat.search(text):
+                err(f"possible secret in {f.relative_to(REPO_ROOT)} (pattern: {pat.pattern[:40]}...)")
+                break
 
 
 def main() -> int:

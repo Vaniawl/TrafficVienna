@@ -2,6 +2,9 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
+import subprocess
+from unittest import mock
 import json
 import shutil
 import sys
@@ -119,3 +122,85 @@ class ProjectOpenCodeTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class DependencyCacheSecretTests(unittest.TestCase):
+    """Only Git-ignored, untracked dependency fixtures leave the hygiene scan."""
+
+    def setUp(self):
+        self.tmp = scratch_dir()
+        self.repo = self.tmp / "repo"
+        self.repo.mkdir()
+        subprocess.run(["git", "init", str(self.repo)], check=True, capture_output=True)
+        script = Path(__file__).resolve().parents[2] / "scripts/agent-framework/validate.py"
+        spec = importlib.util.spec_from_file_location("cache_secret_validator", script)
+        self.validator = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.validator)
+        self.validator.REPO_ROOT = self.repo
+        self.validator.FRAMEWORK_DIR = self.repo / "agent-framework"
+        self.secret = "token = " + "a" * 24
+        (self.repo / ".gitignore").write_text("node_modules/\n")
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def secret_file(self, relative):
+        path = self.repo / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(self.secret)
+        return path
+
+    def scan(self):
+        self.validator.ERRORS.clear()
+        self.validator.check_secrets()
+        return self.validator.ERRORS
+
+    def test_ignored_dependency_fixture_is_excluded(self):
+        self.secret_file(".opencode/node_modules/vendor/example.js")
+        self.assertEqual(self.scan(), [])
+
+    def test_tracked_dependency_secret_is_still_detected(self):
+        path = self.secret_file(".opencode/node_modules/vendor/tracked.js")
+        subprocess.run(["git", "-C", str(self.repo), "add", "-f", str(path)], check=True)
+        self.secret_file(".opencode/node_modules/vendor/ignored.js")
+        findings = self.scan()
+        self.assertEqual(len(findings), 1, findings)
+        self.assertIn("tracked.js", findings[0])
+
+    def test_unignored_dependency_secret_is_still_detected(self):
+        (self.repo / ".gitignore").write_text("")
+        self.secret_file(".opencode/node_modules/vendor/unignored.js")
+        self.assertIn("unignored.js", self.scan()[0])
+
+    def test_ignored_normal_provider_secret_is_still_detected(self):
+        with (self.repo / ".gitignore").open("a") as out:
+            out.write(".opencode/local.json\n")
+        self.secret_file(".opencode/local.json")
+        self.assertIn("local.json", self.scan()[0])
+
+    def test_git_failure_does_not_authorize_exclusion(self):
+        self.secret_file(".opencode/node_modules/vendor/example.js")
+        with mock.patch.object(self.validator.subprocess, "run", side_effect=OSError("unavailable")):
+            self.assertIn("example.js", self.scan()[0])
+
+    def test_parent_repository_does_not_authorize_exclusion(self):
+        self.secret_file(".opencode/node_modules/vendor/example.js")
+        result = subprocess.CompletedProcess([], 0, stdout=str(self.tmp).encode())
+        with mock.patch.object(self.validator.subprocess, "run", return_value=result):
+            self.assertIn("example.js", self.scan()[0])
+
+
+    def test_unignored_nested_repository_is_scanned(self):
+        (self.repo / ".gitignore").write_text("")
+        nested = self.repo / ".opencode/node_modules/local-package"
+        nested.mkdir(parents=True)
+        subprocess.run(["git", "init", str(nested)], check=True, capture_output=True)
+        self.secret_file(".opencode/node_modules/local-package/fixture.txt")
+        self.assertTrue(any("fixture.txt" in result for result in self.scan()))
+
+    def test_tracked_gitlink_contents_are_scanned(self):
+        relative = ".opencode/node_modules/local-package"
+        self.secret_file(relative + "/fixture.txt")
+        subprocess.run(["git", "-C", str(self.repo), "update-index", "--add", "--cacheinfo",
+                        "160000", "1" * 40, relative], check=True, capture_output=True)
+        self.assertTrue(any("fixture.txt" in result for result in self.scan()))
