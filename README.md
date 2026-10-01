@@ -42,3 +42,8 @@ departure and disruption data from the official Wiener Linien realtime API.
 Location remains in memory and the app does not require an account. See the
 [privacy policy](PRIVACY.md), [App Store readiness evidence](docs/release/app-store-readiness.md),
 and [TestFlight smoke checklist](docs/release/testflight-smoke-checklist.md).
+
+## Apple-команда
+
+Відкрий репозиторій у Codex і звертайся до координатора звичайною мовою.
+[Як працювати з командою](docs/operations/apple-team.md).

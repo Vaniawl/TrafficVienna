@@ -1,5 +1,50 @@
 # Journal
 
+## 2026-10-01 — Provider methods and Markdown resource corrections
+
+- Guarded framework update repairs installed skill links and exposes relevant methods to
+  provider roles. Coordinator remains direct by default; specialists join only when needed.
+- Application/CI and custom OpenCode restrictions are preserved. Source evidence and payload
+  are recorded in the installation report; Claude runtime is unavailable without login.
+- Independent source review and local checks pass. Draft delivery has no merge or release.
+
+## 2026-10-01 — Agents invoked only when needed
+
+- Coordinator now handles scoped advice/implementation directly; zero workers is valid.
+  Specialists require a concrete need, and consequential changes retain independent review.
+- Updated shared tooling and daily instructions through the guarded installer. Application,
+  CI and custom OpenCode policy are preserved; payload/proof are in the installation report.
+- Source live routine edit completed without workers. Broader runtime/native acceptance is
+  unverified; seven existing drafts stay drafts, with no merge or release.
+
+## 2026-10-01 — Apple-team instruction audit corrections
+
+- Updated only the shared framework, generated agents/skills and scoped evidence.
+  Short conditional reads retain the full Apple standard; tools and routing have
+  independent regression checks. Payload revision is recorded in the installation
+  report and manifest.
+- Native application/widget code, CI, custom OpenCode configuration and methods
+  remain unchanged. Named discovery/complete UX parent delivery remain unverified;
+  no global installation, merge or release was performed.
+
+## 2026-10-01 — Apple-team foundation adoption
+
+- Added the Codex coordinator entrypoint, inherited-model named role profiles,
+  eight product/design/marketing methods and advise/execute contracts. Advice
+  leaves tracked product files untouched; execute remains bounded to the request.
+- Preserved application/Xcode/widget code, existing CI/build scripts and exact
+  OpenCode models, allowlists and custom agents. Added only an explicit
+  `git push -f*` deny in the project config and native coordinator, matching
+  the existing force-push prohibition. Five colliding handwritten methods moved to
+  `traffic-*` skill IDs; only their discovery name changes. Canonical methods
+  occupy the common IDs; custom native OpenCode allowlists and approvals remain unchanged.
+- Foundation source is pinned by `agent-framework/.framework-payload.json`.
+  Local structural checks and baseline ownership proof are recorded in
+  `docs/operations/apple-team-installation.md`. Native new-role routing, UI and
+  accessibility checks are NOT RUN for this configuration-only change.
+- Delivery remains a focused `codex/*` branch and draft PR. Merge, ready-for-review,
+  release and production actions still require explicit approval.
+
 ## 2026-07-29 — Protected App Store release integration
 
 - Merged release-readiness PR #10 into the stacked product branch, waited for
