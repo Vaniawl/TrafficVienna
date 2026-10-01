@@ -1,5 +1,14 @@
 # Journal
 
+## 2026-10-01 — Agents invoked only when needed
+
+- Coordinator now handles scoped advice/implementation directly; zero workers is valid.
+  Specialists require a concrete need, and consequential changes retain independent review.
+- Updated shared tooling and daily instructions through the guarded installer. Application,
+  CI and custom OpenCode policy are preserved; payload/proof are in the installation report.
+- Source live routine edit completed without workers. Broader runtime/native acceptance is
+  unverified; seven existing drafts stay drafts, with no merge or release.
+
 ## 2026-10-01 — Apple-team instruction audit corrections
 
 - Updated only the shared framework, generated agents/skills and scoped evidence.

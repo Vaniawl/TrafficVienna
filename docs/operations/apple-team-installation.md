@@ -1,5 +1,19 @@
 # Apple-team installation evidence
 
+## Current update — on-demand agents (2026-10-01)
+
+Payload: `0c71336b69dd1e3cb04bb3f2be01056b0fd537c9` from Vaniawl/ios-starter. The coordinator works directly by
+default; zero workers is valid. Specialists join for concrete expertise, useful independent
+work, risk-required independent review or explicit delegation. Significant/risky changes retain
+independent review; author self-checks do not count. Read-only roles and external approvals remain.
+Guarded preview/install: PASS; framework validation/drift and unchanged reinstall are checked
+for this payload before handoff. Native/CI bytes remain identical to the prior baseline.
+The source suite passes 258 framework tests (six skips), 45 bootstrap tests and 34 deterministic
+evals. The isolated live README case completed with zero spawn attempts; this does not establish
+all product/runtime routes. Current-head hosted CI is tracked separately; earlier evidence below
+is historical. [Source evidence](https://github.com/Vaniawl/ios-starter/blob/0c71336b69dd1e3cb04bb3f2be01056b0fd537c9/docs/operations/apple-team-on-demand.md).
+
+
 Date: 2026-10-01. Target: `Vaniawl/TrafficVienna`.
 
 - Product base revision: `bba8f7e6e463f2a7305c9c7f787d7ab0779a5413`.
