@@ -1,5 +1,15 @@
 # Journal
 
+## 2026-10-01 — Apple-team instruction audit corrections
+
+- Updated only the shared framework, generated agents/skills and scoped evidence.
+  Short conditional reads retain the full Apple standard; tools and routing have
+  independent regression checks. Payload revision is recorded in the installation
+  report and manifest.
+- Native application/widget code, CI, custom OpenCode configuration and methods
+  remain unchanged. Named discovery/complete UX parent delivery remain unverified;
+  no global installation, merge or release was performed.
+
 ## 2026-10-01 — Apple-team foundation adoption
 
 - Added the Codex coordinator entrypoint, inherited-model named role profiles,
