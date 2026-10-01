@@ -1,5 +1,23 @@
 # Journal
 
+## 2026-10-01 — Apple-team foundation adoption
+
+- Added the Codex coordinator entrypoint, inherited-model named role profiles,
+  eight product/design/marketing methods and advise/execute contracts. Advice
+  leaves tracked product files untouched; execute remains bounded to the request.
+- Preserved application/Xcode/widget code, existing CI/build scripts and exact
+  OpenCode models, allowlists and custom agents. Added only an explicit
+  `git push -f*` deny in the project config and native coordinator, matching
+  the existing force-push prohibition. Five colliding handwritten methods moved to
+  `traffic-*` skill IDs; only their discovery name changes. Canonical methods
+  occupy the common IDs; custom native OpenCode allowlists and approvals remain unchanged.
+- Foundation source is pinned by `agent-framework/.framework-payload.json`.
+  Local structural checks and baseline ownership proof are recorded in
+  `docs/operations/apple-team-installation.md`. Native new-role routing, UI and
+  accessibility checks are NOT RUN for this configuration-only change.
+- Delivery remains a focused `codex/*` branch and draft PR. Merge, ready-for-review,
+  release and production actions still require explicit approval.
+
 ## 2026-07-29 — Protected App Store release integration
 
 - Merged release-readiness PR #10 into the stacked product branch, waited for

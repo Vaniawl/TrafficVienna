@@ -29,3 +29,10 @@ fastlane/screenshots
 
 # IDE
 .idea/
+
+# agent framework
+agent-framework/runs/
+.claude/settings.local.json
+.kimi-code/local.toml
+.env
+*.bak-pre-framework

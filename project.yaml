@@ -1,0 +1,27 @@
+agent_framework:
+  skills:
+  - apple-team
+  - product-discovery
+  - market-validation
+  - apple-experience-design
+  - product-copy
+  - product-positioning
+  - app-store-marketing
+  - product-measurement
+  - architecture-review
+  - feature-slice
+  - resource-safety
+  - security-review
+  - ui-ux-review
+  - debug-systematically
+  - release-readiness
+  - ios-development
+  - ios-testing
+  - ios-quality
+  team:
+    default_mode: advise
+    max_parallel_workers: 3
+  opencode:
+    preserve_project_config: true
+    role_aliases:
+      orchestrator: apple-team-orchestrator

@@ -99,6 +99,7 @@ permission:
     "git push -u origin main": deny
     "git push -u origin master": deny
     "git push --force*": deny
+    "git push -f*": deny
     "git push --mirror*": deny
     "git reset --hard*": deny
     "git rebase *": deny
