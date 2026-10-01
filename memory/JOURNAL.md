@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-10-01 — Provider methods and Markdown resource corrections
+
+- Guarded framework update repairs installed skill links and exposes relevant methods to
+  provider roles. Coordinator remains direct by default; specialists join only when needed.
+- Application/CI and custom OpenCode restrictions are preserved. Source evidence and payload
+  are recorded in the installation report; Claude runtime is unavailable without login.
+- Independent source review and local checks pass. Draft delivery has no merge or release.
+
 ## 2026-10-01 — Agents invoked only when needed
 
 - Coordinator now handles scoped advice/implementation directly; zero workers is valid.
