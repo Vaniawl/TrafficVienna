@@ -1,5 +1,14 @@
 # Journal
 
+## 2026-10-14 — ICM foundation and project context rollout
+
+- Owner requested current template/ICM adoption across all Apple apps. Updated only shared
+  framework/provider outputs and scoped context/task artifacts in an isolated main-based branch.
+- Preserve native app/widget, product documents, CI and custom OpenCode gates. Numbered
+  task stages now use editable handoffs and backward-input validation.
+- Validation/review evidence is in docs/tasks/ICM-GITHUB-01/. Delivery remains a codex/*
+  branch and draft PR; protected main/required CI and explicit merge approval are unchanged.
+
 ## 2026-10-01 — Provider methods and Markdown resource corrections
 
 - Guarded framework update repairs installed skill links and exposes relevant methods to
